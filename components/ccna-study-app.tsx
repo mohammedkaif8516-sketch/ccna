@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { topics, type NoteBlock, type Subtopic, type Topic } from '@/lib/topics'
-import { Brackets, Cable, Check, ChevronRight, Layers3, Menu, Moon, Network, PanelLeft, Router, Search, Sun } from 'lucide-react'
+import { Brackets, Cable, Check, ChevronRight, Layers3, Menu, Moon, Network, PanelLeft, Router, Search, Sun, ArrowLeft } from 'lucide-react'
 
 const iconMap = { network: Network, layers: Layers3, cable: Cable, router: Router, brackets: Brackets }
 
@@ -30,24 +30,24 @@ function Sidebar({ selected, onSelect, mobile = false }: { selected?: string; on
                     <span className="truncate">{topic.title}</span>
                   </span>
                 </AccordionTrigger>
-                <AccordionContent className="pb-1 pt-0">
-                  <div className="ml-5 border-l pl-3">
-                    {topic.subtopics.map((subtopic) => (
-                      <button
-                        key={subtopic.slug}
-                        onClick={() => onSelect(topic, subtopic)}
-                        className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
-                          selected === subtopic.slug
-                            ? 'bg-primary/10 font-medium text-primary'
-                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                        }`}
-                      >
-                        <ChevronRight className={`mt-0.5 size-3 shrink-0 ${selected === subtopic.slug ? 'text-primary' : 'opacity-50'}`} />
-                        {subtopic.title}
-                      </button>
-                    ))}
-                  </div>
-                </AccordionContent>
+              <AccordionContent className="pb-1 pt-0">
+                <div className="ml-5 border-l pl-3">
+                  {topic.subtopics.map((subtopic, index) => (
+                    <button
+                      key={`${subtopic.slug}-${index}`}
+                      onClick={() => onSelect(topic, subtopic)}
+                      className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
+                        selected === subtopic.slug
+                          ? 'bg-primary/10 font-medium text-primary'
+                          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                      }`}
+                    >
+                      <ChevronRight className={`mt-0.5 size-3 shrink-0 ${selected === subtopic.slug ? 'text-primary' : 'opacity-50'}`} />
+                      {subtopic.title}
+                    </button>
+                  ))}
+                </div>
+              </AccordionContent>
               </AccordionItem>
             )
           })}
@@ -226,44 +226,21 @@ function SubnetCalculator() {
   )
 }
 
-function Dashboard({ onSelect }: { onSelect: (topic: Topic, subtopic: Subtopic) => void }) {
+function Dashboard() {
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10 lg:px-10">
-      <div className="max-w-2xl">
-        <Badge variant="outline" className="mb-4">CCNA · Study guide</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Build your networking foundation.</h1>
+    <div className="flex h-[calc(100vh-4rem)] w-full flex-col items-center justify-center bg-background px-6">
+      <div className="flex flex-col items-center text-center max-w-md">
+        {/* Big Left Arrow */}
+        <div className="mb-8 text-primary animate-pulse">
+          <ArrowLeft className="size-20" strokeWidth={1.5} />
+        </div>
+        
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Start from the sidebar
+        </h1>
         <p className="mt-4 text-base leading-7 text-muted-foreground">
-          A focused reference for the concepts, vocabulary, and calculations behind the CCNA. Pick a topic to start a study session.
+          Pick any topic on the left to open it here. Your study session will load in this space.
         </p>
-      </div>
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
-        {topics.map((topic) => {
-          const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network
-          return (
-            <Card
-              key={topic.slug}
-              className="group cursor-pointer transition-colors hover:border-primary/40"
-              onClick={() => onSelect(topic, topic.subtopics[0])}
-            >
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <Icon className="size-5" />
-                  </div>
-                  <span className="font-mono text-xs text-muted-foreground">{topic.number}</span>
-                </div>
-                <CardTitle className="pt-2 text-base">{topic.title}</CardTitle>
-                <CardDescription className="leading-6">{topic.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{topic.subtopics.length} subtopics</span>
-                  <ChevronRight className="size-4 transition-transform group-hover:translate-x-1" />
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
       </div>
     </div>
   )
@@ -321,19 +298,15 @@ export default function CcnaStudyApp() {
               )}
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <div className="relative hidden w-56 md:block">
-                <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-                <Input aria-label="Search notes" placeholder="Search notes..." className="h-9 bg-muted/40 pl-9 text-xs" />
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-                onClick={() => setDark(!dark)}
-              >
-                {dark ? <Sun /> : <Moon />}
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+              onClick={() => setDark(!dark)}
+            >
+              {dark ? <Sun /> : <Moon />}
+            </Button>
+          </div>
           </header>
           <main>
             {current ? (
