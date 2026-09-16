@@ -57,6 +57,329 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 
+// ─────────────────────────────────────────────────────────────
+// Helper: convert dotted IP to 32-bit uint and back
+// ─────────────────────────────────────────────────────────────
+ 
+
+function ipToInt(ip: string): number | null {
+  const parts = ip.trim().split('.')
+  if (parts.length !== 4) return null
+  const nums = parts.map((p) => Number(p))
+  if (nums.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null
+  return nums.reduce((acc, n) => (acc * 256 + n) >>> 0, 0)
+}
+
+function intToIp(n: number): string {
+  return [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.')
+}
+
+function prefixForHosts(hosts: number): number {
+  let needed = 1
+  while (needed < hosts + 2) needed *= 2
+  return 32 - Math.log2(needed)
+}
+
+type Block = {
+  label: string
+  requested: number
+  prefix: number
+  blockSize: number
+  network: number
+  broadcast: number
+  firstHost: number
+  lastHost: number
+  usable: number
+  waste: number
+}
+
+export function SubnetPlanner() {
+  const [baseIp, setBaseIp] = useState('192.168.10.0')
+  const [baseCidr, setBaseCidr] = useState('24')
+  const [needsText, setNeedsText] = useState('35, 40, 50, 45')
+  const [mode, setMode] = useState<'vlsm' | 'flsm'>('vlsm')
+
+  const result = useMemo(() => {
+    const baseInt = ipToInt(baseIp)
+    const basePrefix = Number(baseCidr)
+    if (baseInt === null) return { error: 'Enter a valid base IPv4 address.' }
+    if (!Number.isInteger(basePrefix) || basePrefix < 0 || basePrefix > 32)
+      return { error: 'CIDR must be a whole number from 0 to 32.' }
+
+    const needs = needsText
+      .split(/[\s,]+/)
+      .map((x) => Number(x))
+      .filter((x) => x > 0)
+    if (needs.length === 0) return { error: 'Enter at least one host requirement.' }
+    if (needs.some((n) => !Number.isInteger(n)))
+      return { error: 'Host requirements must be whole numbers.' }
+
+    const baseMask = basePrefix === 0 ? 0 : (0xffffffff << (32 - basePrefix)) >>> 0
+    const parentNetwork = (baseInt & baseMask) >>> 0
+    const parentSize = 2 ** (32 - basePrefix)
+
+    // Sort largest-first for both modes
+    const sorted = [...needs].sort((a, b) => b - a)
+
+    // FLSM: everyone gets the prefix the LARGEST requirement needs
+    const uniformPrefix =
+      mode === 'flsm' ? prefixForHosts(sorted[0]) : null
+
+    const blocks: Block[] = []
+    let cursor = parentNetwork
+    const parentEnd = parentNetwork + parentSize - 1
+
+    for (let i = 0; i < sorted.length; i++) {
+      const requested = sorted[i]
+      const prefix = mode === 'flsm' ? uniformPrefix! : prefixForHosts(requested)
+
+      if (prefix < basePrefix) {
+        return {
+          error: `Block ${i + 1} needs ${requested} hosts, which is larger than the /${basePrefix} parent network.`,
+        }
+      }
+      const blockSize = 2 ** (32 - prefix)
+      const aligned = Math.ceil(cursor / blockSize) * blockSize
+      const network = aligned
+      const broadcast = network + blockSize - 1
+      if (broadcast > parentEnd) {
+        return { error: 'Not enough space in the parent network for all requirements.' }
+      }
+      const usable = prefix >= 31 ? (prefix === 32 ? 1 : 2) : blockSize - 2
+      blocks.push({
+        label: `N${i + 1}`,
+        requested,
+        prefix,
+        blockSize,
+        network,
+        broadcast,
+        firstHost: prefix >= 31 ? network : network + 1,
+        lastHost: prefix >= 31 ? broadcast : broadcast - 1,
+        usable,
+        waste: usable - requested,
+      })
+      cursor = broadcast + 1
+    }
+
+    const used = cursor - parentNetwork
+    const free = parentSize - used
+
+    return {
+      error: '',
+      basePrefix,
+      parentNetwork,
+      parentSize,
+      blocks,
+      used,
+      free,
+      uniformPrefix,
+    }
+  }, [baseIp, baseCidr, needsText, mode])
+
+  const colors = [
+    '#1971c2', '#2f9e44', '#e8590c', '#862e9c',
+    '#c92a2a', '#0c8599', '#f08c00', '#5f3dc4',
+  ]
+
+  return (
+    <Card className="mt-8 border-primary/20 bg-primary/[0.02]">
+      <CardHeader>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-base">Subnet planner</CardTitle>
+            <CardDescription className="mt-1">
+              Enter a base network and how many PCs each subnet needs.
+            </CardDescription>
+          </div>
+          <Badge variant="secondary">Interactive</Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {/* FLSM / VLSM mode switch */}
+        <div className="mb-5 inline-flex rounded-lg border bg-background p-1">
+          <button
+            type="button"
+            onClick={() => setMode('flsm')}
+            className={`rounded-md px-4 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'flsm'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            FLSM — fixed size
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('vlsm')}
+            className={`rounded-md px-4 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'vlsm'
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            VLSM — variable size
+          </button>
+        </div>
+
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="grid gap-4 sm:grid-cols-[1fr_140px_2fr]"
+        >
+          <label className="text-xs font-medium">
+            Base network
+            <Input
+              value={baseIp}
+              onChange={(e) => setBaseIp(e.target.value)}
+              className="mt-2 bg-background"
+              placeholder="192.168.10.0"
+            />
+          </label>
+          <label className="text-xs font-medium">
+            CIDR
+            <div className="relative mt-2">
+              <span className="pointer-events-none absolute left-3 top-2.5 text-sm text-muted-foreground">/</span>
+              <Input
+                value={baseCidr}
+                onChange={(e) => setBaseCidr(e.target.value)}
+                className="bg-background pl-7"
+                inputMode="numeric"
+              />
+            </div>
+          </label>
+          <label className="text-xs font-medium">
+            Hosts per subnet (comma separated)
+            <Input
+              value={needsText}
+              onChange={(e) => setNeedsText(e.target.value)}
+              className="mt-2 bg-background"
+              placeholder="35, 40, 50, 45"
+            />
+          </label>
+        </form>
+
+        {result.error && (
+          <p role="alert" className="mt-4 text-xs font-medium text-destructive">
+            {result.error}
+          </p>
+        )}
+
+        {!result.error && 'blocks' in result && (
+          <div className="mt-6 flex flex-col gap-6">
+            {/* Mode summary line */}
+            <p className="text-xs text-muted-foreground">
+              {mode === 'flsm' ? (
+                <>
+                  <span className="font-semibold text-foreground">FLSM:</span> every subnet gets the
+                  same size — /{result.uniformPrefix} — because it fits the largest requirement.
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-foreground">VLSM:</span> each subnet gets the
+                  smallest block that fits its own requirement.
+                </>
+              )}
+            </p>
+
+            {/* Horizontal subnet line */}
+            <div className="overflow-x-auto rounded-xl border bg-background p-4">
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Subnet line — {intToIp(result.parentNetwork)}/{result.basePrefix}
+              </p>
+              <div className="flex min-w-full" style={{ height: 60 }}>
+                {result.blocks.map((b, i) => {
+                  const widthPct = (b.blockSize / result.parentSize) * 100
+                  return (
+                    <div
+                      key={b.label}
+                      className="relative flex flex-col justify-between border-r last:border-r-0"
+                      style={{
+                        width: `${widthPct}%`,
+                        minWidth: 60,
+                        backgroundColor: colors[i % colors.length] + '18',
+                        borderColor: colors[i % colors.length],
+                        borderTop: `3px solid ${colors[i % colors.length]}`,
+                      }}
+                    >
+                      <div className="flex flex-1 flex-col items-center justify-center px-1 py-2 text-center">
+                        <span
+                          className="text-[11px] font-semibold"
+                          style={{ color: colors[i % colors.length] }}
+                        >
+                          {b.label} · /{b.prefix}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {b.requested} PCs
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+                {result.free > 0 && (
+                  <div
+                    className="relative flex items-center justify-center border-t-[3px] border-t-dashed border-t-muted-foreground/40"
+                    style={{ width: `${(result.free / result.parentSize) * 100}%`, minWidth: 40 }}
+                  >
+                    <span className="text-[10px] text-muted-foreground">
+                      free ({result.free})
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="mt-2 flex justify-between text-[10px] font-mono text-muted-foreground">
+                <span>{intToIp(result.parentNetwork)}</span>
+                <span>{intToIp(result.parentNetwork + result.parentSize - 1)}</span>
+              </div>
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto rounded-xl border">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-medium">Block</th>
+                    <th className="px-3 py-2 text-left font-medium">Needs</th>
+                    <th className="px-3 py-2 text-left font-medium">Prefix</th>
+                    <th className="px-3 py-2 text-left font-medium">Size</th>
+                    <th className="px-3 py-2 text-left font-medium">Network</th>
+                    <th className="px-3 py-2 text-left font-medium">Host range</th>
+                    <th className="px-3 py-2 text-left font-medium">Broadcast</th>
+                    <th className="px-3 py-2 text-left font-medium">Waste</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.blocks.map((b, i) => (
+                    <tr key={b.label} className="border-t">
+                      <td className="px-3 py-2 font-semibold" style={{ color: colors[i % colors.length] }}>
+                        {b.label}
+                      </td>
+                      <td className="px-3 py-2">{b.requested}</td>
+                      <td className="px-3 py-2 font-mono">/{b.prefix}</td>
+                      <td className="px-3 py-2 font-mono">{b.blockSize}</td>
+                      <td className="px-3 py-2 font-mono">{intToIp(b.network)}</td>
+                      <td className="px-3 py-2 font-mono">
+                        {intToIp(b.firstHost)} – {intToIp(b.lastHost)}
+                      </td>
+                      <td className="px-3 py-2 font-mono">{intToIp(b.broadcast)}</td>
+                      <td className="px-3 py-2 font-mono">{b.waste}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground">
+              Allocated {result.used} of {result.parentSize} addresses · {result.free} still free.
+              {mode === 'flsm'
+                ? ' FLSM wastes more addresses when requirements differ in size.'
+                : ' Blocks are sorted largest-first so smaller subnets pack into the gaps.'}
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 const iconMap = {
   network: Network,
   layers: Layers3,
@@ -187,14 +510,14 @@ function Sidebar({
 
 type DiagramSlotProps = {
   diagram: {
-    src: string
-    alt: string
-    caption?: string
-    placeholder?: boolean
-  }
-  onOpen: (d: { src: string; alt: string; caption?: string }) => void
-  wide?: boolean
-}
+    src: string;
+    alt: string;
+    caption?: string;
+    placeholder?: boolean;
+  };
+  onOpen: (d: { src: string; alt: string; caption?: string }) => void;
+  wide?: boolean;
+};
 
 function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
   // Placeholder mode — diagram is still just a string caption in topics.ts
@@ -204,10 +527,14 @@ function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
         <div className="mb-3 flex size-9 items-center justify-center rounded-lg border bg-background">
           <PanelLeft className="size-4 text-muted-foreground" />
         </div>
-        <p className="text-xs font-medium text-muted-foreground">{diagram.caption}</p>
-        <p className="mt-1 text-[11px] text-muted-foreground/60">Image not yet added</p>
+        <p className="text-xs font-medium text-muted-foreground">
+          {diagram.caption}
+        </p>
+        <p className="mt-1 text-[11px] text-muted-foreground/60">
+          Image not yet added
+        </p>
       </div>
-    )
+    );
   }
 
   // Real image mode
@@ -215,8 +542,8 @@ function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
     <figure
       className={
         wide
-          ? 'flex flex-col overflow-hidden rounded-xl border bg-card'
-          : 'flex h-80 flex-col overflow-hidden rounded-xl border bg-card'
+          ? "flex flex-col overflow-hidden rounded-xl border bg-card"
+          : "flex h-80 flex-col overflow-hidden rounded-xl border bg-card"
       }
     >
       <button
@@ -228,9 +555,9 @@ function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
         <img
           src={diagram.src}
           alt={diagram.alt}
-          className={wide ? 'h-auto w-full' : 'h-full w-full object-contain'}
+          className={wide ? "h-auto w-full" : "h-full w-full object-contain"}
           onError={(e) => {
-            e.currentTarget.style.display = 'none'
+            e.currentTarget.style.display = "none";
           }}
         />
       </button>
@@ -240,7 +567,7 @@ function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
         </figcaption>
       )}
     </figure>
-  )
+  );
 }
 
 function NoteBlockView({ block }: { block: NoteBlock }) {
@@ -662,7 +989,10 @@ export default function CcnaStudyApp() {
                   </div>
                 )}
                 {current.slug === "subnetting-calculations" && (
-                  <SubnetCalculator />
+                  <>
+                    <SubnetCalculator />
+                    <SubnetPlanner />
+                  </>
                 )}
                 <div className="mt-10">
                   <QuickReference items={current.quickReference} />
