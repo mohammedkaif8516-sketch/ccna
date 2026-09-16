@@ -9,14 +9,14 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { topics, type NoteBlock, type Subtopic, type Topic } from '@/lib/topics'
+import { topics, type Diagram, type NoteBlock, type Subtopic, type Topic } from '@/lib/topics'
 import { Brackets, Cable, Check, ChevronRight, Layers3, Menu, Moon, Network, PanelLeft, Router, Search, Sun, ArrowLeft } from 'lucide-react'
 
 const iconMap = { network: Network, layers: Layers3, cable: Cable, router: Router, brackets: Brackets }
 
 function Sidebar({ selected, onSelect, mobile = false }: { selected?: string; onSelect: (topic: Topic, subtopic: Subtopic) => void; mobile?: boolean }) {
   return (
-    <aside className={mobile ? 'flex h-full flex-col bg-background' : 'hidden w-72 shrink-0 border-r bg-sidebar/40 lg:flex'}>
+    <aside className={mobile ? 'flex h-full flex-col bg-background' : 'hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex'}>
       <div className="flex-1 overflow-y-auto px-3 py-5">
         <p className="px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Curriculum</p>
         <Accordion type="multiple" defaultValue={topics.map((topic) => topic.slug)} className="w-full">
@@ -57,17 +57,25 @@ function Sidebar({ selected, onSelect, mobile = false }: { selected?: string; on
   )
 }
 
-function DiagramSlot({ label }: { label: string }) {
+function DiagramSlot({ diagram }: { diagram: Diagram }) {
   return (
-    <div className="flex min-h-32 items-center justify-center rounded-xl border border-dashed bg-muted/30 px-4 text-center">
-      <div>
-        <div className="mx-auto mb-2 flex size-8 items-center justify-center rounded-lg border bg-background">
-          <PanelLeft className="size-4 text-muted-foreground" />
-        </div>
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="mt-1 text-[11px] text-muted-foreground/70">Drawing canvas slot</p>
+    <figure className="flex h-80 flex-col overflow-hidden rounded-xl border bg-card">
+      <div className="flex flex-1 items-center justify-center bg-background p-3">
+        <img
+          src={diagram.src}
+          alt={diagram.alt}
+          className="h-full w-full object-contain"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
       </div>
-    </div>
+      {diagram.caption && (
+        <figcaption className="border-t px-4 py-2 text-center text-xs text-muted-foreground">
+          {diagram.caption}
+        </figcaption>
+      )}
+    </figure>
   )
 }
 
@@ -265,10 +273,10 @@ export default function CcnaStudyApp() {
   const allSubtopics = useMemo(() => topics.flatMap((topic) => topic.subtopics), [])
 
   return (
-    <div className={dark ? 'dark min-h-screen bg-background text-foreground' : 'min-h-screen bg-background text-foreground'}>
-      <div className="flex min-h-screen">
-        <Sidebar selected={current?.slug} onSelect={select} />
-        <div className="min-w-0 flex-1">
+  <div className={dark ? 'dark h-screen overflow-hidden bg-background text-foreground' : 'h-screen overflow-hidden bg-background text-foreground'}>
+    <div className="flex h-full">
+      <Sidebar selected={current?.slug} onSelect={select} />
+      <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
@@ -308,7 +316,7 @@ export default function CcnaStudyApp() {
             </Button>
           </div>
           </header>
-          <main>
+          <main className="flex-1 overflow-y-auto">
             {current ? (
               <article className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
                 <Button
@@ -343,12 +351,12 @@ export default function CcnaStudyApp() {
                   ))}
                 </div>
                 {current.diagrams && (
-                  <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                    {current.diagrams.map((diagram) => (
-                      <DiagramSlot key={diagram} label={diagram} />
-                    ))}
-                  </div>
-                )}
+                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                  {current.diagrams.map((diagram, index) => (
+                    <DiagramSlot key={`${diagram.src}-${index}`} diagram={diagram} />
+                  ))}
+                </div>
+              )}
                 {current.slug === 'subnetting-calculations' && <SubnetCalculator />}
                 <div className="mt-10">
                   <QuickReference items={current.quickReference} />

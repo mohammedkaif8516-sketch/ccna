@@ -5,13 +5,19 @@ export type NoteBlock =
   | { type: 'code'; language: string; code: string }
   | { type: 'table'; headers: string[]; rows: string[][] }
 
+export type Diagram = {
+  src: string
+  alt: string
+  caption?: string
+}
+
 export type Subtopic = {
   slug: string
   title: string
   description: string
   blocks: NoteBlock[]
   quickReference: { label: string; value: string }[]
-  diagrams?: string[]
+  diagrams?: Diagram[]
 }
 
 export type Topic = {
@@ -131,7 +137,7 @@ export const topics: Topic[] = [
           { label: 'SAN', value: 'Storage-only, high capacity, low loss' },
           { label: 'VPN types', value: 'Site-to-site, Remote access (SSL VPN)' },
         ],
-        diagrams: ['WAN (ISP) diagram', 'Internet Site-to-site VPN diagram'],
+        diagrams: [{ src: '/diagrams/wan.png', alt: 'WAN ISP topology', caption: 'WAN (ISP) topology' },{ src: '/diagrams/VPN.png', alt: 'Site-to-site VPN tunnel', caption: 'Internet site-to-site VPN' },],
       },
       {
         slug: 'host-devices-client-server-peer',
