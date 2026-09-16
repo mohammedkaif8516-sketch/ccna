@@ -1,44 +1,92 @@
-'use client'
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useMemo, useState } from 'react'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { topics, type Diagram, type NoteBlock, type Subtopic, type Topic } from '@/lib/topics'
-import { Brackets, Cable, Check, ChevronRight, Layers3, Menu, Moon, Network, PanelLeft, Router, Search, Sun, ArrowLeft } from 'lucide-react'
-import { useEffect } from 'react'
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  topics,
+  type Diagram,
+  type NoteBlock,
+  type Subtopic,
+  type Topic,
+} from "@/lib/topics";
+import {
+  Brackets,
+  Cable,
+  Check,
+  ChevronRight,
+  Layers3,
+  Menu,
+  Moon,
+  Network,
+  PanelLeft,
+  Router,
+  Search,
+  Sun,
+  ArrowLeft,
+} from "lucide-react";
+import { useEffect } from "react";
 
-const iconMap = { network: Network, layers: Layers3, cable: Cable, router: Router, brackets: Brackets }
-
+const iconMap = {
+  network: Network,
+  layers: Layers3,
+  cable: Cable,
+  router: Router,
+  brackets: Brackets,
+};
 
 function DiagramLightbox({
   diagram,
   onClose,
 }: {
-  diagram: Diagram | null
-  onClose: () => void
+  diagram: Diagram | null;
+  onClose: () => void;
 }) {
   useEffect(() => {
-    if (!diagram) return
+    if (!diagram) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKey)
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prevOverflow
-    }
-  }, [diagram, onClose])
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [diagram, onClose]);
 
-  if (!diagram) return null
+  if (!diagram) return null;
 
   return (
     <div
@@ -66,60 +114,103 @@ function DiagramLightbox({
         )}
       </figure>
     </div>
-  )
+  );
 }
-function Sidebar({ selected, onSelect, mobile = false }: { selected?: string; onSelect: (topic: Topic, subtopic: Subtopic) => void; mobile?: boolean }) {
+function Sidebar({
+  selected,
+  onSelect,
+  mobile = false,
+}: {
+  selected?: string;
+  onSelect: (topic: Topic, subtopic: Subtopic) => void;
+  mobile?: boolean;
+}) {
   return (
-    <aside className={mobile ? 'flex h-full flex-col bg-background' : 'hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex'}>
+    <aside
+      className={
+        mobile
+          ? "flex h-full flex-col bg-background"
+          : "hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex"
+      }
+    >
       <div className="flex-1 overflow-y-auto px-3 py-5">
-        <p className="px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Curriculum</p>
-        <Accordion type="multiple" defaultValue={topics.map((topic) => topic.slug)} className="w-full">
+        <p className="px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Curriculum
+        </p>
+        <Accordion
+          type="multiple"
+          defaultValue={topics.map((topic) => topic.slug)}
+          className="w-full"
+        >
           {topics.map((topic) => {
-            const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network
+            const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network;
             return (
-              <AccordionItem value={topic.slug} key={topic.slug} className="border-b-0">
+              <AccordionItem
+                value={topic.slug}
+                key={topic.slug}
+                className="border-b-0"
+              >
                 <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-accent hover:no-underline [&>svg]:size-3.5">
                   <span className="flex min-w-0 items-center gap-2.5">
                     <Icon className="size-4 shrink-0 text-muted-foreground" />
                     <span className="truncate">{topic.title}</span>
                   </span>
                 </AccordionTrigger>
-              <AccordionContent className="pb-1 pt-0">
-                <div className="ml-5 border-l pl-3">
-                  {topic.subtopics.map((subtopic, index) => (
-                    <button
-                      key={`${subtopic.slug}-${index}`}
-                      onClick={() => onSelect(topic, subtopic)}
-                      className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
-                        selected === subtopic.slug
-                          ? 'bg-primary/10 font-medium text-primary'
-                          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                      }`}
-                    >
-                      <ChevronRight className={`mt-0.5 size-3 shrink-0 ${selected === subtopic.slug ? 'text-primary' : 'opacity-50'}`} />
-                      {subtopic.title}
-                    </button>
-                  ))}
-                </div>
-              </AccordionContent>
+                <AccordionContent className="pb-1 pt-0">
+                  <div className="ml-5 border-l pl-3">
+                    {topic.subtopics.map((subtopic, index) => (
+                      <button
+                        key={`${subtopic.slug}-${index}`}
+                        onClick={() => onSelect(topic, subtopic)}
+                        className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
+                          selected === subtopic.slug
+                            ? "bg-primary/10 font-medium text-primary"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        }`}
+                      >
+                        <ChevronRight
+                          className={`mt-0.5 size-3 shrink-0 ${selected === subtopic.slug ? "text-primary" : "opacity-50"}`}
+                        />
+                        {subtopic.title}
+                      </button>
+                    ))}
+                  </div>
+                </AccordionContent>
               </AccordionItem>
-            )
+            );
           })}
         </Accordion>
       </div>
     </aside>
-  )
+  );
 }
 
-function DiagramSlot({
-  diagram,
-  onOpen,
-  wide = false,
-}: {
-  diagram: Diagram
-  onOpen: (d: Diagram) => void
+type DiagramSlotProps = {
+  diagram: {
+    src: string
+    alt: string
+    caption?: string
+    placeholder?: boolean
+  }
+  onOpen: (d: { src: string; alt: string; caption?: string }) => void
   wide?: boolean
-}) {
+}
+
+function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
+  // Placeholder mode — diagram is still just a string caption in topics.ts
+  if (diagram.placeholder || !diagram.src) {
+    return (
+      <div className="flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
+        <div className="mb-3 flex size-9 items-center justify-center rounded-lg border bg-background">
+          <PanelLeft className="size-4 text-muted-foreground" />
+        </div>
+        <p className="text-xs font-medium text-muted-foreground">{diagram.caption}</p>
+        <p className="mt-1 text-[11px] text-muted-foreground/60">Image not yet added</p>
+      </div>
+    )
+  }
+
+  // Real image mode
   return (
     <figure
       className={
@@ -137,7 +228,7 @@ function DiagramSlot({
         <img
           src={diagram.src}
           alt={diagram.alt}
-          className={wide ? 'w-full h-auto' : 'h-full w-full object-contain'}
+          className={wide ? 'h-auto w-full' : 'h-full w-full object-contain'}
           onError={(e) => {
             e.currentTarget.style.display = 'none'
           }}
@@ -153,22 +244,30 @@ function DiagramSlot({
 }
 
 function NoteBlockView({ block }: { block: NoteBlock }) {
-  if (block.type === 'heading') return <h2 className="mt-8 text-lg font-semibold tracking-tight first:mt-0">{block.text}</h2>
-  if (block.type === 'paragraph') return <p className="text-sm leading-7 text-muted-foreground">{block.text}</p>
-  if (block.type === 'bullets')
+  if (block.type === "heading")
+    return (
+      <h2 className="mt-8 text-lg font-semibold tracking-tight first:mt-0">
+        {block.text}
+      </h2>
+    );
+  if (block.type === "paragraph")
+    return (
+      <p className="text-sm leading-7 text-muted-foreground">{block.text}</p>
+    );
+  if (block.type === "bullets")
     return (
       <ul className="flex flex-col gap-2 pl-5 text-sm leading-6 text-muted-foreground marker:text-primary">
         {block.items.map((item) => (
           <li key={item}>{item}</li>
         ))}
       </ul>
-    )
-  if (block.type === 'code')
+    );
+  if (block.type === "code")
     return (
       <pre className="overflow-x-auto rounded-xl border bg-muted/50 p-4 font-mono text-xs leading-6 text-foreground">
         <code>{block.code}</code>
       </pre>
-    )
+    );
   return (
     <div className="overflow-x-auto rounded-xl border">
       <Table>
@@ -180,20 +279,20 @@ function NoteBlockView({ block }: { block: NoteBlock }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-        {block.rows.map((row, rowIndex) => (
-          <TableRow key={`${row[0]}-${rowIndex}`}>
-            {row.map((cell, cellIndex) => (
-              <TableCell key={cellIndex}>{cell}</TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
+          {block.rows.map((row, rowIndex) => (
+            <TableRow key={`${row[0]}-${rowIndex}`}>
+              {row.map((cell, cellIndex) => (
+                <TableCell key={cellIndex}>{cell}</TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
     </div>
-  )
+  );
 }
 
-function QuickReference({ items }: { items: Subtopic['quickReference'] }) {
+function QuickReference({ items }: { items: Subtopic["quickReference"] }) {
   return (
     <details className="group rounded-xl border bg-card">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 py-3 text-sm font-semibold [&::-webkit-details-marker]:hidden">
@@ -204,50 +303,58 @@ function QuickReference({ items }: { items: Subtopic['quickReference'] }) {
       <div className="grid gap-3 p-4 sm:grid-cols-3">
         {items.map((item) => (
           <div key={item.label}>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{item.label}</p>
-            <p className="mt-1 text-xs leading-5 text-foreground">{item.value}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {item.label}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-foreground">
+              {item.value}
+            </p>
           </div>
         ))}
       </div>
     </details>
-  )
+  );
 }
 
 function SubnetCalculator() {
-  const [ip, setIp] = useState('10.20.30.77')
-  const [cidr, setCidr] = useState('26')
-  const [error, setError] = useState('')
-  const [result, setResult] = useState<null | Record<string, string>>(null)
+  const [ip, setIp] = useState("10.20.30.77");
+  const [cidr, setCidr] = useState("26");
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<null | Record<string, string>>(null);
 
   const calculate = (event: React.FormEvent) => {
-    event.preventDefault()
-    const octets = ip.trim().split('.').map(Number)
-    const prefix = Number(cidr)
+    event.preventDefault();
+    const octets = ip.trim().split(".").map(Number);
+    const prefix = Number(cidr);
     if (
       octets.length !== 4 ||
-      octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255) ||
+      octets.some(
+        (octet) => !Number.isInteger(octet) || octet < 0 || octet > 255,
+      ) ||
       !/^\d{1,3}(\.\d{1,3}){3}$/.test(ip.trim())
     ) {
-      setError('Enter a valid IPv4 address, such as 192.168.10.14.')
-      setResult(null)
-      return
+      setError("Enter a valid IPv4 address, such as 192.168.10.14.");
+      setResult(null);
+      return;
     }
     if (!Number.isInteger(prefix) || prefix < 0 || prefix > 32) {
-      setError('CIDR must be a whole number from 0 to 32.')
-      setResult(null)
-      return
+      setError("CIDR must be a whole number from 0 to 32.");
+      setResult(null);
+      return;
     }
-    const value = octets.reduce((acc, octet) => acc * 256 + octet, 0) >>> 0
-    const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0
-    const network = (value & mask) >>> 0
-    const broadcast = (network | (~mask >>> 0)) >>> 0
-    const format = (num: number) => [num >>> 24, (num >>> 16) & 255, (num >>> 8) & 255, num & 255].join('.')
-    const total = 2 ** (32 - prefix)
-    const usable = prefix >= 31 ? (prefix === 32 ? 1 : 2) : Math.max(0, total - 2)
-    const first = prefix >= 31 ? network : network + 1
-    const last = prefix >= 31 ? broadcast : broadcast - 1
-    const dotted = format(mask)
-    setError('')
+    const value = octets.reduce((acc, octet) => acc * 256 + octet, 0) >>> 0;
+    const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
+    const network = (value & mask) >>> 0;
+    const broadcast = (network | (~mask >>> 0)) >>> 0;
+    const format = (num: number) =>
+      [num >>> 24, (num >>> 16) & 255, (num >>> 8) & 255, num & 255].join(".");
+    const total = 2 ** (32 - prefix);
+    const usable =
+      prefix >= 31 ? (prefix === 32 ? 1 : 2) : Math.max(0, total - 2);
+    const first = prefix >= 31 ? network : network + 1;
+    const last = prefix >= 31 ? broadcast : broadcast - 1;
+    const dotted = format(mask);
+    setError("");
     setResult({
       network: `${format(network)}/${prefix}`,
       broadcast: format(broadcast),
@@ -255,8 +362,8 @@ function SubnetCalculator() {
       last: format(last),
       hosts: usable.toLocaleString(),
       mask: dotted,
-    })
-  }
+    });
+  };
 
   return (
     <Card className="mt-8 border-primary/20 bg-primary/[0.02]">
@@ -264,47 +371,74 @@ function SubnetCalculator() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base">Subnetting calculator</CardTitle>
-            <CardDescription className="mt-1">Check your block boundaries as you study.</CardDescription>
+            <CardDescription className="mt-1">
+              Check your block boundaries as you study.
+            </CardDescription>
           </div>
           <Badge variant="secondary">Interactive</Badge>
         </div>
       </CardHeader>
       <CardContent>
-        <form onSubmit={calculate} className="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <form
+          onSubmit={calculate}
+          className="flex flex-col gap-4 sm:flex-row sm:items-end"
+        >
           <label className="flex-1 text-xs font-medium">
             IP address
-            <Input value={ip} onChange={(event) => setIp(event.target.value)} className="mt-2 bg-background" placeholder="192.168.10.14" />
+            <Input
+              value={ip}
+              onChange={(event) => setIp(event.target.value)}
+              className="mt-2 bg-background"
+              placeholder="192.168.10.14"
+            />
           </label>
           <label className="w-full text-xs font-medium sm:w-32">
             CIDR prefix
             <div className="relative mt-2">
-              <span className="pointer-events-none absolute left-3 top-2.5 text-sm text-muted-foreground">/</span>
-              <Input value={cidr} onChange={(event) => setCidr(event.target.value)} className="bg-background pl-7" inputMode="numeric" />
+              <span className="pointer-events-none absolute left-3 top-2.5 text-sm text-muted-foreground">
+                /
+              </span>
+              <Input
+                value={cidr}
+                onChange={(event) => setCidr(event.target.value)}
+                className="bg-background pl-7"
+                inputMode="numeric"
+              />
             </div>
           </label>
-          <Button type="submit" className="sm:w-auto">Calculate</Button>
+          <Button type="submit" className="sm:w-auto">
+            Calculate
+          </Button>
         </form>
-        {error && <p role="alert" className="mt-3 text-xs font-medium text-destructive">{error}</p>}
+        {error && (
+          <p role="alert" className="mt-3 text-xs font-medium text-destructive">
+            {error}
+          </p>
+        )}
         {result && (
           <div className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {[
-              ['Network address', result.network],
-              ['Broadcast address', result.broadcast],
-              ['First usable host', result.first],
-              ['Last usable host', result.last],
-              ['Total usable hosts', result.hosts],
-              ['Subnet mask', result.mask],
+              ["Network address", result.network],
+              ["Broadcast address", result.broadcast],
+              ["First usable host", result.first],
+              ["Last usable host", result.last],
+              ["Total usable hosts", result.hosts],
+              ["Subnet mask", result.mask],
             ].map(([label, value]) => (
               <div key={label} className="rounded-lg border bg-background p-3">
-                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
-                <p className="mt-1 break-all font-mono text-xs font-medium">{value}</p>
+                <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                  {label}
+                </p>
+                <p className="mt-1 break-all font-mono text-xs font-medium">
+                  {value}
+                </p>
               </div>
             ))}
           </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function Dashboard() {
@@ -315,57 +449,66 @@ function Dashboard() {
         <div className="mb-8 text-primary animate-pulse">
           <ArrowLeft className="size-20" strokeWidth={1.5} />
         </div>
-        
+
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           Start from the sidebar
         </h1>
         <p className="mt-4 text-base leading-7 text-muted-foreground">
-          Pick any topic on the left to open it here. Your study session will load in this space.
+          Pick any topic on the left to open it here. Your study session will
+          load in this space.
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 export default function CcnaStudyApp() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [dark, setDark] = useState(false)
-  const [lightbox, setLightbox] = useState<Diagram | null>(null)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [dark, setDark] = useState(false);
+  const [lightbox, setLightbox] = useState<Diagram | null>(null);
 
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // Read topic + sub from the URL on every render
-  const topicSlug = searchParams.get('topic')
-  const subSlug = searchParams.get('sub')
+  const topicSlug = searchParams.get("topic");
+  const subSlug = searchParams.get("sub");
 
   const selected = useMemo(() => {
-    if (!topicSlug || !subSlug) return null
-    const topic = topics.find((t) => t.slug === topicSlug)
-    if (!topic) return null
-    const subtopic = topic.subtopics.find((s) => s.slug === subSlug)
-    if (!subtopic) return null
-    return { topic, subtopic }
-  }, [topicSlug, subSlug])
+    if (!topicSlug || !subSlug) return null;
+    const topic = topics.find((t) => t.slug === topicSlug);
+    if (!topic) return null;
+    const subtopic = topic.subtopics.find((s) => s.slug === subSlug);
+    if (!subtopic) return null;
+    return { topic, subtopic };
+  }, [topicSlug, subSlug]);
 
   const select = (topic: Topic, subtopic: Subtopic) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('topic', topic.slug)
-    params.set('sub', subtopic.slug)
-    router.push(`?${params.toString()}`, { scroll: false })
-    setMobileOpen(false)
-  }
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("topic", topic.slug);
+    params.set("sub", subtopic.slug);
+    router.push(`?${params.toString()}`, { scroll: false });
+    setMobileOpen(false);
+  };
 
   const goHome = () => {
-    router.push('/', { scroll: false })
-    setMobileOpen(false)
-  }
+    router.push("/", { scroll: false });
+    setMobileOpen(false);
+  };
 
-  const current = selected?.subtopic
-  const currentIcon = selected ? iconMap[selected.topic.icon as keyof typeof iconMap] : null
+  const current = selected?.subtopic;
+  const currentIcon = selected
+    ? iconMap[selected.topic.icon as keyof typeof iconMap]
+    : null;
 
   return (
-    <div className={dark ? 'dark h-screen overflow-hidden bg-background text-foreground' : 'h-screen overflow-hidden bg-background text-foreground'}>
+    <div
+      className={
+        dark
+          ? "dark h-screen overflow-hidden bg-background text-foreground"
+          : "h-screen overflow-hidden bg-background text-foreground"
+      }
+    >
       <div className="flex h-full">
         <Sidebar selected={current?.slug} onSelect={select} />
         <div className="flex min-w-0 flex-1 flex-col">
@@ -383,17 +526,27 @@ export default function CcnaStudyApp() {
               </SheetContent>
             </Sheet>
             <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
-              <button type="button" onClick={goHome} className="transition-colors hover:text-foreground">
+              <button
+                type="button"
+                onClick={goHome}
+                className="transition-colors hover:text-foreground"
+              >
                 CCNA Notes
               </button>
               {selected && (
                 <>
                   <ChevronRight className="size-3" />
-                  <button type="button" onClick={goHome} className="transition-colors hover:text-foreground">
+                  <button
+                    type="button"
+                    onClick={goHome}
+                    className="transition-colors hover:text-foreground"
+                  >
                     {selected.topic.title}
                   </button>
                   <ChevronRight className="size-3" />
-                  <span className="text-foreground">{selected.subtopic.title}</span>
+                  <span className="text-foreground">
+                    {selected.subtopic.title}
+                  </span>
                 </>
               )}
             </div>
@@ -401,7 +554,9 @@ export default function CcnaStudyApp() {
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                aria-label={
+                  dark ? "Switch to light mode" : "Switch to dark mode"
+                }
                 onClick={() => setDark(!dark)}
               >
                 {dark ? <Sun /> : <Moon />}
@@ -424,43 +579,91 @@ export default function CcnaStudyApp() {
                   <div className="hidden size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:flex">
                     {currentIcon &&
                       (() => {
-                        const Icon = currentIcon
-                        return <Icon className="size-5" />
+                        const Icon = currentIcon;
+                        return <Icon className="size-5" />;
                       })()}
                   </div>
                   <div>
                     <div className="mb-3 flex items-center gap-2">
                       <Badge variant="secondary">{selected.topic.title}</Badge>
-                      <span className="text-xs text-muted-foreground">· Notes</span>
+                      <span className="text-xs text-muted-foreground">
+                        · Notes
+                      </span>
                     </div>
-                    <h1 className="text-3xl font-semibold tracking-tight">{current.title}</h1>
-                    <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">{current.description}</p>
+                    <h1 className="text-3xl font-semibold tracking-tight">
+                      {current.title}
+                    </h1>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+                      {current.description}
+                    </p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-5">
                   {current.blocks.map((block, index) => (
-                    <NoteBlockView block={block} key={`${block.type}-${index}`} />
-                  ))}
-                </div>
-                {current.diagrams && (
-                <div
-                  className={
-                    current.diagrams.length === 1
-                      ? 'mt-8 flex flex-col'
-                      : 'mt-8 grid gap-4 sm:grid-cols-2'
-                  }
-                >
-                  {current.diagrams.map((diagram, index) => (
-                    <DiagramSlot
-                      key={`${diagram.src}-${index}`}
-                      diagram={diagram}
-                      onOpen={setLightbox}
-                      wide={current.diagrams!.length === 1}
+                    <NoteBlockView
+                      block={block}
+                      key={`${block.type}-${index}`}
                     />
                   ))}
                 </div>
-              )}
-                {current.slug === 'subnetting-calculations' && <SubnetCalculator />}
+                {current.diagrams && (
+                  <div className="mt-8 flex flex-col gap-4">
+                    {(() => {
+                      // Normalize: strings become placeholder entries, objects pass through.
+                      const normalized = current.diagrams.map((d, i) =>
+                        typeof d === "string"
+                          ? {
+                              src: "",
+                              alt: d,
+                              caption: d,
+                              placeholder: true,
+                              _key: `str-${i}-${d}`,
+                            }
+                          : { ...d, _key: d.src },
+                      );
+
+                      const narrow = normalized.filter(
+                        (d) => !d.src.includes("_wide"),
+                      );
+                      const wide = normalized.filter((d) =>
+                        d.src.includes("_wide"),
+                      );
+
+                      return (
+                        <>
+                          {narrow.length > 0 && (
+                            <div
+                              className={
+                                narrow.length === 1
+                                  ? ""
+                                  : "grid gap-4 sm:grid-cols-2"
+                              }
+                            >
+                              {narrow.map((diagram) => (
+                                <DiagramSlot
+                                  key={diagram._key}
+                                  diagram={diagram}
+                                  onOpen={setLightbox}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          {wide.map((diagram) => (
+                            <DiagramSlot
+                              key={diagram._key}
+                              diagram={diagram}
+                              onOpen={setLightbox}
+                              wide
+                            />
+                          ))}
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+                {current.slug === "subnetting-calculations" && (
+                  <SubnetCalculator />
+                )}
                 <div className="mt-10">
                   <QuickReference items={current.quickReference} />
                 </div>
@@ -471,7 +674,7 @@ export default function CcnaStudyApp() {
           </main>
         </div>
       </div>
-    <DiagramLightbox diagram={lightbox} onClose={() => setLightbox(null)} />
+      <DiagramLightbox diagram={lightbox} onClose={() => setLightbox(null)} />
     </div>
-  )
+  );
 }

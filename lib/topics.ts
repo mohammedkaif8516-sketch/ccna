@@ -97,39 +97,49 @@ export const topics: Topic[] = [
         description: 'Network types describe scope, ownership, and purpose — from a single office LAN up to a global WAN, plus specialized types like SAN and VPN.',
         blocks: [
           { type: 'heading', text: 'LAN (Local Area Network)' },
-          { type: 'bullets', items: [
-            'A single network or collection of networks in a small geographical area.',
-            'A private network for private data transmission.',
-            'A high-speed network.',
-            'Managed by a person, administrator, or a group of engineers under an organization.',
-            'Example: the network inside an office building, inside a home, or inside a campus.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A single network or collection of networks in a small geographical area.',
+              'A private network for private data transmission.',
+              'A high-speed network.',
+              'Managed by a person, administrator, or a group of engineers under an organization.',
+              'Example: the network inside an office building, inside a home, or inside a campus.',
+            ]
+          },
           { type: 'heading', text: 'WAN (Wide Area Network)' },
-          { type: 'bullets', items: [
-            'A collection of LANs in a large geographical area — simply, the internet.',
-            'Managed by an organization/ISP.',
-            'Example: Vi, JIO, Airtel.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A collection of LANs in a large geographical area — simply, the internet.',
+              'Managed by an organization/ISP.',
+              'Example: Vi, JIO, Airtel.',
+            ]
+          },
           { type: 'heading', text: 'MAN (Metropolitan Area Network)' },
           { type: 'bullets', items: ['A public network that spans across a city.', 'Example: ACT Fibernet, Hathway.'] },
           { type: 'heading', text: 'SAN (Storage Area Network)' },
-          { type: 'bullets', items: [
-            'A network used for a single purpose — storing and accessing information and providing services.',
-            'A network with high-capacity devices, high speed, and lowless (low-loss) connectivity.',
-            'Example: Data Center Network.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A network used for a single purpose — storing and accessing information and providing services.',
+              'A network with high-capacity devices, high speed, and lowless (low-loss) connectivity.',
+              'Example: Data Center Network.',
+            ]
+          },
           { type: 'heading', text: 'CAN & PAN' },
-          { type: 'bullets', items: [
-            'CAN: network inside a campus with multiple locations & buildings.',
-            'PAN: personal area network — a personal network at home, which is technically a LAN.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'CAN: network inside a campus with multiple locations & buildings.',
+              'PAN: personal area network — a personal network at home, which is technically a LAN.',
+            ]
+          },
           { type: 'heading', text: 'VPN (Virtual Private Network)' },
-          { type: 'bullets', items: [
-            'A virtual tunnel through the public domain (internet) to forward private traffic securely.',
-            'Site-to-site VPN connects branch offices to the main (HQ) office.',
-            'Remote access VPN / user VPN / SSL VPN connects individual client machines to the office network.',
-            'VPNs can also mask the original IP with another IP, changing apparent location and providing anonymity.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A virtual tunnel through the public domain (internet) to forward private traffic securely.',
+              'Site-to-site VPN connects branch offices to the main (HQ) office.',
+              'Remote access VPN / user VPN / SSL VPN connects individual client machines to the office network.',
+              'VPNs can also mask the original IP with another IP, changing apparent location and providing anonymity.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'LAN', value: 'Small geographical area, private, high speed' },
@@ -137,7 +147,7 @@ export const topics: Topic[] = [
           { label: 'SAN', value: 'Storage-only, high capacity, low loss' },
           { label: 'VPN types', value: 'Site-to-site, Remote access (SSL VPN)' },
         ],
-        diagrams: [{ src: '/diagrams/wan.png', alt: 'WAN ISP topology', caption: 'WAN (ISP) topology' },{ src: '/diagrams/VPN.png', alt: 'Site-to-site VPN tunnel', caption: 'Internet site-to-site VPN' },],
+        diagrams: [{ src: '/diagrams/wan.png', alt: 'WAN ISP topology', caption: 'WAN (ISP) topology' }, { src: '/diagrams/VPN.png', alt: 'Site-to-site VPN tunnel', caption: 'Internet site-to-site VPN' },],
       },
       {
         slug: 'host-devices-client-server-peer',
@@ -147,11 +157,13 @@ export const topics: Topic[] = [
           { type: 'heading', text: 'What a host is' },
           { type: 'paragraph', text: 'A host is a client device connected to a network. A host can also be defined as any device with an assigned IP address that is generating and receiving network traffic. Examples: computers, printers, servers, IoT devices.' },
           { type: 'heading', text: 'Types of host devices' },
-          { type: 'bullets', items: [
-            'Client: a device that requests information/services.',
-            'Server: the device that provides information/services.',
-            'Peer: a device that can both request and provide information/services.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Client: a device that requests information/services.',
+              'Server: the device that provides information/services.',
+              'Peer: a device that can both request and provide information/services.',
+            ]
+          },
         ],
         quickReference: [{ label: 'Host', value: 'Any device with an IP address sending/receiving traffic' }],
       },
@@ -162,17 +174,21 @@ export const topics: Topic[] = [
         blocks: [
           { type: 'heading', text: '1. Client/Server Architecture' },
           { type: 'paragraph', text: 'Client devices connect to a server and request information/services from it. This is a centralized device and storage setup.' },
-          { type: 'bullets', items: [
-            'Advantages: easily accessible, easily manageable, centralized security, centralized data management, cost effective.',
-            'Disadvantage: since it is centralized, if something happens to the server, data will be lost or inaccessible.',
-            'Solution: have a backup server spread across locations.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Advantages: easily accessible, easily manageable, centralized security, centralized data management, cost effective.',
+              'Disadvantage: since it is centralized, if something happens to the server, data will be lost or inaccessible.',
+              'Solution: have a backup server spread across locations.',
+            ]
+          },
           { type: 'heading', text: '2. Mainframe / Terminal Architecture' },
           { type: 'paragraph', text: 'Operates similarly to client/server, but with a massive shift in where the "thinking" happens.' },
-          { type: 'bullets', items: [
-            'Mainframe: the central powerhouse where all computing, processing, and data storage takes place.',
-            'Terminal: a "dumb device" used purely for input (keyboard) and output (display screen) — it has no local processing power.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Mainframe: the central powerhouse where all computing, processing, and data storage takes place.',
+              'Terminal: a "dumb device" used purely for input (keyboard) and output (display screen) — it has no local processing power.',
+            ]
+          },
           { type: 'heading', text: '3. Peer-to-Peer (P2P) Architecture' },
           { type: 'paragraph', text: 'Unlike centralized models, every host device on a P2P network acts as both a client and server at the same time. Every peer can request services from others and share its own resources.' },
         ],
@@ -207,37 +223,45 @@ export const topics: Topic[] = [
         blocks: [
           { type: 'heading', text: 'OSI overview' },
           { type: 'paragraph', text: 'Developed by the International Organisation for Standardisation (ISO), OSI (Open Systems Interconnection) is a conceptual framework of 7 layers that standardizes how data moves across a network.' },
-          { type: 'bullets', items: [
-            'Layer 7 — Application: where the user interacts with network-based applications (web browser, email clients).',
-            'Layer 6 — Presentation: translates, encrypts, and compresses data so the application can read it.',
-            'Layer 5 — Session: establishes, manages, and terminates connection sessions between devices.',
-            'Layer 4 — Transport (core layer): manages end-to-end communication, flow control, error detection (TCP/UDP).',
-            'Layer 3 — Network: handles logical routing and IP addressing between different networks.',
-            'Layer 2 — Data-Link: handles physical addressing (MAC) and frames data on the local network.',
-            'Layer 1 — Physical: the actual physical medium (cables, radio waves) transmitting raw binary bits.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Layer 7 — Application: where the user interacts with network-based applications (web browser, email clients).',
+              'Layer 6 — Presentation: translates, encrypts, and compresses data so the application can read it.',
+              'Layer 5 — Session: establishes, manages, and terminates connection sessions between devices.',
+              'Layer 4 — Transport (core layer): manages end-to-end communication, flow control, error detection (TCP/UDP).',
+              'Layer 3 — Network: handles logical routing and IP addressing between different networks.',
+              'Layer 2 — Data-Link: handles physical addressing (MAC) and frames data on the local network.',
+              'Layer 1 — Physical: the actual physical medium (cables, radio waves) transmitting raw binary bits.',
+            ]
+          },
           { type: 'paragraph', text: 'When data is sent, it travels down the layers on the sender\'s side and up the layers on the receiver\'s side. Each layer is governed by specific rules and protocols.' },
           { type: 'heading', text: 'Application Layer (7th Layer)' },
-          { type: 'bullets', items: [
-            'Acts as an interface between the user and the network.',
-            'Works based on application layer protocols — HTTP, HTTPS, FTP, SMTP.',
-            'These protocols control the user applications we interact with; the applications themselves are not part of the layer, but the protocols are.',
-            'Other responsibilities: synchronizing communication, determining resource availability, identifying communication partners.',
-            'The Application layer only interacts with the Presentation layer.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Acts as an interface between the user and the network.',
+              'Works based on application layer protocols — HTTP, HTTPS, FTP, SMTP.',
+              'These protocols control the user applications we interact with; the applications themselves are not part of the layer, but the protocols are.',
+              'Other responsibilities: synchronizing communication, determining resource availability, identifying communication partners.',
+              'The Application layer only interacts with the Presentation layer.',
+            ]
+          },
           { type: 'heading', text: 'Presentation Layer (6th Layer)' },
-          { type: 'bullets', items: [
-            'On the sender side, removes data syntaxes/extensions and converts user data into machine data.',
-            'On the receiver side, converts machine data back into user data format by reattaching syntaxes, then presents it to the Application layer.',
-            'Also responsible for compression and encryption, if required.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'On the sender side, removes data syntaxes/extensions and converts user data into machine data.',
+              'On the receiver side, converts machine data back into user data format by reattaching syntaxes, then presents it to the Application layer.',
+              'Also responsible for compression and encryption, if required.',
+            ]
+          },
           { type: 'heading', text: 'Syntax examples' },
-          { type: 'table', headers: ['Type', 'Extensions'], rows: [
-            ['Video', '.mp4, .mkv, .mpeg'],
-            ['Text', '.doc, .docx, .txt, .csv'],
-            ['Audio', '.mp3, .amr, .wav'],
-            ['Image', '.jpg, .jpeg, .png, .gif'],
-          ] },
+          {
+            type: 'table', headers: ['Type', 'Extensions'], rows: [
+              ['Video', '.mp4, .mkv, .mpeg'],
+              ['Text', '.doc, .docx, .txt, .csv'],
+              ['Audio', '.mp3, .amr, .wav'],
+              ['Image', '.jpg, .jpeg, .png, .gif'],
+            ]
+          },
         ],
         quickReference: [
           { label: 'Layer 7', value: 'Application — user/network interface' },
@@ -255,11 +279,13 @@ export const topics: Topic[] = [
           { type: 'heading', text: 'Session Layer (5th Layer)' },
           { type: 'paragraph', text: 'Responsible for establishing, maintaining, terminating, and recovering sessions between client and server.' },
           { type: 'heading', text: 'Types of communication' },
-          { type: 'bullets', items: [
-            'Simplex: one-way communication only. Example: FM radio.',
-            'Half-Duplex: two-way communication, but not simultaneous. Example: walkie-talkie.',
-            'Full-Duplex: simultaneous two-way communication. Example: mobile phone.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Simplex: one-way communication only. Example: FM radio.',
+              'Half-Duplex: two-way communication, but not simultaneous. Example: walkie-talkie.',
+              'Full-Duplex: simultaneous two-way communication. Example: mobile phone.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Simplex', value: 'One-way (FM radio)' },
@@ -267,8 +293,8 @@ export const topics: Topic[] = [
           { label: 'Full-Duplex', value: 'Two-way, simultaneous (mobile phone)' },
         ],
         diagrams: [
-  { src: '/diagrams/session.png', alt: 'Session is created / Simplex, Half-duplex, Full-duplex arrows', caption: 'Session is created / Simplex, Half-duplex, Full-duplex arrows' },
-],
+          { src: '/diagrams/session.png', alt: 'Session is created / Simplex, Half-duplex, Full-duplex arrows', caption: 'Session is created / Simplex, Half-duplex, Full-duplex arrows' },
+        ],
       },
       {
         slug: 'transport-layer-segmentation-sequencing-mtu-pdu-tcp-vs-udp-error-control-flow-control-sliding-windowing',
@@ -277,47 +303,59 @@ export const topics: Topic[] = [
         blocks: [
           { type: 'heading', text: 'Overview' },
           { type: 'paragraph', text: 'Also called the core layer and the heart of OSI. The Transport layer is not responsible for transporting data as the name suggests, but for the reliability of the data. Its main functionality is segmentation and sequencing.' },
-          { type: 'bullets', items: [
-            'Segmentation: on the sender side, the entire data is segmented into smaller pieces so it can be easily transferred through the network.',
-            'Sequencing: every segment is assigned a sequence number in order, so the receiving device can reassemble the data correctly.',
-            'Data is segmented as per the MTU configured on the device, which is 1500 bytes by default.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Segmentation: on the sender side, the entire data is segmented into smaller pieces so it can be easily transferred through the network.',
+              'Sequencing: every segment is assigned a sequence number in order, so the receiving device can reassemble the data correctly.',
+              'Data is segmented as per the MTU configured on the device, which is 1500 bytes by default.',
+            ]
+          },
           { type: 'heading', text: 'Memory units' },
-          { type: 'table', headers: ['Unit', 'Equals'], rows: [
-            ['1 Byte', '8 bits'],
-            ['1 Kilobyte', '1024 Bytes'],
-            ['1 Megabyte', '1024 Kilobytes'],
-            ['1 Gigabyte', '1024 Megabytes'],
-            ['1 Terabyte', '1024 Gigabytes'],
-            ['1 Petabyte', '1024 Terabytes'],
-            ['1 Hexabyte', '1024 Petabytes'],
-          ] },
+          {
+            type: 'table', headers: ['Unit', 'Equals'], rows: [
+              ['1 Byte', '8 bits'],
+              ['1 Kilobyte', '1024 Bytes'],
+              ['1 Megabyte', '1024 Kilobytes'],
+              ['1 Gigabyte', '1024 Megabytes'],
+              ['1 Terabyte', '1024 Gigabytes'],
+              ['1 Petabyte', '1024 Terabytes'],
+              ['1 Hexabyte', '1024 Petabytes'],
+            ]
+          },
           { type: 'heading', text: 'PDU (Protocol Data Unit)' },
           { type: 'paragraph', text: 'The PDU is the name of the data at each layer.' },
-          { type: 'table', headers: ['Layer', 'PDU name'], rows: [
-            ['Transport', 'Segment'],
-            ['Network', 'Packet'],
-            ['Data-Link', 'Frame'],
-            ['Physical', 'Bits'],
-          ] },
+          {
+            type: 'table', headers: ['Layer', 'PDU name'], rows: [
+              ['Transport', 'Segment'],
+              ['Network', 'Packet'],
+              ['Data-Link', 'Frame'],
+              ['Physical', 'Bits'],
+            ]
+          },
           { type: 'paragraph', text: 'MSS (Maximum Segment Size) is the payload portion of the MTU. A jumbo frame extends this up to 9216 bytes.' },
           { type: 'heading', text: 'TCP vs. UDP' },
-          { type: 'bullets', items: [
-            'The Transport layer has two protocols: TCP (Transmission Control Protocol) and UDP (User Datagram Protocol).',
-            'Acknowledgements (ACK): the receiver sends a receipt to the sender confirming data was received without issues — this only happens with TCP.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'The Transport layer has two protocols: TCP (Transmission Control Protocol) and UDP (User Datagram Protocol).',
+              'Acknowledgements (ACK): the receiver sends a receipt to the sender confirming data was received without issues — this only happens with TCP.',
+            ]
+          },
           { type: 'heading', text: 'Error Control' },
-          { type: 'bullets', items: [
-            'When using TCP, ensuring data integrity is the Transport layer\'s responsibility.',
-            'The sender generates a hash value (a math value based on the data, using hashing algorithms) and attaches it to the TCP header.',
-            'Once the data reaches the destination, the destination machine also generates a hash value based on the received data and compares both hash values.',
-            'If the hashes match, the data is not corrupted. Even a 1-bit change produces a different hash value, failing the integrity check.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'When using TCP, ensuring data integrity is the Transport layer\'s responsibility.',
+              'The sender generates a hash value (a math value based on the data, using hashing algorithms) and attaches it to the TCP header.',
+              'Once the data reaches the destination, the destination machine also generates a hash value based on the received data and compares both hash values.',
+              'If the hashes match, the data is not corrupted. Even a 1-bit change produces a different hash value, failing the integrity check.',
+            ]
+          },
           { type: 'heading', text: 'Flow Control' },
-          { type: 'bullets', items: [
-            'Controls the flow of traffic to ensure smoother communication.',
-            'Flow control only happens in TCP — there is no flow control in UDP.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Controls the flow of traffic to ensure smoother communication.',
+              'Flow control only happens in TCP — there is no flow control in UDP.',
+            ]
+          },
           { type: 'heading', text: 'Windowing' },
           { type: 'paragraph', text: 'Single windowing (old approach): inefficient, sends segments one by one.' },
           { type: 'paragraph', text: 'Sliding windowing: sender and receiver agree on a window size through the TCP handshake. After the handshake, the sender constantly tries to negotiate (increase) the window size. When a packet goes missing, the sender reverts to the previous window size and retransmits the missing packet. This happens continuously throughout the transmission.' },
@@ -330,14 +368,14 @@ export const topics: Topic[] = [
           { label: 'Flow control', value: 'TCP only, not UDP' },
         ],
         diagrams: [
-        { src: '/diagrams/mtu.png', alt: 'MTU 1500 bytes payload and headers', caption: 'MTU (1500 Bytes) — payload and headers' },
-        { src: '/diagrams/jumbo.png', alt: 'Jumbo frame structure', caption: 'Jumbo frame (9216 Bytes)' },
-        { src: '/diagrams/hashsend.png', alt: 'Sender data payload to hash value', caption: 'Sender — data payload hashed' },
-        { src: '/diagrams/hashrecv.png', alt: 'Receiver data payload to hash matching', caption: 'Receiver — hash matching (no error)' },
-        { src: '/diagrams/windowtree.png', alt: 'Windowing tree — single vs sliding', caption: 'Windowing: single vs sliding' },
-        { src: '/diagrams/winsingle.png', alt: 'Single windowing sequence', caption: 'Single windowing — 1-ACK-2-ACK-3-ACK' },
-        { src: '/diagrams/winslide.png', alt: 'Sliding windowing sequence', caption: 'Sliding windowing — window negotiates up' },
-      ],
+          { src: '/diagrams/mtu.png', alt: 'MTU 1500 bytes payload and headers', caption: 'MTU (1500 Bytes) — payload and headers' },
+          { src: '/diagrams/jumbo.png', alt: 'Jumbo frame structure', caption: 'Jumbo frame (9216 Bytes)' },
+          { src: '/diagrams/hashsend.png', alt: 'Sender data payload to hash value', caption: 'Sender — data payload hashed' },
+          { src: '/diagrams/hashrecv.png', alt: 'Receiver data payload to hash matching', caption: 'Receiver — hash matching (no error)' },
+          { src: '/diagrams/windowtree.png', alt: 'Windowing tree — single vs sliding', caption: 'Windowing: single vs sliding' },
+          { src: '/diagrams/winsingle.png', alt: 'Single windowing sequence', caption: 'Single windowing — 1-ACK-2-ACK-3-ACK' },
+          { src: '/diagrams/winslide.png', alt: 'Sliding windowing sequence', caption: 'Sliding windowing — window negotiates up' },
+        ],
       },
       {
         slug: 'network-layer-packets-ip-headers-routing-basics',
@@ -345,16 +383,18 @@ export const topics: Topic[] = [
         description: 'Layer 3 is responsible for forwarding packets based on the IP header (source and destination IP) and finding the best path between networks.',
         blocks: [
           { type: 'heading', text: 'Network Layer (3rd Layer)' },
-          { type: 'bullets', items: [
-            'The PDU name is packet.',
-            'Responsible for forwarding packets based on the IP header (source IP, destination IP).',
-            'IP belongs to the Network layer, so this layer is responsible for communication between networks.',
-            'A router belongs to the Network layer — this is why it is called a Layer 3 device.',
-            'Responsible for encapsulation and decapsulation of the IP header.',
-            'Responsible for finding the best path between networks; once calculated, the best path is stored in the routing table, and the router forwards traffic based on these available routes.',
-            'Before IP, other protocols existed for this purpose — IPX (Internetwork Packet Exchange), AppleTalk.',
-            'Also responsible for error control: the IP header contains a hash/checksum value to check packet integrity.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'The PDU name is packet.',
+              'Responsible for forwarding packets based on the IP header (source IP, destination IP).',
+              'IP belongs to the Network layer, so this layer is responsible for communication between networks.',
+              'A router belongs to the Network layer — this is why it is called a Layer 3 device.',
+              'Responsible for encapsulation and decapsulation of the IP header.',
+              'Responsible for finding the best path between networks; once calculated, the best path is stored in the routing table, and the router forwards traffic based on these available routes.',
+              'Before IP, other protocols existed for this purpose — IPX (Internetwork Packet Exchange), AppleTalk.',
+              'Also responsible for error control: the IP header contains a hash/checksum value to check packet integrity.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Layer 3 PDU', value: 'Packet' },
@@ -362,9 +402,9 @@ export const topics: Topic[] = [
           { label: 'Path storage', value: 'Routing table' },
         ],
         diagrams: [
-        { src: '/diagrams/ipheader.png', alt: 'IP header segment structure', caption: 'IP header segment' },
-        { src: '/diagrams/switchnet.png', alt: 'Switch network with MAC address table', caption: 'Switch network & MAC address table' },
-      ],
+          { src: '/diagrams/ipheader.png', alt: 'IP header segment structure', caption: 'IP header segment' },
+          { src: '/diagrams/switchnet.png', alt: 'Switch network with MAC address table', caption: 'Switch network & MAC address table' },
+        ],
       },
       {
         slug: 'data-link-layer-frames-mac-addressing-oui-cam-tables',
@@ -372,18 +412,22 @@ export const topics: Topic[] = [
         description: 'Layer 2 handles communication inside the network using MAC addresses, and switches maintain CAM tables that map MAC addresses to switchports.',
         blocks: [
           { type: 'heading', text: 'Data-Link Layer (2nd Layer)' },
-          { type: 'bullets', items: [
-            'The PDU name is frame.',
-            'Responsible for communication inside the network (L2 communication), based on the MAC address of devices.',
-            'A switch is a Layer 2 device because it forwards frames between devices inside the network.',
-            'A switch maintains the MAC address table, also called the CAM table (Content Addressable Memory), which stores the MAC address of connected devices and their switchport information.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'The PDU name is frame.',
+              'Responsible for communication inside the network (L2 communication), based on the MAC address of devices.',
+              'A switch is a Layer 2 device because it forwards frames between devices inside the network.',
+              'A switch maintains the MAC address table, also called the CAM table (Content Addressable Memory), which stores the MAC address of connected devices and their switchport information.',
+            ]
+          },
           { type: 'heading', text: 'MAC Address (Media Access Control)' },
-          { type: 'bullets', items: [
-            '48-bit address, written in hexadecimal format.',
-            'Assigned by the manufacturer on every device — globally unique.',
-            'Contains two parts: first 24 bits = OUI (Organisationally Unique Identifier, represents the manufacturer); remaining bits = Host ID (represents the device).',
-          ] },
+          {
+            type: 'bullets', items: [
+              '48-bit address, written in hexadecimal format.',
+              'Assigned by the manufacturer on every device — globally unique.',
+              'Contains two parts: first 24 bits = OUI (Organisationally Unique Identifier, represents the manufacturer); remaining bits = Host ID (represents the device).',
+            ]
+          },
           { type: 'paragraph', text: 'The Data-Link layer is responsible for encapsulating the Layer 2 header (source/destination MAC address) and decapsulating it. The Layer 2 header also contains a checksum (hash value) for error checking. MAC address aging time in switches is 300 seconds (5 minutes).' },
         ],
         quickReference: [
@@ -393,9 +437,9 @@ export const topics: Topic[] = [
           { label: 'CAM/MAC table aging', value: '300 seconds (5 min)' },
         ],
         diagrams: [
-        { src: '/diagrams/mac48.png', alt: '48-bit MAC address structure', caption: '48-bit MAC address — OUI + Host ID' },
-        { src: '/diagrams/pcswitch.png', alt: 'PC to Switch network with MAC address table', caption: 'PC to Switch — MAC table & frame format' },
-      ],
+          { src: '/diagrams/mac48.png', alt: '48-bit MAC address structure', caption: '48-bit MAC address — OUI + Host ID' },
+          { src: '/diagrams/pcswitch.png', alt: 'PC to Switch network with MAC address table', caption: 'PC to Switch — MAC table & frame format' },
+        ],
       },
       {
         slug: 'physical-layer-binary-format-physical-transmission',
@@ -403,12 +447,14 @@ export const topics: Topic[] = [
         description: 'Layer 1 is responsible for transferring data through the physical medium in binary format, along with sending and receiving the signals.',
         blocks: [
           { type: 'heading', text: 'Physical Layer (1st Layer)' },
-          { type: 'bullets', items: [
-            'Responsible for transferring data through the physical medium (cables) in binary format.',
-            'Responsible for sending and receiving the data.',
-            'Also responsible for sending the signals along with the data.',
-            'All the "dumb" hardware with no intelligence capability belongs to the Physical layer — cables, consoles, transceivers, CCTV cameras, authentication terminals, and hubs.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Responsible for transferring data through the physical medium (cables) in binary format.',
+              'Responsible for sending and receiving the data.',
+              'Also responsible for sending the signals along with the data.',
+              'All the "dumb" hardware with no intelligence capability belongs to the Physical layer — cables, consoles, transceivers, CCTV cameras, authentication terminals, and hubs.',
+            ]
+          },
         ],
         quickReference: [{ label: 'Layer 1 devices', value: 'Cables, consoles, transceivers, hubs' }],
       },
@@ -431,24 +477,28 @@ export const topics: Topic[] = [
         description: 'Ethernet is a family of technologies that connects devices and enables communication in both LAN and WAN, standardized publicly by the IEEE.',
         blocks: [
           { type: 'heading', text: 'History' },
-          { type: 'bullets', items: [
-            'Originally invented for the LAN environment by a company called Xerox, at 2.94 Mbps.',
-            'A consortium of three companies then developed the first version of Ethernet at 10 Mbps.',
-            'IEEE (Institute of Electrical and Electronic Engineers) standardized this as Ethernet Version 2 for the public.',
-            'It is now an open-source technology that anyone can use.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Originally invented for the LAN environment by a company called Xerox, at 2.94 Mbps.',
+              'A consortium of three companies then developed the first version of Ethernet at 10 Mbps.',
+              'IEEE (Institute of Electrical and Electronic Engineers) standardized this as Ethernet Version 2 for the public.',
+              'It is now an open-source technology that anyone can use.',
+            ]
+          },
           { type: 'heading', text: 'Types of Ethernet' },
-          { type: 'table', headers: ['Standard', 'Speed'], rows: [
-            ['Ethernet', '10 Mbps'],
-            ['Fast Ethernet', '100 Mbps'],
-            ['Gigabit Ethernet', '1000 Mbps (1 Gbps)'],
-            ['10 Gigabit Ethernet', '10 Gbps'],
-            ['25 Gigabit Ethernet', '25 Gbps'],
-            ['40 Gigabit Ethernet', '40 Gbps'],
-            ['100 Gigabit Ethernet', '100 Gbps'],
-            ['200 Gigabit Ethernet', '200 Gbps'],
-            ['400 Gigabit Ethernet', '400 Gbps'],
-          ] },
+          {
+            type: 'table', headers: ['Standard', 'Speed'], rows: [
+              ['Ethernet', '10 Mbps'],
+              ['Fast Ethernet', '100 Mbps'],
+              ['Gigabit Ethernet', '1000 Mbps (1 Gbps)'],
+              ['10 Gigabit Ethernet', '10 Gbps'],
+              ['25 Gigabit Ethernet', '25 Gbps'],
+              ['40 Gigabit Ethernet', '40 Gbps'],
+              ['100 Gigabit Ethernet', '100 Gbps'],
+              ['200 Gigabit Ethernet', '200 Gbps'],
+              ['400 Gigabit Ethernet', '400 Gbps'],
+            ]
+          },
           { type: 'heading', text: 'Advantages of Ethernet' },
           { type: 'bullets', items: ['Open-source', 'Simple to install & manage', 'Inexpensive', 'Flexible', 'Scalable', 'Easy to interoperate between multiple vendors'] },
         ],
@@ -460,19 +510,23 @@ export const topics: Topic[] = [
         description: 'Twisted pair cable contains 8 wires in 4 pairs with color codes, categorized by the number of twists per inch, with shielded and unshielded variants.',
         blocks: [
           { type: 'heading', text: 'Construction' },
-          { type: 'bullets', items: [
-            '8 wires inside with different color codes — 4 pairs of 4 wires.',
-            'Shielded: 3 layers of insulation — one above the thin copper wire, one above each pair, one above all pairs.',
-            'Unshielded: 8 wires, 4 pairs, 2 layers of insulation — one above the thin copper wire, one above all pairs.',
-          ] },
+          {
+            type: 'bullets', items: [
+              '8 wires inside with different color codes — 4 pairs of 4 wires.',
+              'Shielded: 3 layers of insulation — one above the thin copper wire, one above each pair, one above all pairs.',
+              'Unshielded: 8 wires, 4 pairs, 2 layers of insulation — one above the thin copper wire, one above all pairs.',
+            ]
+          },
           { type: 'heading', text: 'Categories of twisted pair' },
           { type: 'paragraph', text: 'Categories are defined by the number of twists on a pair, per inch.' },
-          { type: 'table', headers: ['Category', 'Twists per inch / notes'], rows: [
-            ['Category 3', '3 twists per inch'],
-            ['Category 5', '5 twists per inch'],
-            ['Cat 5e', 'Pairs are also twisted around each other'],
-            ['Category 6', '6 twists per inch, with improved insulation'],
-          ] },
+          {
+            type: 'table', headers: ['Category', 'Twists per inch / notes'], rows: [
+              ['Category 3', '3 twists per inch'],
+              ['Category 5', '5 twists per inch'],
+              ['Cat 5e', 'Pairs are also twisted around each other'],
+              ['Category 6', '6 twists per inch, with improved insulation'],
+            ]
+          },
           { type: 'heading', text: 'Limitations of twisted pair' },
           { type: 'bullets', items: ['Maximum distance: 100 metres', 'Maximum speed: 1 Gbps'] },
         ],
@@ -482,9 +536,9 @@ export const topics: Topic[] = [
           { label: 'Cat 5e', value: 'Pairs twisted around each other' },
         ],
         diagrams: [
-        { src: '/diagrams/twisted.png', alt: 'Shielded vs unshielded twisted pair cross-section', caption: 'STP vs UTP — shielding layers' },
-        { src: '/diagrams/cat5e.png', alt: 'Cat 5 and Cat 5e cross-section with plastic separator', caption: 'Cat 5 vs Cat 5e — plastic separator' },
-      ],
+          { src: '/diagrams/twisted.png', alt: 'Shielded vs unshielded twisted pair cross-section', caption: 'STP vs UTP — shielding layers' },
+          { src: '/diagrams/cat5e.png', alt: 'Cat 5 and Cat 5e cross-section with plastic separator', caption: 'Cat 5 vs Cat 5e — plastic separator' },
+        ],
       },
       {
         slug: 'coaxial-cables',
@@ -497,7 +551,9 @@ export const topics: Topic[] = [
           { type: 'paragraph', text: 'This type of cable is not used in networking anymore, but is still widely used to provide television service.' },
         ],
         quickReference: [{ label: 'Modern use', value: 'Television service, not networking' }],
-        diagrams: ['Coaxial cable diagram'],
+        diagrams: [
+          { src: '/diagrams/coaxial.png', alt: 'Coaxial cable layers — plastic, braided metal, insulator, copper', caption: 'Coaxial cable — protective plastic, braided metal conductor, insulator, copper conductor' },
+        ],
       },
       {
         slug: 'fiber-optic-cables-single-mode-multi-mode-transceivers-like-sfp-qsfp',
@@ -505,32 +561,42 @@ export const topics: Topic[] = [
         description: 'Fiber cables transmit data as light — single-mode over long distances with one ray of light, multi-mode over shorter distances with multiple rays.',
         blocks: [
           { type: 'heading', text: 'Single-mode fibre' },
-          { type: 'bullets', items: [
-            'Consists of a small glass core that reflects light waves.',
-            'Can only transmit a single ray of light.',
-            'Can transmit information over a larger distance, measured in KM (e.g. 40 KM, 100 KM).',
-            'Used to connect countries and distant locations.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Consists of a small glass core that reflects light waves.',
+              'Can only transmit a single ray of light.',
+              'Can transmit information over a larger distance, measured in KM (e.g. 40 KM, 100 KM).',
+              'Used to connect countries and distant locations.',
+            ]
+          },
           { type: 'heading', text: 'Multi-mode fibre' },
-          { type: 'bullets', items: [
-            'Consists of a larger glass core.',
-            'Can transmit multiple rays of light over a shorter distance.',
-            'Used to connect devices inside an environment (LAN, WAN).',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Consists of a larger glass core.',
+              'Can transmit multiple rays of light over a shorter distance.',
+              'Used to connect devices inside an environment (LAN, WAN).',
+            ]
+          },
           { type: 'heading', text: 'Transceiver' },
           { type: 'paragraph', text: 'Transceiver = Transmitter + Receiver. It can both transmit and receive data, converting digital signals into light signals to send through the fibre cable. It is a small module that plugs into the port of a networking device, and the fibre cable connects to the transceiver.' },
-          { type: 'table', headers: ['Type', 'Speed'], rows: [
-            ['SFP (Small Form-factor Pluggable)', '1 Gbps'],
-            ['SFP+', '10 Gbps'],
-            ['QSFP', '100 Gbps'],
-          ] },
+          {
+            type: 'table', headers: ['Type', 'Speed'], rows: [
+              ['SFP (Small Form-factor Pluggable)', '1 Gbps'],
+              ['SFP+', '10 Gbps'],
+              ['QSFP', '100 Gbps'],
+            ]
+          },
         ],
         quickReference: [
           { label: 'Single-mode', value: 'Single ray, long distance (KM)' },
           { label: 'Multi-mode', value: 'Multiple rays, short distance (LAN/WAN)' },
           { label: 'SFP / SFP+ / QSFP', value: '1 Gbps / 10 Gbps / 100 Gbps' },
         ],
-        diagrams: ['Single ray of light fig(i) diagram', 'Multiple rays fig(ii) diagram', 'Transceiver fibre cable diagram'],
+        diagrams: [
+          { src: '/diagrams/single.png', alt: 'Single-mode fibre — single ray of light', caption: 'Single-mode fibre — single ray' },
+          { src: '/diagrams/multi.png', alt: 'Multi-mode fibre — multiple rays of light', caption: 'Multi-mode fibre — multiple rays' },
+          { src: '/diagrams/transceiver.png', alt: 'Transceiver connecting a fibre cable to a device', caption: 'Transceiver — fibre cable connects' },
+        ],
       },
       {
         slug: 'color-codes-and-standards-eia-tia-568b',
@@ -538,26 +604,32 @@ export const topics: Topic[] = [
         description: 'Twisted pair cables use a standardized color code (EIA/TIA-568B) for crimping RJ-45 connectors consistently.',
         blocks: [
           { type: 'heading', text: 'Overview' },
-          { type: 'bullets', items: [
-            'A typical twisted pair cable consists of 8 wires in 4 pairs, each with a specific color code.',
-            'The process of attaching an RJ-45 (Registered Jack) connector to the twisted pair cable is called crimping.',
-            'Pair colors: orange & orange-white, blue & blue-white, green & green-white, brown & brown-white.',
-            'Even though there are 8 wires, the Ethernet standard only uses 4 wires for data transmission — the Tx (Transmit) and Rx (Receive) pins.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A typical twisted pair cable consists of 8 wires in 4 pairs, each with a specific color code.',
+              'The process of attaching an RJ-45 (Registered Jack) connector to the twisted pair cable is called crimping.',
+              'Pair colors: orange & orange-white, blue & blue-white, green & green-white, brown & brown-white.',
+              'Even though there are 8 wires, the Ethernet standard only uses 4 wires for data transmission — the Tx (Transmit) and Rx (Receive) pins.',
+            ]
+          },
           { type: 'heading', text: 'EIA/TIA-568B pinout' },
-          { type: 'table', headers: ['Pin', 'Color'], rows: [
-            ['1', 'Orange White'],
-            ['2', 'Orange'],
-            ['3', 'Green White'],
-            ['4', 'Blue'],
-            ['5', 'Blue White'],
-            ['6', 'Green'],
-            ['7', 'Brown White'],
-            ['8', 'Brown'],
-          ] },
+          {
+            type: 'table', headers: ['Pin', 'Color'], rows: [
+              ['1', 'Orange White'],
+              ['2', 'Orange'],
+              ['3', 'Green White'],
+              ['4', 'Blue'],
+              ['5', 'Blue White'],
+              ['6', 'Green'],
+              ['7', 'Brown White'],
+              ['8', 'Brown'],
+            ]
+          },
         ],
         quickReference: [{ label: 'Standard', value: 'EIA/TIA-568B' }, { label: 'Crimping', value: 'Attaching RJ-45 to twisted pair' }],
-        diagrams: ['Tx (Transmission) and Rx (Receive) pins diagram'],
+        diagrams: [
+          { src: '/diagrams/txrx.png', alt: 'Transmission and receive pins on RJ-45', caption: 'Tx and Rx pins — only 4 of 8 wires carry data' },
+        ],
       },
       {
         slug: 'cabling-types-straight-through-crossover-auto-mdi-x',
@@ -566,33 +638,117 @@ export const topics: Topic[] = [
         blocks: [
           { type: 'heading', text: '1. Straight-Through Cable' },
           { type: 'paragraph', text: 'Used to connect different types of devices — e.g. Switch ↔ PC, Switch ↔ Router, Switch ↔ Firewall, Router ↔ Firewall. Both ends use the same pin/color mapping.' },
-          { type: 'table', headers: ['Pin', 'Side 1', 'Side 2'], rows: [
-            ['1', 'Orange White', 'Orange White'],
-            ['2', 'Orange', 'Orange'],
-            ['3', 'Green White', 'Green White'],
-            ['4', 'Blue', 'Blue'],
-            ['5', 'Blue White', 'Blue White'],
-            ['6', 'Green', 'Green'],
-            ['7', 'Brown White', 'Brown White'],
-            ['8', 'Brown', 'Brown'],
-          ] },
+          {
+            type: 'table', headers: ['Pin', 'Side 1', 'Side 2'], rows: [
+              ['1', 'Orange White', 'Orange White'],
+              ['2', 'Orange', 'Orange'],
+              ['3', 'Green White', 'Green White'],
+              ['4', 'Blue', 'Blue'],
+              ['5', 'Blue White', 'Blue White'],
+              ['6', 'Green', 'Green'],
+              ['7', 'Brown White', 'Brown White'],
+              ['8', 'Brown', 'Brown'],
+            ]
+          },
           { type: 'heading', text: '2. Crossover Cable' },
           { type: 'paragraph', text: 'Used to connect the same type of devices — e.g. Switch to Switch, Router to Router. This type of cabling is no longer strictly required, as newer devices can identify neighbour devices and change the Rx/Tx pins accordingly to enable communication — meaning a straight-through cable can be used for same-type devices too. This capability is called Auto MDI/MDI-X.' },
-          { type: 'table', headers: ['Pin', 'Side 1', 'Side 2'], rows: [
-            ['1', 'Orange White', 'Green White'],
-            ['2', 'Orange', 'Green'],
-            ['3', 'Green White', 'Orange White'],
-            ['4', 'Blue', 'Blue'],
-            ['5', 'Blue White', 'Blue White'],
-            ['6', 'Green', 'Orange'],
-            ['7', 'Brown White', 'Brown White'],
-            ['8', 'Brown', 'Brown'],
-          ] },
+          {
+            type: 'table', headers: ['Pin', 'Side 1', 'Side 2'], rows: [
+              ['1', 'Orange White', 'Green White'],
+              ['2', 'Orange', 'Green'],
+              ['3', 'Green White', 'Orange White'],
+              ['4', 'Blue', 'Blue'],
+              ['5', 'Blue White', 'Blue White'],
+              ['6', 'Green', 'Orange'],
+              ['7', 'Brown White', 'Brown White'],
+              ['8', 'Brown', 'Brown'],
+            ]
+          },
         ],
         quickReference: [
           { label: 'Straight-through', value: 'Different device types (Switch↔PC, Switch↔Router)' },
           { label: 'Crossover', value: 'Same device types (Switch↔Switch)' },
           { label: 'Auto MDI-X', value: 'Modern devices auto-correct pin mapping' },
+        ],
+      },
+      {
+        slug: 'power-over-ethernet-poe',
+        title: 'Power over Ethernet (PoE)',
+        description: 'PoE lets a single Ethernet cable carry both data and electrical power, so devices like access points and IP cameras can be installed without a separate power outlet.',
+        blocks: [
+          { type: 'heading', text: 'What is PoE?' },
+          { type: 'paragraph', text: 'PoE stands for Power over Ethernet. It is a technology that lets a single Ethernet cable carry BOTH data and electrical power at the same time.' },
+          { type: 'paragraph', text: 'Before PoE, every device needed two cables — one for data and one for power. PoE combines them into one, which makes installation much simpler and cheaper.' },
+
+          { type: 'heading', text: 'Why PoE is useful' },
+          {
+            type: 'bullets', items: [
+              'Only one cable needed — no separate power adapter or wall socket.',
+              'Devices can be placed where there is no power outlet nearby (e.g. a camera on the ceiling, an access point on the wall).',
+              'Cabling is cleaner and cheaper — one run of cable instead of two.',
+              'Devices can be centrally powered from a single switch, making them easy to reboot or shut down remotely.',
+            ]
+          },
+
+          { type: 'heading', text: 'Common devices that use PoE' },
+          {
+            type: 'bullets', items: [
+              'Wireless access points (Wi-Fi APs)',
+              'IP cameras (CCTV)',
+              'IP phones (VoIP phones)',
+              'Door access control systems',
+              'Some LED lighting',
+            ]
+          },
+
+          { type: 'heading', text: 'PoE components' },
+          {
+            type: 'bullets', items: [
+              'PSE (Power Sourcing Equipment) — the device that PROVIDES power. Example: a PoE switch.',
+              'PD (Powered Device) — the device that RECEIVES power. Example: an IP camera or an access point.',
+            ]
+          },
+
+          { type: 'heading', text: 'PoE standards' },
+          {
+            type: 'table', headers: ['Standard', 'Name', 'Max power per port'], rows: [
+              ['802.3af', 'PoE (original)', '15.4 W'],
+              ['802.3at', 'PoE+', '30 W'],
+              ['802.3bt', 'PoE++ (Type 3)', '60 W'],
+              ['802.3bt', 'PoE++ (Type 4)', '90 W'],
+            ]
+          },
+          { type: 'paragraph', text: 'Higher standard numbers deliver more power per port — useful for bigger cameras, faster access points, and newer PoE devices.' },
+
+          { type: 'heading', text: 'How PoE works (in simple terms)' },
+          {
+            type: 'bullets', items: [
+              'The PoE switch detects a device on the other end of the cable.',
+              'If the device supports PoE, the switch sends a small test signal first to confirm.',
+              'Once confirmed, the switch supplies the required power along with the data.',
+              'If the device does NOT support PoE, no power is sent — so ordinary devices like laptops are not damaged.',
+            ]
+          },
+
+          { type: 'heading', text: 'Quick check' },
+          {
+            type: 'bullets', items: [
+              'One cable = data + power. Two jobs, one wire.',
+              'PoE switch = PSE. IP camera = PD.',
+              'Match the standard to the power needed: af (15 W) → at (30 W) → bt (60–90 W).',
+              'PoE does not send power to devices that do not ask for it.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'PoE', value: 'Power + data over one Ethernet cable' },
+          { label: 'PSE', value: 'Provides power (e.g. PoE switch)' },
+          { label: 'PD', value: 'Receives power (e.g. IP camera, AP)' },
+          { label: '802.3af / at', value: '15.4 W / 30 W (PoE, PoE+)' },
+          { label: '802.3bt', value: '60 W / 90 W (PoE++)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/poe.png', alt: 'PoE switch sending data and power to an IP camera over one Ethernet cable', caption: 'PoE — one cable carries data + power (PSE → PD)' },
         ],
       },
     ],
@@ -611,23 +767,29 @@ export const topics: Topic[] = [
         description: 'A hub is a Layer 1 device that cannot make forwarding decisions, so it always broadcasts incoming traffic to every other port.',
         blocks: [
           { type: 'heading', text: 'What a hub is' },
-          { type: 'bullets', items: [
-            'A Layer 1 device (belongs to the Physical layer). Used to connect host devices inside a network, but not used anymore.',
-            'Cannot take any decision because it has no database/table to maintain connected-device information.',
-            'Cannot forward traffic intelligently — with no table or intelligent forwarding capability, a hub always broadcasts incoming traffic.',
-            'The destination device accepts the traffic after checking the L2 & L3 header; other devices discard it.',
-            'Operates in half-duplex.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A Layer 1 device (belongs to the Physical layer). Used to connect host devices inside a network, but not used anymore.',
+              'Cannot take any decision because it has no database/table to maintain connected-device information.',
+              'Cannot forward traffic intelligently — with no table or intelligent forwarding capability, a hub always broadcasts incoming traffic.',
+              'The destination device accepts the traffic after checking the L2 & L3 header; other devices discard it.',
+              'Operates in half-duplex.',
+            ]
+          },
           { type: 'heading', text: 'CSMA/CD and CSMA/CA' },
-          { type: 'bullets', items: [
-            'CSMA/CD (Carrier Sense Multiple Access / Collision Detection): used to identify whether the medium is free or not before sending signals to client machines.',
-            'CSMA/CA (Carrier Sense Multiple Access / Collision Avoidance): the wireless equivalent.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'CSMA/CD (Carrier Sense Multiple Access / Collision Detection): used to identify whether the medium is free or not before sending signals to client machines.',
+              'CSMA/CA (Carrier Sense Multiple Access / Collision Avoidance): the wireless equivalent.',
+            ]
+          },
           { type: 'heading', text: 'Broadcast Domain & Collision Domain' },
-          { type: 'bullets', items: [
-            'Broadcast domain: a domain/area where a broadcast message can propagate/spread. In hubs, all ports belong to a single broadcast domain — it broadcasts to everyone except the incoming port.',
-            'Collision domain: an area/domain where collisions can occur. In hubs, all ports belong to a single collision domain. There is no error checking on hub ports, so it will forward corrupted frames as well.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Broadcast domain: a domain/area where a broadcast message can propagate/spread. In hubs, all ports belong to a single broadcast domain — it broadcasts to everyone except the incoming port.',
+              'Collision domain: an area/domain where collisions can occur. In hubs, all ports belong to a single collision domain. There is no error checking on hub ports, so it will forward corrupted frames as well.',
+            ]
+          },
           { type: 'paragraph', text: 'There is no Spanning Tree in hubs, so hubs can create loops in the topology if there is a closed connection — because there is no STP, these become infinite loops that consume all available bandwidth.' },
         ],
         quickReference: [
@@ -636,7 +798,11 @@ export const topics: Topic[] = [
           { label: 'Broadcast domain', value: 'All ports = 1 single domain' },
           { label: 'Collision domain', value: 'All ports = 1 single domain' },
         ],
-        diagrams: ['Hub and PC connection diagram', 'Hub with 4 PCs Broadcast/Collision Domain diagram', 'Multiple Hubs topology diagram'],
+        diagrams: [
+          { src: '/diagrams/hubpc.png', alt: 'Hub connected to multiple PCs', caption: 'Hub and PC connection' },
+          { src: '/diagrams/hub4.png', alt: 'Hub with 4 PCs — single broadcast and collision domain', caption: 'Hub with 4 PCs — 1 broadcast + 1 collision domain' },
+          { src: '/diagrams/hubtopo.png', alt: 'Multiple hubs topology forming a loop', caption: 'Multiple hubs — closed connection = infinite loop' },
+        ],
       },
       {
         slug: 'switches-mac-cam-tables-intelligent-forwarding-manageable-vs-non-manageable-layer-2-vs-layer-3-mls-asic',
@@ -644,47 +810,59 @@ export const topics: Topic[] = [
         description: 'A switch is a Layer 2 device that maintains a MAC/CAM table and forwards frames intelligently based on what it has learned.',
         blocks: [
           { type: 'heading', text: 'What a switch is' },
-          { type: 'bullets', items: [
-            'A Layer 2 device that operates in the Data-Link layer.',
-            'Enables L2 connectivity (connectivity inside the network).',
-            'Maintains the MAC address table, also called the CAM (Content Addressable Memory) table.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A Layer 2 device that operates in the Data-Link layer.',
+              'Enables L2 connectivity (connectivity inside the network).',
+              'Maintains the MAC address table, also called the CAM (Content Addressable Memory) table.',
+            ]
+          },
           { type: 'heading', text: 'What the CAM table stores' },
           { type: 'bullets', items: ['MAC address', 'Switch port', 'Static or Dynamic learning', 'VLAN / WLAN'] },
           { type: 'heading', text: 'Intelligent forwarding' },
-          { type: 'bullets', items: [
-            'When a switch receives a frame, it checks the source and destination MAC address.',
-            'If the source MAC address is new, it stores that information in the MAC address table.',
-            'If the destination MAC address is not in the table, the switch broadcasts the traffic. If it is in the table, the switch unicasts the traffic.',
-            'A switch is basically an observing device — it observes every incoming frame and learns from it.',
-            'A switch can perform error checking, since every switch port has buffer memory for checking headers (errors).',
-          ] },
+          {
+            type: 'bullets', items: [
+              'When a switch receives a frame, it checks the source and destination MAC address.',
+              'If the source MAC address is new, it stores that information in the MAC address table.',
+              'If the destination MAC address is not in the table, the switch broadcasts the traffic. If it is in the table, the switch unicasts the traffic.',
+              'A switch is basically an observing device — it observes every incoming frame and learns from it.',
+              'A switch can perform error checking, since every switch port has buffer memory for checking headers (errors).',
+            ]
+          },
           { type: 'heading', text: 'Non-manageable switches' },
-          { type: 'bullets', items: [
-            'Non-manageable/non-configurable.',
-            'No console port.',
-            'Provide basic switching function (forwarding frames inside the network).',
-            'Lower price — ideal for small office/home network environments.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Non-manageable/non-configurable.',
+              'No console port.',
+              'Provide basic switching function (forwarding frames inside the network).',
+              'Lower price — ideal for small office/home network environments.',
+            ]
+          },
           { type: 'heading', text: 'Manageable switches' },
-          { type: 'bullets', items: [
-            'Can be configured and managed; console port is present.',
-            'Provide switch functionality and more; ideal for large enterprise environments; higher price.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Can be configured and managed; console port is present.',
+              'Provide switch functionality and more; ideal for large enterprise environments; higher price.',
+            ]
+          },
           { type: 'heading', text: 'L2 switches vs. L3 switches (MLS)' },
-          { type: 'bullets', items: [
-            'L2 switches: operate in the Data-Link layer, forward frames between devices based only on the MAC table, and can only check Layer 2 headers.',
-            'L3 switches (also called MLS — Multi-Layer Switch): provide both L2 and L3 functionality, meaning they can perform switching and routing.',
-            'An L3 switch forwards frames based on the MAC table after checking the L2 header, and can also forward packets based on the routing table after checking the L3 header.',
-            'Routing is disabled by default on an L3 switch.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'L2 switches: operate in the Data-Link layer, forward frames between devices based only on the MAC table, and can only check Layer 2 headers.',
+              'L3 switches (also called MLS — Multi-Layer Switch): provide both L2 and L3 functionality, meaning they can perform switching and routing.',
+              'An L3 switch forwards frames based on the MAC table after checking the L2 header, and can also forward packets based on the routing table after checking the L3 header.',
+              'Routing is disabled by default on an L3 switch.',
+            ]
+          },
           { type: 'heading', text: 'ASIC (Application Specific Integrated Circuit)' },
           { type: 'paragraph', text: 'Responsible for high-speed data traffic forwarding in switches — a special hardware circuit that helps switches handle high volumes of traffic.' },
           { type: 'heading', text: 'Broadcast Domain & Collision Domain in switches' },
-          { type: 'bullets', items: [
-            'Every switch port belongs to a single (shared) broadcast domain.',
-            'Every switch port has its own collision domain.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Every switch port belongs to a single (shared) broadcast domain.',
+              'Every switch port has its own collision domain.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Switch layer', value: 'Layer 2 (Data-Link)' },
@@ -693,7 +871,11 @@ export const topics: Topic[] = [
           { label: 'Collision domain (switch)', value: 'Per-port' },
           { label: 'Broadcast domain (switch)', value: 'Shared across ports' },
         ],
-        diagrams: ['Interface buffer memory and frame checking diagram', 'Types of Switches tree diagram', 'Switch Collision Domains diagram'],
+        diagrams: [
+          { src: '/diagrams/int.png', alt: 'Interface buffer memory and frame checking on a switch port', caption: 'Interface buffer memory — error checking before forwarding' },
+          { src: '/diagrams/sw.png', alt: 'Types of switches tree — manageable, non-manageable, L2, L3/MLS', caption: 'Types of switches' },
+          { src: '/diagrams/sww.png', alt: 'Switch collision domains per port', caption: 'Switch collision domains — one per port' },
+        ],
       },
       {
         slug: 'spanning-tree-protocol-stp',
@@ -701,11 +883,13 @@ export const topics: Topic[] = [
         description: 'STP is a technology in switches that prevents traffic looping by calculating and disabling redundant paths.',
         blocks: [
           { type: 'heading', text: 'STP' },
-          { type: 'bullets', items: [
-            'A technology in switches to prevent traffic looping.',
-            'Enabled by default in switches.',
-            'STP performs multiple calculations to find loops in the topology and disables the port to prevent the loop.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A technology in switches to prevent traffic looping.',
+              'Enabled by default in switches.',
+              'STP performs multiple calculations to find loops in the topology and disables the port to prevent the loop.',
+            ]
+          },
         ],
         quickReference: [{ label: 'Default state', value: 'Enabled on switches' }, { label: 'Purpose', value: 'Prevent Layer 2 loops' }],
       },
@@ -715,26 +899,32 @@ export const topics: Topic[] = [
         description: 'A router is a Layer 3 device that connects networks and forwards traffic based on the routing table it maintains.',
         blocks: [
           { type: 'heading', text: 'What a router is' },
-          { type: 'bullets', items: [
-            'A Layer 3 device that operates in the Network layer.',
-            'Used for connecting networks and enabling connectivity between networks.',
-            'Each router interface is connected to a network.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A Layer 3 device that operates in the Network layer.',
+              'Used for connecting networks and enabling connectivity between networks.',
+              'Each router interface is connected to a network.',
+            ]
+          },
           { type: 'heading', text: 'How routing works' },
-          { type: 'bullets', items: [
-            'When traffic (a packet) comes into the router, it takes a forwarding decision based on the L3 header of the packet.',
-            'The router has intelligent forwarding capability because it maintains a routing table.',
-            'The routing table contains the best paths (routes) to reach a destination network.',
-            'The router forwards traffic based on these available best paths — this process is called routing.',
-            'Every router port has its own broadcast domain and its own collision domain.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'When traffic (a packet) comes into the router, it takes a forwarding decision based on the L3 header of the packet.',
+              'The router has intelligent forwarding capability because it maintains a routing table.',
+              'The routing table contains the best paths (routes) to reach a destination network.',
+              'The router forwards traffic based on these available best paths — this process is called routing.',
+              'Every router port has its own broadcast domain and its own collision domain.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Router layer', value: 'Layer 3 (Network)' },
           { label: 'Decision based on', value: 'Routing table + L3 header' },
           { label: 'Domains per port', value: 'Own broadcast domain + own collision domain' },
         ],
-        diagrams: ['Routers and LANs network topology diagram'],
+        diagrams: [
+          { src: '/diagrams/rlan.png', alt: 'Routers connected to multiple LANs', caption: 'Routers and LANs — each router interface connects to a network' },
+        ],
       },
       {
         slug: 'types-of-communication-unicast-multicast-broadcast-anycast',
@@ -742,12 +932,14 @@ export const topics: Topic[] = [
         description: 'Delivery type describes how many receivers should process a transmission — from one-to-one up to one-to-nearest.',
         blocks: [
           { type: 'heading', text: 'Types of communication' },
-          { type: 'bullets', items: [
-            'Unicast — one-to-one communication.',
-            'Multicast — one-to-group communication.',
-            'Broadcast — one-to-all communication.',
-            'Anycast — one-to-nearest communication.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Unicast — one-to-one communication.',
+              'Multicast — one-to-group communication.',
+              'Broadcast — one-to-all communication.',
+              'Anycast — one-to-nearest communication.',
+            ]
+          },
           { type: 'paragraph', text: 'In IPv6, broadcasting was completely removed and multicasting is used instead of broadcasting; IPv6 also introduced anycast.' },
         ],
         quickReference: [
@@ -774,30 +966,39 @@ export const topics: Topic[] = [
         description: 'An IP address is a logical address assigned to identify each device in the network, with a network side and a host side.',
         blocks: [
           { type: 'heading', text: 'IP Address' },
-          { type: 'bullets', items: [
-            'A logical address assigned by the network administrator/engineer to identify each device in the network.',
-            'Every IP address has two sections: the network side (represents the network) and the host side (represents the host device).',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A logical address assigned by the network administrator/engineer to identify each device in the network.',
+              'Every IP address has two sections: the network side (represents the network) and the host side (represents the host device).',
+            ]
+          },
           { type: 'code', language: 'text', code: '192.168.1.1\n|_______| |\nNetwork   Host side\nside' },
           { type: 'heading', text: 'IPv4' },
-          { type: 'bullets', items: [
-            '32-bit address → 2^32 → about 4 billion addresses.',
-            'Written in decimal, split into octets — e.g. 8.8.8.8.',
-            'Each octet is 8 bits — e.g. 8 = 00001000.',
-          ] },
+          {
+            type: 'bullets', items: [
+              '32-bit address → 2^32 → about 4 billion addresses.',
+              'Written in decimal, split into octets — e.g. 8.8.8.8.',
+              'Each octet is 8 bits — e.g. 8 = 00001000.',
+            ]
+          },
           { type: 'heading', text: 'IPv6' },
-          { type: 'bullets', items: [
-            '128-bit address → 2^128.',
-            'Written in hexadecimal — e.g. AD12:1306:1034:0000:1111:2222:3333:4444.',
-            'Each field is a nibble (16 bits) — compare to a MAC address, which has 6 fields.',
-          ] },
+          {
+            type: 'bullets', items: [
+              '128-bit address → 2^128.',
+              'Written in hexadecimal — e.g. AD12:1306:1034:0000:1111:2222:3333:4444.',
+              'Each field is a nibble (16 bits) — compare to a MAC address, which has 6 fields.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'IPv4', value: '32-bit, decimal octets, ~4 billion addresses' },
           { label: 'IPv6', value: '128-bit, hexadecimal, 8 fields of 16 bits' },
           { label: '1 Byte', value: '8 bits' },
         ],
-        diagrams: ['Router connecting to 4 PCs diagram', 'IP tree diagram (IPv4, IPv6)'],
+        diagrams: [
+          { src: '/diagrams/rpc.png', alt: 'Router connecting to 4 PCs', caption: 'Router connecting to 4 PCs' },
+          { src: '/diagrams/ip_wide.png', alt: 'IP tree diagram — IPv4 and IPv6', caption: 'IP tree — IPv4 and IPv6' },
+        ],
       },
       basics(
         'Number System Conversions (Hexadecimal to Binary)',
@@ -815,39 +1016,49 @@ export const topics: Topic[] = [
         description: 'Classful addressing divides the IPv4 space into five classes, each with a defined range, default mask, and purpose.',
         blocks: [
           { type: 'heading', text: 'Class A' },
-          { type: 'bullets', items: [
-            'Structure: N | H | H | H — subnet mask 255.0.0.0 (/8).',
-            '10.0.0.0/8 is a private network.',
-            '127.0.0.0/8 is the Loopback range (127.0.0.1 – 127.255.255.255).',
-            'The rest of Class A is public.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Structure: N | H | H | H — subnet mask 255.0.0.0 (/8).',
+              '10.0.0.0/8 is a private network.',
+              '127.0.0.0/8 is the Loopback range (127.0.0.1 – 127.255.255.255).',
+              'The rest of Class A is public.',
+            ]
+          },
           { type: 'heading', text: 'Class B' },
-          { type: 'bullets', items: [
-            'Range: 128 – 191 → total range 128.0.0.0 – 191.255.255.255.',
-            'Structure: N | N | H | H — subnet mask 255.255.0.0 (/16).',
-            'Example: 150.10.10.10, mask 255.255.0.0.',
-            'Example network: 150.10.0.0/16 → network address; hosts 150.10.0.1 – 150.10.255.254; broadcast 150.10.255.255.',
-            'Usable host IPs: 2^16 − 2 = 65536 − 2 = 65534.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Range: 128 – 191 → total range 128.0.0.0 – 191.255.255.255.',
+              'Structure: N | N | H | H — subnet mask 255.255.0.0 (/16).',
+              'Example: 150.10.10.10, mask 255.255.0.0.',
+              'Example network: 150.10.0.0/16 → network address; hosts 150.10.0.1 – 150.10.255.254; broadcast 150.10.255.255.',
+              'Usable host IPs: 2^16 − 2 = 65536 − 2 = 65534.',
+            ]
+          },
           { type: 'heading', text: 'Class C' },
-          { type: 'bullets', items: [
-            'Range: 192 – 223 → total range 192.0.0.0 – 223.255.255.255.',
-            'Structure: N | N | N | H — subnet mask 255.255.255.0 (/24).',
-            'Example: 192.168.10.0/24 → network address; hosts 192.168.10.1 – 192.168.10.254; broadcast 192.168.10.255.',
-            'Usable host IPs: 2^8 − 2 = 256 − 2 = 254.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Range: 192 – 223 → total range 192.0.0.0 – 223.255.255.255.',
+              'Structure: N | N | N | H — subnet mask 255.255.255.0 (/24).',
+              'Example: 192.168.10.0/24 → network address; hosts 192.168.10.1 – 192.168.10.254; broadcast 192.168.10.255.',
+              'Usable host IPs: 2^8 − 2 = 256 − 2 = 254.',
+            ]
+          },
           { type: 'heading', text: 'Class D' },
-          { type: 'bullets', items: [
-            'Reserved for multicasting purposes.',
-            'Range: 224 – 239 → total range 224.0.0.0 – 239.255.255.255.',
-            'No network address, broadcast address, usable IP address, or subnet mask in this range — each IP represents a multicast group.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Reserved for multicasting purposes.',
+              'Range: 224 – 239 → total range 224.0.0.0 – 239.255.255.255.',
+              'No network address, broadcast address, usable IP address, or subnet mask in this range — each IP represents a multicast group.',
+            ]
+          },
           { type: 'heading', text: 'Class E' },
-          { type: 'bullets', items: [
-            'Reserved for scientific and research purposes.',
-            'Range: 240 – 255 → total range 240.0.0.0 – 255.255.255.255.',
-            'No network address, no broadcast address, no usable IP, no subnetting, and no subnet mask.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Reserved for scientific and research purposes.',
+              'Range: 240 – 255 → total range 240.0.0.0 – 255.255.255.255.',
+              'No network address, no broadcast address, no usable IP, no subnetting, and no subnet mask.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Class A', value: '1–126 · /8 · 255.0.0.0' },
@@ -878,24 +1089,51 @@ export const topics: Topic[] = [
         title: 'Special Addresses (Loopback)',
         description: 'The 127.0.0.0/8 range is reserved as the Class A loopback address, used by a device to test itself.',
         blocks: [
-          { type: 'bullets', items: [
-            '127.0.0.0/8 → Loopback Address.',
-            'Range: 127.0.0.1 – 127.255.255.255.',
-            'This range falls inside Class A (10.0.0.0/8 is private, 127.0.0.0/8 is loopback, the rest of Class A is public).',
-          ] },
+          {
+            type: 'bullets', items: [
+              '127.0.0.0/8 → Loopback Address.',
+              'Range: 127.0.0.1 – 127.255.255.255.',
+              'This range falls inside Class A (10.0.0.0/8 is private, 127.0.0.0/8 is loopback, the rest of Class A is public).',
+            ]
+          },
         ],
         quickReference: [{ label: 'Loopback range', value: '127.0.0.0/8' }, { label: 'Common address', value: '127.0.0.1' }],
       },
-      basics(
-        'IANA (Internet Assigned Numbers Authority) Hierarchy',
-        'IANA coordinates global IP address, ASN, and protocol parameter allocations, delegating large blocks down through regional and local registries.',
-        [
-          'IANA allocates large address blocks to Regional Internet Registries (RIRs).',
-          'RIRs allocate address space to ISPs and organizations within their regions.',
-          'This hierarchy is why address classes and private ranges are globally consistent — allocation flows top-down from IANA.',
+      {
+        slug: 'iana-internet-assigned-numbers-authority-hierarchy',
+        title: 'IANA (Internet Assigned Numbers Authority) Hierarchy',
+        description: 'IANA coordinates global IP address, ASN, and protocol parameter allocations, delegating large blocks down through regional and local registries.',
+        blocks: [
+          { type: 'heading', text: 'What IANA does' },
+          { type: 'paragraph', text: 'IANA (Internet Assigned Numbers Authority) coordinates global IP address, ASN, and protocol parameter allocations, delegating large blocks down through regional and local registries.' },
+
+          { type: 'heading', text: 'How allocation flows' },
+          {
+            type: 'bullets', items: [
+              'IANA allocates large address blocks to Regional Internet Registries (RIRs).',
+              'RIRs allocate address space to ISPs and organizations within their regions.',
+              'This hierarchy is why address classes and private ranges are globally consistent — allocation flows top-down from IANA.',
+            ]
+          },
+
+          { type: 'heading', text: 'Quick check' },
+          {
+            type: 'bullets', items: [
+              'IANA sits at the very top — it decides which big blocks go where.',
+              'RIRs sit below IANA — they hand out smaller chunks to ISPs and organizations.',
+              'ISPs then hand out even smaller blocks to end customers.',
+            ]
+          },
         ],
-        [{ label: 'Diagram pending', value: 'IANA hierarchy tree diagram noted in original notes' }]
-      ),
+        quickReference: [
+          { label: 'IANA', value: 'Top-level global allocation authority' },
+          { label: 'RIR', value: 'Regional Internet Registry — receives blocks from IANA' },
+          { label: 'Flow', value: 'IANA → RIR → ISP → customer' },
+        ],
+        diagrams: [
+          { src: '/diagrams/iana.png', alt: 'IANA hierarchy tree', caption: 'IANA hierarchy — top-down allocation' },
+        ],
+      },
       {
         slug: 'subnetting-concepts-flsm-vs-vlsm',
         title: 'Subnetting Concepts (FLSM vs. VLSM)',
@@ -909,16 +1147,18 @@ export const topics: Topic[] = [
           { type: 'heading', text: '2. VLSM (Variable Length Subnet Mask)' },
           { type: 'paragraph', text: 'Subnets the network into variable block sizes as per actual host requirement, avoiding the waste that FLSM causes when subnet needs differ in size.' },
           { type: 'heading', text: 'Bits-to-hosts reference (powers of two)' },
-          { type: 'table', headers: ['Host bits', 'Addresses', 'Class C prefix', 'Class B prefix', 'Class A prefix'], rows: [
-            ['1', '2', '/31', '', ''],
-            ['2', '4', '/30', '', ''],
-            ['3', '8', '/29', '', ''],
-            ['4', '16', '/28', '', ''],
-            ['5', '32', '/27', '', ''],
-            ['6', '64', '/26', '', ''],
-            ['7', '128', '/25', '', ''],
-            ['8', '256', '/24 (Class C)', '/16 (Class B, 65536)', '/8 (Class A, 16777216)'],
-          ] },
+          {
+            type: 'table', headers: ['Host bits', 'Addresses', 'Class C prefix', 'Class B prefix', 'Class A prefix'], rows: [
+              ['1', '2', '/31', '', ''],
+              ['2', '4', '/30', '', ''],
+              ['3', '8', '/29', '', ''],
+              ['4', '16', '/28', '', ''],
+              ['5', '32', '/27', '', ''],
+              ['6', '64', '/26', '', ''],
+              ['7', '128', '/25', '', ''],
+              ['8', '256', '/24 (Class C)', '/16 (Class B, 65536)', '/8 (Class A, 16777216)'],
+            ]
+          },
           { type: 'paragraph', text: 'Class boundary structure: Class A = N|H|H|H, Class B = N|N|H|H, Class C = N|N|N|H (network-bit boundaries fall at /8, /16, /24, with the next octet giving /9, /17, /25 and so on).' },
         ],
         quickReference: [
@@ -926,7 +1166,10 @@ export const topics: Topic[] = [
           { label: 'VLSM', value: 'Variable-size subnets, matched to need' },
           { label: '/25 mask', value: '255.255.255.128' },
         ],
-        diagrams: ['FLSM /26 pie chart diagram', 'VLSM pie chart diagram'],
+        diagrams: [
+          { src: '/diagrams/flsm.png', alt: 'FLSM /26 pie chart — equal-sized subnets', caption: 'FLSM /26 — equal-sized subnets' },
+          { src: '/diagrams/vlsm.png', alt: 'VLSM pie chart — variable-sized subnets', caption: 'VLSM — variable-sized subnets' },
+        ],
       },
       {
         slug: 'subnetting-calculations',
@@ -941,43 +1184,51 @@ export const topics: Topic[] = [
           { type: 'table', headers: ['CIDR', 'Block size', 'Usable hosts'], rows: [['/24', '256', '254'], ['/25', '128', '126'], ['/26', '64', '62'], ['/28', '16', '14']] },
           { type: 'heading', text: 'Worked example — 192.168.10.0/24 as /28 (16 blocks of 16)' },
           { type: 'paragraph', text: '256 / 16 = 16 blocks. Each block: first address = network, last address = broadcast, everything between = host range.' },
-          { type: 'table', headers: ['Block', 'Network', 'Host Range', 'Broadcast'], rows: [
-            ['N1', '0', '1 – 14', '15'],
-            ['N2', '16', '17 – 30', '31'],
-            ['N3', '32', '33 – 46', '47'],
-            ['N4', '48', '49 – 62', '63'],
-            ['N5', '64', '65 – 78', '79'],
-            ['N6', '80', '81 – 94', '95'],
-            ['N7', '96', '97 – 110', '111'],
-            ['N8', '112', '113 – 126', '127'],
-            ['N9', '128', '129 – 142', '143'],
-            ['N10', '144', '145 – 158', '159'],
-            ['N11', '160', '161 – 174', '175'],
-            ['N12', '176', '177 – 190', '191'],
-            ['N13', '192', '193 – 206', '207'],
-            ['N14', '208', '209 – 222', '223'],
-            ['N15', '224', '225 – 238', '239'],
-            ['N16', '240', '241 – 254', '255'],
-          ] },
+          {
+            type: 'table', headers: ['Block', 'Network', 'Host Range', 'Broadcast'], rows: [
+              ['N1', '0', '1 – 14', '15'],
+              ['N2', '16', '17 – 30', '31'],
+              ['N3', '32', '33 – 46', '47'],
+              ['N4', '48', '49 – 62', '63'],
+              ['N5', '64', '65 – 78', '79'],
+              ['N6', '80', '81 – 94', '95'],
+              ['N7', '96', '97 – 110', '111'],
+              ['N8', '112', '113 – 126', '127'],
+              ['N9', '128', '129 – 142', '143'],
+              ['N10', '144', '145 – 158', '159'],
+              ['N11', '160', '161 – 174', '175'],
+              ['N12', '176', '177 – 190', '191'],
+              ['N13', '192', '193 – 206', '207'],
+              ['N14', '208', '209 – 222', '223'],
+              ['N15', '224', '225 – 238', '239'],
+              ['N16', '240', '241 – 254', '255'],
+            ]
+          },
           { type: 'heading', text: 'Worked example — 192.168.1.0/24 split into 4 × /26 (block size 64)' },
           { type: 'paragraph', text: 'Requirement: 35 PCs (N1), 40 PCs (N2), 50 PCs (N3), 45 PCs (N4). Mask: 255.255.255.192.' },
-          { type: 'table', headers: ['Block', 'Network', 'Host Range', 'Broadcast'], rows: [
-            ['N1 (64)', '0', '1 – 62', '63'],
-            ['N2 (64)', '64', '65 – 126', '127'],
-            ['N3 (64)', '128', '129 – 190', '191'],
-            ['N4 (64)', '192', '193 – 254', '255'],
-          ] },
+          {
+            type: 'table', headers: ['Block', 'Network', 'Host Range', 'Broadcast'], rows: [
+              ['N1 (64)', '0', '1 – 62', '63'],
+              ['N2 (64)', '64', '65 – 126', '127'],
+              ['N3 (64)', '128', '129 – 190', '191'],
+              ['N4 (64)', '192', '193 – 254', '255'],
+            ]
+          },
           { type: 'heading', text: 'Worked example — 192.168.10.0/24 split into 2 × /25 (block size 128)' },
           { type: 'paragraph', text: 'Requirement: 100 PCs (N1), 80 PCs (N2). Mask: 255.255.255.128.' },
-          { type: 'table', headers: ['Block', 'Network', 'First IP', 'Last IP', 'Broadcast'], rows: [
-            ['N1 (128)', '0', '1', '126', '127'],
-            ['N2 (128)', '128', '129', '254', '255'],
-          ] },
+          {
+            type: 'table', headers: ['Block', 'Network', 'First IP', 'Last IP', 'Broadcast'], rows: [
+              ['N1 (128)', '0', '1', '126', '127'],
+              ['N2 (128)', '128', '129', '254', '255'],
+            ]
+          },
           { type: 'heading', text: 'Homework (practice these)' },
-          { type: 'bullets', items: [
-            '192.168.101.0/24 — subnet for 10 PCs, 8 PCs, 12 PCs, 14 PCs.',
-            '192.168.60.0/24 — subnet for 5 PCs, 4 PCs, 3 PCs.',
-          ] },
+          {
+            type: 'bullets', items: [
+              '192.168.101.0/24 — subnet for 10 PCs, 8 PCs, 12 PCs, 14 PCs.',
+              '192.168.60.0/24 — subnet for 5 PCs, 4 PCs, 3 PCs.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Usable hosts', value: '2^(32 − prefix) − 2' },
@@ -987,7 +1238,11 @@ export const topics: Topic[] = [
           { label: '/26 block size', value: '64' },
           { label: '/25 block size', value: '128' },
         ],
-        diagrams: ['Circle divided into 16 slices diagram', 'Circle diagram divided into 4 quarters labeled 64', 'Circle diagram divided in half, labeled 128 and 128'],
+        diagrams: [
+          { src: '/diagrams/c1.png', alt: 'Circle divided into 16 slices', caption: '192.168.10.0/24 divided into 16 × /28' },
+          { src: '/diagrams/c2.png', alt: 'Circle divided into 4 quarters labeled 64', caption: '192.168.1.0/24 split into 4 × /26 (block size 64)' },
+          { src: '/diagrams/c3.png', alt: 'Circle divided in half, labeled 128 and 128', caption: '192.168.10.0/24 split into 2 × /25 (block size 128)' },
+        ],
       },
     ],
   },
@@ -995,7 +1250,7 @@ export const topics: Topic[] = [
   // 06 · TRANSPORT LAYER PROTOCOLS AND PORTS
   // ─────────────────────────────────────────────────────────────
 
-    {
+  {
     slug: 'transport-layer-protocols-ports',
     number: '06',
     title: 'Transport Layer Protocols & Ports',
@@ -1079,11 +1334,13 @@ export const topics: Topic[] = [
           { type: 'table', headers: ['Protocol', 'Number'], rows: [['TCP', '6'], ['UDP', '17'], ['ICMP', '1'], ['IGMP', '2']] },
           { type: 'heading', text: 'Port number' },
           { type: 'paragraph', text: 'The port number represents the application layer protocol/service. It is a 16-bit number (0 – 65535).' },
-          { type: 'table', headers: ['Range', 'Category', 'Example'], rows: [
-            ['0 – 1023', 'Well-known port numbers', 'HTTP = 80'],
-            ['1024 – 49151', 'Registered port numbers', 'MySQL = 3306, RDP = 3389'],
-            ['49152 – 65535', 'Ephemeral port numbers', 'Unused/dynamically assigned'],
-          ] },
+          {
+            type: 'table', headers: ['Range', 'Category', 'Example'], rows: [
+              ['0 – 1023', 'Well-known port numbers', 'HTTP = 80'],
+              ['1024 – 49151', 'Registered port numbers', 'MySQL = 3306, RDP = 3389'],
+              ['49152 – 65535', 'Ephemeral port numbers', 'Unused/dynamically assigned'],
+            ]
+          },
         ],
         quickReference: [
           { label: 'TCP / UDP', value: 'Protocol 6 / 17' },
@@ -1100,7 +1357,7 @@ export const topics: Topic[] = [
   // ─────────────────────────────────────────────────────────────
 
 
-    {
+  {
     slug: 'router-fundamentals-cli',
     number: '07',
     title: 'Router Fundamentals & CLI',
@@ -1113,12 +1370,14 @@ export const topics: Topic[] = [
         description: 'Cisco switches and routers have four types of memory, each holding a different piece of the device\'s configuration or software.',
         blocks: [
           { type: 'heading', text: 'Types of memory' },
-          { type: 'table', headers: ['Memory', 'Contents'], rows: [
-            ['ROM (Read Only Memory)', 'Bootstrap program / ROM Monitor (ROMMON)'],
-            ['RAM (Random Access Memory)', 'Running-Config — the currently running configuration'],
-            ['NVRAM (Non-Volatile RAM)', 'Startup-Config — the saved configuration of the device'],
-            ['FLASH', 'Cisco IOS (Internetwork Operating System) — the operating system'],
-          ] },
+          {
+            type: 'table', headers: ['Memory', 'Contents'], rows: [
+              ['ROM (Read Only Memory)', 'Bootstrap program / ROM Monitor (ROMMON)'],
+              ['RAM (Random Access Memory)', 'Running-Config — the currently running configuration'],
+              ['NVRAM (Non-Volatile RAM)', 'Startup-Config — the saved configuration of the device'],
+              ['FLASH', 'Cisco IOS (Internetwork Operating System) — the operating system'],
+            ]
+          },
         ],
         quickReference: [
           { label: 'ROM', value: 'ROMMON bootstrap' },
@@ -1132,19 +1391,21 @@ export const topics: Topic[] = [
         title: 'Cisco Booting Sequence (POST, Bootstrap, IOS loading, Configuration loading)',
         description: 'On power-up, a Cisco device runs a hardware self-test, loads the IOS from Flash, then loads its configuration — falling back to a TFTP request or an unconfigured state if either step fails.',
         blocks: [
-          { type: 'bullets', items: [
-            'Step 1: Device is powered on.',
-            'Step 2: The bootstrap program (ROM Monitor) is loaded.',
-            'Step 3: The bootstrap program runs a hardware diagnostic test called POST (Power On Self Test) to identify any hardware issues.',
-            'Step 4: If POST fails, the device gets stuck in ROMmon mode.',
-            'Step 5: If POST succeeds, the bootstrap program tries to load the IOS from Flash into RAM.',
-            'Step 6: If the IOS is not found or is corrupted, the device gets stuck in ROMmon mode.',
-            'Step 7: If the IOS is found in Flash, it is loaded and booted into RAM.',
-            'Step 8: Once the IOS is booted, it attempts to locate and load the startup configuration from NVRAM into RAM.',
-            'Step 9: If the startup configuration cannot be found, the device tries to load a configuration from a TFTP server by sending a TFTP request as a broadcast using 255.255.255.255.',
-            'Step 10: If a TFTP server responds with a configuration, it is loaded into RAM and becomes the running configuration.',
-            'Step 11: If no TFTP server responds, the router enters initial configuration mode (no configuration).',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Step 1: Device is powered on.',
+              'Step 2: The bootstrap program (ROM Monitor) is loaded.',
+              'Step 3: The bootstrap program runs a hardware diagnostic test called POST (Power On Self Test) to identify any hardware issues.',
+              'Step 4: If POST fails, the device gets stuck in ROMmon mode.',
+              'Step 5: If POST succeeds, the bootstrap program tries to load the IOS from Flash into RAM.',
+              'Step 6: If the IOS is not found or is corrupted, the device gets stuck in ROMmon mode.',
+              'Step 7: If the IOS is found in Flash, it is loaded and booted into RAM.',
+              'Step 8: Once the IOS is booted, it attempts to locate and load the startup configuration from NVRAM into RAM.',
+              'Step 9: If the startup configuration cannot be found, the device tries to load a configuration from a TFTP server by sending a TFTP request as a broadcast using 255.255.255.255.',
+              'Step 10: If a TFTP server responds with a configuration, it is loaded into RAM and becomes the running configuration.',
+              'Step 11: If no TFTP server responds, the router enters initial configuration mode (no configuration).',
+            ]
+          },
         ],
         quickReference: [{ label: 'POST failure', value: 'Stuck in ROMmon' }, { label: 'No startup-config', value: 'TFTP broadcast request, else unconfigured' }],
         diagrams: ['Cisco Booting Process Flowchart'],
@@ -1155,18 +1416,22 @@ export const topics: Topic[] = [
         description: 'Interfaces forward and receive data traffic to connected devices; lines are used purely for managing the device itself, either physically or remotely.',
         blocks: [
           { type: 'heading', text: 'Interfaces' },
-          { type: 'bullets', items: [
-            'Ports that forward and receive data traffic, connecting client machines and other devices.',
-            'Examples: Serial interface, Ethernet interface, Fast Ethernet interface.',
-            'Interface numbering identifies the interface — Cisco devices start numbering from 0 (other vendors may differ).',
-            'Format: f0/0 → interface / module. On modular devices this extends to f0/0/0 → interface / module / slot.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Ports that forward and receive data traffic, connecting client machines and other devices.',
+              'Examples: Serial interface, Ethernet interface, Fast Ethernet interface.',
+              'Interface numbering identifies the interface — Cisco devices start numbering from 0 (other vendors may differ).',
+              'Format: f0/0 → interface / module. On modular devices this extends to f0/0/0 → interface / module / slot.',
+            ]
+          },
           { type: 'heading', text: 'Lines' },
-          { type: 'bullets', items: [
-            'Line ports are used for management purposes — accessing and managing the device console. Traffic through these ports is management traffic.',
-            'Physical lines: used to access and manage a device physically. Example: console port.',
-            'Virtual lines: used to configure and manage a device remotely using protocols such as Telnet and SSH. This line type is called VTY (Virtual Tele Type).',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Line ports are used for management purposes — accessing and managing the device console. Traffic through these ports is management traffic.',
+              'Physical lines: used to access and manage a device physically. Example: console port.',
+              'Virtual lines: used to configure and manage a device remotely using protocols such as Telnet and SSH. This line type is called VTY (Virtual Tele Type).',
+            ]
+          },
         ],
         quickReference: [{ label: 'Interface example', value: 'f0/0 = interface/module' }, { label: 'Physical line', value: 'Console port' }, { label: 'Virtual line', value: 'VTY (Telnet/SSH)' }],
         diagrams: ['Switch modular interface diagram'],
@@ -1177,19 +1442,23 @@ export const topics: Topic[] = [
         description: 'Telnet is fast but sends traffic in plain text; SSH is slightly slower but encrypts the session using asymmetric encryption.',
         blocks: [
           { type: 'heading', text: 'Telnet' },
-          { type: 'bullets', items: [
-            'A TCP-based protocol/service used to connect to and manage networking devices.',
-            'Port number 23.',
-            'Not secure — traffic inside the Telnet session is plain text (no encryption).',
-            'Faster.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A TCP-based protocol/service used to connect to and manage networking devices.',
+              'Port number 23.',
+              'Not secure — traffic inside the Telnet session is plain text (no encryption).',
+              'Faster.',
+            ]
+          },
           { type: 'heading', text: 'SSH (Secure Shell)' },
-          { type: 'bullets', items: [
-            'A TCP-based protocol/service used to connect to and manage devices.',
-            'Port number 22.',
-            'Secure — traffic is encrypted.',
-            'Uses asymmetric encryption with the RSA algorithm.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A TCP-based protocol/service used to connect to and manage devices.',
+              'Port number 22.',
+              'Secure — traffic is encrypted.',
+              'Uses asymmetric encryption with the RSA algorithm.',
+            ]
+          },
         ],
         quickReference: [{ label: 'Telnet', value: 'Port 23, plain text' }, { label: 'SSH', value: 'Port 22, encrypted (RSA)' }],
         diagrams: ['TELNET v/s SSH remote access diagram'],
@@ -1202,17 +1471,21 @@ export const topics: Topic[] = [
           { type: 'heading', text: 'User EXEC mode (Idle mode)' },
           { type: 'paragraph', text: 'Also called idle mode — more like a sleep mode of the device, where show commands or configuration commands cannot be run.' },
           { type: 'heading', text: 'Privilege mode (Enable mode)' },
-          { type: 'bullets', items: [
-            'To enter from idle mode, type: enable',
-            'Show commands, ping, and traceroute can be run here.',
-            'No configuration commands are allowed.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'To enter from idle mode, type: enable',
+              'Show commands, ping, and traceroute can be run here.',
+              'No configuration commands are allowed.',
+            ]
+          },
           { type: 'heading', text: 'Global Configuration mode' },
-          { type: 'bullets', items: [
-            'All configuration happens in this mode.',
-            'To enter from enable mode, type: configure terminal',
-            'To exit a mode, use: exit. To exit directly from any mode, use: end',
-          ] },
+          {
+            type: 'bullets', items: [
+              'All configuration happens in this mode.',
+              'To enter from enable mode, type: configure terminal',
+              'To exit a mode, use: exit. To exit directly from any mode, use: end',
+            ]
+          },
           { type: 'code', language: 'text', code: 'idle mode        <- Router>\nRouter> enable\nenable mode      <- Router#\nRouter# configure terminal\nconfiguration    <- (Router-config)#\nmode' },
         ],
         quickReference: [{ label: 'User EXEC', value: 'Router>' }, { label: 'Privilege', value: 'Router#' }, { label: 'Global Config', value: '(Router-config)#' }],
@@ -1229,10 +1502,12 @@ export const topics: Topic[] = [
           { type: 'heading', text: 'Configuring a router interface' },
           { type: 'code', language: 'text', code: '(R1-conf)# interface fastethernet 0/0\n(R1-conf-if)# description <text>\n              ip address <address> <mask>\n              no shutdown\n              exit' },
           { type: 'heading', text: 'Saving configuration to NVRAM' },
-          { type: 'bullets', items: [
-            'Method 1: R1# copy running-config startup-config (short form: R1# copy run start)',
-            'Method 2: R1# write',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Method 1: R1# copy running-config startup-config (short form: R1# copy run start)',
+              'Method 2: R1# write',
+            ]
+          },
           { type: 'heading', text: 'Copying startup-config from NVRAM back to RAM' },
           { type: 'code', language: 'text', code: 'R1# copy startup-config running-config' },
           { type: 'heading', text: 'Disabling an interface' },
@@ -1249,22 +1524,26 @@ export const topics: Topic[] = [
         title: 'CLI Shortcuts & Verification Commands',
         description: 'A handful of keyboard shortcuts make the Cisco CLI much faster to work in day to day.',
         blocks: [
-          { type: 'bullets', items: [
-            'Press Tab to autofill keywords.',
-            'Use short keywords rather than typing the full command (e.g. "conf t" instead of "configure terminal").',
-            'Use "?" to browse available keywords at any point (e.g. Router> ? lists all available keywords).',
-            'Use the "no" keyword to delete or disable a setting (e.g. "no ip address ..." or "no shutdown").',
-            'Use the Up and Down arrow keys to recall previously used commands.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Press Tab to autofill keywords.',
+              'Use short keywords rather than typing the full command (e.g. "conf t" instead of "configure terminal").',
+              'Use "?" to browse available keywords at any point (e.g. Router> ? lists all available keywords).',
+              'Use the "no" keyword to delete or disable a setting (e.g. "no ip address ..." or "no shutdown").',
+              'Use the Up and Down arrow keys to recall previously used commands.',
+            ]
+          },
           { type: 'heading', text: 'Keyboard shortcuts' },
-          { type: 'table', headers: ['Shortcut', 'Action'], rows: [
-            ['Ctrl + A', 'Move cursor to the front of the command'],
-            ['Ctrl + E', 'Move cursor to the end of the command line'],
-            ['Ctrl + U', 'Delete the entire command line'],
-            ['Ctrl + W', 'Delete a single keyword'],
-            ['Ctrl + Z', 'Exit from all modes'],
-            ['Ctrl + C', 'Break the current process'],
-          ] },
+          {
+            type: 'table', headers: ['Shortcut', 'Action'], rows: [
+              ['Ctrl + A', 'Move cursor to the front of the command'],
+              ['Ctrl + E', 'Move cursor to the end of the command line'],
+              ['Ctrl + U', 'Delete the entire command line'],
+              ['Ctrl + W', 'Delete a single keyword'],
+              ['Ctrl + Z', 'Exit from all modes'],
+              ['Ctrl + C', 'Break the current process'],
+            ]
+          },
           { type: 'paragraph', text: 'Note: verification commands (show version, show environment, show process cpu) are still pending from your notes — this subtopic will be extended once you send that batch.' },
         ],
         quickReference: [{ label: 'Autocomplete', value: 'Tab' }, { label: 'Browse keywords', value: '?' }, { label: 'Undo/disable', value: 'no <command>' }],
@@ -1289,7 +1568,7 @@ export const topics: Topic[] = [
         quickReference: [{ label: 'R1', value: 'LAN1 (.1.0) + link to R2 (.4.0)' }, { label: 'R2', value: 'LAN2 (.2.0) + links to R1 (.4.0) & R3 (.5.0)' }, { label: 'R3', value: 'LAN3 (.3.0) + link to R2 (.5.0)' }],
         diagrams: ['Router Topology R1, R2, R3 with LAN1, LAN2, LAN3 diagram', 'Router Topology New Addition R1, R2, R3 diagram'],
       },
-            {
+      {
         slug: 'applied-subnetting-topology-implementation-task-based-static-routing-across-multiple-lans',
         title: 'Applied Subnetting & Topology Implementation (Task-based static routing across multiple LANs)',
         description: 'Two worked labs: a 3-router topology with per-LAN gateways, and a 4-router diamond topology combining /30 router links with /26 LAN subnets.',
@@ -1300,19 +1579,23 @@ export const topics: Topic[] = [
           { type: 'paragraph', text: 'R2 and R3 follow the same pattern (LAN2-GW / LAN3-GW plus their router-to-router links). A later addition gave R1 a second LAN (LAN6-GW, 192.168.6.100/24) and R3 a second LAN (LAN7-GW, 192.168.7.100/24).' },
           { type: 'heading', text: 'Worked example 2 — 4-router diamond topology' },
           { type: 'paragraph', text: 'R1, R2, R3, R4 form a diamond: R1–R2, R2–R3, R3–R4, and R1–R4 are all directly linked. Each router also has its own local LAN.' },
-          { type: 'bullets', items: [
-            'Router-to-router links (R–R) use /30 subnets from 10.10.10.0/24.',
-            'Local LANs use /26 subnets from 192.168.10.0/24.',
-            'The gateway IP for each LAN is always the first usable IP of its /26.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Router-to-router links (R–R) use /30 subnets from 10.10.10.0/24.',
+              'Local LANs use /26 subnets from 192.168.10.0/24.',
+              'The gateway IP for each LAN is always the first usable IP of its /26.',
+            ]
+          },
           { type: 'heading', text: 'Task 1 — subnetting the /30 links' },
           { type: 'paragraph', text: '/30 gives a block size of 4. 256 / 4 = 64 possible /30 subnets inside 10.10.10.0/24; only 4 are actually used for the four router links, leaving 60 unused.' },
-          { type: 'table', headers: ['Subnet', 'Link', 'Network', 'Host Range', 'Broadcast'], rows: [
-            ['10.10.10.0/30', 'R1–R2', '.0', '.1 – .2', '.3'],
-            ['10.10.10.4/30', 'R2–R3', '.4', '.5 – .6', '.7'],
-            ['10.10.10.8/30', 'R3–R4', '.8', '.9 – .10', '.11'],
-            ['10.10.10.12/30', 'R1–R4', '.12', '.13 – .14', '.15'],
-          ] },
+          {
+            type: 'table', headers: ['Subnet', 'Link', 'Network', 'Host Range', 'Broadcast'], rows: [
+              ['10.10.10.0/30', 'R1–R2', '.0', '.1 – .2', '.3'],
+              ['10.10.10.4/30', 'R2–R3', '.4', '.5 – .6', '.7'],
+              ['10.10.10.8/30', 'R3–R4', '.8', '.9 – .10', '.11'],
+              ['10.10.10.12/30', 'R1–R4', '.12', '.13 – .14', '.15'],
+            ]
+          },
           { type: 'heading', text: 'Task 2 & 3 — subnetting the /26 LANs' },
           { type: 'paragraph', text: 'Each router\'s LAN gets a /26 from 192.168.10.0/24 (block size 64), with the first usable IP of each block reserved as the gateway.' },
           { type: 'heading', text: 'Router configurations' },
@@ -1321,11 +1604,13 @@ export const topics: Topic[] = [
           { type: 'code', language: 'text', code: 'R3\n> enable\n# conf t\n# hostname R3\n# int f0/0\n# des R3-R2\n  ip add 10.10.10.6 255.255.255.252\n  no sh\n  exit\n  int f0/1\n  des LAN3-GW\n  ip add 192.168.10.129 255.255.255.192\n  no sh\n  exit\n  int f0/2\n  des R3-R4\n  ip add 10.10.10.9 255.255.255.252\n  no sh\n  exit\n# end\n# write' },
           { type: 'paragraph', text: 'R4 configuration follows the same pattern (LAN4-GW plus links to R3 and R1) — not given verbatim in the notes.' },
           { type: 'heading', text: 'Remaining tasks (routing behavior)' },
-          { type: 'bullets', items: [
-            'Task 4: configure static routing and enable full connectivity across the topology.',
-            'Task 5: traffic from LAN1 to LAN3 should go via R2, and the return traffic should come back via R4 (asymmetric routing).',
-            'Task 6: traffic from LAN4 to LAN2 should go via R1, and the return traffic should come back via R3.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Task 4: configure static routing and enable full connectivity across the topology.',
+              'Task 5: traffic from LAN1 to LAN3 should go via R2, and the return traffic should come back via R4 (asymmetric routing).',
+              'Task 6: traffic from LAN4 to LAN2 should go via R1, and the return traffic should come back via R3.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'R–R links', value: '/30 from 10.10.10.0/24' },
@@ -1345,7 +1630,7 @@ export const topics: Topic[] = [
   // 08 · ROUTING TABLES AND TRAFFIC FORAWRDING
   // ─────────────────────────────────────────────────────────────
 
-    {
+  {
     slug: 'routing',
     number: '08',
     title: 'Routing',
@@ -1365,10 +1650,12 @@ export const topics: Topic[] = [
           { type: 'paragraph', text: 'The router maintains a database/table called the routing table, storing the best path information to reach each destination network. The router forwards traffic based on these best paths.' },
           { type: 'heading', text: 'Routes' },
           { type: 'paragraph', text: 'Routes are entries in the routing table — the best paths, with the lowest metric value, to reach a destination network. From the router\'s point of view, there are two types:' },
-          { type: 'bullets', items: [
-            'Known networks: directly connected to the router. The router already knows these, and they appear in the routing table as Connected (C).',
-            'Unknown networks: not directly connected to the router. Routes must be configured in the table to reach these networks.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Known networks: directly connected to the router. The router already knows these, and they appear in the routing table as Connected (C).',
+              'Unknown networks: not directly connected to the router. Routes must be configured in the table to reach these networks.',
+            ]
+          },
         ],
         quickReference: [{ label: 'Connected (C)', value: 'Directly attached network' }, { label: 'Static (S)', value: 'Manually configured route to a non-connected network' }],
         diagrams: ['Router Routing Topology R1 R2 R3 with paths diagram'],
@@ -1399,66 +1686,80 @@ export const topics: Topic[] = [
         description: 'Static routing gives full control with no overhead but doesn\'t adapt to change; dynamic routing adapts automatically at the cost of CPU and bandwidth.',
         blocks: [
           { type: 'heading', text: 'Advantages of static routing' },
-          { type: 'bullets', items: [
-            'Minimal CPU/processor overhead.',
-            'Total control on how traffic should be routed.',
-            'No bandwidth is utilised to share updates/network information.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Minimal CPU/processor overhead.',
+              'Total control on how traffic should be routed.',
+              'No bandwidth is utilised to share updates/network information.',
+            ]
+          },
           { type: 'heading', text: 'Disadvantages of static routing' },
-          { type: 'bullets', items: [
-            'Topology changes must be manually adjusted.',
-            'No fault tolerance if a device/link goes down.',
-            'Not practical in larger environments.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Topology changes must be manually adjusted.',
+              'No fault tolerance if a device/link goes down.',
+              'Not practical in larger environments.',
+            ]
+          },
           { type: 'heading', text: 'Advantages of dynamic routing' },
-          { type: 'bullets', items: [
-            'Simpler to configure on a large network environment.',
-            'Less workload for the network administrator/engineer.',
-            'Automatically finds an alternate path if the best path goes down.',
-            'Fault tolerance capability.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Simpler to configure on a large network environment.',
+              'Less workload for the network administrator/engineer.',
+              'Automatically finds an alternate path if the best path goes down.',
+              'Fault tolerance capability.',
+            ]
+          },
           { type: 'heading', text: 'Disadvantages of dynamic routing' },
-          { type: 'bullets', items: [
-            'Puts additional load on CPU/processor.',
-            'Consumes bandwidth to share updates/network information.',
-            'The choice of best path is in the hands of the routing protocol, not the network engineer.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Puts additional load on CPU/processor.',
+              'Consumes bandwidth to share updates/network information.',
+              'The choice of best path is in the hands of the routing protocol, not the network engineer.',
+            ]
+          },
         ],
         quickReference: [{ label: 'Static', value: 'Full control, no overhead, manual maintenance' }, { label: 'Dynamic', value: 'Automatic, fault-tolerant, uses CPU + bandwidth' }],
       },
-            {
+      {
         slug: 'administrative-distance-ad-and-route-selection-criteria',
         title: 'Administrative Distance (AD) and Route Selection Criteria',
         description: 'A router picks the best route using three criteria in order: longest prefix match, lowest metric, then lowest Administrative Distance.',
         blocks: [
           { type: 'heading', text: 'Route decision criteria (in order)' },
-          { type: 'bullets', items: [
-            'Highest prefix / longest subnet match wins first, regardless of metric or AD.',
-            'If prefixes tie, the lowest metric value wins (dynamic routing protocols).',
-            'If metrics also tie (or routes come from different sources), the lowest Administrative Distance (AD) wins.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Highest prefix / longest subnet match wins first, regardless of metric or AD.',
+              'If prefixes tie, the lowest metric value wins (dynamic routing protocols).',
+              'If metrics also tie (or routes come from different sources), the lowest Administrative Distance (AD) wins.',
+            ]
+          },
           { type: 'paragraph', text: 'AD is used to decide which route source is more trustworthy — the lower the AD value, the more trustworthy the source.' },
           { type: 'heading', text: 'Default AD values' },
-          { type: 'table', headers: ['Route source', 'AD'], rows: [
-            ['Connected', '0'],
-            ['Static', '1'],
-            ['Default', '1'],
-            ['EIGRP Summary', '5'],
-            ['EBGP', '20'],
-            ['EIGRP Internal', '90'],
-            ['OSPF', '110'],
-            ['RIP', '120'],
-            ['EIGRP External', '170'],
-            ['IBGP', '200'],
-          ] },
+          {
+            type: 'table', headers: ['Route source', 'AD'], rows: [
+              ['Connected', '0'],
+              ['Static', '1'],
+              ['Default', '1'],
+              ['EIGRP Summary', '5'],
+              ['EBGP', '20'],
+              ['EIGRP Internal', '90'],
+              ['OSPF', '110'],
+              ['RIP', '120'],
+              ['EIGRP External', '170'],
+              ['IBGP', '200'],
+            ]
+          },
           { type: 'heading', text: 'Worked scenarios' },
-          { type: 'bullets', items: [
-            'Scenario 1: Static route to 192.168.30.0/24 (AD 1) via R2, and static route to 192.168.30.0/25 (AD 1) via R4. Ping to 192.168.30.1 uses the /25 route — longer prefix match wins even though AD is identical.',
-            'Scenario 2: Same two routes, but ping to 192.168.30.254. That address doesn\'t exist inside the /25 range, so the /24 route is used instead — the longest prefix match must actually contain the destination.',
-            'Scenario 3: Two EIGRP routes to the same /24 network, same AD (90), but metrics 1000 and 2000 — the lower metric (1000) wins.',
-            'Scenario 4a: EIGRP (AD 90, metric 1000), OSPF (AD 110, metric 2000), and Static (AD 1) all offer the same /24 network — the lowest AD (Static) wins, regardless of metric.',
-            'Scenario 4b: Two static routes to the same /24, same AD (1) — the router load-balances, using both routes as primary paths.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Scenario 1: Static route to 192.168.30.0/24 (AD 1) via R2, and static route to 192.168.30.0/25 (AD 1) via R4. Ping to 192.168.30.1 uses the /25 route — longer prefix match wins even though AD is identical.',
+              'Scenario 2: Same two routes, but ping to 192.168.30.254. That address doesn\'t exist inside the /25 range, so the /24 route is used instead — the longest prefix match must actually contain the destination.',
+              'Scenario 3: Two EIGRP routes to the same /24 network, same AD (90), but metrics 1000 and 2000 — the lower metric (1000) wins.',
+              'Scenario 4a: EIGRP (AD 90, metric 1000), OSPF (AD 110, metric 2000), and Static (AD 1) all offer the same /24 network — the lowest AD (Static) wins, regardless of metric.',
+              'Scenario 4b: Two static routes to the same /24, same AD (1) — the router load-balances, using both routes as primary paths.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Selection order', value: 'Longest prefix → lowest metric → lowest AD' },
@@ -1467,20 +1768,22 @@ export const topics: Topic[] = [
           { label: 'OSPF / RIP', value: '110 / 120' },
         ],
       },
-            {
+      {
         slug: 'advanced-static-routing-floating-static-routes-for-redundancy-null-0-routes-for-discarding-traffic',
         title: 'Advanced Static Routing (Floating Static Routes for redundancy, Null 0 Routes for discarding traffic)',
         description: 'Floating static routes create a primary/backup pair by manipulating AD; Null0 routes silently discard traffic to a given network.',
         blocks: [
           { type: 'heading', text: 'Floating static routes' },
-          { type: 'bullets', items: [
-            'The router always chooses the route with the lowest AD value, since a lower AD means more trust.',
-            'The default AD of a static route is 1.',
-            'If two static routes to the same destination (same prefix, same AD) point to different next hops, the router load-balances traffic across both — both are treated as primary paths.',
-            'To create a true primary/secondary pair using static routing, manipulate the AD value of the secondary route — this is called a floating static route.',
-            'The primary static route keeps the default (lower) AD; the secondary is configured with a higher AD.',
-            'When the primary goes down, the secondary (floating) route takes over.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'The router always chooses the route with the lowest AD value, since a lower AD means more trust.',
+              'The default AD of a static route is 1.',
+              'If two static routes to the same destination (same prefix, same AD) point to different next hops, the router load-balances traffic across both — both are treated as primary paths.',
+              'To create a true primary/secondary pair using static routing, manipulate the AD value of the secondary route — this is called a floating static route.',
+              'The primary static route keeps the default (lower) AD; the secondary is configured with a higher AD.',
+              'When the primary goes down, the secondary (floating) route takes over.',
+            ]
+          },
           { type: 'code', language: 'text', code: '(conf)# ip route 192.168.30.0 255.255.255.0 192.168.3.4 250\n                                              ^ next-hop      ^ AD (250 = floating/backup)' },
           { type: 'heading', text: 'Null0 static routes' },
           { type: 'paragraph', text: 'A static route can also be used to deliberately discard traffic to a specific network, by directing it to a virtual Null0 interface.' },
@@ -1498,24 +1801,28 @@ export const topics: Topic[] = [
         description: 'A default route matches any destination not found elsewhere in the routing table — in Cisco terms, the gateway of last resort.',
         blocks: [
           { type: 'heading', text: 'Gateway of last resort' },
-          { type: 'bullets', items: [
-            'In Cisco, the default route is also called the gateway of last resort.',
-            'Once configured, the router forwards all traffic using this route, even when no other routes exist in the table for that destination.',
-            'In real deployments, a default route is mostly used to forward customer traffic through the internet, so the customer device doesn\'t need to carry full BGP routes from the internet.',
-            'Using the default route, the customer can reach every network on the internet.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'In Cisco, the default route is also called the gateway of last resort.',
+              'Once configured, the router forwards all traffic using this route, even when no other routes exist in the table for that destination.',
+              'In real deployments, a default route is mostly used to forward customer traffic through the internet, so the customer device doesn\'t need to carry full BGP routes from the internet.',
+              'Using the default route, the customer can reach every network on the internet.',
+            ]
+          },
           { type: 'heading', text: 'CE / PE terminology' },
           { type: 'bullets', items: ['CE — Customer Edge', 'PE — Provider Edge'] },
           { type: 'heading', text: 'Configuration' },
           { type: 'code', language: 'text', code: '# ip route 0.0.0.0 0.0.0.0 <next-hop or exit-interface>' },
-                    { type: 'heading', text: 'Default route AD and tie-breaking' },
-          { type: 'bullets', items: [
-            'The AD value of a default route is 1 — the same as a static route.',
-            'If a router has both a static route and a default route that could match the same traffic, the more specific (higher prefix) route is used, regardless of AD.',
-          ] },
+          { type: 'heading', text: 'Default route AD and tie-breaking' },
+          {
+            type: 'bullets', items: [
+              'The AD value of a default route is 1 — the same as a static route.',
+              'If a router has both a static route and a default route that could match the same traffic, the more specific (higher prefix) route is used, regardless of AD.',
+            ]
+          },
           { type: 'code', language: 'text', code: 'R1, ping 192.168.1.1:\n  S - 192.168.1.0/24 -> R2   (used — higher prefix match)\n  D - 0.0.0.0/0      -> R4   (default, only used if no other route matches)' },
         ],
-        quickReference: [{ label: 'Default route', value: '0.0.0.0/0' }, { label: 'Cisco name', value: 'Gateway of last resort' },{ label: 'Default route AD', value: '1' },],
+        quickReference: [{ label: 'Default route', value: '0.0.0.0/0' }, { label: 'Cisco name', value: 'Gateway of last resort' }, { label: 'Default route AD', value: '1' },],
         diagrams: ['ISP cloud network diagram with CE and PE routers', 'CE Default route to PE Internet cloud diagram'],
       },
       {
@@ -1531,12 +1838,14 @@ export const topics: Topic[] = [
           { type: 'paragraph', text: 'Enables routing between organizations, such as across the internet. Example: BGP.' },
           { type: 'heading', text: 'Protocol hierarchy' },
           { type: 'code', language: 'text', code: 'Manual Routing  -> Static Routing, Default Routing\nDynamic Routing -> IGP, EGP\nIGP  -> RIP (Distance Vector), EIGRP (Hybrid), OSPF (Link State)\nEGP  -> BGP (Path Vector)' },
-          { type: 'table', headers: ['Protocol', 'Algorithm type', 'Category'], rows: [
-            ['RIP', 'Distance Vector', 'IGP'],
-            ['EIGRP', 'Hybrid', 'IGP'],
-            ['OSPF', 'Link State', 'IGP'],
-            ['BGP', 'Path Vector', 'EGP'],
-          ] },
+          {
+            type: 'table', headers: ['Protocol', 'Algorithm type', 'Category'], rows: [
+              ['RIP', 'Distance Vector', 'IGP'],
+              ['EIGRP', 'Hybrid', 'IGP'],
+              ['OSPF', 'Link State', 'IGP'],
+              ['BGP', 'Path Vector', 'EGP'],
+            ]
+          },
         ],
         quickReference: [{ label: 'IGP examples', value: 'RIP, EIGRP, OSPF' }, { label: 'EGP example', value: 'BGP' }],
         diagrams: ['Routing hierarchy tree diagram'],
@@ -1546,17 +1855,19 @@ export const topics: Topic[] = [
         title: 'RIP Fundamentals (Distance Vector, Hop count limit of 15, Bellman-Ford algorithm)',
         description: 'RIP is a simple, open-source distance-vector protocol that picks the path with the fewest hops, capped at 15 within an autonomous system.',
         blocks: [
-          { type: 'bullets', items: [
-            'Distance Vector routing protocol; its metric is hop count.',
-            'Uses the Bellman-Ford algorithm to calculate the best path — it counts hops (number of routers) in update packets and selects the path with the least hop count as the best path, storing it in the routing table.',
-            'RIP is open-source and supported by every vendor — one of the first routing protocols.',
-            'Sends routing updates (network information) every 30 seconds, since it is a periodic-updating protocol.',
-            'Uses UDP port 520 to share updates.',
-            'Has a hop count limitation — supports a maximum of 15 routers inside an autonomous system.',
-            'Can support both IP and IPX routing.',
-            'The Administrative Distance (AD) of RIP routes is 120.',
-            'In dynamic routing protocols, load balancing is enabled by default when multiple best paths are available — except BGP, where load balancing is disabled by default.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Distance Vector routing protocol; its metric is hop count.',
+              'Uses the Bellman-Ford algorithm to calculate the best path — it counts hops (number of routers) in update packets and selects the path with the least hop count as the best path, storing it in the routing table.',
+              'RIP is open-source and supported by every vendor — one of the first routing protocols.',
+              'Sends routing updates (network information) every 30 seconds, since it is a periodic-updating protocol.',
+              'Uses UDP port 520 to share updates.',
+              'Has a hop count limitation — supports a maximum of 15 routers inside an autonomous system.',
+              'Can support both IP and IPX routing.',
+              'The Administrative Distance (AD) of RIP routes is 120.',
+              'In dynamic routing protocols, load balancing is enabled by default when multiple best paths are available — except BGP, where load balancing is disabled by default.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Metric', value: 'Hop count' },
@@ -1573,16 +1884,20 @@ export const topics: Topic[] = [
         description: 'RIPv2 improved on RIPv1 by supporting classless addressing (FLSM/VLSM) and switching from broadcast to multicast updates.',
         blocks: [
           { type: 'heading', text: 'RIPv1' },
-          { type: 'bullets', items: [
-            'A classful routing protocol — only supports classful networks (Class A, B, C).',
-            'Does not support classless networks, and does not support FLSM or VLSM.',
-            'Uses the Layer 3 broadcast address (255.255.255.255) to share its routing updates.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A classful routing protocol — only supports classful networks (Class A, B, C).',
+              'Does not support classless networks, and does not support FLSM or VLSM.',
+              'Uses the Layer 3 broadcast address (255.255.255.255) to share its routing updates.',
+            ]
+          },
           { type: 'heading', text: 'RIPv2' },
-          { type: 'bullets', items: [
-            'A classless routing protocol — supports classless networks (both FLSM and VLSM).',
-            'Uses multicast (224.0.0.9) to share its updates.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A classless routing protocol — supports classless networks (both FLSM and VLSM).',
+              'Uses multicast (224.0.0.9) to share its updates.',
+            ]
+          },
         ],
         quickReference: [{ label: 'RIPv1', value: 'Classful, broadcast (255.255.255.255)' }, { label: 'RIPv2', value: 'Classless, multicast (224.0.0.9)' }],
         diagrams: ['Types of RIP tree diagram (IPv4: RIPv1, RIPv2 / IPv6: RIPng)', 'RIP V1 4-way arrow broadcast Update diagram', 'RIP V2 multicast target diagram'],
@@ -1633,43 +1948,53 @@ export const topics: Topic[] = [
         quickReference: [{ label: 'Default timers', value: '30 / 180 / 180 / 240 (update/invalid/hold-down/flush)' }, { label: 'Passive default (all)', value: 'passive-interface default' }, { label: 'Auto-summary (RIPv2)', value: 'Enabled by default' }],
         diagrams: ['Router advertising 3 connected networks diagram', 'Router advertising classless networks /26 diagram', 'Passive interface topology diagram R1-R4 and User LANs'],
       },
-            {
+      {
         slug: 'eigrp-fundamentals-advanced-distance-vector-hybrid-dual-algorithm-as-numbers-rtp-protocol-88',
         title: 'EIGRP Fundamentals (Advanced Distance Vector/Hybrid, DUAL algorithm, AS numbers, RTP, Protocol 88)',
         description: 'EIGRP combines distance-vector and link-state ideas into a hybrid protocol, using its own transport (Protocol 88) and only updating when the topology actually changes.',
         blocks: [
           { type: 'heading', text: 'What EIGRP is' },
-          { type: 'bullets', items: [
-            'A Cisco-proprietary protocol until 2013 — now an open standard.',
-            'A classless routing protocol, supporting subnetted networks (FLSM and VLSM). Its classful predecessor is IGRP.',
-            'Called an advanced distance-vector (or hybrid) routing protocol — it uses a distance-vector parameter (hop count) together with a link-state parameter (bandwidth) to calculate the best path.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A Cisco-proprietary protocol until 2013 — now an open standard.',
+              'A classless routing protocol, supporting subnetted networks (FLSM and VLSM). Its classful predecessor is IGRP.',
+              'Called an advanced distance-vector (or hybrid) routing protocol — it uses a distance-vector parameter (hop count) together with a link-state parameter (bandwidth) to calculate the best path.',
+            ]
+          },
           { type: 'heading', text: 'DUAL algorithm' },
           { type: 'paragraph', text: 'EIGRP uses the Diffusing Update Algorithm (DUAL) to calculate the best path.' },
           { type: 'heading', text: 'Transport' },
-          { type: 'bullets', items: [
-            'Unlike RIP (which rides on UDP), EIGRP does not use TCP or UDP — it uses its own protocol, Protocol number 88.',
-            'EIGRP uses RTP (Reliable Transport Protocol) to guarantee delivery of its valuable packets.',
-            'It uses multicast address 224.0.0.10 to share some packet types, and unicast for the rest.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Unlike RIP (which rides on UDP), EIGRP does not use TCP or UDP — it uses its own protocol, Protocol number 88.',
+              'EIGRP uses RTP (Reliable Transport Protocol) to guarantee delivery of its valuable packets.',
+              'It uses multicast address 224.0.0.10 to share some packet types, and unicast for the rest.',
+            ]
+          },
           { type: 'heading', text: 'Triggered updates' },
           { type: 'paragraph', text: 'EIGRP is a triggered-updating protocol — it only exchanges updates when there is an actual change in the topology (unlike RIP\'s periodic updates).' },
-          { type: 'bullets', items: [
-            'Full update: the initial update between routers to fully converge the topology — sent as unicast.',
-            'Partial update: notifies routers of a new change in the topology — sent as multicast.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Full update: the initial update between routers to fully converge the topology — sent as unicast.',
+              'Partial update: notifies routers of a new change in the topology — sent as multicast.',
+            ]
+          },
           { type: 'heading', text: 'Autonomous System (AS) number' },
-          { type: 'bullets', items: [
-            'EIGRP uses the AS concept to differentiate autonomous systems.',
-            'It is a 16-bit number, ranging from 1 to 65536.',
-            'Every autonomous system has its own AS number.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'EIGRP uses the AS concept to differentiate autonomous systems.',
+              'It is a 16-bit number, ranging from 1 to 65536.',
+              'Every autonomous system has its own AS number.',
+            ]
+          },
           { type: 'heading', text: 'Protocol support & scale' },
-          { type: 'bullets', items: [
-            'EIGRP can support IP, IPX, and AppleTalk routing.',
-            'Hop count limitation: a maximum of 255 routers inside an autonomous system.',
-            'By default this is limited to 100, but the limit can be changed/disabled.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'EIGRP can support IP, IPX, and AppleTalk routing.',
+              'Hop count limitation: a maximum of 255 routers inside an autonomous system.',
+              'By default this is limited to 100, but the limit can be changed/disabled.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Protocol number', value: '88 (not TCP/UDP)' },
@@ -1680,30 +2005,36 @@ export const topics: Topic[] = [
         ],
         diagrams: ['EIGRP AS NO diagram'],
       },
-            {
+      {
         slug: 'eigrp-route-types-internal-ad-90-external-redistributed-ad-170-summarized-ad-5',
         title: 'EIGRP Route Types (Internal [AD 90], External/Redistributed [AD 170], Summarized [AD 5])',
         description: 'EIGRP marks routes differently in the routing table depending on whether they originated inside the AS, were redistributed from elsewhere, or were manually summarized.',
         blocks: [
           { type: 'heading', text: '1. Internal routes' },
-          { type: 'bullets', items: [
-            'Routes to networks inside the autonomous system.',
-            'Represented in the routing table with the code "D".',
-            'AD value: 90.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Routes to networks inside the autonomous system.',
+              'Represented in the routing table with the code "D".',
+              'AD value: 90.',
+            ]
+          },
           { type: 'heading', text: '2. External routes' },
-          { type: 'bullets', items: [
-            'Routes learned from another autonomous system.',
-            'Two autonomous systems (running the same or different protocols) can be merged through a process called redistribution.',
-            'Represented in the routing table with the code "EX".',
-            'AD value: 170.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Routes learned from another autonomous system.',
+              'Two autonomous systems (running the same or different protocols) can be merged through a process called redistribution.',
+              'Represented in the routing table with the code "EX".',
+              'AD value: 170.',
+            ]
+          },
           { type: 'code', language: 'text', code: 'Routing table of R1:\nD  - 10.0.0.0/24 - AD 90    (Internal route)\nEX - 20.0.0.0/24 - AD 170   (External / redistributed route)' },
           { type: 'heading', text: '3. Summarized routes' },
-          { type: 'bullets', items: [
-            'EIGRP supports "any-point summarization" — any router in the AS can summarize any network.',
-            'Summarized routes carry AD value 5.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'EIGRP supports "any-point summarization" — any router in the AS can summarize any network.',
+              'Summarized routes carry AD value 5.',
+            ]
+          },
         ],
         quickReference: [
           { label: 'Internal (D)', value: 'AD 90' },
@@ -1718,10 +2049,12 @@ export const topics: Topic[] = [
         description: 'EIGRP maintains three tables — one for neighbors, one for the best routes in use, and one holding every known path including backups.',
         blocks: [
           { type: 'heading', text: '1. Neighbourhood table' },
-          { type: 'bullets', items: [
-            'Stores the neighbour relationship and its complete details — neighbour IP, interface information between neighbours, packet transmission rates.',
-            'All neighbours must belong to the same autonomous system.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Stores the neighbour relationship and its complete details — neighbour IP, interface information between neighbours, packet transmission rates.',
+              'All neighbours must belong to the same autonomous system.',
+            ]
+          },
           { type: 'paragraph', text: 'Verification: show ip eigrp neighbors / show ip eigrp neighbors <AS number, e.g. 100>' },
           { type: 'heading', text: '2. Routing table' },
           { type: 'paragraph', text: 'Stores the best paths (lowest metric) for each destination network, as calculated by EIGRP.' },
@@ -1738,25 +2071,29 @@ export const topics: Topic[] = [
         description: 'EIGRP calculates a composite metric from up to five interface parameters, but only Bandwidth and Delay are used by default.',
         blocks: [
           { type: 'heading', text: 'The 5 K values' },
-          { type: 'table', headers: ['K value', 'Parameter', 'Default state'], rows: [
-            ['K1', 'Bandwidth', 'Enabled'],
-            ['K2', 'Load', 'Disabled'],
-            ['K3', 'Delay', 'Enabled'],
-            ['K4', 'Reliability', 'Disabled'],
-            ['K5', 'MTU', 'Disabled'],
-          ] },
+          {
+            type: 'table', headers: ['K value', 'Parameter', 'Default state'], rows: [
+              ['K1', 'Bandwidth', 'Enabled'],
+              ['K2', 'Load', 'Disabled'],
+              ['K3', 'Delay', 'Enabled'],
+              ['K4', 'Reliability', 'Disabled'],
+              ['K5', 'MTU', 'Disabled'],
+            ]
+          },
           { type: 'heading', text: 'K1 — Bandwidth' },
           { type: 'paragraph', text: 'Interface bandwidth in kbps. kbps = Mbps × 1000. Example: Ethernet = 10 × 1000 = 10,000.' },
           { type: 'heading', text: 'K2 — Load' },
           { type: 'paragraph', text: 'The cumulative load value of the interface, representing traffic load. An 8-bit value (0–255).' },
           { type: 'heading', text: 'K3 — Delay' },
           { type: 'paragraph', text: 'The cumulative delay of interfaces, in microseconds.' },
-          { type: 'table', headers: ['Interface', 'Default delay'], rows: [
-            ['Serial Interface', '20,000 µs'],
-            ['Ethernet', '1,000 µs'],
-            ['Fast Ethernet', '100 µs'],
-            ['Gigabit Ethernet', '10 µs'],
-          ] },
+          {
+            type: 'table', headers: ['Interface', 'Default delay'], rows: [
+              ['Serial Interface', '20,000 µs'],
+              ['Ethernet', '1,000 µs'],
+              ['Fast Ethernet', '100 µs'],
+              ['Gigabit Ethernet', '10 µs'],
+            ]
+          },
           { type: 'heading', text: 'K4 — Reliability' },
           { type: 'paragraph', text: 'The average reliability of the interface — an 8-bit value (0–255). 255 = most reliable, 0 = least reliable. Reliability falls whenever there are packet drops/errors on the interface.' },
           { type: 'heading', text: 'K5 — MTU' },
@@ -1776,12 +2113,14 @@ export const topics: Topic[] = [
         title: 'EIGRP Terminology (Successor, Feasible Successor, Advertised Distance, Feasible Distance, Feasibility Condition)',
         description: 'These terms describe how EIGRP identifies the best path (Successor) and any guaranteed loop-free backup (Feasible Successor).',
         blocks: [
-          { type: 'bullets', items: [
-            'Successor = the best path.',
-            'Feasible Successor = the backup path.',
-            'Advertised Distance (AD) = the metric value of a network as advertised by a neighbor.',
-            'Feasible Distance (FD) = the router\'s own calculated metric value for the best path.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Successor = the best path.',
+              'Feasible Successor = the backup path.',
+              'Advertised Distance (AD) = the metric value of a network as advertised by a neighbor.',
+              'Feasible Distance (FD) = the router\'s own calculated metric value for the best path.',
+            ]
+          },
           { type: 'heading', text: 'Feasibility Condition' },
           { type: 'paragraph', text: 'A neighbor\'s route only qualifies as a Feasible Successor when FD > AD — the router\'s own calculated metric to a destination must be greater than the metric advertised by that neighbor for the same destination.' },
         ],
@@ -1794,50 +2133,64 @@ export const topics: Topic[] = [
         blocks: [
           { type: 'paragraph', text: 'EIGRP has 7 packet types in total: Hello, Update, Acknowledgement, Query, Reply, SIA Query, SIA Reply.' },
           { type: 'heading', text: '1. Hello packet' },
-          { type: 'bullets', items: [
-            'Exchanged to form and maintain the EIGRP neighborship.',
-            'Sent periodically between routers to maintain the neighborship.',
-            'Uses multicast address 224.0.0.10.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Exchanged to form and maintain the EIGRP neighborship.',
+              'Sent periodically between routers to maintain the neighborship.',
+              'Uses multicast address 224.0.0.10.',
+            ]
+          },
           { type: 'heading', text: 'EIGRP timers' },
-          { type: 'bullets', items: [
-            'Hello Timer: default 5 seconds — routers exchange hellos every 5 seconds.',
-            'Hold-down Timer: default 15 seconds (EIGRP keeps a 1:3 ratio between hello and hold-down timers) — how long a router waits for a reply hello from its neighbor before marking that neighbor dead.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Hello Timer: default 5 seconds — routers exchange hellos every 5 seconds.',
+              'Hold-down Timer: default 15 seconds (EIGRP keeps a 1:3 ratio between hello and hold-down timers) — how long a router waits for a reply hello from its neighbor before marking that neighbor dead.',
+            ]
+          },
           { type: 'code', language: 'text', code: 'Hello 1 -> 5 seconds\nHello 2 -> 10 seconds\nHello 3 -> 15 seconds  (if none received, neighbor is removed from the table)' },
           { type: 'heading', text: '2. Update packet' },
-          { type: 'bullets', items: [
-            'Once the neighborship forms, routers exchange update packets containing routing (network) information.',
-            'A full update (the initial update) is sent as unicast.',
-            'Once the topology has converged, any subsequent change is shared as a partial update, sent as multicast.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Once the neighborship forms, routers exchange update packets containing routing (network) information.',
+              'A full update (the initial update) is sent as unicast.',
+              'Once the topology has converged, any subsequent change is shared as a partial update, sent as multicast.',
+            ]
+          },
           { type: 'heading', text: '3. Acknowledgement packet' },
-          { type: 'bullets', items: [
-            'EIGRP uses RTP (Reliable Transport Protocol) to exchange update packets, ensuring reliable delivery of valuable packets like Update and Reply.',
-            'Acknowledgements are sent as unicast.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'EIGRP uses RTP (Reliable Transport Protocol) to exchange update packets, ensuring reliable delivery of valuable packets like Update and Reply.',
+              'Acknowledgements are sent as unicast.',
+            ]
+          },
           { type: 'code', language: 'text', code: 'Hello <-> Hello  (neighborship established)\nUpdate ->\n       <- Ack\n       <- Update\nAck ->\n(Topology converged)' },
           { type: 'heading', text: '4. Query packet' },
-          { type: 'bullets', items: [
-            'Sent when the best path is down and no backup (feasible successor) is available in the topology table, asking neighbors for an alternate route.',
-            'Shared as multicast, using 224.0.0.10.',
-            'The route stays in Active state until a Reply is received.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Sent when the best path is down and no backup (feasible successor) is available in the topology table, asking neighbors for an alternate route.',
+              'Shared as multicast, using 224.0.0.10.',
+              'The route stays in Active state until a Reply is received.',
+            ]
+          },
           { type: 'heading', text: '5. Reply packet' },
-          { type: 'bullets', items: [
-            'Sent in response to a Query, when the neighbor has an alternate route for the queried network.',
-            'Sent as unicast.',
-            'Since it carries routing information (the alternate path), it is acknowledged.',
-          ] },
-                    { type: 'heading', text: '6 & 7. SIA Query and SIA Reply packets' },
+          {
+            type: 'bullets', items: [
+              'Sent in response to a Query, when the neighbor has an alternate route for the queried network.',
+              'Sent as unicast.',
+              'Since it carries routing information (the alternate path), it is acknowledged.',
+            ]
+          },
+          { type: 'heading', text: '6 & 7. SIA Query and SIA Reply packets' },
           { type: 'paragraph', text: 'If 60 seconds pass after a Query with no Reply, the router doesn\'t immediately declare the neighbor dead — this can happen to any router along the query path. Instead, EIGRP sends a follow-up: an SIA Query, essentially checking "are you still working on my query?"' },
-          { type: 'bullets', items: [
-            'This SIA Query / SIA Reply exchange repeats every 60 seconds, up to 3 times.',
-            'If, after 3 rounds (180 seconds total), there is still no Reply, the queried network\'s route is removed from the topology table.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'This SIA Query / SIA Reply exchange repeats every 60 seconds, up to 3 times.',
+              'If, after 3 rounds (180 seconds total), there is still no Reply, the queried network\'s route is removed from the topology table.',
+            ]
+          },
         ],
-        quickReference: [{ label: 'Hello / Hold-down', value: '5s / 15s' },{ label: 'SIA cycle', value: '3 × 60s follow-ups = 180s before route removal' },{ label: 'Hello & Query', value: 'Multicast 224.0.0.10' }, { label: 'Update (full)', value: 'Unicast' }, { label: 'Update (partial, post-convergence)', value: 'Multicast' }, { label: 'Reply', value: 'Unicast' }],
-        diagrams: ['Hello packets exchange between R1 and R2 diagram', 'R1 and R2 Neighbourship and Update exchange diagram', 'Query and Reply packet exchange between R1, R2, R3, R4, R5 diagram','Query and SIA Query/Reply timeline sequence diagram',],
+        quickReference: [{ label: 'Hello / Hold-down', value: '5s / 15s' }, { label: 'SIA cycle', value: '3 × 60s follow-ups = 180s before route removal' }, { label: 'Hello & Query', value: 'Multicast 224.0.0.10' }, { label: 'Update (full)', value: 'Unicast' }, { label: 'Update (partial, post-convergence)', value: 'Multicast' }, { label: 'Reply', value: 'Unicast' }],
+        diagrams: ['Hello packets exchange between R1 and R2 diagram', 'R1 and R2 Neighbourship and Update exchange diagram', 'Query and Reply packet exchange between R1, R2, R3, R4, R5 diagram', 'Query and SIA Query/Reply timeline sequence diagram',],
       },
       {
         slug: 'eigrp-route-states-active-vs-passive-and-stuck-in-active-sia-mechanism',
@@ -1853,18 +2206,20 @@ export const topics: Topic[] = [
         ],
         quickReference: [{ label: 'Passive', value: 'Stable, ready to forward' }, { label: 'Active', value: 'Searching for a new path' }, { label: 'SIA', value: 'Stuck waiting for a Reply' }],
       },
-            {
+      {
         slug: 'loopback-interfaces-virtual-interfaces-32-subnet-usage',
         title: 'Loopback Interfaces (Virtual interfaces, /32 subnet usage)',
         description: 'A loopback is a virtual interface with no physical connection, commonly used with a /32 mask to guarantee a stable address for services like EIGRP\'s Router ID.',
         blocks: [
           { type: 'heading', text: 'What a loopback is' },
-          { type: 'bullets', items: [
-            'A virtual/logical interface created on a router.',
-            'Since it\'s virtual, no device can be physically connected to it.',
-            'Multiple loopbacks can be created on a single router with no physical constraints.',
-            'Since no user machines connect to a loopback, there\'s no need for a network with usable host addresses — so a /32 mask is used most of the time.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'A virtual/logical interface created on a router.',
+              'Since it\'s virtual, no device can be physically connected to it.',
+              'Multiple loopbacks can be created on a single router with no physical constraints.',
+              'Since no user machines connect to a loopback, there\'s no need for a network with usable host addresses — so a /32 mask is used most of the time.',
+            ]
+          },
           { type: 'heading', text: 'Configuration' },
           { type: 'code', language: 'text', code: '(conf)# interface loopback 0\n(conf-if)# ip address 1.1.1.1 255.255.255.255\n            no shutdown\n            exit' },
           { type: 'heading', text: 'Verification' },
@@ -1878,44 +2233,50 @@ export const topics: Topic[] = [
         ],
         diagrams: ['Router with loopback 0 (1.1.1.1 /32) diagram', 'Triangular router topology R1, R2, R3 with NTP Server diagram'],
       },
-            {
+      {
         slug: 'eigrp-router-id-selection-manual-vs-automatic-via-loopbacks-or-highest-physical-ip',
         title: 'EIGRP Router ID Selection (Manual vs. Automatic via Loopbacks or Highest Physical IP)',
         description: 'The Router ID identifies a router inside the autonomous system, and can be set manually or chosen automatically using a priority order.',
         blocks: [
           { type: 'heading', text: 'What a Router ID is' },
-          { type: 'bullets', items: [
-            'Identifies a router inside the autonomous system.',
-            'A 32-bit ID — meaning an IPv4 address is configured as the Router ID.',
-            'Every router has a unique Router ID inside the autonomous system.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Identifies a router inside the autonomous system.',
+              'A 32-bit ID — meaning an IPv4 address is configured as the Router ID.',
+              'Every router has a unique Router ID inside the autonomous system.',
+            ]
+          },
           { type: 'heading', text: 'Manual configuration' },
           { type: 'code', language: 'text', code: 'router eigrp <AS number>\n  eigrp router-id 1.1.1.1\n  exit' },
           { type: 'heading', text: 'Automatic selection (if not manually configured)' },
-          { type: 'bullets', items: [
-            'If a loopback interface exists, its IP address becomes the Router ID.',
-            'If multiple loopbacks exist, the highest loopback IP address becomes the Router ID.',
-            'If no loopbacks exist, the highest physical interface IP address becomes the Router ID.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'If a loopback interface exists, its IP address becomes the Router ID.',
+              'If multiple loopbacks exist, the highest loopback IP address becomes the Router ID.',
+              'If no loopbacks exist, the highest physical interface IP address becomes the Router ID.',
+            ]
+          },
           { type: 'heading', text: 'Verification' },
           { type: 'bullets', items: ['show ip protocols', 'show ip eigrp <AS number>', 'show run | section eigrp'] },
         ],
         quickReference: [{ label: 'Priority order', value: 'Manual > Highest loopback IP > Highest physical IP' }],
       },
-            {
+      {
         slug: 'eigrp-configuration-neighbourship-conditions-verification',
         title: 'EIGRP Configuration & Neighbourship Conditions',
         description: 'Before two EIGRP routers can become neighbors, several conditions must match exactly — AS number, K-values, passwords, and basic Layer 1 connectivity.',
         blocks: [
           { type: 'heading', text: 'EIGRP Neighbourship Conditions' },
           { type: 'paragraph', text: 'Two routers only form an EIGRP neighborship if all of the following match.' },
-          { type: 'bullets', items: [
-            'Proper Layer 1 connectivity — cable status, speed configuration, duplex configuration, interface status, and MTU must all be in order.',
-            'Same network — both routers must be in the same subnet.',
-            'Same AS number — the neighbor must belong to the same autonomous system.',
-            'Same password — if authentication is configured, both sides must use the same password.',
-            'Same K values — both neighbors must use the same K values for metric calculation.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Proper Layer 1 connectivity — cable status, speed configuration, duplex configuration, interface status, and MTU must all be in order.',
+              'Same network — both routers must be in the same subnet.',
+              'Same AS number — the neighbor must belong to the same autonomous system.',
+              'Same password — if authentication is configured, both sides must use the same password.',
+              'Same K values — both neighbors must use the same K values for metric calculation.',
+            ]
+          },
           { type: 'heading', text: 'Verifying AS number match' },
           { type: 'bullets', items: ['show ip protocol — check if neighbors show the same AS number.', 'show run | section EIGRP', 'show ip eigrp interfaces'] },
           { type: 'heading', text: 'Verifying password match' },
@@ -1923,22 +2284,26 @@ export const topics: Topic[] = [
           { type: 'heading', text: 'Verifying K-value match' },
           { type: 'bullets', items: ['show ip protocols — confirms both routers are using the same K values.'] },
           { type: 'heading', text: 'Verifying Layer 1 connectivity' },
-          { type: 'bullets', items: [
-            'show ip int brief',
-            'show interface f0/0',
-            'test cable-diagnostics tdr interface f0/0',
-            'show cable-diagnostics tdr interface f0/0',
-            'show run interface f0/0',
-          ] },
+          {
+            type: 'bullets', items: [
+              'show ip int brief',
+              'show interface f0/0',
+              'test cable-diagnostics tdr interface f0/0',
+              'show cable-diagnostics tdr interface f0/0',
+              'show run interface f0/0',
+            ]
+          },
           { type: 'heading', text: 'EIGRP Configuration' },
           { type: 'code', language: 'text', code: 'router eigrp <AS number>\n  eigrp router-id 1.1.1.1\n  network 192.168.1.0 255.255.255.0   -- (1) advertise a specific network + mask\n  network 0.0.0.0                     -- (2) advertise using the interface\'s own IP/mask (wildcard form)' },
           { type: 'paragraph', text: 'Form (1) advertises a network with an explicit mask. Form (2) advertises by matching any interface IP against 0.0.0.0 — a shortcut that picks up the interface\'s own subnet automatically (e.g. matching an interface configured with 192.168.1.50).' },
           { type: 'heading', text: 'EIGRP Topology practice tasks' },
-          { type: 'bullets', items: [
-            'Task 1: R3 and R6 should each have 7 neighbors in their neighbor table.',
-            'Task 2: enable connectivity to all loopbacks in the topology through EIGRP.',
-            'Task 3: the lowest loopback IP should become the Router ID.',
-          ] },
+          {
+            type: 'bullets', items: [
+              'Task 1: R3 and R6 should each have 7 neighbors in their neighbor table.',
+              'Task 2: enable connectivity to all loopbacks in the topology through EIGRP.',
+              'Task 3: the lowest loopback IP should become the Router ID.',
+            ]
+          },
           { type: 'paragraph', text: 'Example topology: EIGRP AS 100, with router-to-router links from the 150.10.xx.0/24 range, across routers R1 through R8 plus their loopbacks.' },
         ],
         quickReference: [
