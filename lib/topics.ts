@@ -266,7 +266,9 @@ export const topics: Topic[] = [
           { label: 'Half-Duplex', value: 'Two-way, not simultaneous (walkie-talkie)' },
           { label: 'Full-Duplex', value: 'Two-way, simultaneous (mobile phone)' },
         ],
-        diagrams: ['Session is created / Simplex, Half-duplex, Full-duplex arrows diagram'],
+        diagrams: [
+  { src: '/diagrams/session.png', alt: 'Session is created / Simplex, Half-duplex, Full-duplex arrows', caption: 'Session is created / Simplex, Half-duplex, Full-duplex arrows' },
+],
       },
       {
         slug: 'transport-layer-segmentation-sequencing-mtu-pdu-tcp-vs-udp-error-control-flow-control-sliding-windowing',
@@ -328,14 +330,14 @@ export const topics: Topic[] = [
           { label: 'Flow control', value: 'TCP only, not UDP' },
         ],
         diagrams: [
-          'MTU (1500 Bytes) payload and header diagram',
-          'Jumbo frame table diagram',
-          'Sender Data payload to Hash Value diagram',
-          'Receiver Data payload to Hash Matching diagram',
-          'Windowing tree diagram',
-          'Sender to Receiver Single windowing diagram',
-          'Sender to Receiver Sliding windowing diagram',
-        ],
+        { src: '/diagrams/mtu.png', alt: 'MTU 1500 bytes payload and headers', caption: 'MTU (1500 Bytes) — payload and headers' },
+        { src: '/diagrams/jumbo.png', alt: 'Jumbo frame structure', caption: 'Jumbo frame (9216 Bytes)' },
+        { src: '/diagrams/hashsend.png', alt: 'Sender data payload to hash value', caption: 'Sender — data payload hashed' },
+        { src: '/diagrams/hashrecv.png', alt: 'Receiver data payload to hash matching', caption: 'Receiver — hash matching (no error)' },
+        { src: '/diagrams/windowtree.png', alt: 'Windowing tree — single vs sliding', caption: 'Windowing: single vs sliding' },
+        { src: '/diagrams/winsingle.png', alt: 'Single windowing sequence', caption: 'Single windowing — 1-ACK-2-ACK-3-ACK' },
+        { src: '/diagrams/winslide.png', alt: 'Sliding windowing sequence', caption: 'Sliding windowing — window negotiates up' },
+      ],
       },
       {
         slug: 'network-layer-packets-ip-headers-routing-basics',
@@ -359,7 +361,10 @@ export const topics: Topic[] = [
           { label: 'Layer 3 device', value: 'Router' },
           { label: 'Path storage', value: 'Routing table' },
         ],
-        diagrams: ['IP Header segment diagram', 'Switch network fig 1.1 diagram'],
+        diagrams: [
+        { src: '/diagrams/ipheader.png', alt: 'IP header segment structure', caption: 'IP header segment' },
+        { src: '/diagrams/switchnet.png', alt: 'Switch network with MAC address table', caption: 'Switch network & MAC address table' },
+      ],
       },
       {
         slug: 'data-link-layer-frames-mac-addressing-oui-cam-tables',
@@ -387,7 +392,10 @@ export const topics: Topic[] = [
           { label: 'OUI', value: 'First 24 bits — manufacturer' },
           { label: 'CAM/MAC table aging', value: '300 seconds (5 min)' },
         ],
-        diagrams: ['48-bit MAC address example diagram', 'PC to Switch network diagram with MAC-Address Table and frame format'],
+        diagrams: [
+        { src: '/diagrams/mac48.png', alt: '48-bit MAC address structure', caption: '48-bit MAC address — OUI + Host ID' },
+        { src: '/diagrams/pcswitch.png', alt: 'PC to Switch network with MAC address table', caption: 'PC to Switch — MAC table & frame format' },
+      ],
       },
       {
         slug: 'physical-layer-binary-format-physical-transmission',
@@ -473,7 +481,10 @@ export const topics: Topic[] = [
           { label: 'Max speed', value: '1 Gbps' },
           { label: 'Cat 5e', value: 'Pairs twisted around each other' },
         ],
-        diagrams: ['Shielded and Unshielded twisted pair cable diagram', 'Cat 5 / Cat 5e plastic separator diagram'],
+        diagrams: [
+        { src: '/diagrams/twisted.png', alt: 'Shielded vs unshielded twisted pair cross-section', caption: 'STP vs UTP — shielding layers' },
+        { src: '/diagrams/cat5e.png', alt: 'Cat 5 and Cat 5e cross-section with plastic separator', caption: 'Cat 5 vs Cat 5e — plastic separator' },
+      ],
       },
       {
         slug: 'coaxial-cables',

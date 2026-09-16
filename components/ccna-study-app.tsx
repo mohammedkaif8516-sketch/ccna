@@ -111,9 +111,23 @@ function Sidebar({ selected, onSelect, mobile = false }: { selected?: string; on
   )
 }
 
-function DiagramSlot({ diagram, onOpen }: { diagram: Diagram; onOpen: (d: Diagram) => void }) {
+function DiagramSlot({
+  diagram,
+  onOpen,
+  wide = false,
+}: {
+  diagram: Diagram
+  onOpen: (d: Diagram) => void
+  wide?: boolean
+}) {
   return (
-    <figure className="flex h-80 flex-col overflow-hidden rounded-xl border bg-card">
+    <figure
+      className={
+        wide
+          ? 'flex flex-col overflow-hidden rounded-xl border bg-card'
+          : 'flex h-80 flex-col overflow-hidden rounded-xl border bg-card'
+      }
+    >
       <button
         type="button"
         onClick={() => onOpen(diagram)}
@@ -123,7 +137,7 @@ function DiagramSlot({ diagram, onOpen }: { diagram: Diagram; onOpen: (d: Diagra
         <img
           src={diagram.src}
           alt={diagram.alt}
-          className="h-full w-full object-contain"
+          className={wide ? 'w-full h-auto' : 'h-full w-full object-contain'}
           onError={(e) => {
             e.currentTarget.style.display = 'none'
           }}
@@ -437,16 +451,18 @@ export default function CcnaStudyApp() {
                   }
                 >
                   {current.diagrams.map((diagram, index) => (
-                    <DiagramSlot key={`${diagram.src}-${index}`} diagram={diagram} onOpen={setLightbox} />
+                    <DiagramSlot
+                      key={`${diagram.src}-${index}`}
+                      diagram={diagram}
+                      onOpen={setLightbox}
+                      wide={current.diagrams!.length === 1}
+                    />
                   ))}
                 </div>
               )}
                 {current.slug === 'subnetting-calculations' && <SubnetCalculator />}
                 <div className="mt-10">
                   <QuickReference items={current.quickReference} />
-                </div>
-                <div className="mt-8 flex items-center gap-2 border-t pt-5 text-xs text-muted-foreground">
-                  <Check className="size-4 text-primary" /> Keep going: revisit this page after a practice lab.
                 </div>
               </article>
             ) : (
