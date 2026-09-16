@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
@@ -11,9 +12,62 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/s
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { topics, type Diagram, type NoteBlock, type Subtopic, type Topic } from '@/lib/topics'
 import { Brackets, Cable, Check, ChevronRight, Layers3, Menu, Moon, Network, PanelLeft, Router, Search, Sun, ArrowLeft } from 'lucide-react'
+import { useEffect } from 'react'
 
 const iconMap = { network: Network, layers: Layers3, cable: Cable, router: Router, brackets: Brackets }
 
+
+function DiagramLightbox({
+  diagram,
+  onClose,
+}: {
+  diagram: Diagram | null
+  onClose: () => void
+}) {
+  useEffect(() => {
+    if (!diagram) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = prevOverflow
+    }
+  }, [diagram, onClose])
+
+  if (!diagram) return null
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={diagram.alt}
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm sm:p-8"
+    >
+      <figure
+        onClick={(e) => e.stopPropagation()}
+        className="flex max-h-full max-w-6xl flex-col overflow-hidden rounded-xl border bg-card shadow-2xl"
+      >
+        <div className="flex min-h-0 flex-1 items-center justify-center bg-background p-4">
+          <img
+            src={diagram.src}
+            alt={diagram.alt}
+            className="max-h-[80vh] w-auto max-w-full object-contain"
+          />
+        </div>
+        {diagram.caption && (
+          <figcaption className="border-t px-4 py-3 text-center text-sm text-muted-foreground">
+            {diagram.caption}
+          </figcaption>
+        )}
+      </figure>
+    </div>
+  )
+}
 function Sidebar({ selected, onSelect, mobile = false }: { selected?: string; onSelect: (topic: Topic, subtopic: Subtopic) => void; mobile?: boolean }) {
   return (
     <aside className={mobile ? 'flex h-full flex-col bg-background' : 'hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex'}>
@@ -57,10 +111,15 @@ function Sidebar({ selected, onSelect, mobile = false }: { selected?: string; on
   )
 }
 
-function DiagramSlot({ diagram }: { diagram: Diagram }) {
+function DiagramSlot({ diagram, onOpen }: { diagram: Diagram; onOpen: (d: Diagram) => void }) {
   return (
     <figure className="flex h-80 flex-col overflow-hidden rounded-xl border bg-card">
-      <div className="flex flex-1 items-center justify-center bg-background p-3">
+      <button
+        type="button"
+        onClick={() => onOpen(diagram)}
+        aria-label={`Open ${diagram.alt} larger`}
+        className="flex min-h-0 flex-1 cursor-zoom-in items-center justify-center bg-background p-3 transition-colors hover:bg-accent/30"
+      >
         <img
           src={diagram.src}
           alt={diagram.alt}
@@ -69,7 +128,7 @@ function DiagramSlot({ diagram }: { diagram: Diagram }) {
             e.currentTarget.style.display = 'none'
           }}
         />
-      </div>
+      </button>
       {diagram.caption && (
         <figcaption className="border-t px-4 py-2 text-center text-xs text-muted-foreground">
           {diagram.caption}
@@ -255,28 +314,47 @@ function Dashboard() {
 }
 
 export default function CcnaStudyApp() {
-  const [selected, setSelected] = useState<{ topic: Topic; subtopic: Subtopic } | null>(null)
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [dark, setDark] = useState(false)
+  const [lightbox, setLightbox] = useState<Diagram | null>(null)
+
   const [mobileOpen, setMobileOpen] = useState(false)
 
+  // Read topic + sub from the URL on every render
+  const topicSlug = searchParams.get('topic')
+  const subSlug = searchParams.get('sub')
+
+  const selected = useMemo(() => {
+    if (!topicSlug || !subSlug) return null
+    const topic = topics.find((t) => t.slug === topicSlug)
+    if (!topic) return null
+    const subtopic = topic.subtopics.find((s) => s.slug === subSlug)
+    if (!subtopic) return null
+    return { topic, subtopic }
+  }, [topicSlug, subSlug])
+
   const select = (topic: Topic, subtopic: Subtopic) => {
-    setSelected({ topic, subtopic })
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('topic', topic.slug)
+    params.set('sub', subtopic.slug)
+    router.push(`?${params.toString()}`, { scroll: false })
     setMobileOpen(false)
   }
+
   const goHome = () => {
-    setSelected(null)
+    router.push('/', { scroll: false })
     setMobileOpen(false)
   }
 
   const current = selected?.subtopic
   const currentIcon = selected ? iconMap[selected.topic.icon as keyof typeof iconMap] : null
-  const allSubtopics = useMemo(() => topics.flatMap((topic) => topic.subtopics), [])
 
   return (
-  <div className={dark ? 'dark h-screen overflow-hidden bg-background text-foreground' : 'h-screen overflow-hidden bg-background text-foreground'}>
-    <div className="flex h-full">
-      <Sidebar selected={current?.slug} onSelect={select} />
-      <div className="flex min-w-0 flex-1 flex-col">
+    <div className={dark ? 'dark h-screen overflow-hidden bg-background text-foreground' : 'h-screen overflow-hidden bg-background text-foreground'}>
+      <div className="flex h-full">
+        <Sidebar selected={current?.slug} onSelect={select} />
+        <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
@@ -306,15 +384,15 @@ export default function CcnaStudyApp() {
               )}
             </div>
             <div className="ml-auto flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              onClick={() => setDark(!dark)}
-            >
-              {dark ? <Sun /> : <Moon />}
-            </Button>
-          </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+                onClick={() => setDark(!dark)}
+              >
+                {dark ? <Sun /> : <Moon />}
+              </Button>
+            </div>
           </header>
           <main className="flex-1 overflow-y-auto">
             {current ? (
@@ -351,9 +429,13 @@ export default function CcnaStudyApp() {
                   ))}
                 </div>
                 {current.diagrams && (
-                <div className="mt-8 grid gap-4 sm:grid-cols-2">
+                <div className={current.diagrams.length === 1 ? 'mt-8' : 'mt-8 grid gap-4 sm:grid-cols-2'}>
                   {current.diagrams.map((diagram, index) => (
-                    <DiagramSlot key={`${diagram.src}-${index}`} diagram={diagram} />
+                    <DiagramSlot
+                      key={`${diagram.src}-${index}`}
+                      diagram={diagram}
+                      onOpen={setLightbox}
+                    />
                   ))}
                 </div>
               )}
@@ -366,11 +448,12 @@ export default function CcnaStudyApp() {
                 </div>
               </article>
             ) : (
-              <Dashboard onSelect={select} />
+              <Dashboard />
             )}
           </main>
         </div>
       </div>
+    <DiagramLightbox diagram={lightbox} onClose={() => setLightbox(null)} />
     </div>
   )
 }
