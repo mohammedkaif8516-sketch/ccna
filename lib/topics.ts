@@ -167,14 +167,12 @@ export const topics: Topic[] = [
             'Disadvantage: since it is centralized, if something happens to the server, data will be lost or inaccessible.',
             'Solution: have a backup server spread across locations.',
           ] },
-          { type: 'code', language: 'text', code: 'Client -----\nClient ----- > [Switch / Router] ------> [Server (stores Data)]\nClient -----\n<----- Requests Data -----\n------ Provides Data ----->' },
           { type: 'heading', text: '2. Mainframe / Terminal Architecture' },
           { type: 'paragraph', text: 'Operates similarly to client/server, but with a massive shift in where the "thinking" happens.' },
           { type: 'bullets', items: [
             'Mainframe: the central powerhouse where all computing, processing, and data storage takes place.',
             'Terminal: a "dumb device" used purely for input (keyboard) and output (display screen) — it has no local processing power.',
           ] },
-          { type: 'code', language: 'text', code: 'Terminal -----\nTerminal ----- > [Switch / Router] ------> [Mainframe Server]\nTerminal -----                             (Data storage\n(I / O only)                               + All data processing)' },
           { type: 'heading', text: '3. Peer-to-Peer (P2P) Architecture' },
           { type: 'paragraph', text: 'Unlike centralized models, every host device on a P2P network acts as both a client and server at the same time. Every peer can request services from others and share its own resources.' },
         ],
@@ -183,7 +181,11 @@ export const topics: Topic[] = [
           { label: 'Mainframe/Terminal', value: 'All processing central; terminal is I/O only' },
           { label: 'P2P', value: 'Every host is client + server' },
         ],
-        diagrams: ['P2P 4-quadrant cross diagram'],
+        diagrams: [
+          { src: '/diagrams/clientserver.png', alt: 'Client/Server architecture', caption: 'Client/Server architecture' },
+          { src: '/diagrams/mainframe.png', alt: 'Mainframe/Terminal architecture', caption: 'Mainframe/Terminal architecture' },
+          { src: '/diagrams/p2p.png', alt: 'Peer-to-Peer architecture', caption: 'Peer-to-Peer architecture' },
+        ],
       },
     ],
   },
@@ -241,7 +243,9 @@ export const topics: Topic[] = [
           { label: 'Layer 7', value: 'Application — user/network interface' },
           { label: 'Layer 6', value: 'Presentation — translate, compress, encrypt' },
         ],
-        diagrams: ['Sender and Receiver vertical layers diagram'],
+        diagrams: [
+          { src: '/diagrams/sendervertical.png', alt: 'Sender and Receiver vertical layers', caption: 'Sender and Receiver vertical layers' },
+        ],
       },
       {
         slug: 'session-layer-simplex-half-duplex-full-duplex',

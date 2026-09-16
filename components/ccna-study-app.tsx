@@ -429,13 +429,15 @@ export default function CcnaStudyApp() {
                   ))}
                 </div>
                 {current.diagrams && (
-                <div className={current.diagrams.length === 1 ? 'mt-8' : 'mt-8 grid gap-4 sm:grid-cols-2'}>
+                <div
+                  className={
+                    current.diagrams.length === 1
+                      ? 'mt-8 flex flex-col'
+                      : 'mt-8 grid gap-4 sm:grid-cols-2'
+                  }
+                >
                   {current.diagrams.map((diagram, index) => (
-                    <DiagramSlot
-                      key={`${diagram.src}-${index}`}
-                      diagram={diagram}
-                      onOpen={setLightbox}
-                    />
+                    <DiagramSlot key={`${diagram.src}-${index}`} diagram={diagram} onOpen={setLightbox} />
                   ))}
                 </div>
               )}
