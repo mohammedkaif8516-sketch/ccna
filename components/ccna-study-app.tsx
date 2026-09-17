@@ -55,7 +55,7 @@ import {
   Sun,
   ArrowLeft,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from 'react'
 
 // ─────────────────────────────────────────────────────────────
 // Helper: convert dotted IP to 32-bit uint and back
@@ -444,35 +444,78 @@ function Sidebar({
   onSelect,
   mobile = false,
 }: {
-  selected?: string;
-  onSelect: (topic: Topic, subtopic: Subtopic) => void;
-  mobile?: boolean;
+  selected?: string
+  onSelect: (topic: Topic, subtopic: Subtopic) => void
+  mobile?: boolean
 }) {
+  const activeRef = useRef<HTMLButtonElement | null>(null)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+
+  // Find which topic contains the currently selected subtopic
+  const topicWithActive = useMemo(() => {
+    if (!selected) return null
+    for (const topic of topics) {
+      if (topic.subtopics.some((s) => s.slug === selected)) return topic.slug
+    }
+    return null
+  }, [selected])
+
+  // Controlled accordion state — all topics open by default
+  const [openTopics, setOpenTopics] = useState<string[]>(() => topics.map((t) => t.slug))
+
+  // Whenever the active topic changes, make sure it's expanded
+  useEffect(() => {
+    if (!topicWithActive) return
+    setOpenTopics((prev) =>
+      prev.includes(topicWithActive) ? prev : [...prev, topicWithActive]
+    )
+  }, [topicWithActive])
+
+  // After mount / when active changes / when topics expand → scroll active into view
+  useEffect(() => {
+    if (!mobile) return
+    if (!activeRef.current || !scrollRef.current) return
+
+    // Wait 2 frames: one for the accordion to expand, one for layout
+    let raf1 = 0
+    let raf2 = 0
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        const el = activeRef.current
+        const container = scrollRef.current
+        if (!el || !container) return
+        const top = el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2
+        container.scrollTop = Math.max(0, top)
+      })
+    })
+    return () => {
+      cancelAnimationFrame(raf1)
+      cancelAnimationFrame(raf2)
+    }
+  }, [selected, mobile, openTopics])
+
   return (
     <aside
       className={
         mobile
-          ? "flex h-full flex-col bg-background"
-          : "hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex"
+          ? 'flex h-full flex-col bg-background'
+          : 'hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex'
       }
     >
-      <div className="flex-1 overflow-y-auto px-3 py-5">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-5">
         <p className="px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
           Curriculum
         </p>
         <Accordion
           type="multiple"
-          defaultValue={topics.map((topic) => topic.slug)}
+          value={openTopics}
+          onValueChange={setOpenTopics}
           className="w-full"
         >
           {topics.map((topic) => {
-            const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network;
+            const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network
             return (
-              <AccordionItem
-                value={topic.slug}
-                key={topic.slug}
-                className="border-b-0"
-              >
+              <AccordionItem value={topic.slug} key={topic.slug} className="border-b-0">
                 <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-accent hover:no-underline [&>svg]:size-3.5">
                   <span className="flex min-w-0 items-center gap-2.5">
                     <Icon className="size-4 shrink-0 text-muted-foreground" />
@@ -481,31 +524,37 @@ function Sidebar({
                 </AccordionTrigger>
                 <AccordionContent className="pb-1 pt-0">
                   <div className="ml-5 border-l pl-3">
-                    {topic.subtopics.map((subtopic, index) => (
-                      <button
-                        key={`${subtopic.slug}-${index}`}
-                        onClick={() => onSelect(topic, subtopic)}
-                        className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
-                          selected === subtopic.slug
-                            ? "bg-primary/10 font-medium text-primary"
-                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                        }`}
-                      >
-                        <ChevronRight
-                          className={`mt-0.5 size-3 shrink-0 ${selected === subtopic.slug ? "text-primary" : "opacity-50"}`}
-                        />
-                        {subtopic.title}
-                      </button>
-                    ))}
+                    {topic.subtopics.map((subtopic, index) => {
+                      const isActive = selected === subtopic.slug
+                      return (
+                        <button
+                          key={`${subtopic.slug}-${index}`}
+                          ref={isActive ? activeRef : null}
+                          onClick={() => onSelect(topic, subtopic)}
+                          className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
+                            isActive
+                              ? 'bg-primary/10 font-medium text-primary'
+                              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                          }`}
+                        >
+                          <ChevronRight
+                            className={`mt-0.5 size-3 shrink-0 ${
+                              isActive ? 'text-primary' : 'opacity-50'
+                            }`}
+                          />
+                          {subtopic.title}
+                        </button>
+                      )
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
-            );
+            )
           })}
         </Accordion>
       </div>
     </aside>
-  );
+  )
 }
 
 type DiagramSlotProps = {
