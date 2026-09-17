@@ -402,8 +402,8 @@ export const topics: Topic[] = [
           { label: 'Path storage', value: 'Routing table' },
         ],
         diagrams: [
-          { src: '/diagrams/ipheader.png', alt: 'IP header segment structure', caption: 'IP header segment' },
-          { src: '/diagrams/switchnet.png', alt: 'Switch network with MAC address table', caption: 'Switch network & MAC address table' },
+          { src: '/diagrams/ipheader1.png', alt: 'IP header segment structure', caption: 'IP header segment' },
+          { src: '/diagrams/switchnet1.png', alt: 'Switch network with MAC address table', caption: 'Switch network & MAC address table' },
         ],
       },
       {
