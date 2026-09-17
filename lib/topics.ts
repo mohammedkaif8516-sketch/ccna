@@ -1131,7 +1131,7 @@ export const topics: Topic[] = [
           { label: 'Flow', value: 'IANA → RIR → ISP → customer' },
         ],
         diagrams: [
-          { src: '/diagrams/iana.png', alt: 'IANA hierarchy tree', caption: 'IANA hierarchy — top-down allocation' },
+          { src: '/diagrams/iana_wide.png', alt: 'IANA hierarchy tree', caption: 'IANA hierarchy — top-down allocation' },
         ],
       },
       {
@@ -1299,7 +1299,7 @@ export const topics: Topic[] = [
         ],
         quickReference: [{ label: 'Establish', value: '3-way handshake (SYN, SYN-ACK, ACK)' }, { label: 'Terminate', value: '4-way handshake (FIN, ACK, FIN, ACK)' }],
         diagrams: [
-          { src: '/diagrams/t3cp.png', alt: 'TCP three-way handshake — connection established', caption: 'TCP connection established — 3-way handshake' },
+          { src: '/diagrams/t3cp_wide.png', alt: 'TCP three-way handshake — connection established', caption: 'TCP connection established — 3-way handshake' },
         ],
       },
       {
@@ -1328,7 +1328,7 @@ export const topics: Topic[] = [
           { label: 'RST', value: 'Forceful termination, no handshake' },
         ],
         diagrams: [
-          { src: '/diagrams/tcpflags.png', alt: 'TCP header flags — SYN, ACK, FIN, PSH, URG, RST', caption: 'TCP header flags — SYN, ACK, FIN, PSH, URG, RST' },
+          { src: '/diagrams/tcpflags_wide.png', alt: 'TCP header flags — SYN, ACK, FIN, PSH, URG, RST', caption: 'TCP header flags — SYN, ACK, FIN, PSH, URG, RST' },
         ],
       },
       {
@@ -1356,7 +1356,7 @@ export const topics: Topic[] = [
           { label: 'Ephemeral ports', value: '49152 – 65535' },
         ],
         diagrams: [
-          { src: '/diagrams/tcpudp.png', alt: 'Protocol numbers and port ranges for TCP/UDP', caption: 'Protocol numbers & port ranges' },
+          { src: '/diagrams/tcpudp_wide.png', alt: 'Protocol numbers and port ranges for TCP/UDP', caption: 'Protocol numbers & port ranges' },
         ],
       },
     ],
@@ -1417,8 +1417,9 @@ export const topics: Topic[] = [
           },
         ],
         quickReference: [{ label: 'POST failure', value: 'Stuck in ROMmon' }, { label: 'No startup-config', value: 'TFTP broadcast request, else unconfigured' }],
-        diagrams: ['Cisco Booting Process Flowchart'],
-      },
+diagrams: [
+  { src: '/diagrams/boot_wide.png', alt: 'Cisco router boot process flowchart', caption: 'Cisco boot process — POST → IOS → config' },
+],      },
       {
         slug: 'router-interfaces-physical-modules-and-lines-console-vty',
         title: 'Router Interfaces (Physical modules) and Lines (Console, VTY)',
@@ -1443,8 +1444,9 @@ export const topics: Topic[] = [
           },
         ],
         quickReference: [{ label: 'Interface example', value: 'f0/0 = interface/module' }, { label: 'Physical line', value: 'Console port' }, { label: 'Virtual line', value: 'VTY (Telnet/SSH)' }],
-        diagrams: ['Switch modular interface diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/switchmodular_wide.png', alt: 'Switch interface naming — module and slot layout', caption: 'Switch modular interface — interface / module / slot' },
+],      },
       {
         slug: 'remote-access-protocols-telnet-vs-ssh',
         title: 'Remote Access Protocols (Telnet vs. SSH)',
@@ -1470,8 +1472,9 @@ export const topics: Topic[] = [
           },
         ],
         quickReference: [{ label: 'Telnet', value: 'Port 23, plain text' }, { label: 'SSH', value: 'Port 22, encrypted (RSA)' }],
-        diagrams: ['TELNET v/s SSH remote access diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/telnetshhh.png', alt: 'TELNET vs SSH remote access — port 23 vs port 22', caption: 'TELNET (23) vs SSH (22) — remote access paths' },
+],      },
       {
         slug: 'cisco-cli-router-modes-user-exec-idle-privilege-enable-global-configuration',
         title: 'Cisco CLI Router Modes (User EXEC / Idle, Privilege / Enable, Global Configuration)',

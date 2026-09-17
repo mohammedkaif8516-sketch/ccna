@@ -55,97 +55,100 @@ import {
   Sun,
   ArrowLeft,
 } from "lucide-react";
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef } from "react";
 
 // ─────────────────────────────────────────────────────────────
 // Helper: convert dotted IP to 32-bit uint and back
 // ─────────────────────────────────────────────────────────────
- 
 
 function ipToInt(ip: string): number | null {
-  const parts = ip.trim().split('.')
-  if (parts.length !== 4) return null
-  const nums = parts.map((p) => Number(p))
-  if (nums.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null
-  return nums.reduce((acc, n) => (acc * 256 + n) >>> 0, 0)
+  const parts = ip.trim().split(".");
+  if (parts.length !== 4) return null;
+  const nums = parts.map((p) => Number(p));
+  if (nums.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null;
+  return nums.reduce((acc, n) => (acc * 256 + n) >>> 0, 0);
 }
 
 function intToIp(n: number): string {
-  return [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join('.')
+  return [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
 }
 
 function prefixForHosts(hosts: number): number {
-  let needed = 1
-  while (needed < hosts + 2) needed *= 2
-  return 32 - Math.log2(needed)
+  let needed = 1;
+  while (needed < hosts + 2) needed *= 2;
+  return 32 - Math.log2(needed);
 }
 
 type Block = {
-  label: string
-  requested: number
-  prefix: number
-  blockSize: number
-  network: number
-  broadcast: number
-  firstHost: number
-  lastHost: number
-  usable: number
-  waste: number
-}
+  label: string;
+  requested: number;
+  prefix: number;
+  blockSize: number;
+  network: number;
+  broadcast: number;
+  firstHost: number;
+  lastHost: number;
+  usable: number;
+  waste: number;
+};
 
 export function SubnetPlanner() {
-  const [baseIp, setBaseIp] = useState('192.168.10.0')
-  const [baseCidr, setBaseCidr] = useState('24')
-  const [needsText, setNeedsText] = useState('35, 40, 50, 45')
-  const [mode, setMode] = useState<'vlsm' | 'flsm'>('vlsm')
+  const [baseIp, setBaseIp] = useState("192.168.10.0");
+  const [baseCidr, setBaseCidr] = useState("24");
+  const [needsText, setNeedsText] = useState("35, 40, 50, 45");
+  const [mode, setMode] = useState<"vlsm" | "flsm">("vlsm");
 
   const result = useMemo(() => {
-    const baseInt = ipToInt(baseIp)
-    const basePrefix = Number(baseCidr)
-    if (baseInt === null) return { error: 'Enter a valid base IPv4 address.' }
+    const baseInt = ipToInt(baseIp);
+    const basePrefix = Number(baseCidr);
+    if (baseInt === null) return { error: "Enter a valid base IPv4 address." };
     if (!Number.isInteger(basePrefix) || basePrefix < 0 || basePrefix > 32)
-      return { error: 'CIDR must be a whole number from 0 to 32.' }
+      return { error: "CIDR must be a whole number from 0 to 32." };
 
     const needs = needsText
       .split(/[\s,]+/)
       .map((x) => Number(x))
-      .filter((x) => x > 0)
-    if (needs.length === 0) return { error: 'Enter at least one host requirement.' }
+      .filter((x) => x > 0);
+    if (needs.length === 0)
+      return { error: "Enter at least one host requirement." };
     if (needs.some((n) => !Number.isInteger(n)))
-      return { error: 'Host requirements must be whole numbers.' }
+      return { error: "Host requirements must be whole numbers." };
 
-    const baseMask = basePrefix === 0 ? 0 : (0xffffffff << (32 - basePrefix)) >>> 0
-    const parentNetwork = (baseInt & baseMask) >>> 0
-    const parentSize = 2 ** (32 - basePrefix)
+    const baseMask =
+      basePrefix === 0 ? 0 : (0xffffffff << (32 - basePrefix)) >>> 0;
+    const parentNetwork = (baseInt & baseMask) >>> 0;
+    const parentSize = 2 ** (32 - basePrefix);
 
     // Sort largest-first for both modes
-    const sorted = [...needs].sort((a, b) => b - a)
+    const sorted = [...needs].sort((a, b) => b - a);
 
     // FLSM: everyone gets the prefix the LARGEST requirement needs
-    const uniformPrefix =
-      mode === 'flsm' ? prefixForHosts(sorted[0]) : null
+    const uniformPrefix = mode === "flsm" ? prefixForHosts(sorted[0]) : null;
 
-    const blocks: Block[] = []
-    let cursor = parentNetwork
-    const parentEnd = parentNetwork + parentSize - 1
+    const blocks: Block[] = [];
+    let cursor = parentNetwork;
+    const parentEnd = parentNetwork + parentSize - 1;
 
     for (let i = 0; i < sorted.length; i++) {
-      const requested = sorted[i]
-      const prefix = mode === 'flsm' ? uniformPrefix! : prefixForHosts(requested)
+      const requested = sorted[i];
+      const prefix =
+        mode === "flsm" ? uniformPrefix! : prefixForHosts(requested);
 
       if (prefix < basePrefix) {
         return {
           error: `Block ${i + 1} needs ${requested} hosts, which is larger than the /${basePrefix} parent network.`,
-        }
+        };
       }
-      const blockSize = 2 ** (32 - prefix)
-      const aligned = Math.ceil(cursor / blockSize) * blockSize
-      const network = aligned
-      const broadcast = network + blockSize - 1
+      const blockSize = 2 ** (32 - prefix);
+      const aligned = Math.ceil(cursor / blockSize) * blockSize;
+      const network = aligned;
+      const broadcast = network + blockSize - 1;
       if (broadcast > parentEnd) {
-        return { error: 'Not enough space in the parent network for all requirements.' }
+        return {
+          error: "Not enough space in the parent network for all requirements.",
+        };
       }
-      const usable = prefix >= 31 ? (prefix === 32 ? 1 : 2) : blockSize - 2
+      const usable = prefix >= 31 ? (prefix === 32 ? 1 : 2) : blockSize - 2;
       blocks.push({
         label: `N${i + 1}`,
         requested,
@@ -157,15 +160,15 @@ export function SubnetPlanner() {
         lastHost: prefix >= 31 ? broadcast : broadcast - 1,
         usable,
         waste: usable - requested,
-      })
-      cursor = broadcast + 1
+      });
+      cursor = broadcast + 1;
     }
 
-    const used = cursor - parentNetwork
-    const free = parentSize - used
+    const used = cursor - parentNetwork;
+    const free = parentSize - used;
 
     return {
-      error: '',
+      error: "",
       basePrefix,
       parentNetwork,
       parentSize,
@@ -173,13 +176,19 @@ export function SubnetPlanner() {
       used,
       free,
       uniformPrefix,
-    }
-  }, [baseIp, baseCidr, needsText, mode])
+    };
+  }, [baseIp, baseCidr, needsText, mode]);
 
   const colors = [
-    '#1971c2', '#2f9e44', '#e8590c', '#862e9c',
-    '#c92a2a', '#0c8599', '#f08c00', '#5f3dc4',
-  ]
+    "#1971c2",
+    "#2f9e44",
+    "#e8590c",
+    "#862e9c",
+    "#c92a2a",
+    "#0c8599",
+    "#f08c00",
+    "#5f3dc4",
+  ];
 
   return (
     <Card className="mt-8 border-primary/20 bg-primary/[0.02]">
@@ -199,22 +208,22 @@ export function SubnetPlanner() {
         <div className="mb-5 inline-flex rounded-lg border bg-background p-1">
           <button
             type="button"
-            onClick={() => setMode('flsm')}
+            onClick={() => setMode("flsm")}
             className={`rounded-md px-4 py-1.5 text-xs font-medium transition-colors ${
-              mode === 'flsm'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+              mode === "flsm"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             FLSM — fixed size
           </button>
           <button
             type="button"
-            onClick={() => setMode('vlsm')}
+            onClick={() => setMode("vlsm")}
             className={`rounded-md px-4 py-1.5 text-xs font-medium transition-colors ${
-              mode === 'vlsm'
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:text-foreground'
+              mode === "vlsm"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             VLSM — variable size
@@ -237,7 +246,9 @@ export function SubnetPlanner() {
           <label className="text-xs font-medium">
             CIDR
             <div className="relative mt-2">
-              <span className="pointer-events-none absolute left-3 top-2.5 text-sm text-muted-foreground">/</span>
+              <span className="pointer-events-none absolute left-3 top-2.5 text-sm text-muted-foreground">
+                /
+              </span>
               <Input
                 value={baseCidr}
                 onChange={(e) => setBaseCidr(e.target.value)}
@@ -263,19 +274,21 @@ export function SubnetPlanner() {
           </p>
         )}
 
-        {!result.error && 'blocks' in result && (
+        {!result.error && "blocks" in result && (
           <div className="mt-6 flex flex-col gap-6">
             {/* Mode summary line */}
             <p className="text-xs text-muted-foreground">
-              {mode === 'flsm' ? (
+              {mode === "flsm" ? (
                 <>
-                  <span className="font-semibold text-foreground">FLSM:</span> every subnet gets the
-                  same size — /{result.uniformPrefix} — because it fits the largest requirement.
+                  <span className="font-semibold text-foreground">FLSM:</span>{" "}
+                  every subnet gets the same size — /{result.uniformPrefix} —
+                  because it fits the largest requirement.
                 </>
               ) : (
                 <>
-                  <span className="font-semibold text-foreground">VLSM:</span> each subnet gets the
-                  smallest block that fits its own requirement.
+                  <span className="font-semibold text-foreground">VLSM:</span>{" "}
+                  each subnet gets the smallest block that fits its own
+                  requirement.
                 </>
               )}
             </p>
@@ -283,11 +296,12 @@ export function SubnetPlanner() {
             {/* Horizontal subnet line */}
             <div className="overflow-x-auto rounded-xl border bg-background p-4">
               <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                Subnet line — {intToIp(result.parentNetwork)}/{result.basePrefix}
+                Subnet line — {intToIp(result.parentNetwork)}/
+                {result.basePrefix}
               </p>
               <div className="flex min-w-full" style={{ height: 60 }}>
                 {result.blocks.map((b, i) => {
-                  const widthPct = (b.blockSize / result.parentSize) * 100
+                  const widthPct = (b.blockSize / result.parentSize) * 100;
                   return (
                     <div
                       key={b.label}
@@ -295,7 +309,7 @@ export function SubnetPlanner() {
                       style={{
                         width: `${widthPct}%`,
                         minWidth: 60,
-                        backgroundColor: colors[i % colors.length] + '18',
+                        backgroundColor: colors[i % colors.length] + "18",
                         borderColor: colors[i % colors.length],
                         borderTop: `3px solid ${colors[i % colors.length]}`,
                       }}
@@ -312,12 +326,15 @@ export function SubnetPlanner() {
                         </span>
                       </div>
                     </div>
-                  )
+                  );
                 })}
                 {result.free > 0 && (
                   <div
                     className="relative flex items-center justify-center border-t-[3px] border-t-dashed border-t-muted-foreground/40"
-                    style={{ width: `${(result.free / result.parentSize) * 100}%`, minWidth: 40 }}
+                    style={{
+                      width: `${(result.free / result.parentSize) * 100}%`,
+                      minWidth: 40,
+                    }}
                   >
                     <span className="text-[10px] text-muted-foreground">
                       free ({result.free})
@@ -327,7 +344,9 @@ export function SubnetPlanner() {
               </div>
               <div className="mt-2 flex justify-between text-[10px] font-mono text-muted-foreground">
                 <span>{intToIp(result.parentNetwork)}</span>
-                <span>{intToIp(result.parentNetwork + result.parentSize - 1)}</span>
+                <span>
+                  {intToIp(result.parentNetwork + result.parentSize - 1)}
+                </span>
               </div>
             </div>
 
@@ -341,25 +360,36 @@ export function SubnetPlanner() {
                     <th className="px-3 py-2 text-left font-medium">Prefix</th>
                     <th className="px-3 py-2 text-left font-medium">Size</th>
                     <th className="px-3 py-2 text-left font-medium">Network</th>
-                    <th className="px-3 py-2 text-left font-medium">Host range</th>
-                    <th className="px-3 py-2 text-left font-medium">Broadcast</th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      Host range
+                    </th>
+                    <th className="px-3 py-2 text-left font-medium">
+                      Broadcast
+                    </th>
                     <th className="px-3 py-2 text-left font-medium">Waste</th>
                   </tr>
                 </thead>
                 <tbody>
                   {result.blocks.map((b, i) => (
                     <tr key={b.label} className="border-t">
-                      <td className="px-3 py-2 font-semibold" style={{ color: colors[i % colors.length] }}>
+                      <td
+                        className="px-3 py-2 font-semibold"
+                        style={{ color: colors[i % colors.length] }}
+                      >
                         {b.label}
                       </td>
                       <td className="px-3 py-2">{b.requested}</td>
                       <td className="px-3 py-2 font-mono">/{b.prefix}</td>
                       <td className="px-3 py-2 font-mono">{b.blockSize}</td>
-                      <td className="px-3 py-2 font-mono">{intToIp(b.network)}</td>
+                      <td className="px-3 py-2 font-mono">
+                        {intToIp(b.network)}
+                      </td>
                       <td className="px-3 py-2 font-mono">
                         {intToIp(b.firstHost)} – {intToIp(b.lastHost)}
                       </td>
-                      <td className="px-3 py-2 font-mono">{intToIp(b.broadcast)}</td>
+                      <td className="px-3 py-2 font-mono">
+                        {intToIp(b.broadcast)}
+                      </td>
                       <td className="px-3 py-2 font-mono">{b.waste}</td>
                     </tr>
                   ))}
@@ -368,16 +398,17 @@ export function SubnetPlanner() {
             </div>
 
             <p className="text-[11px] text-muted-foreground">
-              Allocated {result.used} of {result.parentSize} addresses · {result.free} still free.
-              {mode === 'flsm'
-                ? ' FLSM wastes more addresses when requirements differ in size.'
-                : ' Blocks are sorted largest-first so smaller subnets pack into the gaps.'}
+              Allocated {result.used} of {result.parentSize} addresses ·{" "}
+              {result.free} still free.
+              {mode === "flsm"
+                ? " FLSM wastes more addresses when requirements differ in size."
+                : " Blocks are sorted largest-first so smaller subnets pack into the gaps."}
             </p>
           </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
 
 const iconMap = {
@@ -444,62 +475,65 @@ function Sidebar({
   onSelect,
   mobile = false,
 }: {
-  selected?: string
-  onSelect: (topic: Topic, subtopic: Subtopic) => void
-  mobile?: boolean
+  selected?: string;
+  onSelect: (topic: Topic, subtopic: Subtopic) => void;
+  mobile?: boolean;
 }) {
-  const activeRef = useRef<HTMLButtonElement | null>(null)
-  const scrollRef = useRef<HTMLDivElement | null>(null)
+  const activeRef = useRef<HTMLButtonElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // Find which topic contains the currently selected subtopic
   const topicWithActive = useMemo(() => {
-    if (!selected) return null
+    if (!selected) return null;
     for (const topic of topics) {
-      if (topic.subtopics.some((s) => s.slug === selected)) return topic.slug
+      if (topic.subtopics.some((s) => s.slug === selected)) return topic.slug;
     }
-    return null
-  }, [selected])
+    return null;
+  }, [selected]);
 
   // Controlled accordion state — all topics open by default
-  const [openTopics, setOpenTopics] = useState<string[]>(() => topics.map((t) => t.slug))
+  const [openTopics, setOpenTopics] = useState<string[]>(() =>
+    topics.map((t) => t.slug),
+  );
 
   // Whenever the active topic changes, make sure it's expanded
   useEffect(() => {
-    if (!topicWithActive) return
+    if (!topicWithActive) return;
     setOpenTopics((prev) =>
-      prev.includes(topicWithActive) ? prev : [...prev, topicWithActive]
-    )
-  }, [topicWithActive])
+      prev.includes(topicWithActive) ? prev : [...prev, topicWithActive],
+    );
+  }, [topicWithActive]);
 
   // After mount / when active changes / when topics expand → scroll active into view
   useEffect(() => {
-    if (!mobile) return
-    if (!activeRef.current || !scrollRef.current) return
+    if (!mobile) return;
+    if (!activeRef.current || !scrollRef.current) return;
 
     // Wait 2 frames: one for the accordion to expand, one for layout
-    let raf1 = 0
-    let raf2 = 0
+    let raf1 = 0;
+    let raf2 = 0;
     raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
-        const el = activeRef.current
-        const container = scrollRef.current
-        if (!el || !container) return
-        const top = el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2
-        container.scrollTop = Math.max(0, top)
-      })
-    })
+        const el = activeRef.current;
+        const container = scrollRef.current;
+        if (!el || !container) return;
+        const top =
+          el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2;
+        container.scrollTop = Math.max(0, top);
+      });
+    });
     return () => {
-      cancelAnimationFrame(raf1)
-      cancelAnimationFrame(raf2)
-    }
-  }, [selected, mobile, openTopics])
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
+  }, [selected, mobile, openTopics]);
 
   return (
     <aside
       className={
         mobile
-          ? 'flex h-full flex-col bg-background'
-          : 'hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex'
+          ? "flex h-full flex-col bg-background"
+          : "hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex"
       }
     >
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-5">
@@ -513,9 +547,13 @@ function Sidebar({
           className="w-full"
         >
           {topics.map((topic) => {
-            const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network
+            const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network;
             return (
-              <AccordionItem value={topic.slug} key={topic.slug} className="border-b-0">
+              <AccordionItem
+                value={topic.slug}
+                key={topic.slug}
+                className="border-b-0"
+              >
                 <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-accent hover:no-underline [&>svg]:size-3.5">
                   <span className="flex min-w-0 items-center gap-2.5">
                     <Icon className="size-4 shrink-0 text-muted-foreground" />
@@ -525,7 +563,7 @@ function Sidebar({
                 <AccordionContent className="pb-1 pt-0">
                   <div className="ml-5 border-l pl-3">
                     {topic.subtopics.map((subtopic, index) => {
-                      const isActive = selected === subtopic.slug
+                      const isActive = selected === subtopic.slug;
                       return (
                         <button
                           key={`${subtopic.slug}-${index}`}
@@ -533,28 +571,28 @@ function Sidebar({
                           onClick={() => onSelect(topic, subtopic)}
                           className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
                             isActive
-                              ? 'bg-primary/10 font-medium text-primary'
-                              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                              ? "bg-primary/10 font-medium text-primary"
+                              : "text-muted-foreground hover:bg-accent hover:text-foreground"
                           }`}
                         >
                           <ChevronRight
                             className={`mt-0.5 size-3 shrink-0 ${
-                              isActive ? 'text-primary' : 'opacity-50'
+                              isActive ? "text-primary" : "opacity-50"
                             }`}
                           />
                           {subtopic.title}
                         </button>
-                      )
+                      );
                     })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
-            )
+            );
           })}
         </Accordion>
       </div>
     </aside>
-  )
+  );
 }
 
 type DiagramSlotProps = {
@@ -998,12 +1036,14 @@ export default function CcnaStudyApp() {
                           : { ...d, _key: d.src },
                       );
 
-                      const narrow = normalized.filter(
-                        (d) => !d.src.includes("_wide"),
-                      );
-                      const wide = normalized.filter((d) =>
-                        d.src.includes("_wide"),
-                      );
+                      // If there's only ONE diagram in the subtopic, treat it as wide by default.
+                      const onlyOne = normalized.length === 1;
+
+                      const isWide = (d: { src: string }) =>
+                        onlyOne || d.src.includes("_wide");
+
+                      const narrow = normalized.filter((d) => !isWide(d));
+                      const wide = normalized.filter((d) => isWide(d));
 
                       return (
                         <>
