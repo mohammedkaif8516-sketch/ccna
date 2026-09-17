@@ -1269,7 +1269,10 @@ export const topics: Topic[] = [
           { type: 'paragraph', text: 'A: 1400. During the TCP handshake, both sides negotiate the MTU and settle on the MSS supported by both devices. Here, 1360 is the supported MSS, so the effective MTU used is 1400.' },
         ],
         quickReference: [{ label: 'MSS', value: 'Usable payload after subtracting headers from MTU' }],
-        diagrams: ['Packet Structure MTU diagram', 'TCP Handshake attributes table'],
+        diagrams: [
+          { src: '/diagrams/tmtu.png', alt: 'Packet structure and MTU', caption: 'Packet structure — MTU and MSS' },
+          { src: '/diagrams/ttcp.png', alt: 'TCP handshake attributes table', caption: 'TCP handshake attributes' },
+        ],
       },
       {
         slug: 'tcp-vs-udp-characteristics',
@@ -1295,7 +1298,9 @@ export const topics: Topic[] = [
           { type: 'code', language: 'text', code: '1st FIN → 1st ACK → 2nd FIN → 2nd ACK' },
         ],
         quickReference: [{ label: 'Establish', value: '3-way handshake (SYN, SYN-ACK, ACK)' }, { label: 'Terminate', value: '4-way handshake (FIN, ACK, FIN, ACK)' }],
-        diagrams: ['TCP Connection Established diagram'],
+        diagrams: [
+          { src: '/diagrams/t3cp.png', alt: 'TCP three-way handshake — connection established', caption: 'TCP connection established — 3-way handshake' },
+        ],
       },
       {
         slug: 'tcp-flags-syn-ack-fin-psh-urg-rst',
@@ -1322,7 +1327,9 @@ export const topics: Topic[] = [
           { label: 'FIN', value: 'Graceful termination' },
           { label: 'RST', value: 'Forceful termination, no handshake' },
         ],
-        diagrams: ['TCP Header Flags diagram'],
+        diagrams: [
+          { src: '/diagrams/tcpflags.png', alt: 'TCP header flags — SYN, ACK, FIN, PSH, URG, RST', caption: 'TCP header flags — SYN, ACK, FIN, PSH, URG, RST' },
+        ],
       },
       {
         slug: 'protocol-numbers-and-port-ranges-well-known-registered-ephemeral',
@@ -1348,7 +1355,9 @@ export const topics: Topic[] = [
           { label: 'Registered ports', value: '1024 – 49151' },
           { label: 'Ephemeral ports', value: '49152 – 65535' },
         ],
-        diagrams: ['TCP/UDP Port numbers tree diagram'],
+        diagrams: [
+          { src: '/diagrams/tcpudp.png', alt: 'Protocol numbers and port ranges for TCP/UDP', caption: 'Protocol numbers & port ranges' },
+        ],
       },
     ],
   },
