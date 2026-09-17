@@ -42,6 +42,8 @@ import {
 } from "@/lib/topics";
 import {
   Brackets,
+  Terminal,
+  Route,
   Cable,
   Check,
   ChevronRight,
@@ -417,6 +419,8 @@ const iconMap = {
   cable: Cable,
   router: Router,
   brackets: Brackets,
+  terminal: Terminal,
+  route: Route,
 };
 
 function DiagramLightbox({

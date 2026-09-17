@@ -1501,8 +1501,9 @@ diagrams: [
           { type: 'code', language: 'text', code: 'idle mode        <- Router>\nRouter> enable\nenable mode      <- Router#\nRouter# configure terminal\nconfiguration    <- (Router-config)#\nmode' },
         ],
         quickReference: [{ label: 'User EXEC', value: 'Router>' }, { label: 'Privilege', value: 'Router#' }, { label: 'Global Config', value: '(Router-config)#' }],
-        diagrams: ['PuTTY window router modes terminal diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/puttymodes.png', alt: 'PuTTY terminal showing CLI shortcuts — Tab, ?, and no keyword', caption: 'CLI shortcuts — Tab autocomplete, ? keyword browsing, no keyword' },
+],      },
       {
         slug: 'basic-interface-configurations-hostname-ip-assignment-no-shutdown-saving-config-to-nvram',
         title: 'Basic Interface Configurations (Hostname, IP assignment, "no shutdown", saving config to NVRAM)',
@@ -1559,11 +1560,13 @@ diagrams: [
           { type: 'paragraph', text: 'Note: verification commands (show version, show environment, show process cpu) are still pending from your notes — this subtopic will be extended once you send that batch.' },
         ],
         quickReference: [{ label: 'Autocomplete', value: 'Tab' }, { label: 'Browse keywords', value: '?' }, { label: 'Undo/disable', value: 'no <command>' }],
-        diagrams: ['CLI Terminal window diagram', 'CLI Terminal window question mark diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/cliii_wide.png', alt: 'CLI terminal window', caption: 'CLI terminal window' },
+  { src: '/diagrams/cli_wide.png', alt: 'CLI terminal window with question mark help', caption: 'CLI terminal — ? keyword browser' },
+],      },
       {
-        slug: 'applied-subnetting-topology-implementation-task-based-static-routing-across-multiple-lans',
-        title: 'Applied Subnetting & Topology Implementation (Task-based static routing across multiple LANs)',
+        slug: 'applied-subnetting-3-router-lab',
+title: 'Applied Subnetting — 3-Router Lab (LAN1, LAN2, LAN3)',
         description: 'A worked lab: three routers (R1, R2, R3), each with its own LAN plus point-to-point links between routers, configured end to end.',
         blocks: [
           { type: 'heading', text: 'Topology' },
@@ -1578,11 +1581,13 @@ diagrams: [
           { type: 'paragraph', text: 'R1 gains fast-ethernet 0/2 as LAN6-GW (192.168.6.100/24); R3 gains fast-ethernet 0/2 as LAN7-GW (192.168.7.100/24). R2\'s configuration stays the same.' },
         ],
         quickReference: [{ label: 'R1', value: 'LAN1 (.1.0) + link to R2 (.4.0)' }, { label: 'R2', value: 'LAN2 (.2.0) + links to R1 (.4.0) & R3 (.5.0)' }, { label: 'R3', value: 'LAN3 (.3.0) + link to R2 (.5.0)' }],
-        diagrams: ['Router Topology R1, R2, R3 with LAN1, LAN2, LAN3 diagram', 'Router Topology New Addition R1, R2, R3 diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/topo3_wide.png', alt: 'R1, R2, R3 topology with LAN1, LAN2, LAN3', caption: 'Topology — 3 routers with LAN1/2/3' },
+  { src: '/diagrams/topo3new_wide.png', alt: 'Topology with LAN6 and LAN7 added', caption: 'Topology with LAN6 and LAN7 added' },
+],      },
       {
-        slug: 'applied-subnetting-topology-implementation-task-based-static-routing-across-multiple-lans',
-        title: 'Applied Subnetting & Topology Implementation (Task-based static routing across multiple LANs)',
+        slug: 'applied-subnetting-4-router-diamond-lab',
+title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
         description: 'Two worked labs: a 3-router topology with per-LAN gateways, and a 4-router diamond topology combining /30 router links with /26 LAN subnets.',
         blocks: [
           { type: 'heading', text: 'Worked example 1 — 3-router topology' },
@@ -1630,11 +1635,8 @@ diagrams: [
           { label: 'Gateway rule', value: 'First usable IP of each /26' },
         ],
         diagrams: [
-          'Router Topology R1, R2, R3 with LAN1, LAN2, LAN3 diagram',
-          'Router Topology New Addition R1, R2, R3 diagram',
-          'Pie chart split into 4 quarters, labeled 64',
-          'Diamond topology with R1, R2, R3, R4 and LANs diagram',
-        ],
+  { src: '/diagrams/diamond.png', alt: 'Diamond topology with R1, R2, R3, R4 and LANs', caption: 'Diamond topology — R1, R2, R3, R4 with LANs' },
+],
       },
     ],
   },
