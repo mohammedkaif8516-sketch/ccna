@@ -147,7 +147,7 @@ export const topics: Topic[] = [
           { label: 'SAN', value: 'Storage-only, high capacity, low loss' },
           { label: 'VPN types', value: 'Site-to-site, Remote access (SSL VPN)' },
         ],
-        diagrams: [{ src: '/diagrams/wan.png', alt: 'WAN ISP topology', caption: 'WAN (ISP) topology' }, { src: '/diagrams/VPN.png', alt: 'Site-to-site VPN tunnel', caption: 'Internet site-to-site VPN' },],
+        diagrams: [{ src: '/diagrams/wan1.png', alt: 'WAN ISP topology', caption: 'WAN (ISP) topology' }, { src: '/diagrams/vpn1.png', alt: 'Site-to-site VPN tunnel', caption: 'Internet site-to-site VPN' },],
       },
       {
         slug: 'host-devices-client-server-peer',
@@ -198,9 +198,9 @@ export const topics: Topic[] = [
           { label: 'P2P', value: 'Every host is client + server' },
         ],
         diagrams: [
-          { src: '/diagrams/clientserver.png', alt: 'Client/Server architecture', caption: 'Client/Server architecture' },
-          { src: '/diagrams/mainframe.png', alt: 'Mainframe/Terminal architecture', caption: 'Mainframe/Terminal architecture' },
-          { src: '/diagrams/p2p.png', alt: 'Peer-to-Peer architecture', caption: 'Peer-to-Peer architecture' },
+          { src: '/diagrams/clientserver1.png', alt: 'Client/Server architecture', caption: 'Client/Server architecture' },
+          { src: '/diagrams/mainframe1.png', alt: 'Mainframe/Terminal architecture', caption: 'Mainframe/Terminal architecture' },
+          { src: '/diagrams/p2p1.png', alt: 'Peer-to-Peer architecture', caption: 'Peer-to-Peer architecture' },
         ],
       },
     ],
@@ -268,7 +268,7 @@ export const topics: Topic[] = [
           { label: 'Layer 6', value: 'Presentation — translate, compress, encrypt' },
         ],
         diagrams: [
-          { src: '/diagrams/sendervertical.png', alt: 'Sender and Receiver vertical layers', caption: 'Sender and Receiver vertical layers' },
+          { src: '/diagrams/senderosi1.png', alt: 'Sender and Receiver vertical layers', caption: 'Sender and Receiver vertical layers' },
         ],
       },
       {
@@ -293,7 +293,7 @@ export const topics: Topic[] = [
           { label: 'Full-Duplex', value: 'Two-way, simultaneous (mobile phone)' },
         ],
         diagrams: [
-          { src: '/diagrams/session.png', alt: 'Session is created / Simplex, Half-duplex, Full-duplex arrows', caption: 'Session is created / Simplex, Half-duplex, Full-duplex arrows' },
+          { src: '/diagrams/session1.png', alt: 'Session is created / Simplex, Half-duplex, Full-duplex arrows', caption: 'Session is created / Simplex, Half-duplex, Full-duplex arrows' },
         ],
       },
       {
@@ -368,13 +368,13 @@ export const topics: Topic[] = [
           { label: 'Flow control', value: 'TCP only, not UDP' },
         ],
         diagrams: [
-          { src: '/diagrams/mtu.png', alt: 'MTU 1500 bytes payload and headers', caption: 'MTU (1500 Bytes) — payload and headers' },
-          { src: '/diagrams/jumbo.png', alt: 'Jumbo frame structure', caption: 'Jumbo frame (9216 Bytes)' },
-          { src: '/diagrams/hashsend.png', alt: 'Sender data payload to hash value', caption: 'Sender — data payload hashed' },
-          { src: '/diagrams/hashrecv.png', alt: 'Receiver data payload to hash matching', caption: 'Receiver — hash matching (no error)' },
-          { src: '/diagrams/windowtree.png', alt: 'Windowing tree — single vs sliding', caption: 'Windowing: single vs sliding' },
-          { src: '/diagrams/winsingle.png', alt: 'Single windowing sequence', caption: 'Single windowing — 1-ACK-2-ACK-3-ACK' },
-          { src: '/diagrams/winslide.png', alt: 'Sliding windowing sequence', caption: 'Sliding windowing — window negotiates up' },
+          { src: '/diagrams/mtu1.png', alt: 'MTU 1500 bytes payload and headers', caption: 'MTU (1500 Bytes) — payload and headers' },
+          { src: '/diagrams/jumbo1.png', alt: 'Jumbo frame structure', caption: 'Jumbo frame (9216 Bytes)' },
+          { src: '/diagrams/sender1.png', alt: 'Sender data payload to hash value', caption: 'Sender — data payload hashed' },
+          { src: '/diagrams/receiver1.png', alt: 'Receiver data payload to hash matching', caption: 'Receiver — hash matching (no error)' },
+          { src: '/diagrams/windowing1.png', alt: 'Windowing tree — single vs sliding', caption: 'Windowing: single vs sliding' },
+          { src: '/diagrams/tcp3way1.png', alt: 'Single windowing sequence', caption: 'Single windowing — 1-ACK-2-ACK-3-ACK' },
+          { src: '/diagrams/tcp4way1.png', alt: 'Sliding windowing sequence', caption: 'Sliding windowing — window negotiates up' },
         ],
       },
       {
