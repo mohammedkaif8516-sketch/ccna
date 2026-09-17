@@ -437,8 +437,8 @@ export const topics: Topic[] = [
           { label: 'CAM/MAC table aging', value: '300 seconds (5 min)' },
         ],
         diagrams: [
-          { src: '/diagrams/mac48.png', alt: '48-bit MAC address structure', caption: '48-bit MAC address — OUI + Host ID' },
-          { src: '/diagrams/pcswitch.png', alt: 'PC to Switch network with MAC address table', caption: 'PC to Switch — MAC table & frame format' },
+          { src: '/diagrams/mac481.png', alt: '48-bit MAC address structure', caption: '48-bit MAC address — OUI + Host ID' },
+          { src: '/diagrams/pcswitch1.png', alt: 'PC to Switch network with MAC address table', caption: 'PC to Switch — MAC table & frame format' },
         ],
       },
       {
