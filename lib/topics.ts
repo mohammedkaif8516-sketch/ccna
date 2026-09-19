@@ -1417,9 +1417,10 @@ export const topics: Topic[] = [
           },
         ],
         quickReference: [{ label: 'POST failure', value: 'Stuck in ROMmon' }, { label: 'No startup-config', value: 'TFTP broadcast request, else unconfigured' }],
-diagrams: [
-  { src: '/diagrams/boot_wide.png', alt: 'Cisco router boot process flowchart', caption: 'Cisco boot process — POST → IOS → config' },
-],      },
+        diagrams: [
+          { src: '/diagrams/boot_wide.png', alt: 'Cisco router boot process flowchart', caption: 'Cisco boot process — POST → IOS → config' },
+        ],
+      },
       {
         slug: 'router-interfaces-physical-modules-and-lines-console-vty',
         title: 'Router Interfaces (Physical modules) and Lines (Console, VTY)',
@@ -1444,9 +1445,10 @@ diagrams: [
           },
         ],
         quickReference: [{ label: 'Interface example', value: 'f0/0 = interface/module' }, { label: 'Physical line', value: 'Console port' }, { label: 'Virtual line', value: 'VTY (Telnet/SSH)' }],
-diagrams: [
-  { src: '/diagrams/switchmodular_wide.png', alt: 'Switch interface naming — module and slot layout', caption: 'Switch modular interface — interface / module / slot' },
-],      },
+        diagrams: [
+          { src: '/diagrams/switchmodular_wide.png', alt: 'Switch interface naming — module and slot layout', caption: 'Switch modular interface — interface / module / slot' },
+        ],
+      },
       {
         slug: 'remote-access-protocols-telnet-vs-ssh',
         title: 'Remote Access Protocols (Telnet vs. SSH)',
@@ -1472,9 +1474,10 @@ diagrams: [
           },
         ],
         quickReference: [{ label: 'Telnet', value: 'Port 23, plain text' }, { label: 'SSH', value: 'Port 22, encrypted (RSA)' }],
-diagrams: [
-  { src: '/diagrams/telnetshhh.png', alt: 'TELNET vs SSH remote access — port 23 vs port 22', caption: 'TELNET (23) vs SSH (22) — remote access paths' },
-],      },
+        diagrams: [
+          { src: '/diagrams/telnetshhh.png', alt: 'TELNET vs SSH remote access — port 23 vs port 22', caption: 'TELNET (23) vs SSH (22) — remote access paths' },
+        ],
+      },
       {
         slug: 'cisco-cli-router-modes-user-exec-idle-privilege-enable-global-configuration',
         title: 'Cisco CLI Router Modes (User EXEC / Idle, Privilege / Enable, Global Configuration)',
@@ -1501,9 +1504,10 @@ diagrams: [
           { type: 'code', language: 'text', code: 'idle mode        <- Router>\nRouter> enable\nenable mode      <- Router#\nRouter# configure terminal\nconfiguration    <- (Router-config)#\nmode' },
         ],
         quickReference: [{ label: 'User EXEC', value: 'Router>' }, { label: 'Privilege', value: 'Router#' }, { label: 'Global Config', value: '(Router-config)#' }],
-diagrams: [
-  { src: '/diagrams/puttymodes.png', alt: 'PuTTY terminal showing CLI shortcuts — Tab, ?, and no keyword', caption: 'CLI shortcuts — Tab autocomplete, ? keyword browsing, no keyword' },
-],      },
+        diagrams: [
+          { src: '/diagrams/puttymodes.png', alt: 'PuTTY terminal showing CLI shortcuts — Tab, ?, and no keyword', caption: 'CLI shortcuts — Tab autocomplete, ? keyword browsing, no keyword' },
+        ],
+      },
       {
         slug: 'basic-interface-configurations-hostname-ip-assignment-no-shutdown-saving-config-to-nvram',
         title: 'Basic Interface Configurations (Hostname, IP assignment, "no shutdown", saving config to NVRAM)',
@@ -1560,13 +1564,14 @@ diagrams: [
           { type: 'paragraph', text: 'Note: verification commands (show version, show environment, show process cpu) are still pending from your notes — this subtopic will be extended once you send that batch.' },
         ],
         quickReference: [{ label: 'Autocomplete', value: 'Tab' }, { label: 'Browse keywords', value: '?' }, { label: 'Undo/disable', value: 'no <command>' }],
-diagrams: [
-  { src: '/diagrams/cliii_wide.png', alt: 'CLI terminal window', caption: 'CLI terminal window' },
-  { src: '/diagrams/cli_wide.png', alt: 'CLI terminal window with question mark help', caption: 'CLI terminal — ? keyword browser' },
-],      },
+        diagrams: [
+          { src: '/diagrams/cliii_wide.png', alt: 'CLI terminal window', caption: 'CLI terminal window' },
+          { src: '/diagrams/cli_wide.png', alt: 'CLI terminal window with question mark help', caption: 'CLI terminal — ? keyword browser' },
+        ],
+      },
       {
         slug: 'applied-subnetting-3-router-lab',
-title: 'Applied Subnetting — 3-Router Lab (LAN1, LAN2, LAN3)',
+        title: 'Applied Subnetting — 3-Router Lab (LAN1, LAN2, LAN3)',
         description: 'A worked lab: three routers (R1, R2, R3), each with its own LAN plus point-to-point links between routers, configured end to end.',
         blocks: [
           { type: 'heading', text: 'Topology' },
@@ -1581,13 +1586,14 @@ title: 'Applied Subnetting — 3-Router Lab (LAN1, LAN2, LAN3)',
           { type: 'paragraph', text: 'R1 gains fast-ethernet 0/2 as LAN6-GW (192.168.6.100/24); R3 gains fast-ethernet 0/2 as LAN7-GW (192.168.7.100/24). R2\'s configuration stays the same.' },
         ],
         quickReference: [{ label: 'R1', value: 'LAN1 (.1.0) + link to R2 (.4.0)' }, { label: 'R2', value: 'LAN2 (.2.0) + links to R1 (.4.0) & R3 (.5.0)' }, { label: 'R3', value: 'LAN3 (.3.0) + link to R2 (.5.0)' }],
-diagrams: [
-  { src: '/diagrams/topo3_wide.png', alt: 'R1, R2, R3 topology with LAN1, LAN2, LAN3', caption: 'Topology — 3 routers with LAN1/2/3' },
-  { src: '/diagrams/topo3new_wide.png', alt: 'Topology with LAN6 and LAN7 added', caption: 'Topology with LAN6 and LAN7 added' },
-],      },
+        diagrams: [
+          { src: '/diagrams/topo3_wide.png', alt: 'R1, R2, R3 topology with LAN1, LAN2, LAN3', caption: 'Topology — 3 routers with LAN1/2/3' },
+          { src: '/diagrams/topo3new_wide.png', alt: 'Topology with LAN6 and LAN7 added', caption: 'Topology with LAN6 and LAN7 added' },
+        ],
+      },
       {
         slug: 'applied-subnetting-4-router-diamond-lab',
-title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
+        title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
         description: 'Two worked labs: a 3-router topology with per-LAN gateways, and a 4-router diamond topology combining /30 router links with /26 LAN subnets.',
         blocks: [
           { type: 'heading', text: 'Worked example 1 — 3-router topology' },
@@ -1635,8 +1641,8 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { label: 'Gateway rule', value: 'First usable IP of each /26' },
         ],
         diagrams: [
-  { src: '/diagrams/diamond.png', alt: 'Diamond topology with R1, R2, R3, R4 and LANs', caption: 'Diamond topology — R1, R2, R3, R4 with LANs' },
-],
+          { src: '/diagrams/diamond.png', alt: 'Diamond topology with R1, R2, R3, R4 and LANs', caption: 'Diamond topology — R1, R2, R3, R4 with LANs' },
+        ],
       },
     ],
   },
@@ -1672,7 +1678,9 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           },
         ],
         quickReference: [{ label: 'Connected (C)', value: 'Directly attached network' }, { label: 'Static (S)', value: 'Manually configured route to a non-connected network' }],
-        diagrams: ['Router Routing Topology R1 R2 R3 with paths diagram'],
+        diagrams: [
+          { src: '/diagrams/rbasic.png', alt: 'Router routing topology R1, R2, R3 with paths', caption: 'Routing topology — R1, R2, R3 with paths' },
+        ],
       },
       {
         slug: 'static-routing-mechanics-and-configuration-syntax',
@@ -1807,7 +1815,9 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { label: 'Floating static', value: 'Same prefix, higher AD = backup path' },
           { label: 'Null0', value: 'Discards/black-holes matching traffic' },
         ],
-        diagrams: ['Diamond topology diagram showing Primary path (AD=1) and Secondary path (AD=250)'],
+        diagrams: [
+          { src: '/diagrams/lowestad.png', alt: 'Diamond topology showing primary path (AD=1) and secondary floating static path (AD=250)', caption: 'Floating static route — primary (AD 1) vs backup (AD 250)' },
+        ],
       },
       {
         slug: 'default-routing-gateway-of-last-resort-pe-to-ce-internet-routing',
@@ -1837,7 +1847,10 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { type: 'code', language: 'text', code: 'R1, ping 192.168.1.1:\n  S - 192.168.1.0/24 -> R2   (used — higher prefix match)\n  D - 0.0.0.0/0      -> R4   (default, only used if no other route matches)' },
         ],
         quickReference: [{ label: 'Default route', value: '0.0.0.0/0' }, { label: 'Cisco name', value: 'Gateway of last resort' }, { label: 'Default route AD', value: '1' },],
-        diagrams: ['ISP cloud network diagram with CE and PE routers', 'CE Default route to PE Internet cloud diagram'],
+        diagrams: [
+          { src: '/diagrams/ce_wide.png', alt: 'ISP cloud network with CE and PE routers', caption: 'ISP cloud — CE and PE routers' },
+          { src: '/diagrams/ce1_wide.png', alt: 'CE default route to PE Internet cloud', caption: 'CE default route toward PE / Internet' },
+        ],
       },
       {
         slug: 'dynamic-routing-protocols-overview-autonomous-systems-igp-vs-egp-distance-vector-link-state-hybrid',
@@ -1850,8 +1863,6 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { type: 'paragraph', text: 'Enables routing inside an autonomous system/organization. These autonomous systems can be public (e.g. a service provider) or private (e.g. a corporate environment). Examples: RIP, EIGRP, OSPF.' },
           { type: 'heading', text: 'EGP — Exterior Gateway Protocol' },
           { type: 'paragraph', text: 'Enables routing between organizations, such as across the internet. Example: BGP.' },
-          { type: 'heading', text: 'Protocol hierarchy' },
-          { type: 'code', language: 'text', code: 'Manual Routing  -> Static Routing, Default Routing\nDynamic Routing -> IGP, EGP\nIGP  -> RIP (Distance Vector), EIGRP (Hybrid), OSPF (Link State)\nEGP  -> BGP (Path Vector)' },
           {
             type: 'table', headers: ['Protocol', 'Algorithm type', 'Category'], rows: [
               ['RIP', 'Distance Vector', 'IGP'],
@@ -1862,7 +1873,9 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           },
         ],
         quickReference: [{ label: 'IGP examples', value: 'RIP, EIGRP, OSPF' }, { label: 'EGP example', value: 'BGP' }],
-        diagrams: ['Routing hierarchy tree diagram'],
+        diagrams: [
+          { src: '/diagrams/rh.png', alt: 'Routing hierarchy tree — manual vs dynamic, IGP vs EGP, distance vector vs link state vs hybrid', caption: 'Routing hierarchy — manual, dynamic, IGP, EGP' },
+        ],
       },
       {
         slug: 'rip-fundamentals-distance-vector-hop-count-limit-of-15-bellman-ford-algorithm',
@@ -1893,6 +1906,41 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
         ],
       },
       {
+  slug: 'rip-path-selection-equal-cost-load-balancing-hexagonal-topology',
+  title: 'RIP Path Selection (Equal-Cost Load Balancing, Hexagonal Topology)',
+  description: 'RIP selects the path with the lowest hop count. When two paths have the same hop count, RIP load-balances across both by default.',
+  blocks: [
+    { type: 'heading', text: 'How RIP picks a path' },
+    { type: 'paragraph', text: 'RIP uses hop count as its metric — the number of routers a packet must pass through to reach the destination. The path with the fewest hops wins.' },
+    { type: 'paragraph', text: 'When two or more paths to the same destination have the same hop count, RIP load-balances across all of them (equal-cost load balancing). This is enabled by default in RIP — unlike BGP, where it is disabled by default.' },
+
+    { type: 'heading', text: 'Hexagonal topology — R1 through R8' },
+    { type: 'paragraph', text: 'A hexagonal topology where R1 reaches the destination network 192.168.4.0 through two equal-cost paths: via R5 (2 hops) and via R6 (4 hops as drawn in the topology).' },
+
+    { type: 'heading', text: 'R1 routing table' },
+    { type: 'table', headers: ['Destination network', 'Path 1', 'Path 2'], rows: [
+      ['192.168.4.0', 'via R5 (2 hops)', 'via R6 (4 hops)'],
+    ] },
+    { type: 'paragraph', text: 'Both entries stay in the routing table as best paths, and R1 forwards traffic across both — this is RIP\'s equal-cost load balancing in action.' },
+
+    { type: 'heading', text: 'Why this matters' },
+    { type: 'bullets', items: [
+      'Equal-cost load balancing is a default behavior in most dynamic routing protocols, including RIP and OSPF.',
+      'BGP is the exception — load balancing is disabled by default and must be explicitly enabled.',
+      'If paths differ in hop count, only the lower-hop path is used — the other becomes a backup.',
+    ] },
+  ],
+  quickReference: [
+    { label: 'RIP metric', value: 'Hop count (lower = better)' },
+    { label: 'Equal cost', value: 'Load-balance across both paths' },
+    { label: 'Exception', value: 'BGP — no load balancing by default' },
+  ],
+  diagrams: [
+    { src: '/diagrams/rippath_wide.png', alt: 'RIP path selection — hexagonal topology R1 to R8', caption: 'RIP path selection — hexagonal topology (R1 → R8)' },
+    { src: '/diagrams/riprt_wide.png', alt: 'R1 routing table showing equal-cost paths via R5 and R6 to 192.168.4.0/24', caption: 'R1 routing table — equal-cost paths via R5 and R6 to 192.168.4.0/24' },
+  ],
+},
+      {
         slug: 'ripv1-classful-broadcast-vs-ripv2-classless-multicast-224-0-0-9',
         title: 'RIPv1 (Classful, Broadcast) vs. RIPv2 (Classless, Multicast 224.0.0.9)',
         description: 'RIPv2 improved on RIPv1 by supporting classless addressing (FLSM/VLSM) and switching from broadcast to multicast updates.',
@@ -1914,7 +1962,11 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           },
         ],
         quickReference: [{ label: 'RIPv1', value: 'Classful, broadcast (255.255.255.255)' }, { label: 'RIPv2', value: 'Classless, multicast (224.0.0.9)' }],
-        diagrams: ['Types of RIP tree diagram (IPv4: RIPv1, RIPv2 / IPv6: RIPng)', 'RIP V1 4-way arrow broadcast Update diagram', 'RIP V2 multicast target diagram'],
+       diagrams: [
+  { src: '/diagrams/rtype.png', alt: 'Types of RIP — RIPv1, RIPv2, RIPng', caption: 'Types of RIP — IPv4 (v1, v2) and IPv6 (RIPng)' },
+  { src: '/diagrams/rip1.png', alt: 'RIPv1 four-way broadcast update', caption: 'RIPv1 — broadcast update (255.255.255.255)' },
+  { src: '/diagrams/rip2.png', alt: 'RIPv2 multicast target', caption: 'RIPv2 — multicast update (224.0.0.9)' },
+],
       },
       {
         slug: 'rip-timers-update-invalid-hold-down-flush',
@@ -1929,11 +1981,11 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { type: 'bullets', items: ['Default: 180 seconds.', 'How long RIP suppresses a route while it is in the hold-down state.', 'No new updates are accepted for that route until the hold-down timer expires.'] },
           { type: 'heading', text: 'Flush Timer' },
           { type: 'bullets', items: ['Default: 240 seconds.', 'How long a route can remain in the routing table before being flushed out entirely.', 'Once a route leaves hold-down state, it is flushed 60 seconds later.'] },
-          { type: 'code', language: 'text', code: '0s ----30s(update)----> 180s(invalid & hold-down) ----> 240s(flush)' },
         ],
         quickReference: [{ label: 'Update', value: '30s' }, { label: 'Invalid', value: '180s' }, { label: 'Hold-down', value: '180s' }, { label: 'Flush', value: '240s' }],
-        diagrams: ['RIP Timer sequence diagram (0s -> 30s -> 180s -> 240s)'],
-      },
+diagrams: [
+  { src: '/diagrams/rtimerr.png', alt: 'RIP timer sequence — update 30s, invalid 180s, hold-down 180s, flush 240s', caption: 'RIP timers — update → invalid → hold-down → flush' },
+],      },
       {
         slug: 'rip-configuration-passive-interfaces-route-summarization-auto-summary',
         title: 'RIP Configuration, Passive Interfaces, & Route Summarization (Auto-summary)',
@@ -1955,12 +2007,27 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { type: 'code', language: 'text', code: 'Enable:\n(conf)# router rip\n(conf-router)# passive-interface default        (all interfaces become passive)\n               passive-interface fastethernet 0/0\n\nDisable:\n(conf)# router rip\n(conf-router)# no passive-interface default\n               no passive-interface fastethernet 0/0' },
           { type: 'heading', text: 'Route summarization' },
           { type: 'paragraph', text: 'Summarization is the process of condensing multiple routes into a single route, to optimize the routing table.' },
-          { type: 'code', language: 'text', code: '10.10.10.0/24\n10.10.20.0/24\n10.10.30.0/24   }  ->  10.10.0.0/16\n10.10.40.0/24\n10.10.50.0/24\n                }  ->  10.0.0.0/8\n10.20.10.0/24\n10.20.20.0/24\n10.20.30.0/24   }  ->  10.20.0.0/16\n10.20.40.0/24\n10.20.50.0/24' },
+          { type: 'code', language: 'text', code:
+`10.10.10.0/24  }
+10.10.20.0/24  }
+10.10.30.0/24  } -> 10.10.0.0/16 }
+10.10.40.0/24  }                 }
+10.10.50.0/24  }                 } 
+                                 } -> 10.0.0.0/8
+10.20.10.0/24  }                 }
+10.20.20.0/24  }                 }
+10.20.30.0/24  } -> 10.20.0.0/16 }
+10.20.40.0/24  }
+10.20.50.0/24  }` },
           { type: 'paragraph', text: 'RIPv2 supports automatic summarization by default, condensing classless networks back to their classful form. To disable it:' },
           { type: 'code', language: 'text', code: '(conf)# router rip\n(conf-router)# version 2\n               no auto-summary' },
         ],
         quickReference: [{ label: 'Default timers', value: '30 / 180 / 180 / 240 (update/invalid/hold-down/flush)' }, { label: 'Passive default (all)', value: 'passive-interface default' }, { label: 'Auto-summary (RIPv2)', value: 'Enabled by default' }],
-        diagrams: ['Router advertising 3 connected networks diagram', 'Router advertising classless networks /26 diagram', 'Passive interface topology diagram R1-R4 and User LANs'],
+diagrams: [
+  { src: '/diagrams/rip3net.png', alt: 'Router advertising 3 connected networks via RIP', caption: 'RIPv1 — advertising 3 connected networks' },
+  { src: '/diagrams/rip26.png', alt: 'Router advertising classless /26 networks via RIPv2', caption: 'RIPv2 — advertising classless /26 networks' },
+  { src: '/diagrams/rippass_wide.png', alt: 'Passive interface topology with R1–R4 and user LANs', caption: 'Passive interfaces — R1–R4 and user-facing LANs' },
+],
       },
       {
         slug: 'eigrp-fundamentals-advanced-distance-vector-hybrid-dual-algorithm-as-numbers-rtp-protocol-88',
@@ -2017,8 +2084,9 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { label: 'Multicast', value: '224.0.0.10' },
           { label: 'Hop limit', value: '255 max (default 100)' },
         ],
-        diagrams: ['EIGRP AS NO diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/asbasicc.png', alt: 'EIGRP AS number — routers must share the same AS to become neighbors', caption: 'EIGRP AS number — a group ID (1–65535)' },
+],      },
       {
         slug: 'eigrp-route-types-internal-ad-90-external-redistributed-ad-170-summarized-ad-5',
         title: 'EIGRP Route Types (Internal [AD 90], External/Redistributed [AD 170], Summarized [AD 5])',
@@ -2055,8 +2123,9 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { label: 'External (EX)', value: 'AD 170' },
           { label: 'Summarized', value: 'AD 5' },
         ],
-        diagrams: ['Autonomous 1 and Autonomous 2 with Border Router redistribution diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/as.png', alt: 'EIGRP Autonomous System (AS) number diagram', caption: 'EIGRP AS number — 16-bit, 1 to 65536' },
+],       },
       {
         slug: 'eigrp-tables-neighbourhood-routing-topology',
         title: 'EIGRP Tables (Neighbourhood, Routing, Topology)',
@@ -2120,8 +2189,9 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { type: 'paragraph', text: 'From R1 to network 192.168.40.0/24, three candidate paths exist: via R5 = metric 3000 (best/successor), via R2 = metric 4000 (backup/feasible successor), via R6 = metric 5000 (not used).' },
         ],
         quickReference: [{ label: 'Default K-values used', value: 'K1 (Bandwidth) & K3 (Delay)' }, { label: 'BW formula', value: '10^7 / bandwidth(kbps)' }, { label: 'Delay formula', value: 'delay(µs) / 10' }],
-        diagrams: ['EIGRP Path Calculation R1 to R4 topology diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/pathcalc.png', alt: 'EIGRP path calculation — R1 to R4 topology', caption: 'EIGRP path calculation — R1 to R4 (metric comparison)' },
+],      },
       {
         slug: 'eigrp-terminology-successor-feasible-successor-advertised-distance-feasible-distance-feasibility-condition',
         title: 'EIGRP Terminology (Successor, Feasible Successor, Advertised Distance, Feasible Distance, Feasibility Condition)',
@@ -2204,7 +2274,12 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           },
         ],
         quickReference: [{ label: 'Hello / Hold-down', value: '5s / 15s' }, { label: 'SIA cycle', value: '3 × 60s follow-ups = 180s before route removal' }, { label: 'Hello & Query', value: 'Multicast 224.0.0.10' }, { label: 'Update (full)', value: 'Unicast' }, { label: 'Update (partial, post-convergence)', value: 'Multicast' }, { label: 'Reply', value: 'Unicast' }],
-        diagrams: ['Hello packets exchange between R1 and R2 diagram', 'R1 and R2 Neighbourship and Update exchange diagram', 'Query and Reply packet exchange between R1, R2, R3, R4, R5 diagram', 'Query and SIA Query/Reply timeline sequence diagram',],
+        diagrams: [
+  { src: '/diagrams/ehello_wide.png', alt: 'EIGRP Hello packets — R1 and R2 forming a neighborship', caption: 'Hello exchange — neighborship established (5s hello / 15s hold-down)' },
+  { src: '/diagrams/eupdate_wide.png', alt: 'EIGRP Update and ACK exchange — R1 and R2 converging', caption: 'Update & ACK — topology convergence' },
+  { src: '/diagrams/equery_wide.png', alt: 'EIGRP Query and Reply — R1 queries R3 for an alternate path', caption: 'Query & Reply — alternate path request' },
+  { src: '/diagrams/esia_wide.png', alt: 'EIGRP Stuck-in-Active — Query follow-ups at 60s and 120s', caption: 'Stuck in Active — SIA Query/Reply cycle' },
+],
       },
       {
         slug: 'eigrp-route-states-active-vs-passive-and-stuck-in-active-sia-mechanism',
@@ -2245,8 +2320,10 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { label: 'Typical mask', value: '/32' },
           { label: 'Config command', value: 'interface loopback <number>' },
         ],
-        diagrams: ['Router with loopback 0 (1.1.1.1 /32) diagram', 'Triangular router topology R1, R2, R3 with NTP Server diagram'],
-      },
+diagrams: [
+  { src: '/diagrams/lback_wide.png', alt: 'Router with loopback 0 configured as 1.1.1.1/32', caption: 'Loopback 0 — 1.1.1.1 /32 (virtual interface)' },
+  { src: '/diagrams/ntp_wide.png', alt: 'Triangular topology R1, R2, R3 with NTP server on R2 loopback', caption: 'Loopback redundancy — NTP server reachable via 2.2.2.2' },
+],      },
       {
         slug: 'eigrp-router-id-selection-manual-vs-automatic-via-loopbacks-or-highest-physical-ip',
         title: 'EIGRP Router ID Selection (Manual vs. Automatic via Loopbacks or Highest Physical IP)',
@@ -2326,12 +2403,13 @@ title: 'Applied Subnetting — 4-Router Diamond Lab (/30 links + /26 LANs)',
           { label: 'Verify AS match', value: 'show ip protocol' },
           { label: 'Verify K-values', value: 'show ip protocols' },
         ],
-        diagrams: [
-          'R1 EIGRP 100 and R2 EIGRP 200 diagram',
-          'R1 and R2 with password CCNA123 diagram',
-          'R1 and R2 with K1 & K3 diagram',
-          'EIGRP 100 Topology diagram with R1 through R8, IP addresses, and loopbacks',
-        ],
+       diagrams: [
+  { src: '/diagrams/asnum_wide.png', alt: 'R1 EIGRP 100 and R2 EIGRP 200 — AS number mismatch', caption: 'Prerequisite 1 — same AS number' },
+  { src: '/diagrams/passwd_wide.png', alt: 'R1 and R2 with matching password CCNA123', caption: 'Prerequisite 2 — same password' },
+  { src: '/diagrams/kval_wide.png', alt: 'R1 and R2 with matching K1 and K3 values', caption: 'Prerequisite 3 — same K values' },
+  { src: '/diagrams/topor8_wide.png', alt: 'EIGRP AS 100 topology with R1 through R8', caption: 'EIGRP AS 100 — R1 to R8 topology' },
+],
+        
       },
     ],
   },
