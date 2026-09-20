@@ -1906,40 +1906,44 @@ export const topics: Topic[] = [
         ],
       },
       {
-  slug: 'rip-path-selection-equal-cost-load-balancing-hexagonal-topology',
-  title: 'RIP Path Selection (Equal-Cost Load Balancing, Hexagonal Topology)',
-  description: 'RIP selects the path with the lowest hop count. When two paths have the same hop count, RIP load-balances across both by default.',
-  blocks: [
-    { type: 'heading', text: 'How RIP picks a path' },
-    { type: 'paragraph', text: 'RIP uses hop count as its metric — the number of routers a packet must pass through to reach the destination. The path with the fewest hops wins.' },
-    { type: 'paragraph', text: 'When two or more paths to the same destination have the same hop count, RIP load-balances across all of them (equal-cost load balancing). This is enabled by default in RIP — unlike BGP, where it is disabled by default.' },
+        slug: 'rip-path-selection-equal-cost-load-balancing-hexagonal-topology',
+        title: 'RIP Path Selection (Equal-Cost Load Balancing, Hexagonal Topology)',
+        description: 'RIP selects the path with the lowest hop count. When two paths have the same hop count, RIP load-balances across both by default.',
+        blocks: [
+          { type: 'heading', text: 'How RIP picks a path' },
+          { type: 'paragraph', text: 'RIP uses hop count as its metric — the number of routers a packet must pass through to reach the destination. The path with the fewest hops wins.' },
+          { type: 'paragraph', text: 'When two or more paths to the same destination have the same hop count, RIP load-balances across all of them (equal-cost load balancing). This is enabled by default in RIP — unlike BGP, where it is disabled by default.' },
 
-    { type: 'heading', text: 'Hexagonal topology — R1 through R8' },
-    { type: 'paragraph', text: 'A hexagonal topology where R1 reaches the destination network 192.168.4.0 through two equal-cost paths: via R5 (2 hops) and via R6 (4 hops as drawn in the topology).' },
+          { type: 'heading', text: 'Hexagonal topology — R1 through R8' },
+          { type: 'paragraph', text: 'A hexagonal topology where R1 reaches the destination network 192.168.4.0 through two equal-cost paths: via R5 (2 hops) and via R6 (4 hops as drawn in the topology).' },
 
-    { type: 'heading', text: 'R1 routing table' },
-    { type: 'table', headers: ['Destination network', 'Path 1', 'Path 2'], rows: [
-      ['192.168.4.0', 'via R5 (2 hops)', 'via R6 (4 hops)'],
-    ] },
-    { type: 'paragraph', text: 'Both entries stay in the routing table as best paths, and R1 forwards traffic across both — this is RIP\'s equal-cost load balancing in action.' },
+          { type: 'heading', text: 'R1 routing table' },
+          {
+            type: 'table', headers: ['Destination network', 'Path 1', 'Path 2'], rows: [
+              ['192.168.4.0', 'via R5 (2 hops)', 'via R6 (4 hops)'],
+            ]
+          },
+          { type: 'paragraph', text: 'Both entries stay in the routing table as best paths, and R1 forwards traffic across both — this is RIP\'s equal-cost load balancing in action.' },
 
-    { type: 'heading', text: 'Why this matters' },
-    { type: 'bullets', items: [
-      'Equal-cost load balancing is a default behavior in most dynamic routing protocols, including RIP and OSPF.',
-      'BGP is the exception — load balancing is disabled by default and must be explicitly enabled.',
-      'If paths differ in hop count, only the lower-hop path is used — the other becomes a backup.',
-    ] },
-  ],
-  quickReference: [
-    { label: 'RIP metric', value: 'Hop count (lower = better)' },
-    { label: 'Equal cost', value: 'Load-balance across both paths' },
-    { label: 'Exception', value: 'BGP — no load balancing by default' },
-  ],
-  diagrams: [
-    { src: '/diagrams/rippath_wide.png', alt: 'RIP path selection — hexagonal topology R1 to R8', caption: 'RIP path selection — hexagonal topology (R1 → R8)' },
-    { src: '/diagrams/riprt_wide.png', alt: 'R1 routing table showing equal-cost paths via R5 and R6 to 192.168.4.0/24', caption: 'R1 routing table — equal-cost paths via R5 and R6 to 192.168.4.0/24' },
-  ],
-},
+          { type: 'heading', text: 'Why this matters' },
+          {
+            type: 'bullets', items: [
+              'Equal-cost load balancing is a default behavior in most dynamic routing protocols, including RIP and OSPF.',
+              'BGP is the exception — load balancing is disabled by default and must be explicitly enabled.',
+              'If paths differ in hop count, only the lower-hop path is used — the other becomes a backup.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'RIP metric', value: 'Hop count (lower = better)' },
+          { label: 'Equal cost', value: 'Load-balance across both paths' },
+          { label: 'Exception', value: 'BGP — no load balancing by default' },
+        ],
+        diagrams: [
+          { src: '/diagrams/rippath_wide.png', alt: 'RIP path selection — hexagonal topology R1 to R8', caption: 'RIP path selection — hexagonal topology (R1 → R8)' },
+          { src: '/diagrams/riprt_wide.png', alt: 'R1 routing table showing equal-cost paths via R5 and R6 to 192.168.4.0/24', caption: 'R1 routing table — equal-cost paths via R5 and R6 to 192.168.4.0/24' },
+        ],
+      },
       {
         slug: 'ripv1-classful-broadcast-vs-ripv2-classless-multicast-224-0-0-9',
         title: 'RIPv1 (Classful, Broadcast) vs. RIPv2 (Classless, Multicast 224.0.0.9)',
@@ -1962,11 +1966,11 @@ export const topics: Topic[] = [
           },
         ],
         quickReference: [{ label: 'RIPv1', value: 'Classful, broadcast (255.255.255.255)' }, { label: 'RIPv2', value: 'Classless, multicast (224.0.0.9)' }],
-       diagrams: [
-  { src: '/diagrams/rtype.png', alt: 'Types of RIP — RIPv1, RIPv2, RIPng', caption: 'Types of RIP — IPv4 (v1, v2) and IPv6 (RIPng)' },
-  { src: '/diagrams/rip1.png', alt: 'RIPv1 four-way broadcast update', caption: 'RIPv1 — broadcast update (255.255.255.255)' },
-  { src: '/diagrams/rip2.png', alt: 'RIPv2 multicast target', caption: 'RIPv2 — multicast update (224.0.0.9)' },
-],
+        diagrams: [
+          { src: '/diagrams/rtype.png', alt: 'Types of RIP — RIPv1, RIPv2, RIPng', caption: 'Types of RIP — IPv4 (v1, v2) and IPv6 (RIPng)' },
+          { src: '/diagrams/rip1.png', alt: 'RIPv1 four-way broadcast update', caption: 'RIPv1 — broadcast update (255.255.255.255)' },
+          { src: '/diagrams/rip2.png', alt: 'RIPv2 multicast target', caption: 'RIPv2 — multicast update (224.0.0.9)' },
+        ],
       },
       {
         slug: 'rip-timers-update-invalid-hold-down-flush',
@@ -1983,9 +1987,10 @@ export const topics: Topic[] = [
           { type: 'bullets', items: ['Default: 240 seconds.', 'How long a route can remain in the routing table before being flushed out entirely.', 'Once a route leaves hold-down state, it is flushed 60 seconds later.'] },
         ],
         quickReference: [{ label: 'Update', value: '30s' }, { label: 'Invalid', value: '180s' }, { label: 'Hold-down', value: '180s' }, { label: 'Flush', value: '240s' }],
-diagrams: [
-  { src: '/diagrams/rtimerr.png', alt: 'RIP timer sequence — update 30s, invalid 180s, hold-down 180s, flush 240s', caption: 'RIP timers — update → invalid → hold-down → flush' },
-],      },
+        diagrams: [
+          { src: '/diagrams/rtimerr.png', alt: 'RIP timer sequence — update 30s, invalid 180s, hold-down 180s, flush 240s', caption: 'RIP timers — update → invalid → hold-down → flush' },
+        ],
+      },
       {
         slug: 'rip-configuration-passive-interfaces-route-summarization-auto-summary',
         title: 'RIP Configuration, Passive Interfaces, & Route Summarization (Auto-summary)',
@@ -2007,8 +2012,9 @@ diagrams: [
           { type: 'code', language: 'text', code: 'Enable:\n(conf)# router rip\n(conf-router)# passive-interface default        (all interfaces become passive)\n               passive-interface fastethernet 0/0\n\nDisable:\n(conf)# router rip\n(conf-router)# no passive-interface default\n               no passive-interface fastethernet 0/0' },
           { type: 'heading', text: 'Route summarization' },
           { type: 'paragraph', text: 'Summarization is the process of condensing multiple routes into a single route, to optimize the routing table.' },
-          { type: 'code', language: 'text', code:
-`10.10.10.0/24  }
+          {
+            type: 'code', language: 'text', code:
+              `10.10.10.0/24  }
 10.10.20.0/24  }
 10.10.30.0/24  } -> 10.10.0.0/16 }
 10.10.40.0/24  }                 }
@@ -2023,11 +2029,11 @@ diagrams: [
           { type: 'code', language: 'text', code: '(conf)# router rip\n(conf-router)# version 2\n               no auto-summary' },
         ],
         quickReference: [{ label: 'Default timers', value: '30 / 180 / 180 / 240 (update/invalid/hold-down/flush)' }, { label: 'Passive default (all)', value: 'passive-interface default' }, { label: 'Auto-summary (RIPv2)', value: 'Enabled by default' }],
-diagrams: [
-  { src: '/diagrams/rip3net.png', alt: 'Router advertising 3 connected networks via RIP', caption: 'RIPv1 — advertising 3 connected networks' },
-  { src: '/diagrams/rip26.png', alt: 'Router advertising classless /26 networks via RIPv2', caption: 'RIPv2 — advertising classless /26 networks' },
-  { src: '/diagrams/rippass_wide.png', alt: 'Passive interface topology with R1–R4 and user LANs', caption: 'Passive interfaces — R1–R4 and user-facing LANs' },
-],
+        diagrams: [
+          { src: '/diagrams/rip3net.png', alt: 'Router advertising 3 connected networks via RIP', caption: 'RIPv1 — advertising 3 connected networks' },
+          { src: '/diagrams/rip26.png', alt: 'Router advertising classless /26 networks via RIPv2', caption: 'RIPv2 — advertising classless /26 networks' },
+          { src: '/diagrams/rippass_wide.png', alt: 'Passive interface topology with R1–R4 and user LANs', caption: 'Passive interfaces — R1–R4 and user-facing LANs' },
+        ],
       },
       {
         slug: 'eigrp-fundamentals-advanced-distance-vector-hybrid-dual-algorithm-as-numbers-rtp-protocol-88',
@@ -2084,9 +2090,10 @@ diagrams: [
           { label: 'Multicast', value: '224.0.0.10' },
           { label: 'Hop limit', value: '255 max (default 100)' },
         ],
-diagrams: [
-  { src: '/diagrams/asbasicc.png', alt: 'EIGRP AS number — routers must share the same AS to become neighbors', caption: 'EIGRP AS number — a group ID (1–65535)' },
-],      },
+        diagrams: [
+          { src: '/diagrams/asbasicc.png', alt: 'EIGRP AS number — routers must share the same AS to become neighbors', caption: 'EIGRP AS number — a group ID (1–65535)' },
+        ],
+      },
       {
         slug: 'eigrp-route-types-internal-ad-90-external-redistributed-ad-170-summarized-ad-5',
         title: 'EIGRP Route Types (Internal [AD 90], External/Redistributed [AD 170], Summarized [AD 5])',
@@ -2123,9 +2130,10 @@ diagrams: [
           { label: 'External (EX)', value: 'AD 170' },
           { label: 'Summarized', value: 'AD 5' },
         ],
-diagrams: [
-  { src: '/diagrams/as.png', alt: 'EIGRP Autonomous System (AS) number diagram', caption: 'EIGRP AS number — 16-bit, 1 to 65536' },
-],       },
+        diagrams: [
+          { src: '/diagrams/as.png', alt: 'EIGRP Autonomous System (AS) number diagram', caption: 'EIGRP AS number — 16-bit, 1 to 65536' },
+        ],
+      },
       {
         slug: 'eigrp-tables-neighbourhood-routing-topology',
         title: 'EIGRP Tables (Neighbourhood, Routing, Topology)',
@@ -2189,9 +2197,10 @@ diagrams: [
           { type: 'paragraph', text: 'From R1 to network 192.168.40.0/24, three candidate paths exist: via R5 = metric 3000 (best/successor), via R2 = metric 4000 (backup/feasible successor), via R6 = metric 5000 (not used).' },
         ],
         quickReference: [{ label: 'Default K-values used', value: 'K1 (Bandwidth) & K3 (Delay)' }, { label: 'BW formula', value: '10^7 / bandwidth(kbps)' }, { label: 'Delay formula', value: 'delay(µs) / 10' }],
-diagrams: [
-  { src: '/diagrams/pathcalc.png', alt: 'EIGRP path calculation — R1 to R4 topology', caption: 'EIGRP path calculation — R1 to R4 (metric comparison)' },
-],      },
+        diagrams: [
+          { src: '/diagrams/pathcalc.png', alt: 'EIGRP path calculation — R1 to R4 topology', caption: 'EIGRP path calculation — R1 to R4 (metric comparison)' },
+        ],
+      },
       {
         slug: 'eigrp-terminology-successor-feasible-successor-advertised-distance-feasible-distance-feasibility-condition',
         title: 'EIGRP Terminology (Successor, Feasible Successor, Advertised Distance, Feasible Distance, Feasibility Condition)',
@@ -2275,11 +2284,11 @@ diagrams: [
         ],
         quickReference: [{ label: 'Hello / Hold-down', value: '5s / 15s' }, { label: 'SIA cycle', value: '3 × 60s follow-ups = 180s before route removal' }, { label: 'Hello & Query', value: 'Multicast 224.0.0.10' }, { label: 'Update (full)', value: 'Unicast' }, { label: 'Update (partial, post-convergence)', value: 'Multicast' }, { label: 'Reply', value: 'Unicast' }],
         diagrams: [
-  { src: '/diagrams/ehello_wide.png', alt: 'EIGRP Hello packets — R1 and R2 forming a neighborship', caption: 'Hello exchange — neighborship established (5s hello / 15s hold-down)' },
-  { src: '/diagrams/eupdate_wide.png', alt: 'EIGRP Update and ACK exchange — R1 and R2 converging', caption: 'Update & ACK — topology convergence' },
-  { src: '/diagrams/equery_wide.png', alt: 'EIGRP Query and Reply — R1 queries R3 for an alternate path', caption: 'Query & Reply — alternate path request' },
-  { src: '/diagrams/esia_wide.png', alt: 'EIGRP Stuck-in-Active — Query follow-ups at 60s and 120s', caption: 'Stuck in Active — SIA Query/Reply cycle' },
-],
+          { src: '/diagrams/ehello_wide.png', alt: 'EIGRP Hello packets — R1 and R2 forming a neighborship', caption: 'Hello exchange — neighborship established (5s hello / 15s hold-down)' },
+          { src: '/diagrams/eupdate_wide.png', alt: 'EIGRP Update and ACK exchange — R1 and R2 converging', caption: 'Update & ACK — topology convergence' },
+          { src: '/diagrams/equery_wide.png', alt: 'EIGRP Query and Reply — R1 queries R3 for an alternate path', caption: 'Query & Reply — alternate path request' },
+          { src: '/diagrams/esia_wide.png', alt: 'EIGRP Stuck-in-Active — Query follow-ups at 60s and 120s', caption: 'Stuck in Active — SIA Query/Reply cycle' },
+        ],
       },
       {
         slug: 'eigrp-route-states-active-vs-passive-and-stuck-in-active-sia-mechanism',
@@ -2320,10 +2329,11 @@ diagrams: [
           { label: 'Typical mask', value: '/32' },
           { label: 'Config command', value: 'interface loopback <number>' },
         ],
-diagrams: [
-  { src: '/diagrams/lback_wide.png', alt: 'Router with loopback 0 configured as 1.1.1.1/32', caption: 'Loopback 0 — 1.1.1.1 /32 (virtual interface)' },
-  { src: '/diagrams/ntp_wide.png', alt: 'Triangular topology R1, R2, R3 with NTP server on R2 loopback', caption: 'Loopback redundancy — NTP server reachable via 2.2.2.2' },
-],      },
+        diagrams: [
+          { src: '/diagrams/lback_wide.png', alt: 'Router with loopback 0 configured as 1.1.1.1/32', caption: 'Loopback 0 — 1.1.1.1 /32 (virtual interface)' },
+          { src: '/diagrams/ntp_wide.png', alt: 'Triangular topology R1, R2, R3 with NTP server on R2 loopback', caption: 'Loopback redundancy — NTP server reachable via 2.2.2.2' },
+        ],
+      },
       {
         slug: 'eigrp-router-id-selection-manual-vs-automatic-via-loopbacks-or-highest-physical-ip',
         title: 'EIGRP Router ID Selection (Manual vs. Automatic via Loopbacks or Highest Physical IP)',
@@ -2403,16 +2413,214 @@ diagrams: [
           { label: 'Verify AS match', value: 'show ip protocol' },
           { label: 'Verify K-values', value: 'show ip protocols' },
         ],
-       diagrams: [
-  { src: '/diagrams/asnum_wide.png', alt: 'R1 EIGRP 100 and R2 EIGRP 200 — AS number mismatch', caption: 'Prerequisite 1 — same AS number' },
-  { src: '/diagrams/passwd_wide.png', alt: 'R1 and R2 with matching password CCNA123', caption: 'Prerequisite 2 — same password' },
-  { src: '/diagrams/kval_wide.png', alt: 'R1 and R2 with matching K1 and K3 values', caption: 'Prerequisite 3 — same K values' },
-  { src: '/diagrams/topor8_wide.png', alt: 'EIGRP AS 100 topology with R1 through R8', caption: 'EIGRP AS 100 — R1 to R8 topology' },
-],
-        
+        diagrams: [
+          { src: '/diagrams/asnum_wide.png', alt: 'R1 EIGRP 100 and R2 EIGRP 200 — AS number mismatch', caption: 'Prerequisite 1 — same AS number' },
+          { src: '/diagrams/passwd_wide.png', alt: 'R1 and R2 with matching password CCNA123', caption: 'Prerequisite 2 — same password' },
+          { src: '/diagrams/kval_wide.png', alt: 'R1 and R2 with matching K1 and K3 values', caption: 'Prerequisite 3 — same K values' },
+          { src: '/diagrams/topor8_wide.png', alt: 'EIGRP AS 100 topology with R1 through R8', caption: 'EIGRP AS 100 — R1 to R8 topology' },
+        ],
+
       },
+      {
+        slug: 'eigrp-advanced-settings-timers-traffic-percentage-k-values-path-manipulation',
+        title: 'EIGRP Advanced Settings (Timers, Traffic Percentage, K-Values, Path Manipulation)',
+        description: 'EIGRP timers, bandwidth usage, and metric weights can all be tuned per interface, and path selection can be manipulated by adjusting delay.',
+        blocks: [
+          { type: 'heading', text: '1. Changing EIGRP timers' },
+          { type: 'paragraph', text: 'EIGRP maintains two timers in a 1:3 ratio — the Hello Timer (default 5 seconds) and the Hold-down Timer (default 15 seconds). Timers can be adjusted to improve convergence time. Timer configuration happens per interface, so each EIGRP interface can have different timers.' },
+          { type: 'code', language: 'text', code: 'interface f0/0\n  ip eigrp hello-interval 2\n  ip eigrp hold-time 6\n  no shutdown\n  exit' },
+          { type: 'paragraph', text: 'Verification: show run interface f0/0, show ip eigrp interfaces, show ip protocols, show ip eigrp neighbors.' },
+          { type: 'heading', text: '2. Configuring EIGRP traffic percentage on interfaces' },
+          { type: 'paragraph', text: 'This controls how much of an interface\'s bandwidth percentage EIGRP is allowed to use.' },
+          { type: 'code', language: 'text', code: 'interface f0/0\n  ip bandwidth-percent eigrp 100 40\n  no shutdown\n  exit' },
+          { type: 'paragraph', text: 'Verification: show run interface f0/0.' },
+          { type: 'heading', text: '3. Changing K-values' },
+          { type: 'paragraph', text: 'By default EIGRP uses K1 and K3 (Bandwidth and Delay) for metric calculation, but this can be changed — for example, to also include MTU in the calculation.' },
+          { type: 'code', language: 'text', code: 'router eigrp <AS number>\n  metric weights 0 1 0 1 0 1\n  no shutdown\n  exit' },
+          { type: 'paragraph', text: 'Every router in the autonomous system must use the same K-values — this is one of the EIGRP neighborship conditions.' },
+          { type: 'paragraph', text: 'Verification: show ip protocols, show run | section eigrp.' },
+          { type: 'heading', text: 'EIGRP path manipulation via delay' },
+          { type: 'paragraph', text: 'Path selection can be manipulated by changing the delay value on an interface. Configuring a higher delay produces a higher metric value on that path — so a previously-backup path can be forced to become the best path (or vice versa).' },
+          { type: 'code', language: 'text', code: 'interface <name>\n  delay 200\n  no shutdown\n  exit' },
+          { type: 'paragraph', text: 'Verification: show run interface, show ip eigrp topology <network/subnet> (e.g. 192.168.30.0/24), show ip route <network/subnet>.' },
+        ],
+        quickReference: [
+          { label: 'Hello / Hold-down default', value: '5s / 15s, 1:3 ratio' },
+          { label: 'Default K-values used', value: 'K1 (Bandwidth), K3 (Delay)' },
+          { label: 'Path manipulation', value: 'Higher delay -> higher metric -> less preferred path' },
+        ],
+        diagrams: [
+          { src: '/diagrams/we1_wide.png', alt: 'R1, R2, R3 EIGRP timers diagram', caption: 'EIGRP timers — Hello 5s / Hold-down 15s' },
+          { src: '/diagrams/we2_wide.png', alt: 'EIGRP interface traffic percentage', caption: 'EIGRP traffic — interface utilization %' },
+          { src: '/diagrams/we3_wide.png', alt: 'EIGRP path calculation hexagon', caption: 'EIGRP path calculation — hexagonal topology' },
+        ],
+      },
+      {
+        slug: 'eigrp-load-balancing-equal-cost-vs-unequal-cost-verification',
+        title: 'EIGRP Load Balancing (Equal-cost vs. Unequal-cost) and Verification',
+        description: 'EIGRP can spread traffic across multiple best paths by default, and across best-plus-backup paths when variance is configured.',
+        blocks: [
+          { type: 'heading', text: 'Load balancing basics' },
+          {
+            type: 'bullets', items: [
+              'If a router has multiple best paths to reach a destination network, it can balance traffic across them — this is called load balancing.',
+              'In IGP protocols, load balancing is enabled by default.',
+              'EIGRP load-balances across up to 4 paths by default, and a maximum of 16 paths.',
+              'EIGRP supports two types: Equal-cost load balancing and Unequal-cost load balancing.',
+            ]
+          },
+          { type: 'heading', text: 'Equal-cost load balancing' },
+          {
+            type: 'bullets', items: [
+              'Load-balances traffic only through the best (equal-metric) paths.',
+              'Enabled by default.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'router eigrp <AS number>\n  maximum-paths 1    -> load balancing disabled\n  maximum-paths 4    -> default\n  maximum-paths 16   -> maximum\n  exit' },
+          { type: 'heading', text: 'Unequal-cost load balancing' },
+          {
+            type: 'bullets', items: [
+              'Performs load balancing across both best and backup paths.',
+              'Disabled by default — enabled by changing the variance value.',
+              'Variance range: 1 – 128. Default variance is 1, meaning unequal-cost load balancing is off.',
+              'Formula: a backup path qualifies for load balancing if its metric ≤ Variance × FD (the Feasible Distance of the best path).',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'Example: Variance = 3, FD = 1000\n3 × 1000 = 3000 — any path with metric ≤ 3000 qualifies\n\nR1 routing table for 192.168.30.0/24:\n  via R3 — metric 1000 (best)\n  via R2 — metric 2000 (qualifies, ≤ 3000)\n  via R4 — metric 3000 (qualifies, ≤ 3000)' },
+          { type: 'paragraph', text: 'Because of the variance change, these backup paths are now stored in the routing table (not just the topology table) and actively used for forwarding.' },
+          { type: 'heading', text: 'Verification and debugging commands' },
+          {
+            type: 'bullets', items: [
+              'show ip route',
+              'show ip eigrp topology',
+              'show run | section eigrp',
+              'show log | include <text>',
+              'debug ip eigrp neighbors — live logs of neighbor events',
+              'debug ip eigrp route — live logs of route changes',
+              'debug ip eigrp ? — lists available debug options',
+              'undebug all — disables all active debugging',
+            ]
+          },
+          { type: 'heading', text: 'Interface bandwidth reference' },
+          {
+            type: 'table', headers: ['Interface', 'BW formula (10^7 / bandwidth)', 'Result'], rows: [
+              ['Fast Ethernet', '10,000,000 / 100,000 kbps', '100'],
+              ['Gigabit Ethernet', '10,000,000 / 1,000,000 kbps', '10'],
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Default max paths', value: '4 (max 16)' },
+          { label: 'Equal-cost', value: 'Enabled by default, best paths only' },
+          { label: 'Unequal-cost', value: 'Disabled by default, controlled by variance' },
+          { label: 'Variance formula', value: 'Path qualifies if metric ≤ Variance × FD' },
+          { label: 'Debug all off', value: 'undebug all' },
+        ],
+        diagrams: [
+          { src: '/diagrams/unequalloadd_wide.png', alt: 'Unequal cost load balancing — R1 to R5 topology with EIGRP variance', caption: 'Unequal-cost load balancing — EIGRP variance' },
+        ],
+      },
+      {
+  slug: 'ospf-introduction-open-shortest-path-first-link-state-routing-protocol',
+  title: 'OSPF Introduction (Open Shortest Path First, Link-State Routing Protocol)',
+  description: 'OSPF is an open-standard link-state routing protocol developed by the IETF. It uses interface bandwidth to calculate the best path and comes in two active versions — OSPFv2 for IPv4 and OSPFv3 for IPv6.',
+  blocks: [
+    { type: 'heading', text: 'What OSPF is' },
+    { type: 'paragraph', text: 'OSPF stands for Open Shortest Path First. It is a link-state routing protocol designed to enable communication inside an autonomous system.' },
+
+    { type: 'heading', text: 'Key characteristics' },
+    { type: 'bullets', items: [
+      'It is a link-state routing protocol.',
+      'It uses interface bandwidth to calculate the best path.',
+      'It is an open-standard routing protocol — supported by every vendor.',
+      'It was developed by the IETF (Internet Engineering Task Force).',
+      'It is an Interior Gateway Protocol (IGP) — used for routing inside an autonomous system.',
+      'Its metric is called "cost", which is derived from interface bandwidth.',
+    ] },
+
+    { type: 'heading', text: 'Why "link-state"' },
+    { type: 'paragraph', text: 'Unlike distance-vector protocols (RIP, EIGRP) where a router only knows what its neighbours tell it, a link-state protocol builds a complete map of the topology. Every router floods information about its own links to every other router, and each router independently runs the Shortest Path First (SPF) algorithm on that shared map to calculate the best route to every destination.' },
+
+    { type: 'heading', text: 'Versions of OSPF' },
+    { type: 'table', headers: ['Version', 'Purpose'], rows: [
+      ['OSPFv1', 'Never made it out of the drawing board — experimental only'],
+      ['OSPFv2', 'IPv4 routing — the version in production today'],
+      ['OSPFv3', 'IPv6 routing'],
+    ] },
+
+    { type: 'heading', text: 'Verification commands' },
+    { type: 'bullets', items: [
+      '# show ip route',
+      '# show ip ospf topology',
+      '# show run | section ospf',
+      '# show log | include <keyword>',
+      '# debug ip ospf neighbor',
+      '# debug ip ospf route',
+      '# debug ip ospf ?',
+      '# u all  — disable all debugging',
+    ] },
+  ],
+  quickReference: [
+    { label: 'Full name', value: 'Open Shortest Path First' },
+    { label: 'Type', value: 'Link-state routing protocol' },
+    { label: 'Metric', value: 'Cost (from interface bandwidth)' },
+    { label: 'Standard', value: 'Open — IETF' },
+    { label: 'Scope', value: 'IGP — inside an autonomous system' },
+    { label: 'OSPFv2 / OSPFv3', value: 'IPv4 / IPv6' },
+  ],
+},
+      {
+  slug: 'ospf-cost-calculation-reference-bandwidth-and-router-rounding',
+  title: 'OSPF Cost Calculation (Reference Bandwidth & Router Rounding)',
+  description: 'OSPF uses interface bandwidth to calculate the cost of a path. The formula divides the reference bandwidth by the interface bandwidth, and any fractional result is rounded up to 1 by the router.',
+  blocks: [
+    { type: 'heading', text: 'The cost formula' },
+    { type: 'paragraph', text: 'OSPF calculates the cost of each link using this formula:' },
+    { type: 'code', language: 'text', code: 'Cost = Reference Bandwidth / Interface Bandwidth' },
+    { type: 'paragraph', text: 'Reference Bandwidth is a configurable baseline value on the router. The default on most Cisco devices is 100 Mbps (100,000,000 bits per second).' },
+    { type: 'paragraph', text: 'Interface Bandwidth is the actual rated speed of the specific interface, measured in bits per second (bps).' },
+
+    { type: 'heading', text: 'Rounding rule' },
+    { type: 'paragraph', text: 'The calculated cost must always be an integer. If the result of the division is less than 1, OSPF automatically rounds it up to 1 — it never stores a fractional cost.' },
+
+    { type: 'heading', text: 'Common default cost examples' },
+    { type: 'paragraph', text: 'Using the default 100 Mbps reference bandwidth:' },
+    { type: 'table', headers: ['Interface', 'Calculation', 'Cost'], rows: [
+      ['10 Mbps Ethernet',      '100 / 10    = 10',    '10'],
+      ['100 Mbps Fast Ethernet','100 / 100   = 1',     '1'],
+      ['1000 Mbps Gigabit',     '100 / 1000  = 0.1',   '1  (rounded up)'],
+    ] },
+    { type: 'bullets', items: [
+      'Fast Ethernet and Gigabit Ethernet both end up with the same cost on the default reference bandwidth.',
+      'This is a known limitation of the 100 Mbps reference — it was set when 100 Mbps was a fast link.',
+    ] },
+
+    { type: 'heading', text: 'Fixing it — change the reference bandwidth' },
+    { type: 'paragraph', text: 'To make higher-speed interfaces actually cost less than slower ones, raise the reference bandwidth to match your fastest link.' },
+    { type: 'code', language: 'text', code: 'router ospf 1\n  auto-cost reference-bandwidth 10000\n\nNow (reference = 10000 Mbps):\n  100 Mbps Fast Ethernet:  10000 / 100   = 100\n  1000 Mbps Gigabit:       10000 / 1000  = 10\n  10000 Mbps Ten Gig:      10000 / 10000 = 1' },
+    { type: 'bullets', items: [
+      'Set the reference bandwidth on every OSPF router in the topology — mismatched values cause inconsistent costs.',
+      'A common modern setting is 10000 (10 Gbps), which gives a clean 1 / 10 / 100 cost scale.',
+    ] },
+
+    { type: 'heading', text: 'Total path cost' },
+    { type: 'paragraph', text: 'OSPF adds up the outgoing interface costs of every link along a route to find the total cumulative metric to a destination network. The path with the lowest total cost is chosen as the best route.' },
+    { type: 'code', language: 'text', code: 'Example path — R1 -> R2 -> R3 -> destination\n\n  R1 -> R2 link:  cost 10\n  R2 -> R3 link:  cost 10\n  R3 -> dest:     cost 1\n  ---------------------------------\n  Total path cost: 21' },
+  ],
+  quickReference: [
+    { label: 'Formula', value: 'Cost = Reference BW ÷ Interface BW' },
+    { label: 'Default reference', value: '100 Mbps' },
+    { label: 'Fast Ethernet cost', value: '1' },
+    { label: 'Gigabit Ethernet cost', value: '0.1 → rounded up to 1' },
+    { label: 'Fix for modern networks', value: 'auto-cost reference-bandwidth 10000' },
+    { label: 'Total path cost', value: 'Sum of outgoing interface costs' },
+  ],
+},
+
+
     ],
   },
+
 ]
 
 export function getSubtopic(topicSlug: string, subtopicSlug: string) {
