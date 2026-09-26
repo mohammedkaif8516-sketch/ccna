@@ -2570,53 +2570,347 @@ export const topics: Topic[] = [
   ],
 },
       {
-  slug: 'ospf-cost-calculation-reference-bandwidth-and-router-rounding',
-  title: 'OSPF Cost Calculation (Reference Bandwidth & Router Rounding)',
-  description: 'OSPF uses interface bandwidth to calculate the cost of a path. The formula divides the reference bandwidth by the interface bandwidth, and any fractional result is rounded up to 1 by the router.',
+        slug: 'ospf-cost-calculation-reference-bandwidth-adjustment',
+        title: 'OSPF Cost Calculation & Reference Bandwidth Adjustment',
+        description: 'OSPF\'s metric is called Cost, calculated from reference bandwidth divided by interface bandwidth — the lowest cost path wins.',
+        blocks: [
+          { type: 'heading', text: 'OSPF Cost' },
+          { type: 'bullets', items: [
+            'The metric of OSPF is interface bandwidth.',
+            'The metric value OSPF uses to calculate the best path is called Cost.',
+            'The lowest cost path becomes the best path.',
+          ] },
+          { type: 'heading', text: 'Cost equation' },
+          { type: 'code', language: 'text', code: 'Cost = Reference Bandwidth / Interface Bandwidth' },
+          { type: 'paragraph', text: 'Default reference bandwidth is 100.' },
+          { type: 'heading', text: 'Default cost values (reference bandwidth = 100)' },
+          { type: 'table', headers: ['Interface', 'Calculation', 'Cost'], rows: [
+            ['Ethernet', '100 / 10', '10'],
+            ['Fast Ethernet', '100 / 100', '1'],
+            ['Gigabit Ethernet', '100 / 1000', '0.1'],
+          ] },
+          { type: 'heading', text: 'The problem' },
+          { type: 'paragraph', text: 'OSPF cost cannot be a fraction — a calculated value of 0.1 gets rounded up to 1. This means Fast Ethernet and Gigabit Ethernet end up with the same cost value (1), even though Gigabit is 10× faster — which distorts path calculation.' },
+          { type: 'heading', text: 'The fix — increase the reference bandwidth' },
+          { type: 'paragraph', text: 'Raising the reference bandwidth to 1000 fixes the rounding problem:' },
+          { type: 'table', headers: ['Interface', 'Calculation', 'Cost'], rows: [
+            ['Ethernet', '1000 / 10', '100'],
+            ['Fast Ethernet', '1000 / 100', '10'],
+            ['Gigabit Ethernet', '1000 / 1000', '1'],
+          ] },
+          { type: 'paragraph', text: 'The reference bandwidth must be identical on every router in the autonomous system, or it will distort path calculation across the topology.' },
+        ],
+        quickReference: [
+          { label: 'Cost formula', value: 'Reference Bandwidth / Interface Bandwidth' },
+          { label: 'Default reference BW', value: '100' },
+          { label: 'Fast Ethernet cost (default)', value: '1' },
+          { label: 'Gigabit Ethernet cost (default)', value: '0.1 -> rounds to 1 (problem)' },
+          { label: 'Fix', value: 'Raise reference bandwidth (e.g. to 1000), same on every router' },
+        ],
+diagrams: [
+  { src: '/diagrams/efg.png', alt: 'OSPF path calculation — Ethernet, FastEthernet, and GigabitEthernet link costs', caption: 'OSPF path calculation — Ethernet / FastEthernet / GigabitEthernet cost comparison' },
+],      },
+      {
+        slug: 'ospf-process-id-vs-eigrp-as-number',
+        title: 'OSPF Process ID vs EIGRP AS Number',
+        description: 'OSPF uses a Process ID instead of an AS number, but unlike EIGRP\'s AS number, it is only locally significant to the router.',
+        blocks: [
+          { type: 'bullets', items: [
+            'To identify the autonomous system, EIGRP uses an AS number — OSPF instead uses a Process ID.',
+            'It is a 16-bit number (1 – 65536).',
+            'Key difference: the Process ID in OSPF is only locally significant — the OSPF router does not share Process ID information through its packets.',
+          ] },
+        ],
+        quickReference: [
+          { label: 'OSPF Process ID', value: '16-bit (1–65536), locally significant only' },
+          { label: 'vs. EIGRP AS number', value: 'EIGRP AS must match between neighbors; OSPF Process ID does not' },
+        ],
+diagrams: [
+  { src: '/diagrams/evsos.png', alt: 'EIGRP AS 100 vs OSPF Process ID 100 comparison', caption: 'EIGRP AS 100 vs OSPF Process ID 100 — different meanings' },
+],      },
+      {
+        slug: 'ospf-area-concept-backbone-standard-stub',
+        title: 'OSPF Area Concept (Backbone, Standard, Stub)',
+        description: 'OSPF divides a large autonomous system into areas to prevent performance overload, with Area 0 as the mandatory backbone connecting all other areas.',
+        blocks: [
+          { type: 'heading', text: 'Why areas exist' },
+          { type: 'bullets', items: [
+            'OSPF has no hop count limitation, so it can support an unlimited number of routers/networks inside an autonomous system.',
+            'This can create a performance overload issue on routers.',
+            'To solve this, OSPF uses the area concept — the entire autonomous system is divided into multiple areas, each with its own database.',
+          ] },
+          { type: 'heading', text: 'Backbone area' },
+          { type: 'bullets', items: [
+            'Area 0 is the backbone area — it connects all other standard areas.',
+            'Every standard area must be connected to Area 0, or there will be no inter-area communication.',
+          ] },
+          { type: 'heading', text: 'Standard area' },
+          { type: 'bullets', items: [
+            'Any number can be used to represent a standard area.',
+            'Cisco recommends a maximum of 50 routers per standard area.',
+          ] },
+          { type: 'heading', text: 'Stub area' },
+          { type: 'bullets', items: [
+            'Used to filter routes within an area.',
+            'Can filter routes coming from other areas and from other autonomous systems.',
+          ] },
+        ],
+        quickReference: [
+          { label: 'Area 0', value: 'Backbone — mandatory hub for all standard areas' },
+          { label: 'Standard area', value: 'Any number, Cisco recommends max 50 routers' },
+          { label: 'Stub area', value: 'Filters routes from other areas/AS' },
+        ],
+diagrams: [
+  { src: '/diagrams/ospfarea.png', alt: 'OSPF multi-area topology — Area 0 (backbone), Area 16, Area 21, Area 45, Area 89', caption: 'OSPF areas — backbone (Area 0) and non-backbone areas' },
+],      },
+      {
+        slug: 'ospf-tables-neighbor-routing-topology',
+        title: 'OSPF Tables (Neighbor, Routing, Topology)',
+        description: 'OSPF maintains three tables — the neighbor table tracks adjacencies, the routing table holds the lowest-cost paths, and the topology table holds every known path in the area.',
+        blocks: [
+          { type: 'heading', text: '1. Neighbor table' },
+          { type: 'paragraph', text: 'Stores neighborship information — in OSPF, this relationship is called adjacency.' },
+          { type: 'bullets', items: ['show ip ospf neighbor', 'show ip ospf neighbor <process ID, e.g. 100>', 'show ip ospf neighbor <interface>'] },
+          { type: 'heading', text: '2. Routing table' },
+          { type: 'paragraph', text: 'Stores the best paths, based on lowest cumulative cost.' },
+          { type: 'bullets', items: ['show ip route', 'show ip route ospf', 'show ip route ospf <process ID>', 'show ip route <network/subnet> (e.g. 192.168.1.0/24)'] },
+          { type: 'heading', text: '3. Topology table' },
+          { type: 'paragraph', text: 'Contains the list of all networks and all possible routes inside an area.' },
+        ],
+        quickReference: [
+          { label: 'OSPF adjacency', value: 'OSPF\'s term for a neighbor relationship' },
+          { label: 'Routing table sort key', value: 'Lowest cumulative cost' },
+        ],
+      },
+      {
+        slug: 'ospf-router-id-selection-resetting-ospf-process',
+        title: 'OSPF Router-ID Selection & Resetting OSPF Process',
+        description: 'Router-ID can be set manually or chosen automatically from loopback/interface IPs, but a manual change only takes effect after the OSPF process is restarted.',
+        blocks: [
+          { type: 'heading', text: 'Manual configuration' },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  router-id 1.1.1.1\n  exit' },
+          { type: 'heading', text: 'Automatic selection' },
+          { type: 'bullets', items: [
+            'The router automatically selects the loopback IP address as the Router-ID.',
+            'If multiple loopbacks exist, the highest loopback IP address becomes the Router-ID.',
+            'If there are no loopbacks, the highest interface IP address becomes the Router-ID.',
+          ] },
+          { type: 'heading', text: 'Resetting the OSPF process' },
+          { type: 'paragraph', text: 'Router-ID election only happens once. If a Router-ID is already elected and you try to change it manually, the change will not take effect until the OSPF process is restarted.' },
+          { type: 'code', language: 'text', code: 'R1# clear ip ospf process\n# yes' },
+          { type: 'heading', text: 'Verification' },
+          { type: 'bullets', items: [
+            'show ip protocols',
+            'show run | section ospf — shows whether the Router-ID was selected automatically or configured manually',
+          ] },
+        ],
+        quickReference: [
+          { label: 'Auto selection priority', value: 'Highest loopback IP > highest interface IP' },
+          { label: 'Apply manual change', value: 'clear ip ospf process' },
+        ],
+      },
+      {
+        slug: 'ospf-area-types-backbone-standard-stub',
+        title: 'OSPF Area Types',
+        description: 'A more detailed look at the three area types — Backbone, Standard, and Stub — and what each is used for.',
+        blocks: [
+          { type: 'heading', text: 'Backbone area' },
+          { type: 'paragraph', text: 'Area 0 is the backbone area. Every standard/normal area must connect to Area 0 to enable inter-area communication.' },
+          { type: 'heading', text: 'Standard area' },
+          { type: 'paragraph', text: 'Any number can represent this area type. Cisco recommends a maximum of 50 routers in a standard area.' },
+          { type: 'heading', text: 'Stub area' },
+          { type: 'paragraph', text: 'Used to filter routes in an area — it can filter routes from other areas and routes from other autonomous systems.' },
+        ],
+        quickReference: [
+          { label: 'Area 0', value: 'Backbone — required hub' },
+          { label: 'Standard', value: 'Max 50 routers (Cisco recommendation)' },
+          { label: 'Stub', value: 'Filters external/inter-area routes' },
+        ],
+      },
+      {
+        slug: 'ospf-router-types-abr-asbr',
+        title: 'OSPF Router Types (ABR, ASBR)',
+        description: 'An ABR sits between a standard area and the backbone; an ASBR sits at the boundary between two autonomous systems and handles redistribution.',
+        blocks: [
+          { type: 'heading', text: 'ABR (Area Border Router)' },
+          { type: 'paragraph', text: 'The border router that connects a standard area with the backbone area.' },
+          { type: 'heading', text: 'ASBR (Autonomous System Border Router)' },
+          { type: 'bullets', items: [
+            'The border router that connects two autonomous systems.',
+            'Redistribution configuration takes place on this router.',
+          ] },
+          { type: 'paragraph', text: 'Other OSPF router roles — DR (Designated Router), BDR (Backup Designated Router), and DROther — are covered in the DR/BDR election subtopic.' },
+        ],
+        quickReference: [
+          { label: 'ABR', value: 'Standard area <-> Backbone area' },
+          { label: 'ASBR', value: 'Between two autonomous systems; handles redistribution' },
+        ],
+diagrams: [
+  { src: '/diagrams/ospfrouters.png', alt: 'OSPF router types — ABR, ASBR, DR, BDR, DRother with two AS clouds', caption: 'OSPF router types — ABR, ASBR, DR, BDR, DRother' },
+],      },
+      {
+        slug: 'ospf-dr-bdr-election-in-bma-networks-multicast-addresses',
+        title: 'OSPF DR/BDR Election in BMA Networks & Multicast Addresses (224.0.0.5, 224.0.0.6)',
+        description: 'On broadcast multi-access networks, OSPF elects a DR and BDR to prevent update-flooding, using two dedicated multicast addresses instead of the split-horizon rule other protocols use.',
+        blocks: [
+          { type: 'heading', text: 'The flooding problem' },
+          { type: 'bullets', items: [
+            'In a BMA (Broadcast Multi-Access) network, routers form a full mesh neighborship.',
+            'Normally, a router shares any update it receives with all of its neighbors — in a full mesh, this creates a flooding situation (LSA flooding).',
+            'EIGRP, RIP, and BGP solve this with the split-horizon rule: a router will not send an update back out the same interface it learned it from.',
+            'OSPF does not use split-horizon — it solves the problem differently.',
+          ] },
+          { type: 'heading', text: 'DR / BDR election' },
+          { type: 'bullets', items: [
+            'One router in the BMA network is elected DR (Designated Router) — it acts as the leader for the group.',
+            'Another router is elected BDR (Backup Designated Router) — a backup for the DR, for redundancy.',
+            'The remaining routers become DROther.',
+          ] },
+          { type: 'heading', text: 'How updates flow' },
+          { type: 'bullets', items: [
+            'When a router receives an update, it shares it with the DR and BDR using multicast address 224.0.0.6.',
+            'The DR then shares it with the rest of the routers using multicast address 224.0.0.5.',
+            'This two-step relay avoids the flooding problem entirely.',
+          ] },
+         
+        ],
+        quickReference: [
+          { label: 'To DR/BDR', value: 'Multicast 224.0.0.6' },
+          { label: 'DR to everyone', value: 'Multicast 224.0.0.5' },
+          { label: 'DROther', value: 'Non-DR/BDR routers in a BMA network' },
+          { label: 'Adjacency states', value: 'Down -> Two-way -> Full' },
+        ],
+diagrams: [
+  { src: '/diagrams/ospfdr.png', alt: 'OSPF DR/BDR topology — Full and Two-way adjacency relationships', caption: 'DR / BDR — Full and Two-way adjacencies' },
+],      },
+{
+  slug: 'ospf-dr-bdr-election-criteria-priority-and-router-id',
+  title: 'OSPF DR / BDR Election (Priority & Router-ID)',
+  description: 'The Designated Router and Backup Designated Router are elected on broadcast segments using two criteria: highest OSPF priority, then highest Router-ID as a tiebreaker.',
   blocks: [
-    { type: 'heading', text: 'The cost formula' },
-    { type: 'paragraph', text: 'OSPF calculates the cost of each link using this formula:' },
-    { type: 'code', language: 'text', code: 'Cost = Reference Bandwidth / Interface Bandwidth' },
-    { type: 'paragraph', text: 'Reference Bandwidth is a configurable baseline value on the router. The default on most Cisco devices is 100 Mbps (100,000,000 bits per second).' },
-    { type: 'paragraph', text: 'Interface Bandwidth is the actual rated speed of the specific interface, measured in bits per second (bps).' },
+    { type: 'heading', text: 'Why DR / BDR exist' },
+    { type: 'paragraph', text: 'On a broadcast segment (like an Ethernet LAN), every router would otherwise need to form a full adjacency with every other router — an n × (n−1) / 2 problem. OSPF elects one Designated Router (DR) and one Backup (BDR) so the rest of the routers only form full adjacencies with those two.' },
 
-    { type: 'heading', text: 'Rounding rule' },
-    { type: 'paragraph', text: 'The calculated cost must always be an integer. If the result of the division is less than 1, OSPF automatically rounds it up to 1 — it never stores a fractional cost.' },
+    { type: 'heading', text: 'Election criteria — two rules' },
+    { type: 'paragraph', text: 'DR and BDR are elected based on two criteria, applied in order:' },
 
-    { type: 'heading', text: 'Common default cost examples' },
-    { type: 'paragraph', text: 'Using the default 100 Mbps reference bandwidth:' },
-    { type: 'table', headers: ['Interface', 'Calculation', 'Cost'], rows: [
-      ['10 Mbps Ethernet',      '100 / 10    = 10',    '10'],
-      ['100 Mbps Fast Ethernet','100 / 100   = 1',     '1'],
-      ['1000 Mbps Gigabit',     '100 / 1000  = 0.1',   '1  (rounded up)'],
-    ] },
+    { type: 'heading', text: '1. Highest priority' },
     { type: 'bullets', items: [
-      'Fast Ethernet and Gigabit Ethernet both end up with the same cost on the default reference bandwidth.',
-      'This is a known limitation of the 100 Mbps reference — it was set when 100 Mbps was a fast link.',
+      'Priority is an 8-bit value — range 0 to 255.',
+      'Default priority is 1.',
+      'The router with the highest priority becomes the DR.',
+      'Priority can be manually changed to influence the election.',
+      'If priority is set to 0, that router will not participate in DR / BDR election.',
     ] },
 
-    { type: 'heading', text: 'Fixing it — change the reference bandwidth' },
-    { type: 'paragraph', text: 'To make higher-speed interfaces actually cost less than slower ones, raise the reference bandwidth to match your fastest link.' },
-    { type: 'code', language: 'text', code: 'router ospf 1\n  auto-cost reference-bandwidth 10000\n\nNow (reference = 10000 Mbps):\n  100 Mbps Fast Ethernet:  10000 / 100   = 100\n  1000 Mbps Gigabit:       10000 / 1000  = 10\n  10000 Mbps Ten Gig:      10000 / 10000 = 1' },
+    { type: 'heading', text: '2. Highest Router-ID (tiebreaker)' },
+    { type: 'paragraph', text: 'If two or more routers tie on priority, the router with the highest Router-ID becomes DR, and the router with the second-highest Router-ID becomes BDR.' },
+
+    { type: 'heading', text: 'Changing priority' },
+    { type: 'code', language: 'text', code: '# interface f0/0\n# ip ospf priority 10\n# no shutdown\n# exit' },
+
+    { type: 'heading', text: 'Neighbour state indicators' },
     { type: 'bullets', items: [
-      'Set the reference bandwidth on every OSPF router in the topology — mismatched values cause inconsistent costs.',
-      'A common modern setting is 10000 (10 Gbps), which gives a clean 1 / 10 / 100 cost scale.',
+      'DR | Full — neighbour is a DR and has a full-level adjacency.',
+      'BDR | Full — neighbour is a BDR and has a full-level adjacency.',
+      'DR-Other | Full — neighbour is a DR-Other and has a full-level adjacency.',
+      'DR-Other | Two-way — neighbour is a DR-Other with only a two-way adjacency.',
+      '– | Full — neighbour has no DR / BDR / DR-Other role but has a full-level adjacency. This happens on a point-to-point OSPF network, where no DR / BDR election occurs.',
     ] },
 
-    { type: 'heading', text: 'Total path cost' },
-    { type: 'paragraph', text: 'OSPF adds up the outgoing interface costs of every link along a route to find the total cumulative metric to a destination network. The path with the lowest total cost is chosen as the best route.' },
-    { type: 'code', language: 'text', code: 'Example path — R1 -> R2 -> R3 -> destination\n\n  R1 -> R2 link:  cost 10\n  R2 -> R3 link:  cost 10\n  R3 -> dest:     cost 1\n  ---------------------------------\n  Total path cost: 21' },
+    { type: 'heading', text: 'Verification' },
+    { type: 'code', language: 'text', code: '# show ip ospf neighbor\n# show run interface f0/0' },
   ],
   quickReference: [
-    { label: 'Formula', value: 'Cost = Reference BW ÷ Interface BW' },
-    { label: 'Default reference', value: '100 Mbps' },
-    { label: 'Fast Ethernet cost', value: '1' },
-    { label: 'Gigabit Ethernet cost', value: '0.1 → rounded up to 1' },
-    { label: 'Fix for modern networks', value: 'auto-cost reference-bandwidth 10000' },
-    { label: 'Total path cost', value: 'Sum of outgoing interface costs' },
+    { label: 'Priority range', value: '0 – 255 (8-bit)' },
+    { label: 'Default priority', value: '1' },
+    { label: 'Priority 0', value: 'Router does not participate in election' },
+    { label: 'Tiebreaker', value: 'Highest Router-ID' },
+    { label: 'Verify', value: 'show ip ospf neighbor' },
+  ],
+  diagrams: [
+    { src: '/diagrams/ospfdrelect.png', alt: 'OSPF DR/BDR election topology — R1, R2, R3, R4 with priority values', caption: 'DR/BDR election — R1 to R4 with priority values' },
   ],
 },
+{
+  slug: 'ospf-packet-types-hello-dbd-lsr-lsu-lsack',
+  title: 'OSPF Packet Types (Hello, DBD, LSR, LSU, LSAck)',
+  description: 'OSPF uses five packet types to discover neighbours, exchange topology information, and acknowledge delivery. Each plays a distinct role in building and maintaining the link-state database.',
+  blocks: [
+    { type: 'heading', text: '1. Hello packet' },
+    { type: 'bullets', items: [
+      'Establishes and maintains OSPF neighborship.',
+      'OSPF maintains a 1:4 ratio between its hello and dead timers.',
+      'Hello Interval — 10 seconds (default).',
+      'Dead Interval — 40 seconds (default).',
+      'The timers are critical — they are one of the conditions two routers must agree on to become neighbours.',
+    ] },
 
+    { type: 'heading', text: '2. DBD packet (Database Descriptor)' },
+    { type: 'bullets', items: [
+      'Contains a summarized view of the router\'s LSDB (Link-State Database) — the routing / topology information.',
+      'During the initial (full) update, the DBD acts like an introduction packet between neighbours.',
+      'During a partial update, routers exchange DBDs to compare topology changes.',
+    ] },
+
+    { type: 'heading', text: '3. LSR packet (Link-State Request)' },
+    { type: 'paragraph', text: 'Used to request specific link-state records that the neighbour has but this router does not — the router asks for the missing portion of the LSDB.' },
+
+    { type: 'heading', text: '4. LSU packet (Link-State Update)' },
+    { type: 'bullets', items: [
+      'Carries the actual link-state database contents.',
+      'Contains multiple types of link-state information called LSAs (Link-State Advertisements).',
+      'There are 9 types of LSAs in total, but the basic/commonly used ones are 7.',
+    ] },
+
+    { type: 'heading', text: '5. LSAck packet' },
+    { type: 'paragraph', text: 'Acknowledges receipt of an LSA — confirms the LSU was received without error.' },
+
+    { type: 'heading', text: 'How they work together' },
+    { type: 'code', language: 'text', code: 'Hello        →  establish/maintain neighborship\nDBD          →  summarize my LSDB, compare with yours\nLSR          →  request the LSAs I am missing\nLSU          →  send the requested LSAs\nLSAck        →  confirm I received the LSU' },
+  ],
+  quickReference: [
+    { label: 'Hello interval', value: '10 seconds (default)' },
+    { label: 'Dead interval', value: '40 seconds (default)' },
+    { label: 'Timer ratio', value: '1:4 (hello : dead)' },
+    { label: 'Packet types', value: 'Hello, DBD, LSR, LSU, LSAck' },
+    { label: 'LSA types', value: '9 total, 7 basic' },
+  ],
+},
+{
+  slug: 'ospf-adjacency-states-down-init-two-way-exstart-exchange-loading-full',
+  title: 'OSPF Adjacency States (Down → Init → Two-Way → ExStart → Exchange → Loading → Full)',
+  description: 'OSPF neighbours progress through seven states as they discover each other, exchange topology information, and reach full adjacency.',
+  blocks: [
+    { type: 'heading', text: 'The seven states' },
+    { type: 'table', headers: ['State', 'What happens'], rows: [
+      ['Down',      'No Hello packets received from the neighbour yet — the initial state.'],
+      ['Init',      'Hello received, but the neighbour has not yet listed this router in its own Hello.'],
+      ['Two-Way',   'Both routers have seen each other in Hellos — bidirectional communication established. DR/BDR election happens here.'],
+      ['ExStart',   'Master/slave negotiation — routers agree on who initiates the DBD exchange and at what sequence number.'],
+      ['Exchange',  'DBD packets are exchanged — each router summarizes its LSDB so the other can see what it needs.'],
+      ['Loading',   'LSR / LSU exchange — each router requests and receives the missing LSAs.'],
+      ['Full',      'Both routers have identical LSDBs — the adjacency is complete and routes can be installed.'],
+    ] },
+
+    { type: 'heading', text: 'Key points' },
+    { type: 'bullets', items: [
+      'Two-Way is the minimum required state for DR/BDR election to happen — before that, OSPF doesn\'t know who the candidates are.',
+      'Full is the final, stable state — this is what you want to see in "show ip ospf neighbor" for adjacencies that should be working.',
+      'Point-to-point networks skip the DR/BDR election — they go straight from Two-Way to ExStart because there\'s no election needed.',
+      'Two DRothers on the same broadcast segment only ever reach Two-Way with each other (that\'s normal and expected).',
+    ] },
+  ],
+  quickReference: [
+    { label: 'Order', value: 'Down → Init → Two-Way → ExStart → Exchange → Loading → Full' },
+    { label: 'Election happens at', value: 'Two-Way' },
+    { label: 'Route installation', value: 'Only at Full' },
+    { label: 'Point-to-point networks', value: 'Skip DR/BDR election' },
+  ],
+  diagrams: [
+    { src: '/diagrams/ospfadj.png', alt: 'OSPF adjacency state progression — Down through Full', caption: 'OSPF adjacency states — Down to Full' },
+  ],
+},
 
     ],
   },
