@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCompletedTopics, progressKey } from "@/lib/use-completed";
 import { useMemo, useState } from "react";
 import {
   Accordion,
@@ -47,6 +48,7 @@ import {
   Cable,
   Check,
   ChevronRight,
+  ChevronLeft,
   Layers3,
   Menu,
   Moon,
@@ -423,6 +425,7 @@ const iconMap = {
   route: Route,
 };
 
+
 function DiagramLightbox({
   diagram,
   onClose,
@@ -477,10 +480,12 @@ function DiagramLightbox({
 function Sidebar({
   selected,
   onSelect,
+  completed,
   mobile = false,
 }: {
   selected?: string;
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
+  completed: Set<string>;
   mobile?: boolean;
 }) {
   const activeRef = useRef<HTMLButtonElement | null>(null);
@@ -552,6 +557,12 @@ function Sidebar({
         >
           {topics.map((topic) => {
             const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network;
+            const doneCount = topic.subtopics.filter((s) =>
+              completed.has(progressKey(topic.slug, s.slug)),
+            ).length;
+            const totalCount = topic.subtopics.length;
+            const topicPercent =
+              totalCount === 0 ? 0 : (doneCount / totalCount) * 100;
             return (
               <AccordionItem
                 value={topic.slug}
@@ -559,15 +570,31 @@ function Sidebar({
                 className="border-b-0"
               >
                 <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-accent hover:no-underline [&>svg]:size-3.5">
-                  <span className="flex min-w-0 items-center gap-2.5">
-                    <Icon className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="truncate">{topic.title}</span>
+                  <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+                    <span className="flex items-center gap-2.5">
+                      <Icon className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="flex-1 truncate">{topic.title}</span>
+                      <span className="shrink-0 text-[10px] font-normal tabular-nums text-muted-foreground">
+                        {doneCount}/{totalCount}
+                      </span>
+                    </span>
+                    <span className="ml-[26px] h-1 overflow-hidden rounded-full bg-muted">
+                      <span
+                        className={`block h-full transition-all duration-300 ${
+                          topicPercent === 100 ? "bg-primary" : "bg-primary/60"
+                        }`}
+                        style={{ width: `${topicPercent}%` }}
+                      />
+                    </span>
                   </span>
                 </AccordionTrigger>
                 <AccordionContent className="pb-1 pt-0">
                   <div className="ml-5 border-l pl-3">
                     {topic.subtopics.map((subtopic, index) => {
                       const isActive = selected === subtopic.slug;
+                      const isDone = completed.has(
+                        progressKey(topic.slug, subtopic.slug),
+                      );
                       return (
                         <button
                           key={`${subtopic.slug}-${index}`}
@@ -584,7 +611,10 @@ function Sidebar({
                               isActive ? "text-primary" : "opacity-50"
                             }`}
                           />
-                          {subtopic.title}
+                          <span className="flex-1">{subtopic.title}</span>
+                          {isDone && (
+                            <Check className="mt-0.5 size-3 shrink-0 text-primary" />
+                          )}
                         </button>
                       );
                     })}
@@ -885,6 +915,7 @@ export default function CcnaStudyApp() {
   const searchParams = useSearchParams();
   const [dark, setDark] = useState(false);
   const [lightbox, setLightbox] = useState<Diagram | null>(null);
+  const { completed, isCompleted, toggle } = useCompletedTopics();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -900,6 +931,27 @@ export default function CcnaStudyApp() {
     if (!subtopic) return null;
     return { topic, subtopic };
   }, [topicSlug, subSlug]);
+
+  const flatList = useMemo(
+    () =>
+      topics.flatMap((t) =>
+        t.subtopics.map((s) => ({ topic: t, subtopic: s })),
+      ),
+    [],
+  );
+  const currentIndex = useMemo(() => {
+    if (!selected) return -1;
+    return flatList.findIndex(
+      (item) =>
+        item.topic.slug === selected.topic.slug &&
+        item.subtopic.slug === selected.subtopic.slug,
+    );
+  }, [flatList, selected]);
+  const prevItem = currentIndex > 0 ? flatList[currentIndex - 1] : null;
+  const nextItem =
+    currentIndex >= 0 && currentIndex < flatList.length - 1
+      ? flatList[currentIndex + 1]
+      : null;
 
   const select = (topic: Topic, subtopic: Subtopic) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -928,7 +980,11 @@ export default function CcnaStudyApp() {
       }
     >
       <div className="flex h-full">
-        <Sidebar selected={current?.slug} onSelect={select} />
+        <Sidebar
+          selected={current?.slug}
+          onSelect={select}
+          completed={completed}
+        />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -940,7 +996,12 @@ export default function CcnaStudyApp() {
               </SheetTrigger>
               <SheetContent side="left" className="w-80 p-0">
                 <SheetTitle className="sr-only">CCNA curriculum</SheetTitle>
-                <Sidebar selected={current?.slug} onSelect={select} mobile />
+                <Sidebar
+                  selected={current?.slug}
+                  onSelect={select}
+                  completed={completed}
+                  mobile
+                />
               </SheetContent>
             </Sheet>
             <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
@@ -1087,8 +1148,74 @@ export default function CcnaStudyApp() {
                     <SubnetPlanner />
                   </>
                 )}
-                <div className="mt-10">
-                  <QuickReference items={current.quickReference} />
+                <div className="mt-10 flex items-stretch gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      prevItem && select(prevItem.topic, prevItem.subtopic)
+                    }
+                    disabled={!prevItem}
+                    aria-label={
+                      prevItem
+                        ? `Previous: ${prevItem.subtopic.title}`
+                        : "No previous topic"
+                    }
+                    title={prevItem ? prevItem.subtopic.title : undefined}
+                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+
+                  <div className="flex-1">
+                    <QuickReference items={current.quickReference} />
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      nextItem && select(nextItem.topic, nextItem.subtopic)
+                    }
+                    disabled={!nextItem}
+                    aria-label={
+                      nextItem
+                        ? `Next: ${nextItem.subtopic.title}`
+                        : "No next topic"
+                    }
+                    title={nextItem ? nextItem.subtopic.title : undefined}
+                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      toggle(progressKey(selected.topic.slug, current.slug))
+                    }
+                    aria-label={
+                      isCompleted(
+                        progressKey(selected.topic.slug, current.slug),
+                      )
+                        ? "Mark as not completed"
+                        : "Mark as completed"
+                    }
+                    className={`group relative flex w-11 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                      isCompleted(
+                        progressKey(selected.topic.slug, current.slug),
+                      )
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "bg-card text-muted-foreground hover:border-primary/50 hover:text-primary"
+                    }`}
+                  >
+                    <Check className="size-4" />
+                    <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[11px] text-background opacity-0 shadow transition-opacity group-hover:opacity-100">
+                      {isCompleted(
+                        progressKey(selected.topic.slug, current.slug),
+                      )
+                        ? "Completed"
+                        : "Mark as completed"}
+                    </span>
+                  </button>
                 </div>
               </article>
             ) : (
