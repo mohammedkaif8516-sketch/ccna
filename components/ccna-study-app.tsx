@@ -425,7 +425,6 @@ const iconMap = {
   route: Route,
 };
 
-
 function DiagramLightbox({
   diagram,
   onClose,
@@ -564,63 +563,59 @@ function Sidebar({
             const topicPercent =
               totalCount === 0 ? 0 : (doneCount / totalCount) * 100;
             return (
-              <AccordionItem
-                value={topic.slug}
-                key={topic.slug}
-                className="border-b-0"
-              >
-                <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-accent hover:no-underline [&>svg]:size-3.5">
-                  <span className="flex min-w-0 flex-1 flex-col gap-1.5">
-                    <span className="flex items-center gap-2.5">
+              <div key={topic.slug} className="relative pl-2">
+                <div className="absolute left-0 top-0 h-full w-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`w-full transition-all duration-300 ${
+                      topicPercent === 100 ? "bg-primary" : "bg-primary/60"
+                    }`}
+                    style={{ height: `${topicPercent}%` }}
+                  />
+                </div>
+                <AccordionItem value={topic.slug} className="border-b-0">
+                  <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-accent hover:no-underline [&>svg]:size-3.5">
+                    <span className="flex min-w-0 flex-1 items-center gap-2.5">
                       <Icon className="size-4 shrink-0 text-muted-foreground" />
                       <span className="flex-1 truncate">{topic.title}</span>
                       <span className="shrink-0 text-[10px] font-normal tabular-nums text-muted-foreground">
                         {doneCount}/{totalCount}
                       </span>
                     </span>
-                    <span className="ml-[26px] h-1 overflow-hidden rounded-full bg-muted">
-                      <span
-                        className={`block h-full transition-all duration-300 ${
-                          topicPercent === 100 ? "bg-primary" : "bg-primary/60"
-                        }`}
-                        style={{ width: `${topicPercent}%` }}
-                      />
-                    </span>
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent className="pb-1 pt-0">
-                  <div className="ml-5 border-l pl-3">
-                    {topic.subtopics.map((subtopic, index) => {
-                      const isActive = selected === subtopic.slug;
-                      const isDone = completed.has(
-                        progressKey(topic.slug, subtopic.slug),
-                      );
-                      return (
-                        <button
-                          key={`${subtopic.slug}-${index}`}
-                          ref={isActive ? activeRef : null}
-                          onClick={() => onSelect(topic, subtopic)}
-                          className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
-                            isActive
-                              ? "bg-primary/10 font-medium text-primary"
-                              : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                          }`}
-                        >
-                          <ChevronRight
-                            className={`mt-0.5 size-3 shrink-0 ${
-                              isActive ? "text-primary" : "opacity-50"
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-1 pt-0">
+                    <div className="ml-5 border-l pl-3">
+                      {topic.subtopics.map((subtopic, index) => {
+                        const isActive = selected === subtopic.slug;
+                        const isDone = completed.has(
+                          progressKey(topic.slug, subtopic.slug),
+                        );
+                        return (
+                          <button
+                            key={`${subtopic.slug}-${index}`}
+                            ref={isActive ? activeRef : null}
+                            onClick={() => onSelect(topic, subtopic)}
+                            className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
+                              isActive
+                                ? "bg-primary/10 font-medium text-primary"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
                             }`}
-                          />
-                          <span className="flex-1">{subtopic.title}</span>
-                          {isDone && (
-                            <Check className="mt-0.5 size-3 shrink-0 text-primary" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                          >
+                            <ChevronRight
+                              className={`mt-0.5 size-3 shrink-0 ${
+                                isActive ? "text-primary" : "opacity-50"
+                              }`}
+                            />
+                            <span className="flex-1">{subtopic.title}</span>
+                            {isDone && (
+                              <Check className="mt-0.5 size-3 shrink-0 text-primary" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </div>
             );
           })}
         </Accordion>
@@ -1199,15 +1194,18 @@ export default function CcnaStudyApp() {
                         ? "Mark as not completed"
                         : "Mark as completed"
                     }
-                    className={`group relative flex w-11 shrink-0 items-center justify-center rounded-full border transition-colors ${
-                      isCompleted(
-                        progressKey(selected.topic.slug, current.slug),
-                      )
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "bg-card text-muted-foreground hover:border-primary/50 hover:text-primary"
-                    }`}
+                    className="group relative flex w-11 shrink-0 items-center justify-center transition-transform hover:scale-110"
                   >
-                    <Check className="size-4" />
+                    <Check
+                      strokeWidth={3}
+                      className={`size-6 transition-colors ${
+                        isCompleted(
+                          progressKey(selected.topic.slug, current.slug),
+                        )
+                          ? "text-primary"
+                          : "text-muted-foreground/40 group-hover:text-muted-foreground"
+                      }`}
+                    />
                     <span className="pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[11px] text-background opacity-0 shadow transition-opacity group-hover:opacity-100">
                       {isCompleted(
                         progressKey(selected.topic.slug, current.slug),
