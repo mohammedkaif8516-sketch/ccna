@@ -536,8 +536,8 @@ export const topics: Topic[] = [
           { label: 'Cat 5e', value: 'Pairs twisted around each other' },
         ],
         diagrams: [
-          { src: '/diagrams/twisted.png', alt: 'Shielded vs unshielded twisted pair cross-section', caption: 'STP vs UTP — shielding layers' },
-          { src: '/diagrams/cat5e.png', alt: 'Cat 5 and Cat 5e cross-section with plastic separator', caption: 'Cat 5 vs Cat 5e — plastic separator' },
+          { src: '/diagrams/utpstp_wide.png', alt: 'Shielded vs unshielded twisted pair cross-section', caption: 'STP vs UTP — shielding layers' },
+          { src: '/diagrams/catt_wide.png', alt: 'Cat 5 and Cat 5e cross-section with plastic separator', caption: 'Cat 5 vs Cat 5e — plastic separator' },
         ],
       },
       {

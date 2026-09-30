@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCompletedTopics, progressKey } from "@/lib/use-completed";
-import { useMemo, useState } from "react";
+import { useCompletedTopics, progressKey, useTheme } from "@/lib/use-completed";
+import { useMemo, useState, useTransition } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -424,6 +424,24 @@ const iconMap = {
   terminal: Terminal,
   route: Route,
 };
+
+function SquareLoader() {
+  return (
+    <div
+      className="flex items-center justify-center gap-1.5"
+      role="status"
+      aria-label="Loading"
+    >
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="size-2.5 animate-pulse rounded-[3px] bg-primary"
+          style={{ animationDelay: `${i * 0.2}s` }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function DiagramLightbox({
   diagram,
@@ -908,9 +926,10 @@ function Dashboard() {
 export default function CcnaStudyApp() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [dark, setDark] = useState(false);
+  const { dark, toggle: toggleTheme } = useTheme()
   const [lightbox, setLightbox] = useState<Diagram | null>(null);
   const { completed, isCompleted, toggle } = useCompletedTopics();
+  const [isPending, startTransition] = useTransition();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -952,28 +971,25 @@ export default function CcnaStudyApp() {
     const params = new URLSearchParams(searchParams.toString());
     params.set("topic", topic.slug);
     params.set("sub", subtopic.slug);
-    router.push(`?${params.toString()}`, { scroll: false });
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
     setMobileOpen(false);
   };
 
   const goHome = () => {
-    router.push("/", { scroll: false });
+    startTransition(() => {
+      router.push("/", { scroll: false });
+    });
     setMobileOpen(false);
   };
-
   const current = selected?.subtopic;
   const currentIcon = selected
     ? iconMap[selected.topic.icon as keyof typeof iconMap]
     : null;
 
   return (
-    <div
-      className={
-        dark
-          ? "dark h-screen overflow-hidden bg-background text-foreground"
-          : "h-screen overflow-hidden bg-background text-foreground"
-      }
-    >
+    <div className="h-screen overflow-hidden bg-background text-foreground">
       <div className="flex h-full">
         <Sidebar
           selected={current?.slug}
@@ -1031,13 +1047,18 @@ export default function CcnaStudyApp() {
                 aria-label={
                   dark ? "Switch to light mode" : "Switch to dark mode"
                 }
-                onClick={() => setDark(!dark)}
+                onClick={toggleTheme}
               >
                 {dark ? <Sun /> : <Moon />}
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-y-auto">
+          <main className="relative flex-1 overflow-y-auto">
+            {isPending && (
+              <div className="absolute inset-0 z-20 flex items-start justify-center bg-background/70 pt-24 backdrop-blur-[1px]">
+                <SquareLoader />
+              </div>
+            )}
             {current ? (
               <article className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
                 <Button
