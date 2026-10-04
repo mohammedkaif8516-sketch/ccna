@@ -512,15 +512,20 @@ function groupSubtopicsWithQuiz(
 ): GroupBlock[] {
   const groups: GroupBlock[] = []
 
-  // 1. Group subtopics by their `group` field (if any)
+  // Merge by name regardless of position. Map preserves insertion order.
+  const byName = new Map<string | null, GroupBlock>()
   for (const s of subtopics) {
     const name = s.group ?? null
-    const last = groups[groups.length - 1]
-    if (last && last.name === name) last.items.push(s)
-    else groups.push({ name, items: [s] })
+    let group = byName.get(name)
+    if (!group) {
+      group = { name, items: [] }
+      byName.set(name, group)
+      groups.push(group) // insertion order = first appearance
+    }
+    group.items.push(s)
   }
 
-  // 2. Attach a named-group quiz to each group that has one
+  // Attach group quizzes
   for (const group of groups) {
     if (!group.name) continue
     const q = quizFor(topicSlug, group.name)
@@ -528,25 +533,17 @@ function groupSubtopicsWithQuiz(
   }
 
   const hasGroups = subtopics.some((s) => s.group != null)
-
-  // Find any final quiz for this topic once, so both branches see it
   const finalQuiz = quizzes.find(
     (q) => q.topicSlug === topicSlug && q.final === true,
   )
 
-  // 3. Topic-wide (non-final) quiz — only when no final quiz exists
   if (!hasGroups && !finalQuiz && groups.length === 1 && groups[0].name === null) {
     const topicWideQuiz = quizFor(topicSlug, null)
     if (topicWideQuiz) groups[0].quiz = topicWideQuiz
   }
 
-  // 4. Final quiz row — only for topics that have no groups
   if (!hasGroups && finalQuiz) {
-    groups.push({
-      name: null,
-      items: [],
-      quiz: finalQuiz,
-    })
+    groups.push({ name: null, items: [], quiz: finalQuiz })
   }
 
   return groups
