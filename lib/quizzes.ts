@@ -522,7 +522,7 @@ export const quizzes: Quiz[] = [
         id: "ospf-concepts",
         topicSlug: "routing",
         group: "OSPF Theory",
-        title: "OSPF Concepts Quiz",
+        title: "OSPF Theory Quiz",
         questions: [
             {
                 id: "q1",

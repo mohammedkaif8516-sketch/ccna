@@ -55,15 +55,15 @@ import {
   Network,
   PanelLeft,
   Router,
-  Search,
-  Trophy,
+  ListChecks,
   Sun,
   ArrowLeft,
 } from "lucide-react";
 import { quizById } from "@/lib/quizzes";
 import { QuizView } from "@/components/quiz-view";
 import { useQuizScores } from "@/lib/use-quiz-score";
-import { quizFor,quizzes } from "@/lib/quizzes";
+import type { QuizScore } from "@/lib/use-quiz-score";
+import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
 import { useEffect, useRef } from "react";
 
 // ─────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ function prefixForHosts(hosts: number): number {
 type GroupBlock = {
   name: string | null;
   items: Subtopic[];
-  quizId?: string;
+  quiz?: Quiz;
 };
 
 type Block = {
@@ -520,38 +520,32 @@ function groupSubtopicsWithQuiz(
     else groups.push({ name, items: [s] })
   }
 
-  // 2. For each group that has a named quiz, attach it
+  // 2. Attach a named-group quiz to each group that has one
   for (const group of groups) {
-    if (!group.name) continue // skip the null-name group for now
+    if (!group.name) continue
     const q = quizFor(topicSlug, group.name)
-    if (q) group.quizId = q.id
+    if (q) group.quiz = q
   }
 
-  // 3. If the topic has NO groups at all, and it has a NON-final topic-wide
-  //    quiz, attach that quiz to the single null-named group.
-  //    (If the topic-wide quiz is `final: true`, step 4 handles it.)
-  if (groups.length === 1 && groups[0].name === null) {
-    const finalQuiz = quizzes.find(
-      (q) => q.topicSlug === topicSlug && q.final === true,
-    )
-    const topicWideQuiz = quizFor(topicSlug, null)
-    // Only attach the topic-wide (non-final) quiz here.
-    // If a final quiz exists, it'll be rendered by step 4 instead.
-    if (topicWideQuiz && !finalQuiz) {
-      groups[0].quizId = topicWideQuiz.id
-    }
-  }
+  const hasGroups = subtopics.some((s) => s.group != null)
 
-  // 4. If the topic has a `final: true` quiz, append a dedicated
-  //    "Final Quiz" block at the bottom of the list.
+  // Find any final quiz for this topic once, so both branches see it
   const finalQuiz = quizzes.find(
     (q) => q.topicSlug === topicSlug && q.final === true,
   )
-  if (finalQuiz) {
+
+  // 3. Topic-wide (non-final) quiz — only when no final quiz exists
+  if (!hasGroups && !finalQuiz && groups.length === 1 && groups[0].name === null) {
+    const topicWideQuiz = quizFor(topicSlug, null)
+    if (topicWideQuiz) groups[0].quiz = topicWideQuiz
+  }
+
+  // 4. Final quiz row — only for topics that have no groups
+  if (!hasGroups && finalQuiz) {
     groups.push({
-      name: "Final Quiz",
+      name: null,
       items: [],
-      quizId: finalQuiz.id,
+      quiz: finalQuiz,
     })
   }
 
@@ -564,6 +558,7 @@ function Sidebar({
   onSelect,
   onSelectQuiz,
   completed,
+  bestFor,
   mobile = false,
 }: {
   selected?: string;
@@ -571,6 +566,7 @@ function Sidebar({
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
   onSelectQuiz: (quizId: string) => void;
   completed: Set<string>;
+  bestFor: (quizId: string) => QuizScore | undefined;
   mobile?: boolean;
 }) {
   const activeRef = useRef<HTMLButtonElement | null>(null);
@@ -675,11 +671,15 @@ function Sidebar({
                           const groupDone = group.items.filter((s) =>
                             completed.has(progressKey(topic.slug, s.slug)),
                           ).length;
-                          const isActiveQuiz = group.quizId === selectedQuizId;
+                          const isQuizActive =
+                            group.quiz?.id === selectedQuizId;
+                          const score = group.quiz
+                            ? bestFor(group.quiz.id)
+                            : undefined;
 
                           return (
                             <div
-                              key={`${group.name ?? "general"}-${gi}`}
+                              key={`${group.name ?? "tail"}-${gi}`}
                               className={group.name && gi > 0 ? "mt-3" : ""}
                             >
                               {group.name && (
@@ -701,7 +701,7 @@ function Sidebar({
                                     key={`${subtopic.slug}-${index}`}
                                     ref={isActive ? activeRef : null}
                                     onClick={() => onSelect(topic, subtopic)}
-                                    className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
+                                    className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
                                       isActive
                                         ? "bg-primary/10 font-medium text-primary"
                                         : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -722,18 +722,25 @@ function Sidebar({
                                 );
                               })}
 
-                              {group.quizId && (
+                              {group.quiz && (
                                 <button
-                                  type="button"
-                                  onClick={() => onSelectQuiz(group.quizId!)}
-                                  className={`mt-2 flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-xs font-medium transition-colors ${
-                                    isActiveQuiz
-                                      ? "border-primary bg-primary/15 text-primary"
-                                      : "border-dashed border-primary/40 bg-primary/[0.04] text-primary hover:border-primary hover:bg-primary/10"
+                                  ref={isQuizActive ? activeRef : null}
+                                  onClick={() => onSelectQuiz(group.quiz!.id)}
+                                  className={`mt-1 flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+                                    isQuizActive
+                                      ? "bg-primary/10 font-medium text-primary"
+                                      : "text-foreground/80 hover:bg-accent"
                                   }`}
                                 >
-                                  <Trophy className="size-3.5 shrink-0" />
-                                  <span className="flex-1">Take the quiz</span>
+                                  <ListChecks className="mt-0.5 size-3 shrink-0 text-primary" />
+                                  <span className="flex-1 font-medium">
+                                    Quiz
+                                  </span>
+                                  <span className="mt-px shrink-0 text-[10px] tabular-nums text-muted-foreground">
+                                    {score
+                                      ? `${score.best}/${score.total}`
+                                      : "Not taken"}
+                                  </span>
                                 </button>
                               )}
                             </div>
@@ -1128,6 +1135,7 @@ export default function CcnaStudyApp() {
           onSelect={select}
           onSelectQuiz={selectQuiz}
           completed={completed}
+          bestFor={bestFor}
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
@@ -1146,6 +1154,7 @@ export default function CcnaStudyApp() {
                   onSelect={select}
                   onSelectQuiz={selectQuiz}
                   completed={completed}
+                  bestFor={bestFor}
                   mobile
                 />
               </SheetContent>
