@@ -511,31 +511,50 @@ function groupSubtopicsWithQuiz(
   topicSlug: string,
 ): GroupBlock[] {
   const groups: GroupBlock[] = []
+
+  // 1. Group subtopics by their `group` field (if any)
   for (const s of subtopics) {
     const name = s.group ?? null
     const last = groups[groups.length - 1]
     if (last && last.name === name) last.items.push(s)
     else groups.push({ name, items: [s] })
   }
+
+  // 2. For each group that has a named quiz, attach it
   for (const group of groups) {
+    if (!group.name) continue // skip the null-name group for now
     const q = quizFor(topicSlug, group.name)
     if (q) group.quizId = q.id
   }
-  if (groups.length === 0) {
-    const q = quizFor(topicSlug, null)
-    if (q) groups.push({ name: null, items: [], quizId: q.id })
+
+  // 3. If the topic has NO groups at all, and it has a NON-final topic-wide
+  //    quiz, attach that quiz to the single null-named group.
+  //    (If the topic-wide quiz is `final: true`, step 4 handles it.)
+  if (groups.length === 1 && groups[0].name === null) {
+    const finalQuiz = quizzes.find(
+      (q) => q.topicSlug === topicSlug && q.final === true,
+    )
+    const topicWideQuiz = quizFor(topicSlug, null)
+    // Only attach the topic-wide (non-final) quiz here.
+    // If a final quiz exists, it'll be rendered by step 4 instead.
+    if (topicWideQuiz && !finalQuiz) {
+      groups[0].quizId = topicWideQuiz.id
+    }
   }
-  // NEW: append a topic-wide "Final quiz" block if one exists
+
+  // 4. If the topic has a `final: true` quiz, append a dedicated
+  //    "Final Quiz" block at the bottom of the list.
   const finalQuiz = quizzes.find(
     (q) => q.topicSlug === topicSlug && q.final === true,
   )
   if (finalQuiz) {
     groups.push({
-      name: 'Final Quiz',
+      name: "Final Quiz",
       items: [],
       quizId: finalQuiz.id,
     })
   }
+
   return groups
 }
 

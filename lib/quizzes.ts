@@ -20,6 +20,278 @@ export type Quiz = {
 }
 
 export const quizzes: Quiz[] = [
+
+      // ─────────────────────────────────────────────────────────────
+  // 01 · INTRODUCTION TO NETWORKING  
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "introduction-to-networking-final",
+    topicSlug: "introduction-to-networking",
+    final: true,
+    title: "Introduction to Networking  ",
+    questions: [
+      {
+        id: "q1",
+        prompt: "What is the simplest definition of a computer network?",
+        options: [
+          "A group of computers in one room",
+          "Devices connected by a medium for the purpose of exchanging information",
+          "Any device with an IP address",
+          "A system of cables and routers",
+        ],
+        answer: 1,
+        explanation:
+          "A network = devices + medium + purpose (exchanging information).",
+      },
+      {
+        id: "q2",
+        prompt: "Which network type covers a single office or home?",
+        options: ["WAN", "MAN", "LAN", "SAN"],
+        answer: 2,
+        explanation:
+          "LAN = Local Area Network. Small geographic area, private, high speed.",
+      },
+      {
+        id: "q3",
+        prompt: "Which of these is a private IP range reserved by RFC 1918?",
+        options: ["8.8.8.0/24", "192.168.0.0/16", "1.1.1.0/24", "172.15.0.0/16"],
+        answer: 1,
+        explanation:
+          "Private ranges are 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16.",
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 02 · THE OSI REFERENCE MODEL  
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "osi-reference-model-final",
+    topicSlug: "osi-reference-model",
+    final: true,
+    title: "OSI Reference Model  ",
+    questions: [
+      {
+        id: "q1",
+        prompt: "How many layers does the OSI model have?",
+        options: ["4", "5", "6", "7"],
+        answer: 3,
+        explanation:
+          "OSI is a 7-layer model — Physical, Data-Link, Network, Transport, Session, Presentation, Application.",
+      },
+      {
+        id: "q2",
+        prompt: "Which OSI layer handles logical addressing and routing?",
+        options: ["Layer 2", "Layer 3", "Layer 4", "Layer 5"],
+        answer: 1,
+        explanation:
+          "Layer 3 (Network) handles IP addressing and routing. The PDU is a packet.",
+      },
+      {
+        id: "q3",
+        prompt: "The Transport layer PDU is called a…",
+        options: ["Frame", "Packet", "Segment", "Bit"],
+        answer: 2,
+        explanation:
+          "Transport PDU = Segment. Network = Packet. Data-Link = Frame. Physical = Bits.",
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 03 · ETHERNET & NETWORK CABLING  
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ethernet-network-cabling-final",
+    topicSlug: "ethernet-network-cabling",
+    final: true,
+    title: "Ethernet & Network Cabling  ",
+    questions: [
+      {
+        id: "q1",
+        prompt: "What is the maximum distance for a twisted-pair Ethernet cable?",
+        options: ["10 m", "100 m", "500 m", "1 km"],
+        answer: 1,
+        explanation:
+          "Twisted-pair max distance is 100 metres, with a maximum speed of 1 Gbps.",
+      },
+      {
+        id: "q2",
+        prompt: "Which fibre type carries a single ray of light over long distances?",
+        options: ["Multi-mode", "Single-mode", "Coaxial", "Twisted pair"],
+        answer: 1,
+        explanation:
+          "Single-mode fibre uses a small core and one ray of light — used for long-haul (KM) links.",
+      },
+      {
+        id: "q3",
+        prompt: "Which cable type is used to connect two switches together?",
+        options: [
+          "Straight-through",
+          "Crossover (or straight-through with Auto MDI-X)",
+          "Rollover",
+          "Coaxial",
+        ],
+        answer: 1,
+        explanation:
+          "Same-type devices traditionally used a crossover cable; modern devices with Auto MDI-X can auto-detect and use a straight-through.",
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 04 · NETWORK DEVICES & TRAFFIC FLOW  
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "network-devices-traffic-flow-final",
+    topicSlug: "network-devices-traffic-flow",
+    final: true,
+    title: "Network Devices & Traffic Flow  ",
+    questions: [
+      {
+        id: "q1",
+        prompt: "Which OSI layer does a switch operate at?",
+        options: ["Layer 1", "Layer 2", "Layer 3", "Layer 4"],
+        answer: 1,
+        explanation:
+          "A switch is a Layer 2 device that forwards frames based on MAC addresses.",
+      },
+      {
+        id: "q2",
+        prompt: "How many collision domains does a switch have per port?",
+        options: ["Zero", "One shared", "One per port", "Two per port"],
+        answer: 2,
+        explanation:
+          "Every switch port has its own collision domain. The broadcast domain is shared across all ports by default.",
+      },
+      {
+        id: "q3",
+        prompt: "Which delivery type is one-to-nearest?",
+        options: ["Unicast", "Multicast", "Broadcast", "Anycast"],
+        answer: 3,
+        explanation:
+          "Anycast = one-to-nearest. IPv6 uses anycast heavily, and it removes broadcast entirely.",
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 05 · IP ADDRESSING & SUBNETTING  
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "ip-addressing-subnetting-final",
+    topicSlug: "ip-addressing-subnetting",
+    final: true,
+    title: "IP Addressing & Subnetting  ",
+    questions: [
+      {
+        id: "q1",
+        prompt: "How many bits are in an IPv4 address?",
+        options: ["16", "32", "64", "128"],
+        answer: 1,
+        explanation:
+          "IPv4 is 32 bits (four octets of 8 bits). IPv6 is 128 bits.",
+      },
+      {
+        id: "q2",
+        prompt: "Which mask corresponds to a /26 prefix?",
+        options: [
+          "255.255.255.128",
+          "255.255.255.192",
+          "255.255.255.224",
+          "255.255.255.240",
+        ],
+        answer: 1,
+        explanation:
+          "/26 = 255.255.255.192, block size 64, 62 usable hosts.",
+      },
+      {
+        id: "q3",
+        prompt: "How many usable hosts does a /28 subnet provide?",
+        options: ["16", "14", "30", "62"],
+        answer: 1,
+        explanation:
+          "A /28 has 16 addresses total (block size 16), minus network + broadcast = 14 usable hosts.",
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 06 · TRANSPORT LAYER PROTOCOLS & PORTS  
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "transport-layer-protocols-ports-final",
+    topicSlug: "transport-layer-protocols-ports",
+    final: true,
+    title: "Transport Layer Protocols & Ports  ",
+    questions: [
+      {
+        id: "q1",
+        prompt: "Which protocol is connection-oriented and reliable?",
+        options: ["UDP", "TCP", "ICMP", "ARP"],
+        answer: 1,
+        explanation:
+          "TCP is connection-oriented — it establishes a 3-way handshake, guarantees delivery, and provides flow control. UDP is connectionless and unreliable.",
+      },
+      {
+        id: "q2",
+        prompt: "Which TCP flag is used to gracefully terminate a connection?",
+        options: ["SYN", "ACK", "FIN", "RST"],
+        answer: 2,
+        explanation:
+          "FIN terminates a connection gracefully (via a 4-way handshake). RST forcefully terminates without handshake.",
+      },
+      {
+        id: "q3",
+        prompt: "What is the port range for well-known ports?",
+        options: ["0 – 1023", "1024 – 49151", "49152 – 65535", "1 – 999"],
+        answer: 0,
+        explanation:
+          "Well-known ports are 0–1023 (HTTP=80, HTTPS=443, Telnet=23, SSH=22). Registered ports are 1024–49151, ephemeral are 49152–65535.",
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 07 · ROUTER FUNDAMENTALS & CLI  
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: "router-fundamentals-cli-final",
+    topicSlug: "router-fundamentals-cli",
+    final: true,
+    title: "Router Fundamentals & CLI  ",
+    questions: [
+      {
+        id: "q1",
+        prompt: "Where is the IOS stored on a Cisco router?",
+        options: ["ROM", "RAM", "NVRAM", "Flash"],
+        answer: 3,
+        explanation:
+          "IOS lives in Flash. ROM holds ROMMON, RAM holds running-config, NVRAM holds startup-config.",
+      },
+      {
+        id: "q2",
+        prompt: "Which command saves the running-config to NVRAM?",
+        options: [
+          "copy startup-config running-config",
+          "copy running-config startup-config",
+          "write erase",
+          "save config",
+        ],
+        answer: 1,
+        explanation:
+          "copy run start (or just `write`) saves the running-config into NVRAM as startup-config.",
+      },
+      {
+        id: "q3",
+        prompt: "What is the port number for SSH?",
+        options: ["21", "22", "23", "25"],
+        answer: 1,
+        explanation:
+          "SSH = 22 (encrypted). Telnet = 23 (plain text, unencrypted).",
+      },
+    ],
+  },
     {
         id: "routing-basics",
         topicSlug: "routing",
@@ -184,9 +456,72 @@ export const quizzes: Quiz[] = [
         ],
     },
     {
+  id: "eigrp-tuning",
+  topicSlug: "routing",
+  group: "EIGRP Tuning",
+  title: "EIGRP Tuning Quiz",
+  questions: [
+    {
+      id: "q1",
+      prompt: "By default, across how many equal-cost paths does EIGRP load-balance?",
+      options: ["1", "4", "8", "16"],
+      answer: 1,
+      explanation:
+        "The default is 4 paths. The maximum is 16, set with maximum-paths.",
+    },
+    {
+      id: "q2",
+      prompt: "Which setting enables unequal-cost load balancing in EIGRP?",
+      options: [
+        "maximum-paths 1",
+        "variance",
+        "passive-interface",
+        "auto-summary",
+      ],
+      answer: 1,
+      explanation:
+        "Raising variance above 1 lets EIGRP use feasible successors as well as successors.",
+    },
+    {
+      id: "q3",
+      prompt: "What does the command `maximum-paths 1` do?",
+      options: [
+        "Disables load balancing",
+        "Disables EIGRP on the router",
+        "Enables unequal-cost load balancing",
+        "Limits the router to one neighbour",
+      ],
+      answer: 0,
+      explanation:
+        "With a maximum of one path, only the single best route is installed — no load balancing.",
+    },
+    {
+      id: "q4",
+      prompt: "What is the default EIGRP hello timer interval?",
+      options: ["1 second", "5 seconds", "10 seconds", "30 seconds"],
+      answer: 1,
+      explanation:
+        "EIGRP's Hello timer defaults to 5 seconds, with a 15-second hold timer (1:3 ratio).",
+    },
+    {
+      id: "q5",
+      prompt: "How can path selection be manipulated in EIGRP?",
+      options: [
+        "By changing the interface's delay value",
+        "By disabling Spanning Tree",
+        "By renaming the interface",
+        "By clearing the ARP cache",
+      ],
+      answer: 0,
+      explanation:
+        "Increasing an interface's delay raises the metric on that path, which can force a different path to be chosen.",
+    },
+  ],
+},
+    {
         id: "ospf-concepts",
         topicSlug: "routing",
-        group: "OSPF Concepts",
+        group: "OSPF Theory",
         title: "OSPF Concepts Quiz",
         questions: [
             {
@@ -250,7 +585,7 @@ export const quizzes: Quiz[] = [
   id: "routing-final",
   topicSlug: "routing",
   final: true,
-  title: "Routing — Final Quiz",
+  title: "Routing  ",
   questions: [
     // Mix of questions from Routing Basics, Static, RIP, EIGRP, OSPF
     // Aim for 10–15 questions here since it's the topic-wide test
