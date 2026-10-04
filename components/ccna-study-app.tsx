@@ -56,9 +56,14 @@ import {
   PanelLeft,
   Router,
   Search,
+  Trophy,
   Sun,
   ArrowLeft,
 } from "lucide-react";
+import { quizById } from "@/lib/quizzes";
+import { QuizView } from "@/components/quiz-view";
+import { useQuizScores } from "@/lib/use-quiz-score";
+import { quizFor,quizzes } from "@/lib/quizzes";
 import { useEffect, useRef } from "react";
 
 // ─────────────────────────────────────────────────────────────
@@ -82,6 +87,12 @@ function prefixForHosts(hosts: number): number {
   while (needed < hosts + 2) needed *= 2;
   return 32 - Math.log2(needed);
 }
+
+type GroupBlock = {
+  name: string | null;
+  items: Subtopic[];
+  quizId?: string;
+};
 
 type Block = {
   label: string;
@@ -495,25 +506,51 @@ function DiagramLightbox({
   );
 }
 
-function groupSubtopics(subtopics: Subtopic[]) {
-  const groups: { name: string | null; items: Subtopic[] }[] = [];
+function groupSubtopicsWithQuiz(
+  subtopics: Subtopic[],
+  topicSlug: string,
+): GroupBlock[] {
+  const groups: GroupBlock[] = []
   for (const s of subtopics) {
-    const name = s.group ?? null;
-    const last = groups[groups.length - 1];
-    if (last && last.name === name) last.items.push(s);
-    else groups.push({ name, items: [s] });
+    const name = s.group ?? null
+    const last = groups[groups.length - 1]
+    if (last && last.name === name) last.items.push(s)
+    else groups.push({ name, items: [s] })
   }
-  return groups;
+  for (const group of groups) {
+    const q = quizFor(topicSlug, group.name)
+    if (q) group.quizId = q.id
+  }
+  if (groups.length === 0) {
+    const q = quizFor(topicSlug, null)
+    if (q) groups.push({ name: null, items: [], quizId: q.id })
+  }
+  // NEW: append a topic-wide "Final quiz" block if one exists
+  const finalQuiz = quizzes.find(
+    (q) => q.topicSlug === topicSlug && q.final === true,
+  )
+  if (finalQuiz) {
+    groups.push({
+      name: 'Final Quiz',
+      items: [],
+      quizId: finalQuiz.id,
+    })
+  }
+  return groups
 }
 
 function Sidebar({
   selected,
+  selectedQuizId,
   onSelect,
+  onSelectQuiz,
   completed,
   mobile = false,
 }: {
   selected?: string;
+  selectedQuizId?: string;
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
+  onSelectQuiz: (quizId: string) => void;
   completed: Set<string>;
   mobile?: boolean;
 }) {
@@ -614,55 +651,77 @@ function Sidebar({
                   </AccordionTrigger>
                   <AccordionContent className="pb-1 pt-0">
                     <div className="ml-5 border-l pl-3">
-  {groupSubtopics(topic.subtopics).map((group, gi) => {
-    const groupDone = group.items.filter((s) =>
-      completed.has(progressKey(topic.slug, s.slug)),
-    ).length;
+                      {groupSubtopicsWithQuiz(topic.subtopics, topic.slug).map(
+                        (group, gi) => {
+                          const groupDone = group.items.filter((s) =>
+                            completed.has(progressKey(topic.slug, s.slug)),
+                          ).length;
+                          const isActiveQuiz = group.quizId === selectedQuizId;
 
-    return (
-      <div
-        key={`${group.name ?? "general"}-${gi}`}
-        className={group.name && gi > 0 ? "mt-3" : ""}
-      >
-        {group.name && (
-          <p className="flex items-center justify-between px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
-            <span>{group.name}</span>
-            <span className="font-normal tabular-nums">
-              {groupDone}/{group.items.length}
-            </span>
-          </p>
-        )}
+                          return (
+                            <div
+                              key={`${group.name ?? "general"}-${gi}`}
+                              className={group.name && gi > 0 ? "mt-3" : ""}
+                            >
+                              {group.name && (
+                                <p className="flex items-center justify-between px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+                                  <span>{group.name}</span>
+                                  <span className="font-normal tabular-nums">
+                                    {groupDone}/{group.items.length}
+                                  </span>
+                                </p>
+                              )}
 
-        {group.items.map((subtopic, index) => {
-          const isActive = selected === subtopic.slug;
-          const isDone = completed.has(progressKey(topic.slug, subtopic.slug));
-          return (
-            <button
-              key={`${subtopic.slug}-${index}`}
-              ref={isActive ? activeRef : null}
-              onClick={() => onSelect(topic, subtopic)}
-              className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
-                isActive
-                  ? "bg-primary/10 font-medium text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              <ChevronRight
-                className={`mt-0.5 size-3 shrink-0 ${
-                  isActive ? "text-primary" : "opacity-50"
-                }`}
-              />
-              <span className="flex-1">{subtopic.title}</span>
-              {isDone && (
-                <Check className="mt-0.5 size-3 shrink-0 text-primary" />
-              )}
-            </button>
-          );
-        })}
-      </div>
-    );
-  })}
-</div>
+                              {group.items.map((subtopic, index) => {
+                                const isActive = selected === subtopic.slug;
+                                const isDone = completed.has(
+                                  progressKey(topic.slug, subtopic.slug),
+                                );
+                                return (
+                                  <button
+                                    key={`${subtopic.slug}-${index}`}
+                                    ref={isActive ? activeRef : null}
+                                    onClick={() => onSelect(topic, subtopic)}
+                                    className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
+                                      isActive
+                                        ? "bg-primary/10 font-medium text-primary"
+                                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                    }`}
+                                  >
+                                    <ChevronRight
+                                      className={`mt-0.5 size-3 shrink-0 ${
+                                        isActive ? "text-primary" : "opacity-50"
+                                      }`}
+                                    />
+                                    <span className="flex-1">
+                                      {subtopic.title}
+                                    </span>
+                                    {isDone && (
+                                      <Check className="mt-0.5 size-3 shrink-0 text-primary" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+
+                              {group.quizId && (
+                                <button
+                                  type="button"
+                                  onClick={() => onSelectQuiz(group.quizId!)}
+                                  className={`mt-2 flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-xs font-medium transition-colors ${
+                                    isActiveQuiz
+                                      ? "border-primary bg-primary/15 text-primary"
+                                      : "border-dashed border-primary/40 bg-primary/[0.04] text-primary hover:border-primary hover:bg-primary/10"
+                                  }`}
+                                >
+                                  <Trophy className="size-3.5 shrink-0" />
+                                  <span className="flex-1">Take the quiz</span>
+                                </button>
+                              )}
+                            </div>
+                          );
+                        },
+                      )}
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               </div>
@@ -958,17 +1017,21 @@ function Dashboard() {
 export default function CcnaStudyApp() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { dark, toggle: toggleTheme } = useTheme()
+  const { dark, toggle: toggleTheme } = useTheme();
   const [lightbox, setLightbox] = useState<Diagram | null>(null);
   const { completed, isCompleted, toggle } = useCompletedTopics();
+  const { bestFor, saveScore } = useQuizScores();
   const [isPending, startTransition] = useTransition();
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Read topic + sub from the URL on every render
+  // 1. Read params from URL
   const topicSlug = searchParams.get("topic");
   const subSlug = searchParams.get("sub");
+  const quizParam = searchParams.get("quiz");
 
+  // 2. Resolve the normal subtopic (unchanged from before)
   const selected = useMemo(() => {
     if (!topicSlug || !subSlug) return null;
     const topic = topics.find((t) => t.slug === topicSlug);
@@ -977,6 +1040,33 @@ export default function CcnaStudyApp() {
     if (!subtopic) return null;
     return { topic, subtopic };
   }, [topicSlug, subSlug]);
+
+  // 3. Resolve the quiz (NEW)
+  const selectedQuiz = useMemo(() => {
+    if (!quizParam) return null;
+    return quizById(quizParam) ?? null;
+  }, [quizParam]);
+
+  // 4. Two navigation actions
+  const selectQuiz = (quizId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("quiz", quizId);
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
+    setMobileOpen(false);
+  };
+
+  const select = (topic: Topic, subtopic: Subtopic) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("topic", topic.slug);
+    params.set("sub", subtopic.slug);
+    params.delete("quiz");
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
+    setMobileOpen(false);
+  };
 
   const flatList = useMemo(
     () =>
@@ -999,16 +1089,6 @@ export default function CcnaStudyApp() {
       ? flatList[currentIndex + 1]
       : null;
 
-  const select = (topic: Topic, subtopic: Subtopic) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("topic", topic.slug);
-    params.set("sub", subtopic.slug);
-    startTransition(() => {
-      router.push(`?${params.toString()}`, { scroll: false });
-    });
-    setMobileOpen(false);
-  };
-
   const goHome = () => {
     startTransition(() => {
       router.push("/", { scroll: false });
@@ -1025,7 +1105,9 @@ export default function CcnaStudyApp() {
       <div className="flex h-full">
         <Sidebar
           selected={current?.slug}
+          selectedQuizId={selectedQuiz?.id}
           onSelect={select}
+          onSelectQuiz={selectQuiz}
           completed={completed}
         />
         <div className="flex min-w-0 flex-1 flex-col">
@@ -1041,7 +1123,9 @@ export default function CcnaStudyApp() {
                 <SheetTitle className="sr-only">CCNA curriculum</SheetTitle>
                 <Sidebar
                   selected={current?.slug}
+                  selectedQuizId={selectedQuiz?.id}
                   onSelect={select}
+                  onSelectQuiz={selectQuiz}
                   completed={completed}
                   mobile
                 />
@@ -1091,7 +1175,16 @@ export default function CcnaStudyApp() {
                 <SquareLoader />
               </div>
             )}
-            {current ? (
+            {selectedQuiz ? (
+              <QuizView
+                quiz={selectedQuiz}
+                best={bestFor(selectedQuiz.id)}
+                onFinish={(score, total) =>
+                  saveScore(selectedQuiz.id, score, total)
+                }
+                onBack={goHome}
+              />
+            ) : current ? (
               <article className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
                 <Button
                   variant="ghost"
