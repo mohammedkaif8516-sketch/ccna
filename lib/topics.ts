@@ -15,6 +15,7 @@ export type Subtopic = {
   slug: string
   title: string
   description: string
+  group?: string;
   blocks: NoteBlock[]
   quickReference: { label: string; value: string }[]
   diagrams?: Diagram[]
@@ -1660,6 +1661,7 @@ export const topics: Topic[] = [
       {
         slug: 'routing-table-basics-connected-vs-unknown-networks',
         title: 'Routing Table basics (Connected vs. Unknown networks)',
+        group: 'Routing Basics',
         description: 'A router forwards traffic between networks using entries in its routing table — the best available paths to reach each destination network.',
         blocks: [
           { type: 'heading', text: 'Routing' },
@@ -1685,6 +1687,7 @@ export const topics: Topic[] = [
       {
         slug: 'static-routing-mechanics-and-configuration-syntax',
         title: 'Static Routing mechanics and configuration syntax',
+        group: 'Routing Basics',
         description: 'Static routing means manually configuring a route in every router for every unknown network, using the ip route command.',
         blocks: [
           { type: 'heading', text: 'Static routing' },
@@ -1705,6 +1708,7 @@ export const topics: Topic[] = [
       {
         slug: 'static-vs-dynamic-routing-advantages-and-disadvantages',
         title: 'Static vs. Dynamic Routing (Advantages and Disadvantages)',
+        group: 'Routing Basics',
         description: 'Static routing gives full control with no overhead but doesn\'t adapt to change; dynamic routing adapts automatically at the cost of CPU and bandwidth.',
         blocks: [
           { type: 'heading', text: 'Advantages of static routing' },
@@ -1746,6 +1750,7 @@ export const topics: Topic[] = [
       {
         slug: 'administrative-distance-ad-and-route-selection-criteria',
         title: 'Administrative Distance (AD) and Route Selection Criteria',
+        group: 'Static & Default Routing',
         description: 'A router picks the best route using three criteria in order: longest prefix match, lowest metric, then lowest Administrative Distance.',
         blocks: [
           { type: 'heading', text: 'Route decision criteria (in order)' },
@@ -1793,6 +1798,7 @@ export const topics: Topic[] = [
       {
         slug: 'advanced-static-routing-floating-static-routes-for-redundancy-null-0-routes-for-discarding-traffic',
         title: 'Advanced Static Routing (Floating Static Routes for redundancy, Null 0 Routes for discarding traffic)',
+        group: 'Static & Default Routing',
         description: 'Floating static routes create a primary/backup pair by manipulating AD; Null0 routes silently discard traffic to a given network.',
         blocks: [
           { type: 'heading', text: 'Floating static routes' },
@@ -1822,6 +1828,7 @@ export const topics: Topic[] = [
       {
         slug: 'default-routing-gateway-of-last-resort-pe-to-ce-internet-routing',
         title: 'Default Routing (Gateway of Last Resort / PE to CE internet routing)',
+        group: 'Static & Default Routing',
         description: 'A default route matches any destination not found elsewhere in the routing table — in Cisco terms, the gateway of last resort.',
         blocks: [
           { type: 'heading', text: 'Gateway of last resort' },
@@ -1855,6 +1862,7 @@ export const topics: Topic[] = [
       {
         slug: 'dynamic-routing-protocols-overview-autonomous-systems-igp-vs-egp-distance-vector-link-state-hybrid',
         title: 'Dynamic Routing Protocols Overview (Autonomous Systems, IGP vs. EGP, Distance Vector / Link State / Hybrid)',
+        group: 'Dynamic & RIP',
         description: 'Dynamic routing protocols are grouped by scope — IGP within an autonomous system, EGP between them — and by the algorithm used to calculate routes.',
         blocks: [
           { type: 'heading', text: 'Autonomous System (AS)' },
@@ -1880,6 +1888,7 @@ export const topics: Topic[] = [
       {
         slug: 'rip-fundamentals-distance-vector-hop-count-limit-of-15-bellman-ford-algorithm',
         title: 'RIP Fundamentals (Distance Vector, Hop count limit of 15, Bellman-Ford algorithm)',
+        group: 'Dynamic & RIP',
         description: 'RIP is a simple, open-source distance-vector protocol that picks the path with the fewest hops, capped at 15 within an autonomous system.',
         blocks: [
           {
@@ -1908,6 +1917,7 @@ export const topics: Topic[] = [
       {
         slug: 'rip-path-selection-equal-cost-load-balancing-hexagonal-topology',
         title: 'RIP Path Selection (Equal-Cost Load Balancing, Hexagonal Topology)',
+        group: 'Dynamic & RIP',
         description: 'RIP selects the path with the lowest hop count. When two paths have the same hop count, RIP load-balances across both by default.',
         blocks: [
           { type: 'heading', text: 'How RIP picks a path' },
@@ -1947,6 +1957,7 @@ export const topics: Topic[] = [
       {
         slug: 'ripv1-classful-broadcast-vs-ripv2-classless-multicast-224-0-0-9',
         title: 'RIPv1 (Classful, Broadcast) vs. RIPv2 (Classless, Multicast 224.0.0.9)',
+        group: 'Dynamic & RIP',
         description: 'RIPv2 improved on RIPv1 by supporting classless addressing (FLSM/VLSM) and switching from broadcast to multicast updates.',
         blocks: [
           { type: 'heading', text: 'RIPv1' },
@@ -1975,6 +1986,7 @@ export const topics: Topic[] = [
       {
         slug: 'rip-timers-update-invalid-hold-down-flush',
         title: 'RIP Timers (Update, Invalid, Hold-down, Flush)',
+        group: 'Dynamic & RIP',
         description: 'RIP relies on four timers to send updates and to age out and remove a route that stops being heard from.',
         blocks: [
           { type: 'heading', text: 'Update Timer' },
@@ -1994,6 +2006,7 @@ export const topics: Topic[] = [
       {
         slug: 'rip-configuration-passive-interfaces-route-summarization-auto-summary',
         title: 'RIP Configuration, Passive Interfaces, & Route Summarization (Auto-summary)',
+        group: 'Dynamic & RIP',
         description: 'Enabling RIP, controlling which interfaces advertise, and summarizing routes to keep the routing table efficient.',
         blocks: [
           { type: 'heading', text: 'RIPv1 configuration' },
@@ -2038,6 +2051,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-fundamentals-advanced-distance-vector-hybrid-dual-algorithm-as-numbers-rtp-protocol-88',
         title: 'EIGRP Fundamentals (Advanced Distance Vector/Hybrid, DUAL algorithm, AS numbers, RTP, Protocol 88)',
+        group: 'EIGRP Theory',
         description: 'EIGRP combines distance-vector and link-state ideas into a hybrid protocol, using its own transport (Protocol 88) and only updating when the topology actually changes.',
         blocks: [
           { type: 'heading', text: 'What EIGRP is' },
@@ -2097,6 +2111,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-route-types-internal-ad-90-external-redistributed-ad-170-summarized-ad-5',
         title: 'EIGRP Route Types (Internal [AD 90], External/Redistributed [AD 170], Summarized [AD 5])',
+        group: 'EIGRP Theory',
         description: 'EIGRP marks routes differently in the routing table depending on whether they originated inside the AS, were redistributed from elsewhere, or were manually summarized.',
         blocks: [
           { type: 'heading', text: '1. Internal routes' },
@@ -2137,6 +2152,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-tables-neighbourhood-routing-topology',
         title: 'EIGRP Tables (Neighbourhood, Routing, Topology)',
+        group: 'EIGRP Theory',
         description: 'EIGRP maintains three tables — one for neighbors, one for the best routes in use, and one holding every known path including backups.',
         blocks: [
           { type: 'heading', text: '1. Neighbourhood table' },
@@ -2159,6 +2175,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-metric-k-values-bandwidth-load-delay-reliability-mtu-and-path-calculation-equation',
         title: 'EIGRP Metric "K" Values (Bandwidth, Load, Delay, Reliability, MTU) and Path Calculation equation',
+        group: 'EIGRP Theory',
         description: 'EIGRP calculates a composite metric from up to five interface parameters, but only Bandwidth and Delay are used by default.',
         blocks: [
           { type: 'heading', text: 'The 5 K values' },
@@ -2204,6 +2221,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-terminology-successor-feasible-successor-advertised-distance-feasible-distance-feasibility-condition',
         title: 'EIGRP Terminology (Successor, Feasible Successor, Advertised Distance, Feasible Distance, Feasibility Condition)',
+        group: 'EIGRP Theory',
         description: 'These terms describe how EIGRP identifies the best path (Successor) and any guaranteed loop-free backup (Feasible Successor).',
         blocks: [
           {
@@ -2222,6 +2240,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-packet-types-hello-update-acknowledgement-query-reply-sia-query-sia-reply',
         title: 'EIGRP Packet Types (Hello, Update, Acknowledgement, Query, Reply, SIA Query, SIA Reply)',
+        group: 'EIGRP Theory',
         description: 'EIGRP has 7 packet types used to discover neighbors, share routes reliably, and recover when a route goes down with no backup available.',
         blocks: [
           { type: 'paragraph', text: 'EIGRP has 7 packet types in total: Hello, Update, Acknowledgement, Query, Reply, SIA Query, SIA Reply.' },
@@ -2293,6 +2312,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-route-states-active-vs-passive-and-stuck-in-active-sia-mechanism',
         title: 'EIGRP Route States (Active vs. Passive) and Stuck In Active (SIA) mechanism',
+        group: 'EIGRP Theory',
         description: 'A route is Active while EIGRP is searching for a path, and Passive once it is stable and ready to forward traffic.',
         blocks: [
           { type: 'heading', text: 'Active state' },
@@ -2307,6 +2327,7 @@ export const topics: Topic[] = [
       {
         slug: 'loopback-interfaces-virtual-interfaces-32-subnet-usage',
         title: 'Loopback Interfaces (Virtual interfaces, /32 subnet usage)',
+        group: 'EIGRP Setup',
         description: 'A loopback is a virtual interface with no physical connection, commonly used with a /32 mask to guarantee a stable address for services like EIGRP\'s Router ID.',
         blocks: [
           { type: 'heading', text: 'What a loopback is' },
@@ -2337,6 +2358,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-router-id-selection-manual-vs-automatic-via-loopbacks-or-highest-physical-ip',
         title: 'EIGRP Router ID Selection (Manual vs. Automatic via Loopbacks or Highest Physical IP)',
+        group: 'EIGRP Setup',
         description: 'The Router ID identifies a router inside the autonomous system, and can be set manually or chosen automatically using a priority order.',
         blocks: [
           { type: 'heading', text: 'What a Router ID is' },
@@ -2365,6 +2387,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-configuration-neighbourship-conditions-verification',
         title: 'EIGRP Configuration & Neighbourship Conditions',
+        group: 'EIGRP Setup',
         description: 'Before two EIGRP routers can become neighbors, several conditions must match exactly — AS number, K-values, passwords, and basic Layer 1 connectivity.',
         blocks: [
           { type: 'heading', text: 'EIGRP Neighbourship Conditions' },
@@ -2424,6 +2447,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-advanced-settings-timers-traffic-percentage-k-values-path-manipulation',
         title: 'EIGRP Advanced Settings (Timers, Traffic Percentage, K-Values, Path Manipulation)',
+        group: 'EIGRP Tuning',
         description: 'EIGRP timers, bandwidth usage, and metric weights can all be tuned per interface, and path selection can be manipulated by adjusting delay.',
         blocks: [
           { type: 'heading', text: '1. Changing EIGRP timers' },
@@ -2458,6 +2482,7 @@ export const topics: Topic[] = [
       {
         slug: 'eigrp-load-balancing-equal-cost-vs-unequal-cost-verification',
         title: 'EIGRP Load Balancing (Equal-cost vs. Unequal-cost) and Verification',
+        group: 'EIGRP Tuning',
         description: 'EIGRP can spread traffic across multiple best paths by default, and across best-plus-backup paths when variance is configured.',
         blocks: [
           { type: 'heading', text: 'Load balancing basics' },
@@ -2523,6 +2548,7 @@ export const topics: Topic[] = [
       {
   slug: 'ospf-introduction-open-shortest-path-first-link-state-routing-protocol',
   title: 'OSPF Introduction (Open Shortest Path First, Link-State Routing Protocol)',
+  group: 'OSPF Theory',
   description: 'OSPF is an open-standard link-state routing protocol developed by the IETF. It uses interface bandwidth to calculate the best path and comes in two active versions — OSPFv2 for IPv4 and OSPFv3 for IPv6.',
   blocks: [
     { type: 'heading', text: 'What OSPF is' },
@@ -2572,6 +2598,7 @@ export const topics: Topic[] = [
       {
         slug: 'ospf-cost-calculation-reference-bandwidth-adjustment',
         title: 'OSPF Cost Calculation & Reference Bandwidth Adjustment',
+        group: 'OSPF Theory',
         description: 'OSPF\'s metric is called Cost, calculated from reference bandwidth divided by interface bandwidth — the lowest cost path wins.',
         blocks: [
           { type: 'heading', text: 'OSPF Cost' },
@@ -2613,6 +2640,7 @@ diagrams: [
       {
         slug: 'ospf-process-id-vs-eigrp-as-number',
         title: 'OSPF Process ID vs EIGRP AS Number',
+        group: 'OSPF Theory',
         description: 'OSPF uses a Process ID instead of an AS number, but unlike EIGRP\'s AS number, it is only locally significant to the router.',
         blocks: [
           { type: 'bullets', items: [
@@ -2631,6 +2659,7 @@ diagrams: [
       {
         slug: 'ospf-area-concept-backbone-standard-stub',
         title: 'OSPF Area Concept (Backbone, Standard, Stub)',
+        group: 'OSPF Theory',
         description: 'OSPF divides a large autonomous system into areas to prevent performance overload, with Area 0 as the mandatory backbone connecting all other areas.',
         blocks: [
           { type: 'heading', text: 'Why areas exist' },
@@ -2666,6 +2695,7 @@ diagrams: [
       {
         slug: 'ospf-tables-neighbor-routing-topology',
         title: 'OSPF Tables (Neighbor, Routing, Topology)',
+        group: 'OSPF Theory',
         description: 'OSPF maintains three tables — the neighbor table tracks adjacencies, the routing table holds the lowest-cost paths, and the topology table holds every known path in the area.',
         blocks: [
           { type: 'heading', text: '1. Neighbor table' },
@@ -2683,8 +2713,109 @@ diagrams: [
         ],
       },
       {
+        slug: 'ospf-area-types-backbone-standard-stub',
+        title: 'OSPF Area Types',
+        group: 'OSPF Theory',
+        description: 'A more detailed look at the three area types — Backbone, Standard, and Stub — and what each is used for.',
+        blocks: [
+          { type: 'heading', text: 'Backbone area' },
+          { type: 'paragraph', text: 'Area 0 is the backbone area. Every standard/normal area must connect to Area 0 to enable inter-area communication.' },
+          { type: 'heading', text: 'Standard area' },
+          { type: 'paragraph', text: 'Any number can represent this area type. Cisco recommends a maximum of 50 routers in a standard area.' },
+          { type: 'heading', text: 'Stub area' },
+          { type: 'paragraph', text: 'Used to filter routes in an area — it can filter routes from other areas and routes from other autonomous systems.' },
+        ],
+        quickReference: [
+          { label: 'Area 0', value: 'Backbone — required hub' },
+          { label: 'Standard', value: 'Max 50 routers (Cisco recommendation)' },
+          { label: 'Stub', value: 'Filters external/inter-area routes' },
+        ],
+      },
+      {
+  slug: 'ospf-packet-types-hello-dbd-lsr-lsu-lsack',
+  title: 'OSPF Packet Types (Hello, DBD, LSR, LSU, LSAck)',
+  group: 'OSPF Theory',
+  description: 'OSPF uses five packet types to discover neighbours, exchange topology information, and acknowledge delivery. Each plays a distinct role in building and maintaining the link-state database.',
+  blocks: [
+    { type: 'heading', text: '1. Hello packet' },
+    { type: 'bullets', items: [
+      'Establishes and maintains OSPF neighborship.',
+      'OSPF maintains a 1:4 ratio between its hello and dead timers.',
+      'Hello Interval — 10 seconds (default).',
+      'Dead Interval — 40 seconds (default).',
+      'The timers are critical — they are one of the conditions two routers must agree on to become neighbours.',
+    ] },
+
+    { type: 'heading', text: '2. DBD packet (Database Descriptor)' },
+    { type: 'bullets', items: [
+      'Contains a summarized view of the router\'s LSDB (Link-State Database) — the routing / topology information.',
+      'During the initial (full) update, the DBD acts like an introduction packet between neighbours.',
+      'During a partial update, routers exchange DBDs to compare topology changes.',
+    ] },
+
+    { type: 'heading', text: '3. LSR packet (Link-State Request)' },
+    { type: 'paragraph', text: 'Used to request specific link-state records that the neighbour has but this router does not — the router asks for the missing portion of the LSDB.' },
+
+    { type: 'heading', text: '4. LSU packet (Link-State Update)' },
+    { type: 'bullets', items: [
+      'Carries the actual link-state database contents.',
+      'Contains multiple types of link-state information called LSAs (Link-State Advertisements).',
+      'There are 9 types of LSAs in total, but the basic/commonly used ones are 7.',
+    ] },
+
+    { type: 'heading', text: '5. LSAck packet' },
+    { type: 'paragraph', text: 'Acknowledges receipt of an LSA — confirms the LSU was received without error.' },
+
+    { type: 'heading', text: 'How they work together' },
+    { type: 'code', language: 'text', code: 'Hello        →  establish/maintain neighborship\nDBD          →  summarize my LSDB, compare with yours\nLSR          →  request the LSAs I am missing\nLSU          →  send the requested LSAs\nLSAck        →  confirm I received the LSU' },
+  ],
+  quickReference: [
+    { label: 'Hello interval', value: '10 seconds (default)' },
+    { label: 'Dead interval', value: '40 seconds (default)' },
+    { label: 'Timer ratio', value: '1:4 (hello : dead)' },
+    { label: 'Packet types', value: 'Hello, DBD, LSR, LSU, LSAck' },
+    { label: 'LSA types', value: '9 total, 7 basic' },
+  ],
+},
+{
+  slug: 'ospf-adjacency-states-down-init-two-way-exstart-exchange-loading-full',
+  title: 'OSPF Adjacency States (Down → Init → Two-Way → ExStart → Exchange → Loading → Full)',
+  group: 'OSPF Theory',
+  description: 'OSPF neighbours progress through seven states as they discover each other, exchange topology information, and reach full adjacency.',
+  blocks: [
+    { type: 'heading', text: 'The seven states' },
+    { type: 'table', headers: ['State', 'What happens'], rows: [
+      ['Down',      'No Hello packets received from the neighbour yet — the initial state.'],
+      ['Init',      'Hello received, but the neighbour has not yet listed this router in its own Hello.'],
+      ['Two-Way',   'Both routers have seen each other in Hellos — bidirectional communication established. DR/BDR election happens here.'],
+      ['ExStart',   'Master/slave negotiation — routers agree on who initiates the DBD exchange and at what sequence number.'],
+      ['Exchange',  'DBD packets are exchanged — each router summarizes its LSDB so the other can see what it needs.'],
+      ['Loading',   'LSR / LSU exchange — each router requests and receives the missing LSAs.'],
+      ['Full',      'Both routers have identical LSDBs — the adjacency is complete and routes can be installed.'],
+    ] },
+
+    { type: 'heading', text: 'Key points' },
+    { type: 'bullets', items: [
+      'Two-Way is the minimum required state for DR/BDR election to happen — before that, OSPF doesn\'t know who the candidates are.',
+      'Full is the final, stable state — this is what you want to see in "show ip ospf neighbor" for adjacencies that should be working.',
+      'Point-to-point networks skip the DR/BDR election — they go straight from Two-Way to ExStart because there\'s no election needed.',
+      'Two DRothers on the same broadcast segment only ever reach Two-Way with each other (that\'s normal and expected).',
+    ] },
+  ],
+  quickReference: [
+    { label: 'Order', value: 'Down → Init → Two-Way → ExStart → Exchange → Loading → Full' },
+    { label: 'Election happens at', value: 'Two-Way' },
+    { label: 'Route installation', value: 'Only at Full' },
+    { label: 'Point-to-point networks', value: 'Skip DR/BDR election' },
+  ],
+  diagrams: [
+    { src: '/diagrams/ospfadj.png', alt: 'OSPF adjacency state progression — Down through Full', caption: 'OSPF adjacency states — Down to Full' },
+  ],
+},
+      {
         slug: 'ospf-router-id-selection-resetting-ospf-process',
         title: 'OSPF Router-ID Selection & Resetting OSPF Process',
+        group: 'OSPF Operation',
         description: 'Router-ID can be set manually or chosen automatically from loopback/interface IPs, but a manual change only takes effect after the OSPF process is restarted.',
         blocks: [
           { type: 'heading', text: 'Manual configuration' },
@@ -2710,26 +2841,9 @@ diagrams: [
         ],
       },
       {
-        slug: 'ospf-area-types-backbone-standard-stub',
-        title: 'OSPF Area Types',
-        description: 'A more detailed look at the three area types — Backbone, Standard, and Stub — and what each is used for.',
-        blocks: [
-          { type: 'heading', text: 'Backbone area' },
-          { type: 'paragraph', text: 'Area 0 is the backbone area. Every standard/normal area must connect to Area 0 to enable inter-area communication.' },
-          { type: 'heading', text: 'Standard area' },
-          { type: 'paragraph', text: 'Any number can represent this area type. Cisco recommends a maximum of 50 routers in a standard area.' },
-          { type: 'heading', text: 'Stub area' },
-          { type: 'paragraph', text: 'Used to filter routes in an area — it can filter routes from other areas and routes from other autonomous systems.' },
-        ],
-        quickReference: [
-          { label: 'Area 0', value: 'Backbone — required hub' },
-          { label: 'Standard', value: 'Max 50 routers (Cisco recommendation)' },
-          { label: 'Stub', value: 'Filters external/inter-area routes' },
-        ],
-      },
-      {
         slug: 'ospf-router-types-abr-asbr',
         title: 'OSPF Router Types (ABR, ASBR)',
+        group: 'OSPF Operation',
         description: 'An ABR sits between a standard area and the backbone; an ASBR sits at the boundary between two autonomous systems and handles redistribution.',
         blocks: [
           { type: 'heading', text: 'ABR (Area Border Router)' },
@@ -2751,6 +2865,7 @@ diagrams: [
       {
         slug: 'ospf-dr-bdr-election-in-bma-networks-multicast-addresses',
         title: 'OSPF DR/BDR Election in BMA Networks & Multicast Addresses (224.0.0.5, 224.0.0.6)',
+        group: 'OSPF Operation',
         description: 'On broadcast multi-access networks, OSPF elects a DR and BDR to prevent update-flooding, using two dedicated multicast addresses instead of the split-horizon rule other protocols use.',
         blocks: [
           { type: 'heading', text: 'The flooding problem' },
@@ -2786,6 +2901,7 @@ diagrams: [
 {
   slug: 'ospf-dr-bdr-election-criteria-priority-and-router-id',
   title: 'OSPF DR / BDR Election (Priority & Router-ID)',
+  group: 'OSPF Operation',
   description: 'The Designated Router and Backup Designated Router are elected on broadcast segments using two criteria: highest OSPF priority, then highest Router-ID as a tiebreaker.',
   blocks: [
     { type: 'heading', text: 'Why DR / BDR exist' },
@@ -2832,85 +2948,7 @@ diagrams: [
     { src: '/diagrams/ospfdrelect.png', alt: 'OSPF DR/BDR election topology — R1, R2, R3, R4 with priority values', caption: 'DR/BDR election — R1 to R4 with priority values' },
   ],
 },
-{
-  slug: 'ospf-packet-types-hello-dbd-lsr-lsu-lsack',
-  title: 'OSPF Packet Types (Hello, DBD, LSR, LSU, LSAck)',
-  description: 'OSPF uses five packet types to discover neighbours, exchange topology information, and acknowledge delivery. Each plays a distinct role in building and maintaining the link-state database.',
-  blocks: [
-    { type: 'heading', text: '1. Hello packet' },
-    { type: 'bullets', items: [
-      'Establishes and maintains OSPF neighborship.',
-      'OSPF maintains a 1:4 ratio between its hello and dead timers.',
-      'Hello Interval — 10 seconds (default).',
-      'Dead Interval — 40 seconds (default).',
-      'The timers are critical — they are one of the conditions two routers must agree on to become neighbours.',
-    ] },
 
-    { type: 'heading', text: '2. DBD packet (Database Descriptor)' },
-    { type: 'bullets', items: [
-      'Contains a summarized view of the router\'s LSDB (Link-State Database) — the routing / topology information.',
-      'During the initial (full) update, the DBD acts like an introduction packet between neighbours.',
-      'During a partial update, routers exchange DBDs to compare topology changes.',
-    ] },
-
-    { type: 'heading', text: '3. LSR packet (Link-State Request)' },
-    { type: 'paragraph', text: 'Used to request specific link-state records that the neighbour has but this router does not — the router asks for the missing portion of the LSDB.' },
-
-    { type: 'heading', text: '4. LSU packet (Link-State Update)' },
-    { type: 'bullets', items: [
-      'Carries the actual link-state database contents.',
-      'Contains multiple types of link-state information called LSAs (Link-State Advertisements).',
-      'There are 9 types of LSAs in total, but the basic/commonly used ones are 7.',
-    ] },
-
-    { type: 'heading', text: '5. LSAck packet' },
-    { type: 'paragraph', text: 'Acknowledges receipt of an LSA — confirms the LSU was received without error.' },
-
-    { type: 'heading', text: 'How they work together' },
-    { type: 'code', language: 'text', code: 'Hello        →  establish/maintain neighborship\nDBD          →  summarize my LSDB, compare with yours\nLSR          →  request the LSAs I am missing\nLSU          →  send the requested LSAs\nLSAck        →  confirm I received the LSU' },
-  ],
-  quickReference: [
-    { label: 'Hello interval', value: '10 seconds (default)' },
-    { label: 'Dead interval', value: '40 seconds (default)' },
-    { label: 'Timer ratio', value: '1:4 (hello : dead)' },
-    { label: 'Packet types', value: 'Hello, DBD, LSR, LSU, LSAck' },
-    { label: 'LSA types', value: '9 total, 7 basic' },
-  ],
-},
-{
-  slug: 'ospf-adjacency-states-down-init-two-way-exstart-exchange-loading-full',
-  title: 'OSPF Adjacency States (Down → Init → Two-Way → ExStart → Exchange → Loading → Full)',
-  description: 'OSPF neighbours progress through seven states as they discover each other, exchange topology information, and reach full adjacency.',
-  blocks: [
-    { type: 'heading', text: 'The seven states' },
-    { type: 'table', headers: ['State', 'What happens'], rows: [
-      ['Down',      'No Hello packets received from the neighbour yet — the initial state.'],
-      ['Init',      'Hello received, but the neighbour has not yet listed this router in its own Hello.'],
-      ['Two-Way',   'Both routers have seen each other in Hellos — bidirectional communication established. DR/BDR election happens here.'],
-      ['ExStart',   'Master/slave negotiation — routers agree on who initiates the DBD exchange and at what sequence number.'],
-      ['Exchange',  'DBD packets are exchanged — each router summarizes its LSDB so the other can see what it needs.'],
-      ['Loading',   'LSR / LSU exchange — each router requests and receives the missing LSAs.'],
-      ['Full',      'Both routers have identical LSDBs — the adjacency is complete and routes can be installed.'],
-    ] },
-
-    { type: 'heading', text: 'Key points' },
-    { type: 'bullets', items: [
-      'Two-Way is the minimum required state for DR/BDR election to happen — before that, OSPF doesn\'t know who the candidates are.',
-      'Full is the final, stable state — this is what you want to see in "show ip ospf neighbor" for adjacencies that should be working.',
-      'Point-to-point networks skip the DR/BDR election — they go straight from Two-Way to ExStart because there\'s no election needed.',
-      'Two DRothers on the same broadcast segment only ever reach Two-Way with each other (that\'s normal and expected).',
-    ] },
-  ],
-  quickReference: [
-    { label: 'Order', value: 'Down → Init → Two-Way → ExStart → Exchange → Loading → Full' },
-    { label: 'Election happens at', value: 'Two-Way' },
-    { label: 'Route installation', value: 'Only at Full' },
-    { label: 'Point-to-point networks', value: 'Skip DR/BDR election' },
-  ],
-  diagrams: [
-    { src: '/diagrams/ospfadj.png', alt: 'OSPF adjacency state progression — Down through Full', caption: 'OSPF adjacency states — Down to Full' },
-  ],
-},
 
     ],
   },

@@ -494,6 +494,18 @@ function DiagramLightbox({
     </div>
   );
 }
+
+function groupSubtopics(subtopics: Subtopic[]) {
+  const groups: { name: string | null; items: Subtopic[] }[] = [];
+  for (const s of subtopics) {
+    const name = s.group ?? null;
+    const last = groups[groups.length - 1];
+    if (last && last.name === name) last.items.push(s);
+    else groups.push({ name, items: [s] });
+  }
+  return groups;
+}
+
 function Sidebar({
   selected,
   onSelect,
@@ -602,35 +614,55 @@ function Sidebar({
                   </AccordionTrigger>
                   <AccordionContent className="pb-1 pt-0">
                     <div className="ml-5 border-l pl-3">
-                      {topic.subtopics.map((subtopic, index) => {
-                        const isActive = selected === subtopic.slug;
-                        const isDone = completed.has(
-                          progressKey(topic.slug, subtopic.slug),
-                        );
-                        return (
-                          <button
-                            key={`${subtopic.slug}-${index}`}
-                            ref={isActive ? activeRef : null}
-                            onClick={() => onSelect(topic, subtopic)}
-                            className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
-                              isActive
-                                ? "bg-primary/10 font-medium text-primary"
-                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                            }`}
-                          >
-                            <ChevronRight
-                              className={`mt-0.5 size-3 shrink-0 ${
-                                isActive ? "text-primary" : "opacity-50"
-                              }`}
-                            />
-                            <span className="flex-1">{subtopic.title}</span>
-                            {isDone && (
-                              <Check className="mt-0.5 size-3 shrink-0 text-primary" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+  {groupSubtopics(topic.subtopics).map((group, gi) => {
+    const groupDone = group.items.filter((s) =>
+      completed.has(progressKey(topic.slug, s.slug)),
+    ).length;
+
+    return (
+      <div
+        key={`${group.name ?? "general"}-${gi}`}
+        className={group.name && gi > 0 ? "mt-3" : ""}
+      >
+        {group.name && (
+          <p className="flex items-center justify-between px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+            <span>{group.name}</span>
+            <span className="font-normal tabular-nums">
+              {groupDone}/{group.items.length}
+            </span>
+          </p>
+        )}
+
+        {group.items.map((subtopic, index) => {
+          const isActive = selected === subtopic.slug;
+          const isDone = completed.has(progressKey(topic.slug, subtopic.slug));
+          return (
+            <button
+              key={`${subtopic.slug}-${index}`}
+              ref={isActive ? activeRef : null}
+              onClick={() => onSelect(topic, subtopic)}
+              className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 transition-colors ${
+                isActive
+                  ? "bg-primary/10 font-medium text-primary"
+                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+              }`}
+            >
+              <ChevronRight
+                className={`mt-0.5 size-3 shrink-0 ${
+                  isActive ? "text-primary" : "opacity-50"
+                }`}
+              />
+              <span className="flex-1">{subtopic.title}</span>
+              {isDone && (
+                <Check className="mt-0.5 size-3 shrink-0 text-primary" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    );
+  })}
+</div>
                   </AccordionContent>
                 </AccordionItem>
               </div>
