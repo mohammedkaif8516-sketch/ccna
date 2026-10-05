@@ -593,28 +593,39 @@ function Sidebar({
 
   // After mount / when active changes / when topics expand → scroll active into view
   useEffect(() => {
-    if (!mobile) return;
-    if (!activeRef.current || !scrollRef.current) return;
+  if (!mobile) return
+  if (!selected) return
+  const container = scrollRef.current
+  if (!container) return
 
-    // Wait 2 frames: one for the accordion to expand, one for layout
-    let raf1 = 0;
-    let raf2 = 0;
-    raf1 = requestAnimationFrame(() => {
-      raf2 = requestAnimationFrame(() => {
-        const el = activeRef.current;
-        const container = scrollRef.current;
-        if (!el || !container) return;
-        const top =
-          el.offsetTop - container.clientHeight / 2 + el.clientHeight / 2;
-        container.scrollTop = Math.max(0, top);
-      });
-    });
-    return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
-    };
-  }, [selected, mobile, openTopics]);
+  let attempts = 0
+  let raf = 0
 
+  const tryScroll = () => {
+    attempts++
+    const el = activeRef.current
+    if (el && el.offsetParent !== null) {
+      // The target is now in the DOM and visible. Scroll it to the middle
+      // of the container using its bounding box so nested offsets are correct.
+      const elRect = el.getBoundingClientRect()
+      const containerRect = container.getBoundingClientRect()
+      const target =
+        container.scrollTop +
+        (elRect.top - containerRect.top) -
+        container.clientHeight / 2 +
+        elRect.height / 2
+      container.scrollTo({ top: Math.max(0, target), behavior: 'instant' as ScrollBehavior })
+      return
+    }
+    if (attempts < 10) {
+      raf = requestAnimationFrame(tryScroll)
+    }
+  }
+
+  raf = requestAnimationFrame(tryScroll)
+  return () => cancelAnimationFrame(raf)
+}, [selected, mobile]);
+  
   return (
     <aside
       className={
