@@ -1070,7 +1070,7 @@ function Dashboard({
 
   // There's history — show the animated tree
     return (
-    <div className="glass-canvas flex min-h-full items-start justify-center px-6 py-10 lg:px-10">
+    <div className="glass-canvas flex min-h-full items-start justify-center px-4 py-10 sm:px-6 lg:px-10">
       <div className="relative z-10 w-full max-w-2xl">
         <VisitTree
           entries={visitHistory}
