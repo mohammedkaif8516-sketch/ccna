@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 const STORAGE_KEY = "ccna-completed-v1";
 const THEME_KEY = "ccna:theme";
@@ -56,34 +56,71 @@ export function useCompletedTopics() {
 
 // ─────────────────────────────────────────────────────────────
 // Theme (light / dark) — class-based, persisted in localStorage
+// Same API as before: { dark, toggle }
 // ─────────────────────────────────────────────────────────────
-export function useTheme() {
-  const [dark, setDark] = useState(false);
+type Theme = "light" | "dark";
 
-  // Sync from the class that the pre-hydration script already set on <html>.
-  useEffect(() => {
-    setDark(document.documentElement.classList.contains("dark"));
-  }, []);
+const THEME_COLORS: Record<Theme, string> = {
+  light: "#ffffff",
+  dark: "#0a0a0a",
+};
+
+function applyTheme(theme: Theme) {
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(theme);
+  // keep in sync with the inline value set by the script in layout.tsx
+  root.style.colorScheme = theme;
+  document
+    .querySelector('meta[name="theme-color"]')
+    ?.setAttribute("content", THEME_COLORS[theme]);
+}
+
+function subscribeTheme(onChange: () => void) {
+  // Re-render when the <html> class changes
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  // Sync when another tab changes the theme
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === THEME_KEY && (e.newValue === "light" || e.newValue === "dark")) {
+      applyTheme(e.newValue);
+    }
+  };
+  window.addEventListener("storage", onStorage);
+
+  return () => {
+    observer.disconnect();
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+const getThemeSnapshot = () =>
+  document.documentElement.classList.contains("dark");
+// Must match DEFAULT_THEME in layout.tsx (true = dark)
+const getThemeServerSnapshot = () => true;
+
+export function useTheme() {
+  const dark = useSyncExternalStore(
+    subscribeTheme,
+    getThemeSnapshot,
+    getThemeServerSnapshot,
+  );
 
   const toggle = useCallback(() => {
-    setDark((prev) => {
-      const next = !prev;
-      const root = document.documentElement;
-      if (next) {
-        root.classList.add("dark");
-        root.classList.remove("light");
-      } else {
-        root.classList.remove("dark");
-        root.classList.add("light");
-      }
-      try {
-        window.localStorage.setItem(THEME_KEY, next ? "dark" : "light");
-      } catch {
-        // storage unavailable — fail silently
-      }
-      return next;
-    });
+    const next: Theme = document.documentElement.classList.contains("dark")
+      ? "light"
+      : "dark";
+    applyTheme(next);
+    try {
+      window.localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // storage unavailable — fail silently
+    }
   }, []);
 
-  return { dark, toggle };
+  return { dark, toggle, toggleTheme: toggle };
 }
