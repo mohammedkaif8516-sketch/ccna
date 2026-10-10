@@ -76,8 +76,7 @@ function VisitNode({
       <button
         type="button"
         onClick={onSelect}
-        className="glass glass-hover group flex w-full max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
-      >
+        className="glass glass-hover group flex w-full max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]">
         <div
           className="flex size-9 shrink-0 items-center justify-center rounded-xl"
           style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
