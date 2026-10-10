@@ -44,24 +44,38 @@ export function useQuizScores() {
   );
 
   const saveScore = useCallback(
-    (quizId: string, score: number, total: number) => {
-      setScores((prev) => {
-        const existing = prev[quizId];
-        const next: Record<string, QuizScore> = {
-          ...prev,
-          [quizId]: {
-            best: Math.max(existing?.best ?? 0, score),
-            total,
-            attempts: (existing?.attempts ?? 0) + 1,
-            lastAt: Date.now(),
-          },
+  (quizId: string, score: number, total: number, length?: number) => {
+    setScores((prev) => {
+      const next: Record<string, QuizScore> = { ...prev };
+
+      // 1. Length-keyed best (per length)
+      if (length) {
+        const lengthKey = `${quizId}:${length}`;
+        const existingLen = prev[lengthKey];
+        next[lengthKey] = {
+          best: Math.max(existingLen?.best ?? 0, score),
+          total,
+          attempts: (existingLen?.attempts ?? 0) + 1,
+          lastAt: Date.now(),
         };
-        writeAll(next);
-        return next;
-      });
-    },
-    [],
-  );
+      }
+
+      // 2. Plain-key "latest attempt" (for the sidebar summary)
+      const existingPlain = prev[quizId];
+      next[quizId] = {
+        // show the most recent score, not a max — the sidebar is a "last seen" summary
+        best: score,
+        total,
+        attempts: (existingPlain?.attempts ?? 0) + 1,
+        lastAt: Date.now(),
+      };
+
+      writeAll(next);
+      return next;
+    });
+  },
+  [],
+);
 
   return { scores, bestFor, saveScore };
 }

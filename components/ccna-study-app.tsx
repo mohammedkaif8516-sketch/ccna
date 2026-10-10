@@ -510,43 +510,48 @@ function groupSubtopicsWithQuiz(
   subtopics: Subtopic[],
   topicSlug: string,
 ): GroupBlock[] {
-  const groups: GroupBlock[] = []
+  const groups: GroupBlock[] = [];
 
   // Merge by name regardless of position. Map preserves insertion order.
-  const byName = new Map<string | null, GroupBlock>()
+  const byName = new Map<string | null, GroupBlock>();
   for (const s of subtopics) {
-    const name = s.group ?? null
-    let group = byName.get(name)
+    const name = s.group ?? null;
+    let group = byName.get(name);
     if (!group) {
-      group = { name, items: [] }
-      byName.set(name, group)
-      groups.push(group) // insertion order = first appearance
+      group = { name, items: [] };
+      byName.set(name, group);
+      groups.push(group); // insertion order = first appearance
     }
-    group.items.push(s)
+    group.items.push(s);
   }
 
   // Attach group quizzes
   for (const group of groups) {
-    if (!group.name) continue
-    const q = quizFor(topicSlug, group.name)
-    if (q) group.quiz = q
+    if (!group.name) continue;
+    const q = quizFor(topicSlug, group.name);
+    if (q) group.quiz = q;
   }
 
-  const hasGroups = subtopics.some((s) => s.group != null)
+  const hasGroups = subtopics.some((s) => s.group != null);
   const finalQuiz = quizzes.find(
     (q) => q.topicSlug === topicSlug && q.final === true,
-  )
+  );
 
-  if (!hasGroups && !finalQuiz && groups.length === 1 && groups[0].name === null) {
-    const topicWideQuiz = quizFor(topicSlug, null)
-    if (topicWideQuiz) groups[0].quiz = topicWideQuiz
+  if (
+    !hasGroups &&
+    !finalQuiz &&
+    groups.length === 1 &&
+    groups[0].name === null
+  ) {
+    const topicWideQuiz = quizFor(topicSlug, null);
+    if (topicWideQuiz) groups[0].quiz = topicWideQuiz;
   }
 
   if (!hasGroups && finalQuiz) {
-    groups.push({ name: null, items: [], quiz: finalQuiz })
+    groups.push({ name: null, items: [], quiz: finalQuiz });
   }
 
-  return groups
+  return groups;
 }
 
 function Sidebar({
@@ -593,39 +598,42 @@ function Sidebar({
 
   // After mount / when active changes / when topics expand → scroll active into view
   useEffect(() => {
-  if (!mobile) return
-  if (!selected) return
-  const container = scrollRef.current
-  if (!container) return
+    if (!mobile) return;
+    if (!selected) return;
+    const container = scrollRef.current;
+    if (!container) return;
 
-  let attempts = 0
-  let raf = 0
+    let attempts = 0;
+    let raf = 0;
 
-  const tryScroll = () => {
-    attempts++
-    const el = activeRef.current
-    if (el && el.offsetParent !== null) {
-      // The target is now in the DOM and visible. Scroll it to the middle
-      // of the container using its bounding box so nested offsets are correct.
-      const elRect = el.getBoundingClientRect()
-      const containerRect = container.getBoundingClientRect()
-      const target =
-        container.scrollTop +
-        (elRect.top - containerRect.top) -
-        container.clientHeight / 2 +
-        elRect.height / 2
-      container.scrollTo({ top: Math.max(0, target), behavior: 'instant' as ScrollBehavior })
-      return
-    }
-    if (attempts < 10) {
-      raf = requestAnimationFrame(tryScroll)
-    }
-  }
+    const tryScroll = () => {
+      attempts++;
+      const el = activeRef.current;
+      if (el && el.offsetParent !== null) {
+        // The target is now in the DOM and visible. Scroll it to the middle
+        // of the container using its bounding box so nested offsets are correct.
+        const elRect = el.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const target =
+          container.scrollTop +
+          (elRect.top - containerRect.top) -
+          container.clientHeight / 2 +
+          elRect.height / 2;
+        container.scrollTo({
+          top: Math.max(0, target),
+          behavior: "instant" as ScrollBehavior,
+        });
+        return;
+      }
+      if (attempts < 10) {
+        raf = requestAnimationFrame(tryScroll);
+      }
+    };
 
-  raf = requestAnimationFrame(tryScroll)
-  return () => cancelAnimationFrame(raf)
-}, [selected, mobile]);
-  
+    raf = requestAnimationFrame(tryScroll);
+    return () => cancelAnimationFrame(raf);
+  }, [selected, mobile]);
+
   return (
     <aside
       className={
@@ -1215,8 +1223,8 @@ export default function CcnaStudyApp() {
               <QuizView
                 quiz={selectedQuiz}
                 best={bestFor(selectedQuiz.id)}
-                onFinish={(score, total) =>
-                  saveScore(selectedQuiz.id, score, total)
+                onFinish={(score, total, length) =>
+                  saveScore(selectedQuiz.id, score, total, length)
                 }
                 onBack={goHome}
               />

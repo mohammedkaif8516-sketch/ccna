@@ -3612,7 +3612,7 @@ export const topics: Topic[] = [
           { label: 'L3 / L2 broadcast', value: '255.255.255.255 / ffff.ffff.ffff' },
         ],
         diagrams: [
-          { src: '/diagrams/packetflow_intra.png', alt: 'Packet flow topology with PC1, PC2, PC3, a switch and a gateway showing the ARP request, ARP reply and ICMP echo', caption: 'Packet flow inside one network' },
+          { src: '/diagrams/packetflow_intra_wide.png', alt: 'Packet flow topology with PC1, PC2, PC3, a switch and a gateway showing the ARP request, ARP reply and ICMP echo', caption: 'Packet flow inside one network' },
         ],
       },
 
