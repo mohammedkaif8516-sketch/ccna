@@ -58,12 +58,15 @@ import {
   ListChecks,
   Sun,
   ArrowLeft,
+  ArrowRightLeft
 } from "lucide-react";
 import { quizById } from "@/lib/quizzes";
 import { QuizView } from "@/components/quiz-view";
 import { useQuizScores } from "@/lib/use-quiz-score";
 import type { QuizScore } from "@/lib/use-quiz-score";
 import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
+import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
+import { VisitTree } from "@/components/visit-tree";
 import { useEffect, useRef } from "react";
 
 // ─────────────────────────────────────────────────────────────
@@ -434,6 +437,7 @@ const iconMap = {
   brackets: Brackets,
   terminal: Terminal,
   route: Route,
+  'arrow-right-left': ArrowRightLeft,
 };
 
 function SquareLoader() {
@@ -1035,23 +1039,43 @@ function SubnetCalculator() {
   );
 }
 
-function Dashboard() {
-  return (
-    <div className="flex h-[calc(100vh-4rem)] w-full flex-col items-center justify-center bg-background px-6">
-      <div className="flex flex-col items-center text-center max-w-md">
-        {/* Big Left Arrow */}
-        <div className="mb-8 text-primary animate-pulse">
-          <ArrowLeft className="size-20" strokeWidth={1.5} />
+function Dashboard({
+  visitHistory,
+  onSelectVisit,
+  onClearHistory,
+}: {
+  visitHistory: VisitEntry[];
+  onSelectVisit: (entry: VisitEntry) => void;
+  onClearHistory: () => void;
+}) {
+  // First visit — no history yet
+  if (visitHistory.length === 0) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] w-full flex-col items-center justify-center bg-background px-6">
+        <div className="flex flex-col items-center text-center max-w-md">
+          <div className="mb-8 text-primary animate-pulse">
+            <ArrowLeft className="size-20" strokeWidth={1.5} />
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Start from the sidebar
+          </h1>
+          <p className="mt-4 text-base leading-7 text-muted-foreground">
+            Pick any topic on the left to open it here. Your study session will
+            load in this space.
+          </p>
         </div>
-
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Start from the sidebar
-        </h1>
-        <p className="mt-4 text-base leading-7 text-muted-foreground">
-          Pick any topic on the left to open it here. Your study session will
-          load in this space.
-        </p>
       </div>
+    );
+  }
+
+  // There's history — show the animated tree
+  return (
+    <div className="mx-auto w-full max-w-2xl px-6 py-10 lg:px-10">
+      <VisitTree
+        entries={visitHistory}
+        onSelect={onSelectVisit}
+        onClear={onClearHistory}
+      />
     </div>
   );
 }
@@ -1063,6 +1087,7 @@ export default function CcnaStudyApp() {
   const [lightbox, setLightbox] = useState<Diagram | null>(null);
   const { completed, isCompleted, toggle } = useCompletedTopics();
   const { bestFor, saveScore } = useQuizScores();
+  const { entries: visitHistory, record: recordVisit, clear: clearVisitHistory } = useVisitHistory();
   const [isPending, startTransition] = useTransition();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -1104,6 +1129,13 @@ export default function CcnaStudyApp() {
     params.set("topic", topic.slug);
     params.set("sub", subtopic.slug);
     params.delete("quiz");
+    recordVisit({
+      slug: subtopic.slug,
+      topicSlug: topic.slug,
+      title: subtopic.title,
+      topicTitle: topic.title,
+      group: subtopic.group,
+    });
     startTransition(() => {
       router.push(`?${params.toString()}`, { scroll: false });
     });
@@ -1407,7 +1439,17 @@ export default function CcnaStudyApp() {
                 </div>
               </article>
             ) : (
-              <Dashboard />
+              <Dashboard
+                visitHistory={visitHistory}
+                onClearHistory={clearVisitHistory}
+                onSelectVisit={(entry) => {
+                  const topic = topics.find((t) => t.slug === entry.topicSlug);
+                  const subtopic = topic?.subtopics.find(
+                    (s) => s.slug === entry.slug,
+                  );
+                  if (topic && subtopic) select(topic, subtopic);
+                }}
+              />
             )}
           </main>
         </div>

@@ -3506,7 +3506,7 @@ export const topics: Topic[] = [
     slug: 'packet-flow',
     number: '01',
     title: 'Packet Flow',
-    icon: 'network',
+     icon: 'arrow-right-left',
     description: 'How communication happens within and between networks',
     subtopics: [
       {
