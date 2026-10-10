@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY = "ccna-visit-history-v1";
-const MAX_ENTRIES = 40;
+const MAX_ENTRIES = 20;
 
 export type VisitEntry = {
   slug: string;

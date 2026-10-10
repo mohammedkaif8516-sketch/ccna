@@ -1069,16 +1069,19 @@ function Dashboard({
   }
 
   // There's history — show the animated tree
-  return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-10 lg:px-10">
-      <VisitTree
-        entries={visitHistory}
-        onSelect={onSelectVisit}
-        onClear={onClearHistory}
-      />
+    return (
+    <div className="glass-canvas flex min-h-full items-start justify-center px-6 py-10 lg:px-10">
+      <div className="relative z-10 w-full max-w-2xl">
+        <VisitTree
+          entries={visitHistory}
+          onSelect={onSelectVisit}
+          onClear={onClearHistory}
+        />
+      </div>
     </div>
   );
 }
+
 
 export default function CcnaStudyApp() {
   const router = useRouter();

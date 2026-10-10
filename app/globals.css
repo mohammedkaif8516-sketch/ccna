@@ -172,3 +172,95 @@
   from { transform: scaleY(0); }
   to   { transform: scaleY(1); }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Glassmorphism theme (used by the dashboard / visit tree)
+   ───────────────────────────────────────────────────────────── */
+:root {
+  --g-from: #e0e7ff;
+  --g-via: #fce7f3;
+  --g-to: #cffafe;
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-hover: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 8px 32px rgba(80, 90, 160, 0.15);
+  --accent: #6366f1;
+  --accent-soft: rgba(99, 102, 241, 0.15);
+}
+
+.dark {
+  --g-from: #0b1020;
+  --g-via: #1b1245;
+  --g-to: #062a3a;
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-bg-hover: rgba(255, 255, 255, 0.11);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --accent: #818cf8;
+  --accent-soft: rgba(129, 140, 248, 0.2);
+}
+
+/* The gradient canvas — only paints behind the dashboard,
+   not behind the article pages. See step 2. */
+.glass-canvas {
+  position: relative;
+  min-height: 100%;
+  background: linear-gradient(135deg, var(--g-from), var(--g-via), var(--g-to));
+  background-attachment: fixed;
+}
+
+.glass-canvas::before,
+.glass-canvas::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.glass-canvas::before {
+  width: 480px;
+  height: 480px;
+  top: -120px;
+  right: -80px;
+  background: var(--accent);
+}
+.glass-canvas::after {
+  width: 420px;
+  height: 420px;
+  bottom: -100px;
+  left: 25%;
+  background: #22d3ee;
+  opacity: 0.35;
+}
+
+/* Frosted panel */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+}
+@media (max-width: 640px) {
+  .glass {
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    backdrop-filter: blur(8px) saturate(140%);
+  }
+}
+
+.glass-hover {
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+.glass-hover:hover {
+  background: var(--glass-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.25);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass {
+    background: var(--glass-bg-hover);
+  }
+}

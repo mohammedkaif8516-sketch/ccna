@@ -52,19 +52,21 @@ function VisitNode({
       }}
     >
       {/* Parent chip — group or topic */}
-      <div className="flex items-center gap-1.5 rounded-full border bg-muted/60 px-3 py-1 text-[11px] text-muted-foreground">
+      <div className="glass flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] text-muted-foreground">
         {parentType === "group" ? (
           <Folder className="size-3" />
         ) : (
           <FolderTree className="size-3" />
         )}
-        <span className="truncate max-w-[240px]">{parentLabel}</span>
+        <span className="max-w-[240px] truncate">{parentLabel}</span>
       </div>
 
       {/* Line between parent chip and node */}
       <div
-        className="h-4 w-px bg-border"
+        className="h-4 w-px opacity-60"
         style={{
+          background:
+            "linear-gradient(to bottom, transparent, var(--accent), transparent)",
           transformOrigin: "top",
           animation: `visitLineIn 220ms ease-out ${index * 90 + 120}ms both`,
         }}
@@ -74,9 +76,12 @@ function VisitNode({
       <button
         type="button"
         onClick={onSelect}
-        className="group flex min-w-[260px] max-w-md items-center gap-3 rounded-xl border bg-card px-4 py-3 text-left outline-none transition-colors hover:border-primary/40 hover:bg-accent focus-visible:ring-1 focus-visible:ring-ring"
+        className="glass glass-hover group flex min-w-[280px] max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
       >
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <div
+          className="flex size-9 shrink-0 items-center justify-center rounded-xl"
+          style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
+        >
           <FileText className="size-4" />
         </div>
         <div className="min-w-0 flex-1">
@@ -89,7 +94,15 @@ function VisitNode({
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           <Badge variant="secondary" className="tabular-nums">
-            ×{entry.count}
+            <span
+              className="rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums"
+              style={{
+                background: "var(--accent-soft)",
+                color: "var(--accent)",
+              }}
+            >
+              ×{entry.count}
+            </span>
           </Badge>
           <ChevronRight className="size-3.5 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
         </div>
@@ -98,8 +111,10 @@ function VisitNode({
       {/* Line to the next node (skip after the last) */}
       {!isLast && (
         <div
-          className="h-6 w-px bg-border"
+          className="h-6 w-px opacity-60"
           style={{
+            background:
+              "linear-gradient(to bottom, transparent, var(--accent), transparent)",
             transformOrigin: "top",
             animation: `visitLineIn 220ms ease-out ${index * 90 + 260}ms both`,
           }}
@@ -137,7 +152,12 @@ export function VisitTree({
     <div className="flex flex-col items-center">
       <div className="mb-8 flex w-full items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight">
+          <h2
+            className="bg-clip-text text-lg font-semibold tracking-tight text-transparent"
+            style={{
+              backgroundImage: "linear-gradient(to right, #6366f1, #22d3ee)",
+            }}
+          >
             Your recent study path
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
