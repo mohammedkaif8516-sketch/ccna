@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCompletedTopics, progressKey, useTheme } from "@/lib/use-completed";
+import { useCompletedTopics, progressKey } from "@/lib/use-completed";
 import { useMemo, useState, useTransition } from "react";
 import {
   Accordion,
