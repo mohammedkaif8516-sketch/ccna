@@ -76,7 +76,7 @@ function VisitNode({
       <button
   type="button"
   onClick={onSelect}
-  className="glass glass-hover group flex w-full min-w-0 max-w-md items-center gap-3 rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+  className="glass glass-hover group flex w-full max-w-md items-center gap-3 overflow-hidden rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
 >
   <div
     className="flex size-9 shrink-0 items-center justify-center rounded-xl"
@@ -85,7 +85,7 @@ function VisitNode({
     <FileText className="size-4" />
   </div>
 
-  <div className="min-w-0 flex-1">
+  <div className="min-w-0 flex-1 overflow-hidden">
     <p className="truncate text-sm font-medium text-foreground">
       {entry.title}
     </p>
@@ -95,9 +95,12 @@ function VisitNode({
   </div>
 
   <div className="flex shrink-0 flex-col items-end gap-1">
-    <Badge variant="secondary" className="tabular-nums">
+    <span
+      className="rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums"
+      style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
+    >
       ×{entry.count}
-    </Badge>
+    </span>
     <ChevronRight className="size-3.5 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
   </div>
 </button>
