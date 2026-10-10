@@ -1248,7 +1248,7 @@ export default function CcnaStudyApp() {
               </Button>
             </div>
           </header>
-          <main className="relative flex-1 overflow-y-auto">
+          <main className="relative flex-1 overflow-y-auto overflow-x-hidden overscroll-x-contain">
             {isPending && (
               <div className="absolute inset-0 z-20 flex items-start justify-center bg-background/70 pt-24 backdrop-blur-[1px]">
                 <SquareLoader />
