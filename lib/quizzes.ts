@@ -581,16 +581,7 @@ export const quizzes: Quiz[] = [
             },
         ],
     },
-    {
-  id: "routing-final",
-  topicSlug: "routing",
-  final: true,
-  title: "Routing  ",
-  questions: [
-    // Mix of questions from Routing Basics, Static, RIP, EIGRP, OSPF
-    // Aim for 10–15 questions here since it's the topic-wide test
-  ],
-}
+ 
 ]
 
 

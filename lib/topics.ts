@@ -3157,16 +3157,777 @@ export const topics: Topic[] = [
           { label: 'Area 0', value: 'Only required when there are multiple areas' },
         ],
         diagrams: [
-  { src: '/diagrams/ospfwildcard_wide.png', alt: 'Subnet mask to wildcard mask conversion table with worked /26 example', caption: 'Subnet mask → wildcard mask' },
-  { src: '/diagrams/ospfpid_wide.png', alt: 'Process ID scenarios — same area, different areas', caption: 'Process ID scenarios — same vs different areas' },
-  { src: '/diagrams/ospfarea0_wide.png', alt: 'Area 0 scenarios — single-area topology and intersecting areas', caption: 'Area 0 scenarios — single-area vs intersecting areas' },
-  { src: '/diagrams/ospfarea1_wide.png', alt: 'Area 0 scenarios — single-area topology and intersecting areas', caption: 'Area 0 scenarios — single-area vs intersecting areas' },
-],
+          { src: '/diagrams/ospfwildcard_wide.png', alt: 'Subnet mask to wildcard mask conversion table with worked /26 example', caption: 'Subnet mask → wildcard mask' },
+          { src: '/diagrams/ospfpid_wide.png', alt: 'Process ID scenarios — same area, different areas', caption: 'Process ID scenarios — same vs different areas' },
+          { src: '/diagrams/ospfarea0_wide.png', alt: 'Area 0 scenarios — single-area topology and intersecting areas', caption: 'Area 0 scenarios — single-area vs intersecting areas' },
+          { src: '/diagrams/ospfarea1_wide.png', alt: 'Area 0 scenarios — single-area topology and intersecting areas', caption: 'Area 0 scenarios — single-area vs intersecting areas' },
+        ],
+      },
+      {
+        slug: 'ospf-passive-interface-interface-level-network-advertisement',
+        title: 'OSPF Passive Interface & Interface-Level Network Advertisement',
+        group: 'OSPF Theory',
+        description: 'How passive interfaces stop OSPF hellos on user-facing links, and the alternate way to advertise a network by enabling OSPF directly on the interface.',
+        blocks: [
+          { type: 'heading', text: 'Passive Interface' },
+          {
+            type: 'bullets', items: [
+              'A passive interface does not send hello packets, so no neighborship can form through it.',
+              'Used to block hellos towards user networks (no routers there, so no reason to send them).',
+              'Also used to temporarily shut down a neighborship for troubleshooting.',
+              'The network on a passive interface is still advertised into OSPF — only the hellos are blocked.',
+            ]
+          },
+          { type: 'heading', text: 'Configuration' },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  passive-interface default        -- all interfaces become passive\n  passive-interface f0/0           -- one single interface\n  exit' },
+          { type: 'paragraph', text: 'To disable passive mode, use the no form:' },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  no passive-interface default     -- or: no passive-interface f0/0\n  exit' },
+          { type: 'heading', text: 'Verification' },
+          { type: 'code', language: 'text', code: 'show ip protocols\nshow run | section ospf\nshow ip ospf interface\nshow ip ospf neighbor' },
+
+          { type: 'heading', text: 'Advertising Networks Through the Interface' },
+          { type: 'paragraph', text: 'This is an alternate method to advertise a network into OSPF. Instead of a network statement under the OSPF process, OSPF is enabled directly under the interface with the process ID and the area.' },
+          { type: 'code', language: 'text', code: 'interface f0/0\n  ip address 192.168.1.1 255.255.255.0\n  ip ospf 100 area 10             -- ip ospf <process-id> area <area-id>\n  no shutdown\n  exit' },
+        ],
+        quickReference: [
+          { label: 'Passive interface', value: 'Blocks hello packets — no neighborship through it' },
+          { label: 'Enable (all)', value: 'passive-interface default' },
+          { label: 'Enable (one)', value: 'passive-interface <interface>' },
+          { label: 'Disable', value: 'no passive-interface <default / interface>' },
+          { label: 'Interface-level advertisement', value: 'ip ospf <process-id> area <area-id> (under the interface)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/ospfpassive_wide.png', alt: 'Passive interface topology showing hellos blocked towards user networks', caption: 'Passive interface — hellos blocked towards user networks' },
+        ],
+      },
+
+      {
+        slug: 'ospf-virtual-link',
+        title: 'OSPF Virtual Link',
+        group: 'OSPF Theory',
+        description: 'How a virtual link connects a disconnected area to Area 0 through a transit area, and how to configure it on both ABRs.',
+        blocks: [
+          { type: 'heading', text: 'Why a Virtual Link?' },
+          {
+            type: 'bullets', items: [
+              'Every standard area must be connected to Area 0.',
+              'If an area is not connected to Area 0, there is no communication to or from that area.',
+              'A virtual link is the solution: a logical link configured between two ABRs.',
+              'The two ABRs form an OSPF adjacency over the virtual link, exchange routes, and restore connectivity.',
+            ]
+          },
+          { type: 'heading', text: 'Transit Area' },
+          { type: 'paragraph', text: 'Many virtual links can exist inside one autonomous system, but each virtual link passes through only one area — called the transit area.' },
+          {
+            type: 'table', headers: ['Virtual link', 'Transit area'], rows: [
+              ['Virtual link 1', 'Area 11'],
+              ['Virtual link 2', 'Area 51'],
+            ]
+          },
+          { type: 'heading', text: 'Configuration' },
+          { type: 'paragraph', text: 'The configuration is bidirectional — it must be done on both ABRs. Each side names the transit area and the Router-ID of the other ABR.' },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  area 1 virtual-link 1.1.1.1     -- area <transit-area> virtual-link <remote-ABR-router-id>\n  exit' },
+          { type: 'heading', text: 'Verification' },
+          { type: 'code', language: 'text', code: 'show ip ospf virtual-link\nshow run | section ospf\nshow ip ospf neighbor\nshow ip route\nping <destination>' },
+        ],
+        quickReference: [
+          { label: 'Purpose', value: 'Connect an area to Area 0 through another area' },
+          { label: 'Runs between', value: 'Two ABRs' },
+          { label: 'Command', value: 'area <transit-area> virtual-link <remote-router-id>' },
+          { label: 'Configure on', value: 'Both ABRs (bidirectional)' },
+          { label: 'Transit area', value: 'Each virtual link passes through exactly one area' },
+          { label: 'Verify', value: 'show ip ospf virtual-link' },
+        ],
+        diagrams: [
+          { src: '/diagrams/ospfvlink_wide.png', alt: 'Virtual link topology with Area 1, Area 0, Area 11, Area 51 and Area 5 and virtual links 1, 2 and 3', caption: 'Virtual links across transit areas' },
+        ],
+      },
+
+      {
+        slug: 'ospf-stub-areas-lsa-filtering',
+        title: 'OSPF Stub Areas: Stub, Total Stub, NSSA & Total NSSA',
+        group: 'OSPF Theory',
+        description: 'The four stub area types, which LSAs each one blocks, how default routes are injected, and the configuration for each.',
+        blocks: [
+          { type: 'heading', text: 'Stub Area Concept' },
+          {
+            type: 'bullets', items: [
+              'Stub areas filter routes inside an area to reduce router overhead (memory and CPU).',
+              'The stub setting must be configured on every router in the area — it is a neighborship condition.',
+              'A router configured as stub sets the stub flag in its hello packets. A neighbor without it will not set the flag, and the adjacency is not established.',
+            ]
+          },
+          { type: 'paragraph', text: 'A normal OSPF routing table contains three types of routes:' },
+          {
+            type: 'table', headers: ['Route type', 'LSA', 'Code'], rows: [
+              ['Intra-area', 'Router LSA (LSA 1)', 'O'],
+              ['Inter-area', 'Summary LSA (LSA 3)', 'O IA'],
+              ['External', 'External LSA (LSA 5)', 'E2'],
+            ]
+          },
+
+          { type: 'heading', text: 'Stub Area' },
+          {
+            type: 'bullets', items: [
+              'The ABR blocks LSA 4 and LSA 5.',
+              'The ABR injects a default route into the area for reaching the blocked networks.',
+              'External routes disappear from the routing table and are replaced by the default route, reducing memory use.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  area 10 stub\n  exit' },
+
+          { type: 'heading', text: 'Total Stub Area' },
+          {
+            type: 'bullets', items: [
+              'The ABR blocks LSA 3, 4 and 5.',
+              'A default route replaces both the inter-area [O IA] and external [E2] routes.',
+              'The routing table contains only [O] routes and the default route.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  area 20 stub no-summary         -- no-summary is needed on the ABR only\n  exit' },
+
+          { type: 'heading', text: 'NSSA (Not-So-Stubby Area)' },
+          {
+            type: 'bullets', items: [
+              'Every standard area can be stub or total stub except the area that contains the ASBR.',
+              'If the ASBR area were stub or total stub, LSA 5 would be blocked at the source and the rest of the AS would never receive the external routes.',
+              'So the ASBR area is configured as NSSA (or Total NSSA).',
+              'The ASBR converts incoming LSA 5 into LSA 7 (E2 becomes N2), which is flooded inside the area and not blocked.',
+              'When the N2 routes reach the ABR, they are converted back to E2 (LSA 7 to LSA 5) for the rest of the AS.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  area 20 nssa\n  exit' },
+
+          { type: 'heading', text: 'Total NSSA (TNSSA)' },
+          {
+            type: 'bullets', items: [
+              'Blocks LSA 3, 4 and 5 (like a total stub).',
+              'Still converts LSA 5 into LSA 7 for the ASBR.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  area 20 nssa no-summary\n  exit' },
+
+          { type: 'heading', text: 'Comparison' },
+          {
+            type: 'table', headers: ['Area type', 'Blocked LSAs', 'Allowed extras', 'Default route'], rows: [
+              ['Stub', 'LSA 4, 5', 'LSA 3', 'Yes'],
+              ['Total stub', 'LSA 3, 4, 5', '-', 'Yes'],
+              ['NSSA', 'LSA 4, 5', 'LSA 3, LSA 7 (ASBR in area)', 'Not automatic'],
+              ['Total NSSA', 'LSA 3, 4, 5', 'LSA 7 (ASBR in area)', 'Yes'],
+            ]
+          },
+          { type: 'paragraph', text: 'Note: a plain NSSA does not automatically get a default route from the ABR. It is injected with no-summary (Total NSSA) or with area <id> nssa default-information-originate on the ABR.' },
+
+          { type: 'heading', text: 'Verification' },
+          { type: 'code', language: 'text', code: 'show ip route\nshow ip ospf database\nshow run | section ospf' },
+        ],
+        quickReference: [
+          { label: 'Stub', value: 'area <id> stub — blocks LSA 4, 5; default route added' },
+          { label: 'Total stub', value: 'area <id> stub no-summary — blocks LSA 3, 4, 5' },
+          { label: 'NSSA', value: 'area <id> nssa — LSA 5 becomes LSA 7 (E2 to N2)' },
+          { label: 'Total NSSA', value: 'area <id> nssa no-summary — blocks LSA 3, 4, 5; converts 5 to 7' },
+          { label: 'Neighborship rule', value: 'Stub setting must match on every router in the area' },
+          { label: 'ASBR area', value: 'Cannot be stub or total stub — use NSSA / Total NSSA' },
+          { label: 'LSA 7 at ABR', value: 'Converted back to LSA 5 (N2 to E2)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/ospfnssa_wide.png', alt: 'NSSA topology with Area 10, Area 0 and Area 20 showing ABR, ASBR, E2 to N2 and N2 to E2 conversion', caption: 'NSSA — E2 to N2 at the ASBR, N2 to E2 at the ABR' },
+        ],
+      },
+
+      {
+        slug: 'route-redistribution-ospf-eigrp',
+        title: 'Route Redistribution: OSPF, EIGRP & Metric Translation',
+        group: 'Redistribution',
+        description: 'How to redistribute between OSPF and OSPF, EIGRP and EIGRP, and OSPF and EIGRP, and why the metric must be set when going into EIGRP.',
+        blocks: [
+          { type: 'paragraph', text: 'Redistribution is configured on the ASBR, the router that sits between the two routing domains.' },
+
+          { type: 'heading', text: 'OSPF to OSPF' },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  redistribute ospf 200 subnets\n  exit\n\nrouter ospf 200\n  redistribute ospf 100 subnets\n  exit' },
+          { type: 'paragraph', text: 'The subnets keyword is needed so that subnetted (classless) networks are redistributed, not just classful ones.' },
+
+          { type: 'heading', text: 'EIGRP to EIGRP' },
+          { type: 'code', language: 'text', code: 'router eigrp 100\n  redistribute eigrp 200\n  exit\n\nrouter eigrp 200\n  redistribute eigrp 100\n  exit' },
+          { type: 'paragraph', text: 'No metric is needed here: both sides are EIGRP, so the metric is carried across automatically.' },
+
+          { type: 'heading', text: 'OSPF to EIGRP' },
+          {
+            type: 'bullets', items: [
+              'The two protocols work differently and use different metrics.',
+              'OSPF uses cost, which is derived from interface bandwidth.',
+              'EIGRP uses a composite metric: bandwidth, delay, reliability, load and MTU.',
+              'Because the metrics are not compatible, a metric must be supplied when redistributing into EIGRP.',
+            ]
+          },
+          {
+            type: 'table', headers: ['EIGRP metric field', 'Used in metric formula by default?'], rows: [
+              ['Bandwidth (K1)', 'Yes'],
+              ['Load (K2)', 'No'],
+              ['Delay (K3)', 'Yes'],
+              ['Reliability (K4, K5)', 'No'],
+              ['MTU', 'No — carried only, not used in the calculation'],
+            ]
+          },
+
+          { type: 'heading', text: 'Redistributing EIGRP into OSPF' },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  redistribute eigrp 200 subnets\n  exit' },
+
+          { type: 'heading', text: 'Redistributing OSPF into EIGRP' },
+          { type: 'code', language: 'text', code: 'router eigrp 200\n  redistribute ospf 100 metric <bandwidth> <delay> <reliability> <load> <mtu>\n  redistribute ospf 100 metric 10000 100 255 1 1500\n  exit' },
+          { type: 'paragraph', text: 'Metric order: bandwidth (kbps), delay (tens of microseconds), reliability (255 = best), load (1 = lowest), MTU (bytes). Enter the numbers without commas.' },
+          { type: 'heading', text: 'Verification' },
+          { type: 'code', language: 'text', code: 'show ip route\nshow ip protocols\nshow run | section eigrp\nshow run | section ospf\nshow ip eigrp topology\nshow ip ospf database' },
+        ],
+        quickReference: [
+          { label: 'Where to configure', value: 'On the ASBR' },
+          { label: 'OSPF to OSPF', value: 'redistribute ospf <pid> subnets' },
+          { label: 'EIGRP to EIGRP', value: 'redistribute eigrp <as> (metric carried automatically)' },
+          { label: 'EIGRP into OSPF', value: 'redistribute eigrp <as> subnets' },
+          { label: 'OSPF into EIGRP', value: 'redistribute ospf <pid> metric <bw> <delay> <rel> <load> <mtu>' },
+          { label: 'Why metrics differ', value: 'OSPF = cost (bandwidth); EIGRP = bandwidth + delay (default K-values)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/redistospf.png', alt: 'OSPF 100 to OSPF 200 redistribution through an ASBR', caption: 'OSPF to OSPF redistribution' },
+          { src: '/diagrams/redisteigrp.png', alt: 'EIGRP 100 to EIGRP 200 redistribution through an ASBR', caption: 'EIGRP to EIGRP redistribution' },
+          { src: '/diagrams/redistospfeigrp.png', alt: 'OSPF 100 to EIGRP 200 redistribution through an ASBR', caption: 'OSPF to EIGRP redistribution' },
+        ],
+      },
+
+      {
+        slug: 'ospf-timers-dr-bdr-election-router-id',
+        title: 'OSPF Timers, DR/BDR Election & Router-ID',
+        group: 'OSPF Advanced',
+        description: 'Changing hello and dead timers, influencing the DR/BDR election with priority, and manually setting the OSPF Router-ID.',
+        blocks: [
+          { type: 'heading', text: 'Changing OSPF Timers' },
+          {
+            type: 'bullets', items: [
+              'OSPF keeps a 1:4 ratio between its timers.',
+              'Default Hello interval = 10 seconds.',
+              'Default Dead interval = 40 seconds.',
+              'Timers must be identical on neighbors — it is a neighborship condition.',
+              'Timers are configured on the OSPF interface.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'interface f0/0\n  ip ospf hello-interval 5\n  ip ospf dead-interval 20\n  no shutdown\n  exit' },
+          { type: 'code', language: 'text', code: 'show run interface f0/0\nshow ip ospf neighbor\nshow ip ospf interface' },
+
+          { type: 'heading', text: 'DR/BDR Election Manipulation' },
+          { type: 'paragraph', text: 'The DR/BDR election happens on BMA (broadcast) networks and uses two criteria, in this order:' },
+          {
+            type: 'bullets', items: [
+              '(i) Highest priority (default = 1)',
+              '(ii) Highest Router-ID',
+              'The BDR is elected first, then the DR.',
+              'The election is not preemptive: it happens once and is not repeated when a better router joins.',
+              'So the priority must be changed before advertising networks and forming adjacencies.',
+              'A priority of 0 means the router never takes part in the election.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'interface f0/0\n  ip ospf priority 100\n  no shutdown\n  exit' },
+          { type: 'code', language: 'text', code: 'show ip ospf neighbor\nshow run interface f0/0' },
+
+          { type: 'heading', text: 'Changing the OSPF Router-ID' },
+          {
+            type: 'bullets', items: [
+              'The Router-ID election is not preemptive: it is chosen once.',
+              'Default order: manual router-id, then highest loopback IP, then highest active physical interface IP.',
+              'To set it manually, use a 32-bit value in dotted format.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  router-id 1.1.1.1\n  exit' },
+          { type: 'paragraph', text: 'If OSPF is already running, the new Router-ID takes effect only after the process is restarted with clear ip ospf process.' },
+          { type: 'code', language: 'text', code: 'show ip protocols\nshow run | section ospf\nshow ip ospf neighbor' },
+        ],
+        quickReference: [
+          { label: 'Default timers', value: 'Hello 10s, Dead 40s (1:4 ratio)' },
+          { label: 'Timer commands', value: 'ip ospf hello-interval <s>; ip ospf dead-interval <s>' },
+          { label: 'DR/BDR election', value: 'Highest priority, then highest Router-ID' },
+          { label: 'Default priority', value: '1 (0 = never DR/BDR)' },
+          { label: 'Priority command', value: 'ip ospf priority <0-255>' },
+          { label: 'Election behaviour', value: 'Non-preemptive; BDR elected first, then DR' },
+          { label: 'Router-ID command', value: 'router-id <32-bit id>' },
+          { label: 'Apply new Router-ID', value: 'clear ip ospf process' },
+        ],
+        diagrams: [],
+      },
+
+      {
+        slug: 'ospf-path-manipulation-reference-bandwidth',
+        title: 'OSPF Path Manipulation & Reference Bandwidth',
+        group: 'OSPF Advanced',
+        description: 'Influencing the best path by changing interface cost, and raising the reference bandwidth so Fast and Gigabit links get different costs.',
+        blocks: [
+          { type: 'heading', text: 'OSPF Path Manipulation' },
+          { type: 'paragraph', text: 'OSPF path selection is changed by raising the cost on the OSPF interfaces. The path with the lowest total cost is the best path; the higher-cost path becomes the backup.' },
+          { type: 'code', language: 'text', code: 'interface f0/0\n  ip ospf cost 50\n  no shutdown\n  exit' },
+          { type: 'heading', text: 'Verification' },
+          { type: 'code', language: 'text', code: 'show ip route\nshow run interface f0/0\ntraceroute <destination>\nshow ip ospf database\nshow ip ospf interface' },
+
+          { type: 'heading', text: 'Changing the Reference Bandwidth' },
+          {
+            type: 'bullets', items: [
+              'OSPF cost = reference bandwidth / interface bandwidth.',
+              'The default reference bandwidth is 100 Mbps.',
+              'On Fast Ethernet and Gigabit networks the cost works out the same (1), so both links look equally good and are treated as equal best paths.',
+              'The fix is to raise the reference bandwidth.',
+              'It must be set to the same value on every router in the OSPF domain.',
+            ]
+          },
+          { type: 'code', language: 'text', code: 'router ospf 100\n  auto-cost reference-bandwidth 1000     -- value in Mbps\n  exit' },
+          {
+            type: 'table', headers: ['Interface', 'Cost at 100 Mbps reference', 'Cost at 1000 Mbps reference'], rows: [
+              ['FastEthernet (100 Mbps)', '1', '10'],
+              ['GigabitEthernet (1 Gbps)', '1', '1'],
+            ]
+          },
+          { type: 'heading', text: 'Verification' },
+          { type: 'code', language: 'text', code: 'show ip protocols\nshow run | section ospf\nshow ip ospf' },
+        ],
+        quickReference: [
+          { label: 'Path manipulation', value: 'ip ospf cost <value> on the interface' },
+          { label: 'Best path', value: 'Lowest total cost' },
+          { label: 'Cost formula', value: 'Reference bandwidth / interface bandwidth' },
+          { label: 'Default reference bw', value: '100 Mbps' },
+          { label: 'Change it', value: 'auto-cost reference-bandwidth <Mbps>' },
+          { label: 'Rule', value: 'Same reference bandwidth on all routers' },
+        ],
+        diagrams: [
+          { src: '/diagrams/ospfpath_wide.png', alt: 'Path manipulation topology with R1, R2, R3 and R4 showing best and backup paths and cost changes', caption: 'Path manipulation — best path vs backup path after a cost change' },
+        ],
       },
 
 
 
     ],
+  },
+  {
+    slug: 'packet-flow',
+    number: '01',
+    title: 'Packet Flow',
+    icon: 'network',
+    description: 'How communication happens within and between networks',
+    subtopics: [
+      {
+        slug: 'packet-flow-within-the-same-network',
+        title: 'Packet Flow Within the Same Network (AND, ARP, ICMP)',
+        description: 'How PC1 pings PC2 in the same network: the AND check, the ARP broadcast and unicast reply, switch MAC learning, and the actual ICMP echo.',
+        blocks: [
+          { type: 'heading', text: 'Goal' },
+          { type: 'paragraph', text: 'PC1 wants to ping PC2 (192.168.1.2). It happens in three steps:' },
+          {
+            type: 'bullets', items: [
+              '(i) AND - is the destination in my network or a different one?',
+              '(ii) ARP - what is the destination MAC address?',
+              '(iii) Traffic - send the actual data.',
+            ]
+          },
+          { type: 'heading', text: 'Broadcast addresses' },
+          {
+            type: 'table', headers: ['Layer', 'Broadcast address'], rows: [
+              ['Layer 3 (IP)', '255.255.255.255'],
+              ['Layer 2 (MAC)', 'ffff.ffff.ffff'],
+            ]
+          },
+
+          { type: 'heading', text: 'Step 1: AND operation' },
+          { type: 'paragraph', text: 'Do an AND between the destination IP and the source mask, in binary. The result is compared with the source network.' },
+          {
+            type: 'table', headers: ['A', 'B', 'A AND B'], rows: [
+              ['0', '0', '0'],
+              ['0', '1', '0'],
+              ['1', '0', '0'],
+              ['1', '1', '1'],
+            ]
+          },
+          { type: 'code', language: 'text', code: 'Dest IP : 192.168.1.2   = 11000000.10101000.00000001.00000010\nMask    : 255.255.255.0 = 11111111.11111111.11111111.00000000\n                          ---------------------------------------\nAND     :                 11000000.10101000.00000001.00000000\n                        = 192.168.1.0' },
+          { type: 'paragraph', text: 'The result 192.168.1.0 is the same as PC1 own network, so PC2 is local. Deliver directly, no gateway needed. Move on to step 2.' },
+
+          { type: 'heading', text: 'Step 2: ARP operation' },
+          {
+            type: 'bullets', items: [
+              'PC1 knows PC2 IP but not its MAC address, and without the MAC address it cannot build the frame.',
+              'PC1 first checks its ARP cache. At the start it is empty, so it has to ask.',
+              'It sends an ARP request as a broadcast, using the Layer 2 broadcast address ffff.ffff.ffff (PC1 to everyone).',
+            ]
+          },
+          {
+            type: 'table', headers: ['ARP operation', 'Src IP', 'Target IP', 'Src MAC', 'Target MAC'], rows: [
+              ['Request', '192.168.1.1', '192.168.1.2', 'aaa', 'ffff.ffff.ffff'],
+            ]
+          },
+          { type: 'paragraph', text: 'The frame arrives on switch port 0/0, so the switch learns the source MAC and stores it:' },
+          {
+            type: 'table', headers: ['Port', 'MAC address'], rows: [
+              ['0/0', 'aaa'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'The switch floods the broadcast frame out of all other ports (0/2, 0/3).',
+              'The gateway and PC3 discard the request because the target IP is not theirs.',
+              'PC2 receives it, recognizes its own IP, and learns PC1 into its ARP cache: 192.168.1.1 = aaa.',
+            ]
+          },
+          { type: 'paragraph', text: 'PC2 then sends the ARP reply. It is unicast because PC2 now knows PC1 MAC address.' },
+          {
+            type: 'table', headers: ['ARP operation', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['Reply', '192.168.1.2', '192.168.1.1', 'bbb', 'aaa'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'The switch receives the reply frame on 0/2, learns bbb = 0/2, and forwards it (unicast) out of 0/0 to PC1.',
+              'PC1 receives the frame and updates its ARP cache: 192.168.1.2 = bbb.',
+            ]
+          },
+          {
+            type: 'table', headers: ['Switch MAC table (port)', 'MAC'], rows: [
+              ['0/0', 'aaa'],
+              ['0/2', 'bbb'],
+            ]
+          },
+
+          { type: 'heading', text: 'Step 3: Traffic (the actual ping)' },
+          { type: 'paragraph', text: 'PC1 now has everything it needs and sends the ICMP echo to PC2.' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo', '192.168.1.1', '192.168.1.2', 'aaa', 'bbb'],
+            ]
+          },
+          { type: 'paragraph', text: 'The switch receives the frame on 0/0, finds bbb in its MAC table, and forwards it only out of 0/2 to PC2. PC2 receives the echo and answers with the echo reply:' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo reply', '192.168.1.2', '192.168.1.1', 'bbb', 'aaa'],
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Order of events', value: 'AND, then ARP, then traffic' },
+          { label: 'AND result = own network', value: 'Destination is local, deliver directly' },
+          { label: 'ARP request', value: 'Broadcast, Dest MAC ffff.ffff.ffff' },
+          { label: 'ARP reply', value: 'Unicast back to the requester' },
+          { label: 'Switch', value: 'Learns the source MAC, floods unknown or broadcast, forwards known MACs out one port' },
+          { label: 'L3 / L2 broadcast', value: '255.255.255.255 / ffff.ffff.ffff' },
+        ],
+        diagrams: [
+          { src: '/diagrams/packetflow_intra.png', alt: 'Packet flow topology with PC1, PC2, PC3, a switch and a gateway showing the ARP request, ARP reply and ICMP echo', caption: 'Packet flow inside one network' },
+        ],
+      },
+
+      {
+        slug: 'packet-flow-between-networks-forward-path',
+        title: 'Packet Flow Between Networks: Forward Path (PC1 to PC3)',
+        description: 'How a ping from PC1 (192.168.1.1) reaches PC3 (192.168.2.1) across two routers: IP stays end to end, MAC changes at every hop.',
+        blocks: [
+          { type: 'heading', text: 'Goal' },
+          { type: 'paragraph', text: 'PC1 (192.168.1.1) sends a ping to PC3 (192.168.2.1) through SW1, R1, R2 and SW2. The rule to remember: the IP addresses stay the same end to end, but the MAC addresses change at every hop.' },
+
+          { type: 'heading', text: 'Step 1: AND operation (local or remote)' },
+          { type: 'code', language: 'text', code: 'Dest IP : 192.168.2.1   = 11000000.10101000.00000010.00000001\nMask    : 255.255.255.0 = 11111111.11111111.11111111.00000000\n                          ---------------------------------------\nAND     :                 11000000.10101000.00000010.00000000\n                        = 192.168.2.0' },
+          {
+            type: 'bullets', items: [
+              'PC1 own network is 192.168.1.0. The result is 192.168.2.0, so PC3 is remote.',
+              'PC1 cannot deliver it directly. It must hand the packet to its default gateway (192.168.1.100).',
+            ]
+          },
+
+          { type: 'heading', text: 'Step 2: PC1 sends an ARP for the gateway (not for PC3)' },
+          {
+            type: 'bullets', items: [
+              'PC1 knows the gateway IP but not its MAC. The gateway is in the same network, so the communication is Layer 2 and cannot happen without a MAC address.',
+              'PC1 ARP cache is empty at the start.',
+            ]
+          },
+          {
+            type: 'table', headers: ['ARP operation', 'Src IP', 'Target IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['Request', '192.168.1.1', '192.168.1.100', 'aaa', 'ffff.ffff.ffff'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'SW1 learns aaa = 0/0 and floods the broadcast out of the other ports (0/2 and 0/3).',
+              'PC2 (1.2) ignores it. R1 sees its own IP and answers.',
+              'R1 also learns from the request and saves 1.1 = aaa in its ARP table.',
+            ]
+          },
+          {
+            type: 'table', headers: ['ARP operation', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['Reply (unicast)', '192.168.1.100', '192.168.1.1', 'ccc', 'aaa'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'SW1 learns ccc = 0/3 and forwards the reply frame only out of 0/0.',
+              'PC1 saves 1.100 = ccc in its ARP cache.',
+            ]
+          },
+
+          { type: 'heading', text: 'Step 3: PC1 sends the ICMP echo to the gateway' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo', '192.168.1.1', '192.168.2.1 (PC3, the final target)', 'aaa', 'ccc (the gateway, not PC3)'],
+            ]
+          },
+          { type: 'paragraph', text: 'PC1 is saying "deliver this to R1, who will take it toward 2.1". SW1 already knows ccc = 0/3, so it forwards the frame only out of port 0/3.' },
+
+          { type: 'heading', text: 'Step 4: R1 routes the packet' },
+          {
+            type: 'bullets', items: [
+              '(i) R1 removes the MAC header and reads Dest IP = 2.1.',
+              '(ii) It checks the routing table: 192.168.2.0/24 via next hop 3.2.',
+              '(iii) Its ARP table only has 1.1 = aaa, but it needs the MAC of 3.2, so it sends an ARP request toward R2.',
+            ]
+          },
+          {
+            type: 'table', headers: ['ARP operation', 'Src IP', 'Target IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['Request', '192.168.3.1', '192.168.3.2 (next hop, not 2.1)', 'ddd', 'ffff.ffff.ffff'],
+              ['Reply', '192.168.3.2', '192.168.3.1', 'eee', 'ddd'],
+            ]
+          },
+          {
+            type: 'table', headers: ['Device', 'ARP table after this step'], rows: [
+              ['R1', '1.1 = aaa, 3.2 = eee'],
+              ['R2', '3.1 = ddd'],
+            ]
+          },
+
+          { type: 'heading', text: 'Step 5: R1 forwards the echo to R2' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo', '192.168.1.1', '192.168.2.1', 'ddd', 'eee'],
+            ]
+          },
+          { type: 'paragraph', text: 'There is no switch on the 3.0 link, so the frame goes straight to R2. The IPs are unchanged, the MACs are new, and TTL is reduced by 1.' },
+
+          { type: 'heading', text: 'Step 6: R2 routes the packet and ARPs for PC3' },
+          {
+            type: 'bullets', items: [
+              'Dest MAC is eee (its own), so R2 accepts the frame, removes the Ethernet header and reads Dest IP = 2.1.',
+              'Routing table: 192.168.2.0/24 is directly connected on its 2.100 interface, so no next router is needed.',
+              'R2 has no MAC for 2.1 yet, so it sends an ARP request to PC3.',
+            ]
+          },
+          {
+            type: 'table', headers: ['ARP operation', 'Src IP', 'Target IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['Request', '192.168.2.100', '192.168.2.1', 'nnn', 'ffff.ffff.ffff'],
+              ['Reply (unicast)', '192.168.2.1', '192.168.2.100', 'ggg', 'nnn'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'SW2 learns nnn = 0/0 from the request and floods it out of its other ports.',
+              'PC3 learns 2.100 = nnn, then replies. SW2 learns ggg = 0/1 and forwards the reply only out of 0/0.',
+              'R2 saves 2.1 = ggg in its ARP table.',
+            ]
+          },
+
+          { type: 'heading', text: 'Step 7: R2 forwards the echo to PC3' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo', '192.168.1.1', '192.168.2.1', 'nnn', 'ggg'],
+            ]
+          },
+          { type: 'paragraph', text: 'SW2 already knows ggg = 0/1, so it forwards the frame only out of 0/1. PC3 accepts it because the MAC and the IP both match.' },
+
+          { type: 'heading', text: 'The whole forward journey' },
+          {
+            type: 'table', headers: ['Hop', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['PC1 to R1', '1.1', '2.1', 'aaa', 'ccc'],
+              ['R1 to R2', '1.1', '2.1', 'ddd', 'eee'],
+              ['R2 to PC3', '1.1', '2.1', 'nnn', 'ggg'],
+            ]
+          },
+
+          { type: 'heading', text: 'State after the forward path' },
+          {
+            type: 'table', headers: ['Device', 'Table'], rows: [
+              ['PC1 ARP', '1.100 = ccc'],
+              ['R1 ARP', '1.1 = aaa, 3.2 = eee'],
+              ['R2 ARP', '3.1 = ddd, 2.1 = ggg'],
+              ['PC3 ARP', '2.100 = nnn'],
+              ['SW1 MAC table', 'aaa = 0/0, ccc = 0/3'],
+              ['SW2 MAC table', 'nnn = 0/0, ggg = 0/1'],
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Golden rule', value: 'IP stays end to end, MAC changes at every hop' },
+          { label: 'Remote destination', value: 'ARP for the default gateway, not for the final target' },
+          { label: 'Router steps', value: 'Remove the MAC header, read Dest IP, route lookup, ARP for the next hop, rebuild the frame' },
+          { label: 'Next hop ARP', value: 'Router ARPs for the next-hop IP (3.2), not for the final IP (2.1)' },
+          { label: 'ARPs on the forward path', value: '3 (PC1 for gateway, R1 for R2, R2 for PC3)' },
+          { label: 'TTL', value: 'Reduced by 1 at every router' },
+        ],
+        diagrams: [
+
+
+          { src: '/diagrams/packetflow_inter_wide.png', alt: 'Inter-network topology: PC1 and PC2 to SW1 to R1 to R2 to SW2 to PC3 and PC4', caption: 'Packet flow between two networks' },
+          { src: '/diagrams/packetfloww_inter_wide.png', alt: 'Request path from PC1 through SW1, R1, R2 and SW2 to PC3 with the three ARP exchanges and the ICMP echo frames at each hop', caption: 'Echo request path (PC1 to PC3)' },
+        ],
+      },
+
+      {
+        slug: 'packet-flow-between-networks-reply-path',
+        title: 'Packet Flow Between Networks: Reply Path (PC3 to PC1)',
+        description: 'How the echo reply travels back from PC3 (192.168.2.1) to PC1 (192.168.1.1): IP stays end to end, MAC changes at every hop, and every ARP table is already filled.',
+        blocks: [
+          { type: 'heading', text: 'Goal' },
+          { type: 'paragraph', text: 'PC3 (192.168.2.1) has received the ICMP echo from PC1 and now sends the echo reply back to PC1 (192.168.1.1) through SW2, R2, R1 and SW1. The rule is the same as the forward path: the IP addresses stay the same end to end, but the MAC addresses change at every hop. This time the ARP tables are already filled from the forward path, so no ARP is needed.' },
+
+          { type: 'heading', text: 'Starting state (from the forward path)' },
+          {
+            type: 'table', headers: ['Device', 'Table'], rows: [
+              ['PC1 ARP', '1.100 = ccc'],
+              ['R1 ARP', '1.1 = aaa, 3.2 = eee'],
+              ['R2 ARP', '3.1 = ddd, 2.1 = ggg'],
+              ['PC3 ARP', '2.100 = nnn'],
+              ['SW1 MAC table', 'aaa = 0/0, ccc = 0/3'],
+              ['SW2 MAC table', 'nnn = 0/0, ggg = 0/1'],
+            ]
+          },
+
+          { type: 'heading', text: 'Step 1: AND operation (local or remote)' },
+          { type: 'code', language: 'text', code: 'Dest IP : 192.168.1.1   = 11000000.10101000.00000001.00000001\nMask    : 255.255.255.0 = 11111111.11111111.11111111.00000000\n                          ---------------------------------------\nAND     :                 11000000.10101000.00000001.00000000\n                        = 192.168.1.0' },
+          {
+            type: 'bullets', items: [
+              'PC3 own network is 192.168.2.0. The result is 192.168.1.0, so PC1 is remote.',
+              'PC3 cannot deliver it directly. It must hand the packet to its default gateway (192.168.2.100).',
+            ]
+          },
+
+          { type: 'heading', text: 'Step 2: PC3 checks its ARP cache for the gateway (no ARP needed)' },
+          {
+            type: 'bullets', items: [
+              'PC3 needs the MAC of the gateway 2.100, because the gateway is in the same network and the communication is Layer 2.',
+              'The ARP cache already has 2.100 = nnn, learned from the ARP request R2 sent in the forward path.',
+              'So PC3 does not send any ARP request.',
+            ]
+          },
+
+          { type: 'heading', text: 'Step 3: PC3 sends the ICMP echo reply to the gateway' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo reply', '192.168.2.1', '192.168.1.1 (PC1, the final target)', 'ggg', 'nnn (the gateway, not PC1)'],
+            ]
+          },
+          { type: 'paragraph', text: 'PC3 is saying "deliver this to R2, who will take it toward 1.1". SW2 already knows ggg = 0/1 and nnn = 0/0, so it forwards the frame only out of port 0/0.' },
+
+          { type: 'heading', text: 'Step 4: R2 routes the packet' },
+          {
+            type: 'bullets', items: [
+              '(i) R2 removes the MAC header and reads Dest IP = 1.1.',
+              '(ii) It checks the routing table: 192.168.1.0/24 via next hop 3.1.',
+              '(iii) It checks its ARP table: 3.1 = ddd is already there, so no ARP request is needed.',
+              'TTL is reduced by 1.',
+            ]
+          },
+
+          { type: 'heading', text: 'Step 5: R2 forwards the echo reply to R1' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo reply', '192.168.2.1', '192.168.1.1', 'eee', 'ddd'],
+            ]
+          },
+          { type: 'paragraph', text: 'There is no switch on the 3.0 link, so the frame goes straight to R1. The IPs are unchanged, the MACs are new.' },
+
+          { type: 'heading', text: 'Step 6: R1 routes the packet' },
+          {
+            type: 'bullets', items: [
+              '(i) R1 removes the MAC header and reads Dest IP = 1.1.',
+              '(ii) It checks the routing table: 192.168.1.0/24 is directly connected on its 1.100 interface, so no next router is needed.',
+              '(iii) It checks its ARP table: 1.1 = aaa is already there, so no ARP request is needed.',
+              'TTL is reduced by 1 again.',
+            ]
+          },
+
+          { type: 'heading', text: 'Step 7: R1 forwards the echo reply to PC1' },
+          {
+            type: 'table', headers: ['Protocol', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['ICMP echo reply', '192.168.2.1', '192.168.1.1', 'ccc', 'aaa'],
+            ]
+          },
+          { type: 'paragraph', text: 'SW1 already knows ccc = 0/3 and aaa = 0/0, so it forwards the frame only out of port 0/0. PC1 accepts it because the MAC and the IP both match. The ping is successful.' },
+
+          { type: 'heading', text: 'The whole reply journey' },
+          {
+            type: 'table', headers: ['Hop', 'Src IP', 'Dest IP', 'Src MAC', 'Dest MAC'], rows: [
+              ['PC3 to R2', '2.1', '1.1', 'ggg', 'nnn'],
+              ['R2 to R1', '2.1', '1.1', 'eee', 'ddd'],
+              ['R1 to PC1', '2.1', '1.1', 'ccc', 'aaa'],
+            ]
+          },
+
+          { type: 'heading', text: 'State after the reply path (no new entries)' },
+          { type: 'paragraph', text: 'The reply path adds nothing new, because everything it needed was already learned during the forward path.' },
+          {
+            type: 'table', headers: ['Device', 'Table'], rows: [
+              ['PC1 ARP', '1.100 = ccc'],
+              ['R1 ARP', '1.1 = aaa, 3.2 = eee'],
+              ['R2 ARP', '3.1 = ddd, 2.1 = ggg'],
+              ['PC3 ARP', '2.100 = nnn'],
+              ['SW1 MAC table', 'aaa = 0/0, ccc = 0/3'],
+              ['SW2 MAC table', 'nnn = 0/0, ggg = 0/1'],
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Golden rule', value: 'IP stays end to end, MAC changes at every hop' },
+          { label: 'Remote destination', value: 'Send to the default gateway (MAC from the ARP cache)' },
+          { label: 'Router steps', value: 'Remove the MAC header, read Dest IP, route lookup, ARP table lookup, rebuild the frame' },
+          { label: 'ARPs on the reply path', value: '0 (the forward path already filled every cache)' },
+          { label: 'Forward vs reply', value: 'Forward needs 3 ARPs, reply needs none' },
+          { label: 'TTL', value: 'Reduced by 1 at every router' },
+        ],
+        diagrams: [
+          { src: '/diagrams/packetflow_reply_wide.png', alt: 'Reply path from PC3 through SW2, R2, R1 and SW1 back to PC1', caption: 'Echo reply path (PC3 to PC1)' },
+        ],
+      },
+      {
+        slug: 'pdu-names-segment-packet-frame-bits',
+        title: 'PDU Names: Segment, Packet, Frame & Bits',
+        description: 'Each layer has its own name for a chunk of data, and which word to use depends on whether the focus is the IP address or the MAC address.',
+        blocks: [
+          { type: 'heading', text: 'Protocol Data Unit (PDU)' },
+          { type: 'paragraph', text: 'Each layer has its own name for a chunk of data, called a PDU (Protocol Data Unit).' },
+          {
+            type: 'table', headers: ['Layer', 'PDU name'], rows: [
+              ['Layer 4 (Transport)', 'Segment (TCP) or datagram (UDP)'],
+              ['Layer 3 (Network)', 'Packet'],
+              ['Layer 2 (Data Link)', 'Frame'],
+              ['Layer 1 (Physical)', 'Bits'],
+            ]
+          },
+          { type: 'heading', text: 'Frame or packet?' },
+          {
+            type: 'bullets', items: [
+              'A switch works at Layer 2 and reads the MAC addresses in the Ethernet header, so what it handles is a frame.',
+              'The ICMP echo is an IP packet (it has Src IP and Dst IP). Once it is placed inside an Ethernet header with Src MAC and Dst MAC, it travels as a frame.',
+              'A router looks at the Dst IP and routes the packet.',
+              'ARP sits between Layer 2 and Layer 3 and travels directly inside an Ethernet frame, so "ARP reply frame" is correct when talking about what the switch does.',
+            ]
+          },
+          { type: 'heading', text: 'Easy way to remember' },
+          {
+            type: 'bullets', items: [
+              'IP address in focus: packet',
+              'MAC address in focus: frame',
+            ]
+          },
+          { type: 'paragraph', text: 'In casual talk many people say "packet" for everything. In notes and exams, use frame whenever the switch or MAC addresses are involved.' },
+        ],
+        quickReference: [
+          { label: 'Layer 4', value: 'Segment (TCP) / datagram (UDP)' },
+          { label: 'Layer 3', value: 'Packet (IP addresses, router)' },
+          { label: 'Layer 2', value: 'Frame (MAC addresses, switch)' },
+          { label: 'Layer 1', value: 'Bits' },
+          { label: 'ARP', value: 'Travels inside an Ethernet frame' },
+        ],
+        diagrams: [],
+      },
+    ]
+
   },
 
 ]
