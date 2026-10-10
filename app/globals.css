@@ -264,3 +264,9 @@
     background: var(--glass-bg-hover);
   }
 }
+@media (max-width: 640px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
