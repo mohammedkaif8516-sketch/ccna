@@ -1087,7 +1087,7 @@ function Dashboard({
 export default function CcnaStudyApp() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { dark, toggle: toggleTheme } = useTheme();
+  const { dark, toggleTheme } = useTheme();
   const [lightbox, setLightbox] = useState<Diagram | null>(null);
   const { completed, isCompleted, toggle } = useCompletedTopics();
   const { bestFor, saveScore } = useQuizScores();
