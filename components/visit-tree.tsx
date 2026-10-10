@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronRight, FileText, Folder, FolderTree } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { VisitEntry } from "@/lib/use-visit-history";
 
@@ -46,19 +45,23 @@ function VisitNode({
 
   return (
     <div
-  className="flex w-full min-w-0 flex-col items-center"
-  style={{
-    animation: `visitNodeIn 420ms cubic-bezier(0.2, 0.9, 0.3, 1.1) ${index * 90}ms both`,
-  }}
->
+      // FIX: min-w-0 + max-w-md so the wrapper can shrink and never exceeds card width
+      className="flex w-full min-w-0 max-w-md flex-col items-center"
+      style={{
+        animation: `visitNodeIn 420ms cubic-bezier(0.2, 0.9, 0.3, 1.1) ${index * 90}ms both`,
+      }}
+    >
       {/* Parent chip — group or topic */}
-      <div className="glass flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] text-muted-foreground">
+      {/* FIX: max-w-full so a long label can't widen the layout */}
+      <div className="glass flex max-w-full items-center gap-1.5 rounded-full px-3 py-1 text-[11px] text-muted-foreground">
         {parentType === "group" ? (
-          <Folder className="size-3" />
+          <Folder className="size-3 shrink-0" />
         ) : (
-          <FolderTree className="size-3" />
+          <FolderTree className="size-3 shrink-0" />
         )}
-        <span className="max-w-[240px] truncate">{parentLabel}</span>
+        <span className="min-w-0 max-w-[60vw] truncate sm:max-w-[240px]">
+          {parentLabel}
+        </span>
       </div>
 
       {/* Line between parent chip and node */}
@@ -73,40 +76,41 @@ function VisitNode({
       />
 
       {/* Node — clickable subtopic card */}
+      {/* FIX: min-w-0 so the flex item can shrink below its text's intrinsic width */}
       <button
-  type="button"
-  onClick={onSelect}
-  className="glass glass-hover group flex w-full max-w-md items-center gap-3 overflow-hidden rounded-2xl px-4 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
->
-  {/* Left icon */}
-  <div
-    className="flex size-9 shrink-0 items-center justify-center rounded-xl"
-    style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
-  >
-    <FileText className="size-4" />
-  </div>
+        type="button"
+        onClick={onSelect}
+        className="glass glass-hover group flex w-full min-w-0 max-w-md items-center gap-3 overflow-hidden rounded-2xl px-3 py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] sm:px-4"
+      >
+        {/* Left icon */}
+        <div
+          className="flex size-9 shrink-0 items-center justify-center rounded-xl"
+          style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
+        >
+          <FileText className="size-4" />
+        </div>
 
-  {/* Middle: title + time */}
-  <div className="min-w-0 flex-1 overflow-hidden">
-    <p className="truncate text-sm font-medium text-foreground">
-      {entry.title}
-    </p>
-    <p className="mt-0.5 text-[11px] text-muted-foreground">
-      {relativeTime(entry.lastAt)}
-    </p>
-  </div>
+        {/* Middle: title + time */}
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <p className="truncate text-sm font-medium text-foreground">
+            {entry.title}
+          </p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
+            {relativeTime(entry.lastAt)}
+          </p>
+        </div>
 
-  {/* Right: count badge + chevron */}
-  <div className="flex shrink-0 flex-col items-end gap-1">
-    <span
-      className="rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums"
-      style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
-    >
-      ×{entry.count ?? 1}
-    </span>
-    <ChevronRight className="size-3.5 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
-  </div>
-</button>
+        {/* Right: count badge + chevron */}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span
+            className="rounded-full px-2 py-0.5 text-[10px] font-medium tabular-nums"
+            style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
+          >
+            ×{entry.count ?? 1}
+          </span>
+          <ChevronRight className="size-3.5 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5" />
+        </div>
+      </button>
 
       {/* Line to the next node (skip after the last) */}
       {!isLast && (
@@ -137,11 +141,10 @@ export function VisitTree({
   onSelect: (entry: VisitEntry) => void;
   onClear: () => void;
 }) {
-  const [visible, setVisible] = useState(entries.length);
+  const [, setVisible] = useState(entries.length);
 
   // When new entries arrive, only animate the new ones, not the whole tree
   useEffect(() => {
-    // reset animation counter so new nodes animate in
     setVisible(entries.length);
   }, [entries.length]);
 
@@ -149,9 +152,12 @@ export function VisitTree({
   if (entries.length === 0) return null;
 
   return (
-  <div className="flex w-full min-w-0 flex-col items-center">
-      <div className="mb-8 flex w-full items-center justify-between gap-4">
-        <div>
+    // FIX: overflow-x-hidden as a safety net against any stray horizontal overflow
+    <div className="flex w-full min-w-0 flex-col items-center overflow-x-hidden">
+      {/* FIX: items-start + min-w-0 on left block + shrink-0 on button,
+          so the header wraps nicely instead of squeezing */}
+      <div className="mb-8 flex w-full min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0">
           <h2
             className="bg-clip-text text-lg font-semibold tracking-tight text-transparent"
             style={{
@@ -169,13 +175,14 @@ export function VisitTree({
           variant="ghost"
           size="sm"
           onClick={onClear}
-          className="text-muted-foreground hover:text-foreground"
+          className="shrink-0 text-muted-foreground hover:text-foreground"
         >
           Clear history
         </Button>
       </div>
 
-      <div className="flex flex-col items-center pb-4">
+      {/* FIX: w-full + min-w-0 (was only items-center, so it shrink-wrapped to content width) */}
+      <div className="flex w-full min-w-0 flex-col items-center pb-4">
         {entries.map((entry, i) => (
           <VisitNode
             key={`${entry.slug}-${i}`}
@@ -188,4 +195,4 @@ export function VisitTree({
       </div>
     </div>
   );
-}
+      }
