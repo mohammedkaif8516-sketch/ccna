@@ -68,6 +68,7 @@ import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
 import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
 import { VisitTree } from "@/components/visit-tree";
 import { useEffect, useRef } from "react";
+import { useTheme } from "@/lib/use-theme";
 
 // ─────────────────────────────────────────────────────────────
 // Helper: convert dotted IP to 32-bit uint and back
