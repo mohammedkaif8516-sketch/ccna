@@ -46,11 +46,11 @@ function VisitNode({
 
   return (
     <div
-      className="flex flex-col items-center"
-      style={{
-        animation: `visitNodeIn 420ms cubic-bezier(0.2, 0.9, 0.3, 1.1) ${index * 90}ms both`,
-      }}
-    >
+  className="flex w-full min-w-0 flex-col items-center"
+  style={{
+    animation: `visitNodeIn 420ms cubic-bezier(0.2, 0.9, 0.3, 1.1) ${index * 90}ms both`,
+  }}
+>
       {/* Parent chip — group or topic */}
       <div className="glass flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] text-muted-foreground">
         {parentType === "group" ? (
