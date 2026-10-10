@@ -5,6 +5,7 @@ import { ArrowLeft, Check, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Quiz, QuizQuestion } from "@/lib/quizzes";
 import type { QuizScore } from "@/lib/use-quiz-score";
+import { useAutoNext } from "@/lib/use-auto-next";
 
 // Length options for each quiz type
 const FINAL_LENGTHS = [10, 15, 30] as const;
@@ -53,6 +54,7 @@ export function QuizView({
   const [animKey, setAnimKey] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { enabled: autoNextEnabled, toggle: toggleAutoNext } = useAutoNext();
 
   const total = pool.length;
   const q = pool[index];
@@ -100,9 +102,11 @@ export function QuizView({
       next[index] = i;
       return next;
     });
-    autoAdvanceRef.current = setTimeout(() => {
-      next();
-    }, AUTO_ADVANCE_MS);
+    if (autoNextEnabled) {
+      autoAdvanceRef.current = setTimeout(() => {
+        next();
+      }, AUTO_ADVANCE_MS);
+    }
   };
 
   const restart = () => {
@@ -356,6 +360,9 @@ export function QuizView({
   // ─────────────────────────────────────────────────────────────
   // Answering
   // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────
+  // Answering
+  // ─────────────────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-10">
       <Button
@@ -381,9 +388,31 @@ export function QuizView({
           />
         </div>
 
+        {/* Auto-next toggle */}
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={toggleAutoNext}
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+              autoNextEnabled
+                ? "border-primary/40 bg-primary/10 text-primary"
+                : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+            }`}
+            aria-pressed={autoNextEnabled}
+          >
+            <span
+              className={`size-1.5 rounded-full ${
+                autoNextEnabled ? "bg-primary" : "bg-muted-foreground/50"
+              }`}
+            />
+            Auto-next {autoNextEnabled ? "on" : "off"}
+          </button>
+        </div>
+
         <p className="text-xs tabular-nums text-muted-foreground">
           Question {index + 1} of {total}
         </p>
+
         <h2 className="mt-2 text-lg font-medium leading-7">{q.prompt}</h2>
 
         <div className="mt-5 space-y-2.5">
@@ -417,14 +446,39 @@ export function QuizView({
         </div>
 
         {answered && (
-          <div className="mt-5 rounded-lg bg-muted/60 p-4 text-sm leading-6">
-            <p className="font-medium">
-              {picked === q.answer ? "Correct." : "Not quite."}
-            </p>
-            <p className="mt-1 text-muted-foreground">{q.explanation}</p>
-            <Button onClick={next} className="mt-4">
-              {index + 1 < total ? "Next question" : "See result"}
-            </Button>
+          <div className="mt-5 overflow-hidden rounded-lg bg-muted/60 text-sm leading-6">
+            <div className="p-4">
+              <p className="font-medium">
+                {picked === q.answer ? "Correct." : "Not quite."}
+              </p>
+              <p className="mt-1 text-muted-foreground">{q.explanation}</p>
+              <div className="mt-4 flex items-center gap-3">
+                <Button onClick={next}>
+                  {index + 1 < total ? "Next question" : "See result"}
+                </Button>
+                {autoNextEnabled && (
+                  <span className="text-[11px] text-muted-foreground">
+                    Moving on…
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {autoNextEnabled && (
+              <div
+                key={animKey}
+                className="h-[3px] bg-primary/20"
+                role="progressbar"
+                aria-label="Auto-advancing to the next question"
+              >
+                <div
+                  className="h-full bg-primary"
+                  style={{
+                    animation: `autoAdvance ${AUTO_ADVANCE_MS}ms linear forwards`,
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
