@@ -16,7 +16,7 @@ const GROUP_MIN = 20;
 
 const AUTO_ADVANCE_MS = 2900;
 
-type Phase = "choose-length" | "answering" | "done";
+type Phase = "choose-length" | "answering" | "done" | "review";
 
 function shuffle<T>(arr: readonly T[]): T[] {
   const a = [...arr];
@@ -50,6 +50,8 @@ export function QuizView({
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
+  const [animKey, setAnimKey] = useState(0);
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const total = pool.length;
@@ -70,6 +72,7 @@ export function QuizView({
     setIndex(0);
     setPicked(null);
     setScore(0);
+    setAnswers([]);
     setPhase("answering");
   };
 
@@ -91,14 +94,18 @@ export function QuizView({
     if (answered) return;
     setPicked(i);
     if (i === q.answer) setScore((s) => s + 1);
-    // Auto-advance after 4s
+    setAnimKey((k) => k + 1);
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[index] = i;
+      return next;
+    });
     autoAdvanceRef.current = setTimeout(() => {
       next();
     }, AUTO_ADVANCE_MS);
   };
 
   const restart = () => {
-    // Go back to the length picker
     if (autoAdvanceRef.current) {
       clearTimeout(autoAdvanceRef.current);
       autoAdvanceRef.current = null;
@@ -109,6 +116,7 @@ export function QuizView({
     setIndex(0);
     setPicked(null);
     setScore(0);
+    setAnswers([]);
   };
 
   // ─────────────────────────────────────────────────────────────
@@ -137,7 +145,8 @@ export function QuizView({
             This quiz needs at least {minimum} questions to run.
           </p>
           <p className="mt-1 text-xs text-muted-foreground/80">
-            Currently {totalAvailable} question{totalAvailable === 1 ? "" : "s"} available.
+            Currently {totalAvailable} question{totalAvailable === 1 ? "" : "s"}{" "}
+            available.
           </p>
         </div>
       </div>
@@ -222,9 +231,7 @@ export function QuizView({
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           {quiz.title}
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {length} questions
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{length} questions</p>
 
         <div className="mt-10 rounded-xl border p-8 text-center">
           <p className="text-5xl font-semibold tabular-nums">
@@ -237,7 +244,10 @@ export function QuizView({
                 ? "Good. Review the explanations you missed and retry."
                 : "Go back through the notes, then retry."}
           </p>
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            <Button onClick={() => setPhase("review")} variant="secondary">
+              Review answers
+            </Button>
             <Button onClick={restart} className="gap-2">
               <RotateCcw className="size-4" />
               Take again
@@ -246,6 +256,98 @@ export function QuizView({
               Back to notes
             </Button>
           </div>
+        </div>
+      </div>
+    );
+  }
+  // ─────────────────────────────────────────────────────────────
+  // Review
+  // ─────────────────────────────────────────────────────────────
+  if (phase === "review") {
+    return (
+      <div className="mx-auto w-full max-w-2xl px-6 py-10">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setPhase("done")}
+          className="mb-6 -ml-2 gap-1 text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Back to result
+        </Button>
+
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+          Review — {quiz.title}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          You scored {score}/{total}
+        </p>
+
+        <div className="mt-8 flex flex-col gap-6">
+          {pool.map((question, qi) => {
+            const userPick = answers[qi] ?? null;
+            const wasCorrect = userPick === question.answer;
+            return (
+              <div key={question.id} className="rounded-xl border bg-card p-5">
+                <div className="flex items-start gap-3">
+                  <span
+                    className={`mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold ${
+                      wasCorrect
+                        ? "bg-primary/15 text-primary"
+                        : "bg-destructive/15 text-destructive"
+                    }`}
+                  >
+                    {qi + 1}
+                  </span>
+                  <p className="text-sm font-medium leading-6">
+                    {question.prompt}
+                  </p>
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  {question.options.map((opt, oi) => {
+                    const isCorrect = oi === question.answer;
+                    const isUserPick = oi === userPick;
+                    let cls =
+                      "flex items-start gap-2 rounded-lg border px-3 py-2 text-sm";
+                    if (isCorrect) cls += " border-primary bg-primary/10";
+                    else if (isUserPick)
+                      cls += " border-destructive bg-destructive/10";
+                    else cls += " opacity-60";
+
+                    return (
+                      <div key={oi} className={cls}>
+                        <span className="flex-1">{opt}</span>
+                        {isCorrect && (
+                          <Check className="mt-0.5 size-4 shrink-0 text-primary" />
+                        )}
+                        {isUserPick && !isCorrect && (
+                          <X className="mt-0.5 size-4 shrink-0 text-destructive" />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {userPick === null && (
+                  <p className="mt-3 text-xs italic text-muted-foreground">
+                    Not answered
+                  </p>
+                )}
+
+                <div className="mt-4 rounded-lg bg-muted/60 p-3 text-xs leading-6 text-muted-foreground">
+                  <span className="font-medium text-foreground">Why: </span>
+                  {question.explanation}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 flex justify-center">
+          <Button onClick={() => setPhase("done")} variant="outline">
+            Back to result
+          </Button>
         </div>
       </div>
     );
@@ -269,9 +371,7 @@ export function QuizView({
       <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
         {quiz.title}
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {length} questions
-      </p>
+      <p className="mt-2 text-sm text-muted-foreground">{length} questions</p>
 
       <div className="mt-8">
         <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-muted">
