@@ -146,7 +146,7 @@ export function VisitTree({
   if (entries.length === 0) return null;
 
   return (
-    <div className="flex flex-col items-center">
+  <div className="flex w-full min-w-0 flex-col items-center">
       <div className="mb-8 flex w-full items-center justify-between gap-4">
         <div>
           <h2
