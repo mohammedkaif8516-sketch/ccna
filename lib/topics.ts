@@ -27,6 +27,7 @@ export type Topic = {
   title: string
   description: string
   icon: string
+  summary?: string        
   subtopics: Subtopic[]
 }
 
@@ -215,6 +216,7 @@ export const topics: Topic[] = [
     number: '02',
     title: 'The OSI Reference Model',
     icon: 'layers',
+    summary: 'osi',
     description: 'A layered mental model for tracing data from an application to a physical link.',
     subtopics: [
       {

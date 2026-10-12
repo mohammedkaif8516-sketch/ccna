@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCompletedTopics, progressKey } from "@/lib/use-completed";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, type ComponentType } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -58,7 +58,8 @@ import {
   ListChecks,
   Sun,
   ArrowLeft,
-  ArrowRightLeft
+  ArrowRightLeft,
+  BookOpen,
 } from "lucide-react";
 import { quizById } from "@/lib/quizzes";
 import { QuizView } from "@/components/quiz-view";
@@ -67,8 +68,20 @@ import type { QuizScore } from "@/lib/use-quiz-score";
 import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
 import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
 import { VisitTree } from "@/components/visit-tree";
+import { OsiModelExplainer } from "@/components/osi-model-explainer";
 import { useEffect, useRef } from "react";
 import { useTheme } from "@/lib/use-theme";
+
+// ─────────────────────────────────────────────────────────────
+// Summary pages
+// A topic gets a "Summary" row in the sidebar (right after its quiz) when
+// its entry in topics.ts has  summary: "<key>"  and that key exists here.
+// To add one later: build the component, import it, add one line below,
+// then set `summary: "<key>"` on the topic in topics.ts.
+// ─────────────────────────────────────────────────────────────
+const SUMMARY_VIEWS: Record<string, ComponentType> = {
+  osi: OsiModelExplainer,
+};
 
 // ─────────────────────────────────────────────────────────────
 // Helper: convert dotted IP to 32-bit uint and back
@@ -563,16 +576,21 @@ function groupSubtopicsWithQuiz(
 function Sidebar({
   selected,
   selectedQuizId,
+  selectedSummary,
   onSelect,
   onSelectQuiz,
+  onSelectSummary,
   completed,
   bestFor,
   mobile = false,
 }: {
   selected?: string;
   selectedQuizId?: string;
+  /** Slug of the topic whose Summary page is open */
+  selectedSummary?: string;
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
   onSelectQuiz: (quizId: string) => void;
+  onSelectSummary: (topicSlug: string) => void;
   completed: Set<string>;
   bestFor: (quizId: string) => QuizScore | undefined;
   mobile?: boolean;
@@ -580,14 +598,15 @@ function Sidebar({
   const activeRef = useRef<HTMLButtonElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Find which topic contains the currently selected subtopic
+  // Find which topic contains the currently selected subtopic / summary
   const topicWithActive = useMemo(() => {
+    if (selectedSummary) return selectedSummary;
     if (!selected) return null;
     for (const topic of topics) {
       if (topic.subtopics.some((s) => s.slug === selected)) return topic.slug;
     }
     return null;
-  }, [selected]);
+  }, [selected, selectedSummary]);
 
   // Controlled accordion state — all topics open by default
   const [openTopics, setOpenTopics] = useState<string[]>(() =>
@@ -602,10 +621,13 @@ function Sidebar({
     );
   }, [topicWithActive]);
 
+  // Whatever is currently open in the main pane (subtopic, quiz or summary)
+  const activeKey = selected ?? selectedQuizId ?? selectedSummary;
+
   // After mount / when active changes / when topics expand → scroll active into view
   useEffect(() => {
     if (!mobile) return;
-    if (!selected) return;
+    if (!activeKey) return;
     const container = scrollRef.current;
     if (!container) return;
 
@@ -638,7 +660,7 @@ function Sidebar({
 
     raf = requestAnimationFrame(tryScroll);
     return () => cancelAnimationFrame(raf);
-  }, [selected, mobile]);
+  }, [activeKey, mobile]);
 
   return (
     <aside
@@ -666,6 +688,8 @@ function Sidebar({
             const totalCount = topic.subtopics.length;
             const topicPercent =
               totalCount === 0 ? 0 : (doneCount / totalCount) * 100;
+            const hasSummary = !!topic.summary && !!SUMMARY_VIEWS[topic.summary];
+            const isSummaryActive = selectedSummary === topic.slug;
             return (
               <div key={topic.slug} className="relative pl-2">
                 <div className="absolute left-0 top-0 h-full w-1 overflow-hidden rounded-full bg-muted">
@@ -677,7 +701,6 @@ function Sidebar({
                   />
                 </div>
                 <AccordionItem value={topic.slug} className="border-b-0">
-                  {/* FIX: hover:bg-accent → hover:bg-[var(--accent-soft)] */}
                   <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-[var(--accent-soft)] hover:no-underline [&>svg]:size-3.5">
                     <span className="flex min-w-0 flex-1 items-center gap-2.5">
                       <Icon className="size-4 shrink-0 text-muted-foreground" />
@@ -727,8 +750,7 @@ function Sidebar({
                                     className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
                                       isActive
                                         ? "bg-primary/10 font-medium text-primary"
-                                        : /* FIX: hover:bg-accent → hover:bg-[var(--accent-soft)] */
-                                          "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground"
+                                        : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground"
                                     }`}
                                   >
                                     <ChevronRight
@@ -753,8 +775,7 @@ function Sidebar({
                                   className={`mt-1 flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
                                     isQuizActive
                                       ? "bg-primary/10 font-medium text-primary"
-                                      : /* FIX: hover:bg-accent → hover:bg-[var(--accent-soft)] */
-                                        "text-foreground/80 hover:bg-[var(--accent-soft)]"
+                                      : "text-foreground/80 hover:bg-[var(--accent-soft)]"
                                   }`}
                                 >
                                   <ListChecks className="mt-0.5 size-3 shrink-0 text-primary" />
@@ -771,6 +792,22 @@ function Sidebar({
                             </div>
                           );
                         },
+                      )}
+
+                      {/* Summary — sits after the quiz, only for topics that have one */}
+                      {hasSummary && (
+                        <button
+                          ref={isSummaryActive ? activeRef : null}
+                          onClick={() => onSelectSummary(topic.slug)}
+                          className={`mt-1 flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+                            isSummaryActive
+                              ? "bg-primary/10 font-medium text-primary"
+                              : "text-foreground/80 hover:bg-[var(--accent-soft)]"
+                          }`}
+                        >
+                          <BookOpen className="mt-0.5 size-3 shrink-0 text-primary" />
+                          <span className="flex-1 font-medium">Summary</span>
+                        </button>
                       )}
                     </div>
                   </AccordionContent>
@@ -1097,6 +1134,7 @@ export default function CcnaStudyApp() {
   const { bestFor, saveScore } = useQuizScores();
   const { entries: visitHistory, record: recordVisit, clear: clearVisitHistory } = useVisitHistory();
   const [isPending, startTransition] = useTransition();
+  const mainRef = useRef<HTMLElement | null>(null);
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -1105,6 +1143,7 @@ export default function CcnaStudyApp() {
   const topicSlug = searchParams.get("topic");
   const subSlug = searchParams.get("sub");
   const quizParam = searchParams.get("quiz");
+  const summaryParam = searchParams.get("summary");
 
   // 2. Resolve the normal subtopic (unchanged from before)
   const selected = useMemo(() => {
@@ -1116,16 +1155,52 @@ export default function CcnaStudyApp() {
     return { topic, subtopic };
   }, [topicSlug, subSlug]);
 
-  // 3. Resolve the quiz (NEW)
+  // 3. Resolve the quiz
   const selectedQuiz = useMemo(() => {
     if (!quizParam) return null;
     return quizById(quizParam) ?? null;
   }, [quizParam]);
 
-  // 4. Two navigation actions
+  // 4. Resolve the summary page (?summary=<topic slug>)
+  const selectedSummary = useMemo(() => {
+    if (!summaryParam) return null;
+    const topic = topics.find((t) => t.slug === summaryParam);
+    if (!topic?.summary || !SUMMARY_VIEWS[topic.summary]) return null;
+    return { topic, viewKey: topic.summary };
+  }, [summaryParam]);
+  const SummaryView = selectedSummary
+    ? SUMMARY_VIEWS[selectedSummary.viewKey]
+    : null;
+
+  // Start every summary at the top of the page
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [summaryParam]);
+
+  // 5. Navigation actions
   const selectQuiz = (quizId: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("quiz", quizId);
+    params.delete("summary");
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
+    setMobileOpen(false);
+  };
+
+  const selectSummary = (slug: string) => {
+    const topic = topics.find((t) => t.slug === slug);
+    const params = new URLSearchParams();
+    params.set("summary", slug);
+    if (topic) {
+      recordVisit({
+        slug: `summary-${topic.slug}`,
+        topicSlug: topic.slug,
+        title: "Summary",
+        topicTitle: topic.title,
+        group: undefined,
+      });
+    }
     startTransition(() => {
       router.push(`?${params.toString()}`, { scroll: false });
     });
@@ -1137,6 +1212,7 @@ export default function CcnaStudyApp() {
     params.set("topic", topic.slug);
     params.set("sub", subtopic.slug);
     params.delete("quiz");
+    params.delete("summary");
     recordVisit({
       slug: subtopic.slug,
       topicSlug: topic.slug,
@@ -1188,8 +1264,10 @@ export default function CcnaStudyApp() {
         <Sidebar
           selected={current?.slug}
           selectedQuizId={selectedQuiz?.id}
+          selectedSummary={selectedSummary?.topic.slug}
           onSelect={select}
           onSelectQuiz={selectQuiz}
+          onSelectSummary={selectSummary}
           completed={completed}
           bestFor={bestFor}
         />
@@ -1197,7 +1275,7 @@ export default function CcnaStudyApp() {
           <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground lg:hidden"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--accent-soft)] hover:text-foreground lg:hidden"
                 aria-label="Open curriculum"
               >
                 <Menu />
@@ -1207,8 +1285,10 @@ export default function CcnaStudyApp() {
                 <Sidebar
                   selected={current?.slug}
                   selectedQuizId={selectedQuiz?.id}
+                  selectedSummary={selectedSummary?.topic.slug}
                   onSelect={select}
                   onSelectQuiz={selectQuiz}
+                  onSelectSummary={selectSummary}
                   completed={completed}
                   bestFor={bestFor}
                   mobile
@@ -1239,6 +1319,20 @@ export default function CcnaStudyApp() {
                   </span>
                 </>
               )}
+              {!selected && selectedSummary && (
+                <>
+                  <ChevronRight className="size-3" />
+                  <button
+                    type="button"
+                    onClick={goHome}
+                    className="transition-colors hover:text-foreground"
+                  >
+                    {selectedSummary.topic.title}
+                  </button>
+                  <ChevronRight className="size-3" />
+                  <span className="text-foreground">Summary</span>
+                </>
+              )}
             </div>
             <div className="ml-auto flex items-center gap-2">
               <Button
@@ -1253,13 +1347,31 @@ export default function CcnaStudyApp() {
               </Button>
             </div>
           </header>
-          <main className="relative flex-1 overflow-y-auto overflow-x-hidden overscroll-x-contain">
+          <main
+            ref={mainRef}
+            className="relative flex-1 overflow-y-auto overflow-x-hidden overscroll-x-contain"
+          >
             {isPending && (
               <div className="absolute inset-0 z-20 flex items-start justify-center bg-background/70 pt-24 backdrop-blur-[1px]">
                 <SquareLoader />
               </div>
             )}
-            {selectedQuiz ? (
+            {selectedSummary && SummaryView ? (
+              <>
+                <div className="mx-auto max-w-4xl px-4 pt-6 sm:px-6">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={goHome}
+                    className="-ml-2 gap-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <ChevronRight className="size-4 rotate-180" />
+                    Back to Dashboard
+                  </Button>
+                </div>
+                <SummaryView />
+              </>
+            ) : selectedQuiz ? (
               <QuizView
                 quiz={selectedQuiz}
                 best={bestFor(selectedQuiz.id)}
@@ -1386,7 +1498,7 @@ export default function CcnaStudyApp() {
                         : "No previous topic"
                     }
                     title={prevItem ? prevItem.subtopic.title : undefined}
-                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground transition-colors hover:bg-[var(--accent-soft)] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     <ChevronLeft className="size-4" />
                   </button>
@@ -1407,7 +1519,7 @@ export default function CcnaStudyApp() {
                         : "No next topic"
                     }
                     title={nextItem ? nextItem.subtopic.title : undefined}
-                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground transition-colors hover:bg-accent hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                    className="flex w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-muted-foreground transition-colors hover:bg-[var(--accent-soft)] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     <ChevronRight className="size-4" />
                   </button>
@@ -1451,6 +1563,11 @@ export default function CcnaStudyApp() {
                 visitHistory={visitHistory}
                 onClearHistory={clearVisitHistory}
                 onSelectVisit={(entry) => {
+                  // Summary visits are stored as "summary-<topic slug>"
+                  if (entry.slug.startsWith("summary-")) {
+                    selectSummary(entry.topicSlug);
+                    return;
+                  }
                   const topic = topics.find((t) => t.slug === entry.topicSlug);
                   const subtopic = topic?.subtopics.find(
                     (s) => s.slug === entry.slug,
