@@ -68,7 +68,16 @@ import type { QuizScore } from "@/lib/use-quiz-score";
 import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
 import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
 import { VisitTree } from "@/components/visit-tree";
+import { IntroNetworkingSummary } from "@/components/intro-networking-summary";
 import { OsiModelExplainer } from "@/components/osi-model-explainer";
+import { EthernetCablingSummary } from "@/components/ethernet-cabling-summary";
+import { NetworkDevicesSummary } from "@/components/network-devices-summary";
+import { IpAddressingSummary } from "@/components/ip-addressing-summary";
+import { TransportLayerSummary } from "@/components/transport-layer-summary";
+import { RouterFundamentalsSummary } from "@/components/router-fundamentals-summary";
+import { RoutingSummary } from "@/components/routing-summary";
+import { PacketFlowSummary } from "@/components/packet-flow-summary";
+
 import { useEffect, useRef } from "react";
 import { useTheme } from "@/lib/use-theme";
 
@@ -80,7 +89,15 @@ import { useTheme } from "@/lib/use-theme";
 // then set `summary: "<key>"` on the topic in topics.ts.
 // ─────────────────────────────────────────────────────────────
 const SUMMARY_VIEWS: Record<string, ComponentType> = {
+  intro: IntroNetworkingSummary,
   osi: OsiModelExplainer,
+  ethernet: EthernetCablingSummary,
+  devices: NetworkDevicesSummary,
+  ip: IpAddressingSummary,
+  transport: TransportLayerSummary,
+  router: RouterFundamentalsSummary,
+  routing: RoutingSummary,
+  packetflow: PacketFlowSummary,
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -451,7 +468,7 @@ const iconMap = {
   brackets: Brackets,
   terminal: Terminal,
   route: Route,
-  'arrow-right-left': ArrowRightLeft,
+  "arrow-right-left": ArrowRightLeft,
 };
 
 function SquareLoader() {
@@ -572,7 +589,6 @@ function groupSubtopicsWithQuiz(
   return groups;
 }
 
-
 function Sidebar({
   selected,
   selectedQuizId,
@@ -688,7 +704,8 @@ function Sidebar({
             const totalCount = topic.subtopics.length;
             const topicPercent =
               totalCount === 0 ? 0 : (doneCount / totalCount) * 100;
-            const hasSummary = !!topic.summary && !!SUMMARY_VIEWS[topic.summary];
+            const hasSummary =
+              !!topic.summary && !!SUMMARY_VIEWS[topic.summary];
             const isSummaryActive = selectedSummary === topic.slug;
             return (
               <div key={topic.slug} className="relative pl-2">
@@ -1111,19 +1128,18 @@ function Dashboard({
   }
 
   // There's history — show the animated tree
-    return (
-  <div className="glass-canvas min-h-full w-full px-4 py-10 sm:px-6 lg:px-10">
-    <div className="relative z-10 mx-auto w-full max-w-2xl">
-      <VisitTree
-        entries={visitHistory}
-        onSelect={onSelectVisit}
-        onClear={onClearHistory}
-      />
+  return (
+    <div className="glass-canvas min-h-full w-full px-4 py-10 sm:px-6 lg:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-2xl">
+        <VisitTree
+          entries={visitHistory}
+          onSelect={onSelectVisit}
+          onClear={onClearHistory}
+        />
+      </div>
     </div>
-  </div>
-);
+  );
 }
-
 
 export default function CcnaStudyApp() {
   const router = useRouter();
@@ -1132,7 +1148,11 @@ export default function CcnaStudyApp() {
   const [lightbox, setLightbox] = useState<Diagram | null>(null);
   const { completed, isCompleted, toggle } = useCompletedTopics();
   const { bestFor, saveScore } = useQuizScores();
-  const { entries: visitHistory, record: recordVisit, clear: clearVisitHistory } = useVisitHistory();
+  const {
+    entries: visitHistory,
+    record: recordVisit,
+    clear: clearVisitHistory,
+  } = useVisitHistory();
   const [isPending, startTransition] = useTransition();
   const mainRef = useRef<HTMLElement | null>(null);
 
@@ -1189,18 +1209,8 @@ export default function CcnaStudyApp() {
   };
 
   const selectSummary = (slug: string) => {
-    const topic = topics.find((t) => t.slug === slug);
     const params = new URLSearchParams();
     params.set("summary", slug);
-    if (topic) {
-      recordVisit({
-        slug: `summary-${topic.slug}`,
-        topicSlug: topic.slug,
-        title: "Summary",
-        topicTitle: topic.title,
-        group: undefined,
-      });
-    }
     startTransition(() => {
       router.push(`?${params.toString()}`, { scroll: false });
     });
@@ -1563,11 +1573,6 @@ export default function CcnaStudyApp() {
                 visitHistory={visitHistory}
                 onClearHistory={clearVisitHistory}
                 onSelectVisit={(entry) => {
-                  // Summary visits are stored as "summary-<topic slug>"
-                  if (entry.slug.startsWith("summary-")) {
-                    selectSummary(entry.topicSlug);
-                    return;
-                  }
                   const topic = topics.find((t) => t.slug === entry.topicSlug);
                   const subtopic = topic?.subtopics.find(
                     (s) => s.slug === entry.slug,

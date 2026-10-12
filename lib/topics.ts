@@ -63,6 +63,7 @@ export const topics: Topic[] = [
     number: '01',
     title: 'Introduction to Networking',
     icon: 'network',
+    summary: 'intro',
     description: 'The vocabulary, models, and architectures that make networking easier to reason about.',
     subtopics: [
       {
@@ -472,6 +473,7 @@ export const topics: Topic[] = [
     number: '03',
     title: 'Ethernet & Network Cabling',
     icon: 'cable',
+    summary:'ethernet',
     description: 'The standards, media, and physical choices that connect network devices.',
     subtopics: [
       {
@@ -762,6 +764,7 @@ export const topics: Topic[] = [
   // ─────────────────────────────────────────────────────────────
   {
     slug: 'network-devices-traffic-flow', number: '04', title: 'Network Devices & Traffic Flow', icon: 'router',
+    summary: 'devices',
     description: 'How hubs, switches, routers, and communication patterns move traffic.',
     subtopics: [
       {
@@ -961,6 +964,7 @@ export const topics: Topic[] = [
   // ─────────────────────────────────────────────────────────────
   {
     slug: 'ip-addressing-subnetting', number: '05', title: 'IP Addressing & Subnetting', icon: 'brackets',
+    summary: 'ip',
     description: 'Logical addressing, CIDR notation, and the calculations behind efficient networks.',
     subtopics: [
       {
@@ -1258,6 +1262,7 @@ export const topics: Topic[] = [
     number: '06',
     title: 'Transport Layer Protocols & Ports',
     icon: 'plug',
+    summary: 'transport',
     description: 'TCP and UDP behavior, the three-way handshake, TCP flags, and how port numbers identify services.',
     subtopics: [
       {
@@ -1374,6 +1379,7 @@ export const topics: Topic[] = [
     number: '07',
     title: 'Router Fundamentals & CLI',
     icon: 'terminal',
+    summary: 'router',
     description: 'Router memory, the boot process, interfaces and lines, and the CLI modes and commands used to configure a device.',
     subtopics: [
       {
@@ -1658,6 +1664,7 @@ export const topics: Topic[] = [
     number: '08',
     title: 'Routing',
     icon: 'route',
+    summary: 'routing',
     description: 'How routers build routing tables, forward traffic with static and default routes, and exchange routes dynamically with RIP and EIGRP.',
     subtopics: [
       {
@@ -3509,6 +3516,7 @@ export const topics: Topic[] = [
     number: '01',
     title: 'Packet Flow',
      icon: 'arrow-right-left',
+     summary: 'packetflow',
     description: 'How communication happens within and between networks',
     subtopics: [
       {

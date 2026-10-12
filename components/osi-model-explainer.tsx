@@ -8,6 +8,7 @@ import {
 } from "react";
 import {
   ArrowDown,
+  AlertTriangle,
   ArrowUp,
   Cable,
   Check,
@@ -18,6 +19,7 @@ import {
   Lightbulb,
   Link2,
   Lock,
+  MessageCircleQuestion, 
   Network,
   Pause,
   Play,
@@ -652,20 +654,7 @@ function LayersTab() {
         <div className="grid gap-2 md:grid-cols-3">
           <Mnemonic
             label="Top to bottom"
-            words={[
-              "All",
-              "People",
-              "Seem",
-              "To",
-              "Need",
-              "Data",
-              "Processing",
-            ]}
-            layers={[7, 6, 5, 4, 3, 2, 1]}
-          />
-          <Mnemonic
-            label="Top to bottom (the one from the video)"
-            words={["All", "People", "Seem", "To", "Need", "Domino's", "Pizza"]}
+            words={["All", "People", "Should", "Try", "New", "Domino's", "Pizza"]}
             layers={[7, 6, 5, 4, 3, 2, 1]}
           />
           <Mnemonic
@@ -1563,7 +1552,7 @@ const QA: Array<{ q: string; a: string[] }> = [
     q: "List the seven layers top to bottom with the data unit at each.",
     a: [
       "Application, Presentation and Session work on data. Transport uses segments (TCP) or datagrams (UDP). Network uses packets. Data Link uses frames. Physical uses bits.",
-      "Mnemonic: All People Seem To Need Data Processing.",
+      "Mnemonic: All People Should Try New Dominos Pizza.",
     ],
   },
   {
@@ -1669,6 +1658,95 @@ const QA: Array<{ q: string; a: string[] }> = [
     ],
   },
 ];
+
+// ─────────────────────────────────────────────────────────────
+// Tab 6: common misconceptions
+// ─────────────────────────────────────────────────────────────
+
+const MISCONCEPTIONS = [
+  {
+    wrong: "OSI is the model the internet runs on.",
+    right:
+      "TCP/IP is what actually runs. OSI is the reference model we use to talk, teach, and troubleshoot.",
+  },
+  {
+    wrong: "A layer only talks to the layer directly above and below it.",
+    right:
+      "True on the sending host, but a router at Layer 3 reads the IP header without ever unpacking Layers 4–7.",
+  },
+  {
+    wrong: "Layers 4–7 are hop-by-hop.",
+    right:
+      "Layers 1–3 are hop-by-hop (switches and routers see them). Layers 4–7 are end-to-end — only the two hosts process them.",
+  },
+  {
+    wrong: "MAC addresses stay the same end to end.",
+    right:
+      "MAC addresses are rewritten at every router. IP addresses stay the same end to end (unless NAT changes them).",
+  },
+  {
+    wrong: "The IP address identifies the application.",
+    right:
+      "IP finds the host. The port number finds the application on that host. You need both.",
+  },
+  {
+    wrong: "HTTPS is a protocol at Layer 7 only.",
+    right:
+      "HTTPS is HTTP (Layer 7) wrapped in TLS (usually mapped to Layer 6). Saying 'it lives at Layer 7' ignores the encryption.",
+  },
+  {
+    wrong: "Layer 1 sends packets.",
+    right:
+      "Layer 1 sends bits — electrical signals, light pulses, or radio waves. Frames are Layer 2, packets are Layer 3.",
+  },
+  {
+    wrong: "A switch is a Layer 3 device.",
+    right:
+      "A traditional switch is Layer 2 (MAC-based). A Layer 3 switch can route by IP, but plain switches do not.",
+  },
+  {
+    wrong: "Ping succeeds, so the network is fine.",
+    right:
+      "Ping only proves Layers 1–3. The web server can still be down on port 443 (Layer 4) or returning a 500 (Layer 7).",
+  },
+  {
+    wrong: "TLS lives at exactly one layer.",
+    right:
+      "There is no perfect answer. Layer 6 is the common reply, but TLS also depends on a Layer 5 session and runs on top of TCP at Layer 4. Saying 'Layer 6, and TCP/IP lumps it into Application' shows you know the model's limits.",
+  },
+];
+
+function MisconceptionsTab() {
+  return (
+    <div className="space-y-6">
+      <p className="text-sm leading-relaxed text-muted-foreground">
+        The small confusions that quietly cost marks. Read the wrong line,
+        then read the right one.
+      </p>
+
+      <div className="space-y-2">
+        {MISCONCEPTIONS.map((m, i) => (
+          <div key={i} className="overflow-hidden rounded-xl border bg-card">
+            <div className="flex items-start gap-2.5 border-b border-destructive/30 bg-destructive/5 px-3.5 py-2.5">
+              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-destructive">
+                ✗ Wrong
+              </span>
+              <p className="min-w-0 text-sm">{m.wrong}</p>
+            </div>
+            <div className="flex items-start gap-2.5 bg-emerald-500/5 px-3.5 py-2.5">
+              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+                ✓ Right
+              </span>
+              <p className="min-w-0 text-sm">{m.right}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      
+    </div>
+  );
+}
 
 type DrillKind = "Protocol" | "Device" | "Data unit" | "Address" | "Concept";
 
@@ -1994,6 +2072,7 @@ const TABS = [
   { id: "journey", label: "Data journey" },
   { id: "compare", label: "OSI vs TCP/IP" },
   { id: "debug", label: "Troubleshooting" },
+  { id: "misconceptions", label: "Misconceptions" },
   { id: "prep", label: "Interview prep" },
 ] as const;
 
@@ -2007,6 +2086,9 @@ export function OsiModelExplainer() {
       <style>{OSI_CSS}</style>
 
       <header className="mb-6">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+          Topic 02 · Summary
+        </p>
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
           The OSI reference model
         </h1>
@@ -2046,6 +2128,7 @@ export function OsiModelExplainer() {
         {tab === "journey" && <JourneyTab />}
         {tab === "compare" && <CompareTab />}
         {tab === "debug" && <DebugTab />}
+        {tab === "misconceptions" && <MisconceptionsTab />}
         {tab === "prep" && <PrepTab />}
       </div>
     </div>

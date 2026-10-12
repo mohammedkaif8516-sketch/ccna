@@ -133,7 +133,7 @@ function VisitNode({
 // ─────────────────────────────────────────────────────────────
 
 export function VisitTree({
-  entries,
+  entries: rawEntries,
   onSelect,
   onClear,
 }: {
@@ -141,12 +141,12 @@ export function VisitTree({
   onSelect: (entry: VisitEntry) => void;
   onClear: () => void;
 }) {
-  const [, setVisible] = useState(entries.length);
+  // Hide any summary-page entries that were recorded before we stopped
+  const entries = rawEntries.filter(
+    (e) => !e.slug.startsWith("summary-"),
+  );
 
-  // When new entries arrive, only animate the new ones, not the whole tree
-  useEffect(() => {
-    setVisible(entries.length);
-  }, [entries.length]);
+  const [, setVisible] = useState(entries.length);
 
   // Nothing to show → the empty-state is rendered by the caller
   if (entries.length === 0) return null;
