@@ -67,6 +67,7 @@ import { useQuizScores } from "@/lib/use-quiz-score";
 import type { QuizScore } from "@/lib/use-quiz-score";
 import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
 import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
+import { NumberSystemConverter } from "@/components/number-system-converter";
 import { VisitTree } from "@/components/visit-tree";
 import { VerticalSubnetLine } from "@/components/vertical-subnet-line";
 import { IntroNetworkingSummary } from "@/components/intro-networking-summary";
@@ -1449,6 +1450,9 @@ export default function CcnaStudyApp() {
                     <SubnetCalculator />
                     <SubnetPlanner />
                   </>
+                )}
+                {current.slug === "number-system-conversions-hex-to-binary" && (
+                  <NumberSystemConverter />
                 )}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button

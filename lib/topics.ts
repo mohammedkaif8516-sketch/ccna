@@ -1007,16 +1007,31 @@ export const topics: Topic[] = [
           { src: '/diagrams/ip_wide.png', alt: 'IP tree diagram — IPv4 and IPv6', caption: 'IP tree — IPv4 and IPv6' },
         ],
       },
-      basics(
-        'Number System Conversions (Hexadecimal to Binary)',
-        'Binary and hexadecimal are compact ways to represent network values — one hex digit always maps to exactly four binary bits.',
-        [
-          'One hexadecimal digit maps exactly to four binary bits (a nibble).',
-          'A byte (8 bits) is represented by exactly two hexadecimal digits.',
-          'IPv6 addresses are written in hexadecimal for this reason — it is far more compact than writing 128 bits in binary.',
-          'Use place values (8-4-2-1 for each nibble) to convert between hex and binary and to validate address fields.',
-        ]
-      ),
+      {
+  slug: 'number-system-conversions-hex-to-binary',
+  title: 'Number System Conversions (Hexadecimal to Binary)',
+  description: 'Binary and hexadecimal are compact ways to represent network values — one hex digit always maps to exactly four binary bits.',
+  blocks: [
+    { type: 'heading', text: 'Core ideas' },
+    { type: 'paragraph', text: 'Binary and hexadecimal are compact ways to represent network values — one hex digit always maps to exactly four binary bits.' },
+    {
+      type: 'bullets',
+      items: [
+        'One hexadecimal digit maps exactly to four binary bits (a nibble).',
+        'A byte (8 bits) is represented by exactly two hexadecimal digits.',
+        'IPv6 addresses are written in hexadecimal for this reason — it is far more compact than writing 128 bits in binary.',
+        'Use place values (8-4-2-1 for each nibble) to convert between hex and binary and to validate address fields.',
+      ],
+    },
+    { type: 'heading', text: 'Why it matters' },
+    { type: 'paragraph', text: 'CCNA questions often test how this idea behaves in a real network. Focus on the role, the boundary, and what changes when traffic moves to the next layer.' },
+  ],
+  quickReference: [
+    { label: '1 hex digit', value: '4 bits (a nibble)' },
+    { label: '1 byte', value: '8 bits = 2 hex digits' },
+    { label: 'Place values', value: '8-4-2-1 per nibble' },
+  ],
+},
       {
         slug: 'ip-address-classes-a-b-c-d-e-and-default-subnet-masks',
         title: 'IP Address Classes (A, B, C, D, E) and Default Subnet Masks',
