@@ -68,6 +68,8 @@ import type { QuizScore } from "@/lib/use-quiz-score";
 import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
 import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
 import { NumberSystemConverter } from "@/components/number-system-converter";
+import { IpClassesExplorer } from "@/components/ip-classes-explorer";
+import { TcpSimulator } from "@/components/tcp-simulator";
 import { VisitTree } from "@/components/visit-tree";
 import { VerticalSubnetLine } from "@/components/vertical-subnet-line";
 import { IntroNetworkingSummary } from "@/components/intro-networking-summary";
@@ -1454,6 +1456,8 @@ export default function CcnaStudyApp() {
                 {current.slug === "number-system-conversions-hex-to-binary" && (
                   <NumberSystemConverter />
                 )}
+                   {current.slug === "ip-address-classes-a-b-c-d-e-and-default-subnet-masks" && <IpClassesExplorer />}
+                   {current.slug === "tcp-handshakes-3-way-4-way" && <TcpSimulator />}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
                     type="button"

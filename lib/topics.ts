@@ -27,7 +27,7 @@ export type Topic = {
   title: string
   description: string
   icon: string
-  summary?: string        
+  summary?: string
   subtopics: Subtopic[]
 }
 
@@ -473,7 +473,7 @@ export const topics: Topic[] = [
     number: '03',
     title: 'Ethernet & Network Cabling',
     icon: 'cable',
-    summary:'ethernet',
+    summary: 'ethernet',
     description: 'The standards, media, and physical choices that connect network devices.',
     subtopics: [
       {
@@ -1008,30 +1008,30 @@ export const topics: Topic[] = [
         ],
       },
       {
-  slug: 'number-system-conversions-hex-to-binary',
-  title: 'Number System Conversions (Hexadecimal to Binary)',
-  description: 'Binary and hexadecimal are compact ways to represent network values — one hex digit always maps to exactly four binary bits.',
-  blocks: [
-    { type: 'heading', text: 'Core ideas' },
-    { type: 'paragraph', text: 'Binary and hexadecimal are compact ways to represent network values — one hex digit always maps to exactly four binary bits.' },
-    {
-      type: 'bullets',
-      items: [
-        'One hexadecimal digit maps exactly to four binary bits (a nibble).',
-        'A byte (8 bits) is represented by exactly two hexadecimal digits.',
-        'IPv6 addresses are written in hexadecimal for this reason — it is far more compact than writing 128 bits in binary.',
-        'Use place values (8-4-2-1 for each nibble) to convert between hex and binary and to validate address fields.',
-      ],
-    },
-    { type: 'heading', text: 'Why it matters' },
-    { type: 'paragraph', text: 'CCNA questions often test how this idea behaves in a real network. Focus on the role, the boundary, and what changes when traffic moves to the next layer.' },
-  ],
-  quickReference: [
-    { label: '1 hex digit', value: '4 bits (a nibble)' },
-    { label: '1 byte', value: '8 bits = 2 hex digits' },
-    { label: 'Place values', value: '8-4-2-1 per nibble' },
-  ],
-},
+        slug: 'number-system-conversions-hex-to-binary',
+        title: 'Number System Conversions (Hexadecimal to Binary)',
+        description: 'Binary and hexadecimal are compact ways to represent network values — one hex digit always maps to exactly four binary bits.',
+        blocks: [
+          { type: 'heading', text: 'Core ideas' },
+          { type: 'paragraph', text: 'Binary and hexadecimal are compact ways to represent network values — one hex digit always maps to exactly four binary bits.' },
+          {
+            type: 'bullets',
+            items: [
+              'One hexadecimal digit maps exactly to four binary bits (a nibble).',
+              'A byte (8 bits) is represented by exactly two hexadecimal digits.',
+              'IPv6 addresses are written in hexadecimal for this reason — it is far more compact than writing 128 bits in binary.',
+              'Use place values (8-4-2-1 for each nibble) to convert between hex and binary and to validate address fields.',
+            ],
+          },
+          { type: 'heading', text: 'Why it matters' },
+          { type: 'paragraph', text: 'CCNA questions often test how this idea behaves in a real network. Focus on the role, the boundary, and what changes when traffic moves to the next layer.' },
+        ],
+        quickReference: [
+          { label: '1 hex digit', value: '4 bits (a nibble)' },
+          { label: '1 byte', value: '8 bits = 2 hex digits' },
+          { label: 'Place values', value: '8-4-2-1 per nibble' },
+        ],
+      },
       {
         slug: 'ip-address-classes-a-b-c-d-e-and-default-subnet-masks',
         title: 'IP Address Classes (A, B, C, D, E) and Default Subnet Masks',
@@ -1293,8 +1293,8 @@ export const topics: Topic[] = [
         ],
         quickReference: [{ label: 'MSS', value: 'Usable payload after subtracting headers from MTU' }],
         diagrams: [
-          { src: '/diagrams/tmtu.png', alt: 'Packet structure and MTU', caption: 'Packet structure — MTU and MSS' },
-          { src: '/diagrams/ttcp.png', alt: 'TCP handshake attributes table', caption: 'TCP handshake attributes' },
+          { src: '/diagrams/tmtu_wide.png', alt: 'Packet structure and MTU', caption: 'Packet structure — MTU and MSS' },
+          { src: '/diagrams/ttcp_wide.png', alt: 'TCP handshake attributes table', caption: 'TCP handshake attributes' },
         ],
       },
       {
@@ -1312,19 +1312,176 @@ export const topics: Topic[] = [
       {
         slug: 'tcp-handshakes-3-way-4-way',
         title: 'TCP Handshakes (3-way for connection establishment, 4-way for termination)',
-        description: 'TCP is connection-oriented, so a three-way handshake establishes the connection before data flows, and a four-way handshake tears it down.',
+        description: 'TCP is connection-oriented, so a three-way handshake establishes the connection before data flows, a four-way handshake tears it down, and a sliding window controls how much data may be in flight in between.',
         blocks: [
-          { type: 'heading', text: 'Three-way handshake' },
+          // ───────────── Why a handshake ─────────────
+          { type: 'heading', text: 'Why TCP needs a handshake' },
           { type: 'paragraph', text: 'TCP is a connection-oriented protocol, which means a condition (connection) must be in place before sending TCP traffic. The three-way handshake ensures this connection exists before any traffic is sent.' },
+          { type: 'paragraph', text: 'TCP works at the transport layer (Layer 4) and gives applications a reliable, ordered, error-checked stream of bytes. To do that, both hosts keep state about the conversation: starting sequence numbers, window sizes, timers and buffers. The handshake is how both ends agree on that state and confirm that the other side is reachable and ready.' },
           { type: 'paragraph', text: 'UDP is connectionless — there is no need for any connection to be in place before sending UDP traffic.' },
+          
+
+        
+          
+
+          // ───────────── Three-way handshake ─────────────
+          { type: 'heading', text: 'Three-way handshake' },
+          { type: 'paragraph', text: 'The host that starts the connection is the client (active open). The host that waits for connections is the server (passive open), which is already listening on a port. Three segments are exchanged: SYN, SYN-ACK, ACK.' },
+          {
+            type: 'code', language: 'text', code: `   Client                                           Server
+   (CLOSED)                                         (LISTEN)
+      |                                                |
+      |  1) SYN            seq=1000                    |
+      | ---------------------------------------------> |   server: SYN-RECEIVED
+      |    client: SYN-SENT                            |
+      |                                                |
+      |  2) SYN, ACK       seq=5000  ack=1001          |
+      | <--------------------------------------------- |
+      |                                                |
+      |  3) ACK            seq=1001  ack=5001          |
+      | ---------------------------------------------> |
+      |                                                |
+   (ESTABLISHED)                                   (ESTABLISHED)
+      |  ======== data can now flow both ways ======== |` },
+          {
+            type: 'table', headers: ['Step', 'Direction', 'Flags', 'Example numbers', 'What it means'], rows: [
+              ['1', 'Client → Server', 'SYN', 'seq=1000', 'I want to connect. My first sequence number is 1000. Here are my options: MSS, window scale, SACK.'],
+              ['2', 'Server → Client', 'SYN, ACK', 'seq=5000, ack=1001', 'I got your SYN and expect byte 1001 next. My own first sequence number is 5000. Here are my options.'],
+              ['3', 'Client → Server', 'ACK', 'seq=1001, ack=5001', 'I got your SYN and expect byte 5001 next. The connection is open.'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'A SYN uses up one sequence number even though it carries no data, which is why the ACK for seq=1000 is ack=1001.',
+              'Each side picks its own initial sequence number (ISN). Modern systems choose it unpredictably so that attackers cannot easily guess it.',
+              'The third segment (the final ACK) is allowed to carry data, so the client can start sending straight away.',
+              'Options such as MSS, window scale, SACK permitted and timestamps are exchanged only in the SYN and SYN-ACK segments. If one side leaves an option out, it is not used for the connection.',
+              'After step 3 both sides are in the ESTABLISHED state and either side may send data.',
+            ]
+          },
+          { type: 'heading', text: 'Why three steps and not two?' },
+          {
+            type: 'bullets', items: [
+              'Both directions need their own sequence number, and each one must be confirmed. That is four messages in theory: SYN, ACK, SYN, ACK. The middle two are combined into one SYN-ACK segment, which gives three.',
+              'It protects against old, delayed SYN segments from an earlier connection. Without the final ACK, the server could open a connection nobody asked for.',
+              'It proves both directions work. The server learns the client can receive (it answered the SYN-ACK), and the client learns the server can receive and reply.',
+            ]
+          },
+          { type: 'heading', text: 'TCP states during connection establishment' },
+          {
+            type: 'table', headers: ['State', 'Side', 'Meaning'], rows: [
+              ['CLOSED', 'Both', 'No connection exists.'],
+              ['LISTEN', 'Server', 'Waiting for an incoming SYN on a port.'],
+              ['SYN-SENT', 'Client', 'SYN sent, waiting for the SYN-ACK.'],
+              ['SYN-RECEIVED', 'Server', 'SYN received and SYN-ACK sent, waiting for the final ACK.'],
+              ['ESTABLISHED', 'Both', 'Handshake complete. Data can flow.'],
+            ]
+          },
+
+          
+
+          // ───────────── Four-way handshake ─────────────
           { type: 'heading', text: 'Four-way handshake (termination)' },
+          { type: 'paragraph', text: 'A TCP connection is full-duplex: data flows independently in each direction. Each direction has to be closed on its own, which takes one FIN and one ACK per direction. That is four segments. Either side can start the close; the side that sends the first FIN is the active closer.' },
           { type: 'code', language: 'text', code: '1st FIN → 1st ACK → 2nd FIN → 2nd ACK' },
+          {
+            type: 'code', language: 'text', code: `   Client (active closer)                           Server (passive closer)
+   (ESTABLISHED)                                    (ESTABLISHED)
+      |                                                |
+      |  1) FIN, ACK      seq=x                        |
+      | ---------------------------------------------> |
+      |    FIN-WAIT-1                                  |   CLOSE-WAIT
+      |                                                |
+      |  2) ACK           ack=x+1                      |
+      | <--------------------------------------------- |
+      |    FIN-WAIT-2                                  |   (server may still send data)
+      |                                                |
+      |  3) FIN, ACK      seq=y                        |
+      | <--------------------------------------------- |
+      |                                                |   LAST-ACK
+      |  4) ACK           ack=y+1                      |
+      | ---------------------------------------------> |
+      |    TIME-WAIT (2 x MSL)                         |   CLOSED
+      |    CLOSED                                      |` },
+          {
+            type: 'table', headers: ['Step', 'Direction', 'Flags', 'Meaning', 'State after'], rows: [
+              ['1', 'Active closer → Passive', 'FIN', 'I have no more data to send.', 'Active: FIN-WAIT-1. Passive: CLOSE-WAIT'],
+              ['2', 'Passive → Active', 'ACK', 'I got your FIN. (My side can still send data.)', 'Active: FIN-WAIT-2'],
+              ['3', 'Passive → Active', 'FIN', 'I am also finished sending.', 'Passive: LAST-ACK'],
+              ['4', 'Active → Passive', 'ACK', 'I got your FIN. The connection is closed.', 'Active: TIME-WAIT then CLOSED. Passive: CLOSED'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'A FIN uses up one sequence number, so the ACK for a FIN is the FIN sequence number plus 1.',
+              'Half-close: after step 2, the passive side may keep sending data until it is ready to send its own FIN. The closed direction is finished, the other is still open.',
+              'Steps 2 and 3 are often combined into a single FIN-ACK segment when the passive side has nothing left to send. The close then takes three segments instead of four.',
+              'TIME-WAIT: the active closer waits twice the maximum segment lifetime (2 x MSL) before it reaches CLOSED. This makes sure the last ACK arrives (if it is lost, the passive side resends its FIN) and lets stray old segments die out. RFC 793 suggests a MSL of 2 minutes, while Linux uses a fixed 60 seconds.',
+              'Simultaneous close: if both sides send FIN at the same moment, both pass through the CLOSING state and then TIME-WAIT.',
+              'RST is the abrupt alternative: one segment ends the connection immediately and the receiver discards its state.',
+            ]
+          },
+          
+
+          // ───────────── Windowing ─────────────
+          { type: 'heading', text: 'Windowing: how TCP controls the flow of data' },
+          { type: 'paragraph', text: 'Two problems appear once a connection is open. First, a fast sender can overwhelm a slow receiver and overflow its buffer. Second, if the sender transmitted one segment and then waited for its ACK every time (stop-and-wait), most of the time would be spent idle, especially on long links.' },
+          { type: 'paragraph', text: 'Windowing solves both. The window is the amount of data, in bytes, that a sender is allowed to transmit before it must stop and wait for an acknowledgment. Several segments can be in flight at once, and the receiver controls how large the window is.' },
+          {
+            type: 'bullets', items: [
+              'The Window size field in every TCP header tells the other side how many more bytes this host can accept right now. It reflects the free space in the receive buffer. This value is the receive window (rwnd).',
+              'Each side advertises its own window, so the two directions are controlled independently.',
+              'The ACK number and the window work together: the sender may transmit bytes from the ACK number up to ACK number + window − 1.',
+              'This mechanism is called flow control. It protects the receiver. (Protecting the network is a different job, covered under congestion control below.)',
+            ]
+          },
+          { type: 'heading', text: 'The sliding window' },
+          { type: 'paragraph', text: 'At any moment the sender sees its data stream in four groups. The window covers the middle two groups, and it slides to the right every time new acknowledgments arrive.' },
+          {
+            type: 'bullets', items: [
+              'Sent and acknowledged: finished. The sender can free that memory.',
+              'Sent but not yet acknowledged: in flight. Must be kept in case it needs to be resent.',
+              'Not yet sent, but allowed: still inside the window, can be sent immediately.',
+              'Not yet sent and not allowed: beyond the window, must wait.',
+            ]
+          },
+        
+          { type: 'heading', text: 'Worked example: window shrinks, hits zero, then reopens' },
+          { type: 'paragraph', text: 'Segment size (MSS) is 1000 bytes and the receiver first advertises a window of 3000 bytes. Sequence numbers are counted from byte 1 to keep the numbers small.' },
+          {
+            type: 'table', headers: ['Step', 'What happens', 'Unacknowledged bytes', 'Sender may send up to'], rows: [
+              ['1', 'Sender transmits segments 1 – 3 (bytes 1 – 3000).', '3000', 'Byte 3000. The window is full, so the sender waits.'],
+              ['2', 'ACK 1001, window 3000. Segment 1 is confirmed, so the sender sends segment 4.', '3000', 'Byte 4000'],
+              ['3', 'ACK 2001, window 3000. Sender sends segment 5.', '3000', 'Byte 5000'],
+              ['4', 'ACK 3001, window 2000. The receiving application is slow, so the buffer is filling up and the advertised window shrinks.', '2000', 'Byte 5000. Nothing new can be sent.'],
+              ['5', 'ACK 5001, window 0. The receive buffer is full.', '0', 'Nothing. Zero window: the sender stops.'],
+              ['6', 'The application reads data. Receiver sends a window update: ACK 5001, window 4000.', '0, then 4000 after sending', 'Byte 9000. The sender sends segments 6 – 9.'],
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              'The window can grow or shrink during a connection. The receiver is in charge of it.',
+              'More ACKs let the window slide forward. A smaller advertised window slows the sender down.',
+              'A window of 0 means stop. The sender must not send data (except tiny probes, below) until the window reopens.',
+            ]
+          },
+           
+
+          
+
+          
         ],
-        quickReference: [{ label: 'Establish', value: '3-way handshake (SYN, SYN-ACK, ACK)' }, { label: 'Terminate', value: '4-way handshake (FIN, ACK, FIN, ACK)' }],
-        diagrams: [
-          { src: '/diagrams/t3cp_wide.png', alt: 'TCP three-way handshake — connection established', caption: 'TCP connection established — 3-way handshake' },
+        quickReference: [
+          { label: 'Establish', value: '3-way handshake (SYN, SYN-ACK, ACK)' },
+          { label: 'Terminate', value: '4-way handshake (FIN, ACK, FIN, ACK)' },
+          { label: 'ACK number', value: 'Next byte expected. SYN and FIN each use one sequence number.' },
+          { label: 'Window', value: 'Receiver advertises free buffer space. 16 bits = 65,535 bytes max' },
+          { label: 'Window scale', value: 'Shift 0 – 14, set in SYN. Max about 1 GiB' },
+          { label: 'Throughput limit', value: 'Window size ÷ round-trip time' },
         ],
+        
       },
+
       {
         slug: 'tcp-flags-syn-ack-fin-psh-urg-rst',
         title: 'TCP Flags (SYN, ACK, FIN, PSH, URG, RST)',
@@ -3530,8 +3687,8 @@ export const topics: Topic[] = [
     slug: 'packet-flow',
     number: '01',
     title: 'Packet Flow',
-     icon: 'arrow-right-left',
-     summary: 'packetflow',
+    icon: 'arrow-right-left',
+    summary: 'packetflow',
     description: 'How communication happens within and between networks',
     subtopics: [
       {
