@@ -4056,9 +4056,7 @@ export const topics: Topic[] = [
           { label: 'Forward vs reply', value: 'Forward needs 3 ARPs, reply needs none' },
           { label: 'TTL', value: 'Reduced by 1 at every router' },
         ],
-        diagrams: [
-          { src: '/diagrams/packetflow_reply_wide.png', alt: 'Reply path from PC3 through SW2, R2, R1 and SW1 back to PC1', caption: 'Echo reply path (PC3 to PC1)' },
-        ],
+ 
       },
       {
         slug: 'pdu-names-segment-packet-frame-bits',
