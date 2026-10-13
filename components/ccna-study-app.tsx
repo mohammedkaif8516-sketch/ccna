@@ -72,6 +72,9 @@ import { IpClassesExplorer } from "@/components/ip-classes-explorer";
 import { TcpSimulator } from "@/components/tcp-simulator";
 import { VisitTree } from "@/components/visit-tree";
 import { VerticalSubnetLine } from "@/components/vertical-subnet-line";
+import {PacketFlowSimulator} from "@/components/packet-flow-intra"
+import {ReplyPacketFlow} from "@/components/packet-flow-inter-2"
+import { RoutedPacketFlow } from "@/components/packet-flow-inter-1";
 import { IntroNetworkingSummary } from "@/components/intro-networking-summary";
 import { OsiModelExplainer } from "@/components/osi-model-explainer";
 import { EthernetCablingSummary } from "@/components/ethernet-cabling-summary";
@@ -1458,6 +1461,10 @@ export default function CcnaStudyApp() {
                 )}
                    {current.slug === "ip-address-classes-a-b-c-d-e-and-default-subnet-masks" && <IpClassesExplorer />}
                    {current.slug === "tcp-handshakes-3-way-4-way" && <TcpSimulator />}
+                   {current.slug === "packet-flow-within-the-same-network" && <PacketFlowSimulator />}
+                   {current.slug === "packet-flow-between-networks-forward-path" && <RoutedPacketFlow />}
+                   {current.slug === "packet-flow-between-networks-reply-path" && <ReplyPacketFlow />}
+
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
                     type="button"

@@ -3942,12 +3942,6 @@ export const topics: Topic[] = [
           { label: 'ARPs on the forward path', value: '3 (PC1 for gateway, R1 for R2, R2 for PC3)' },
           { label: 'TTL', value: 'Reduced by 1 at every router' },
         ],
-        diagrams: [
-
-
-          { src: '/diagrams/packetflow_inter_wide.png', alt: 'Inter-network topology: PC1 and PC2 to SW1 to R1 to R2 to SW2 to PC3 and PC4', caption: 'Packet flow between two networks' },
-          { src: '/diagrams/packetfloww_inter_wide.png', alt: 'Request path from PC1 through SW1, R1, R2 and SW2 to PC3 with the three ARP exchanges and the ICMP echo frames at each hop', caption: 'Echo request path (PC1 to PC3)' },
-        ],
       },
 
       {
