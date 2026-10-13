@@ -68,6 +68,7 @@ import type { QuizScore } from "@/lib/use-quiz-score";
 import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
 import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
 import { VisitTree } from "@/components/visit-tree";
+import { VerticalSubnetLine } from "@/components/vertical-subnet-line";
 import { IntroNetworkingSummary } from "@/components/intro-networking-summary";
 import { OsiModelExplainer } from "@/components/osi-model-explainer";
 import { EthernetCablingSummary } from "@/components/ethernet-cabling-summary";
@@ -343,61 +344,15 @@ export function SubnetPlanner() {
             </p>
 
             {/* Horizontal subnet line */}
-            <div className="overflow-x-auto rounded-xl border bg-background p-4">
-              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                Subnet line — {intToIp(result.parentNetwork)}/
-                {result.basePrefix}
-              </p>
-              <div className="flex min-w-full" style={{ height: 60 }}>
-                {result.blocks.map((b, i) => {
-                  const widthPct = (b.blockSize / result.parentSize) * 100;
-                  return (
-                    <div
-                      key={b.label}
-                      className="relative flex flex-col justify-between border-r last:border-r-0"
-                      style={{
-                        width: `${widthPct}%`,
-                        minWidth: 60,
-                        backgroundColor: colors[i % colors.length] + "18",
-                        borderColor: colors[i % colors.length],
-                        borderTop: `3px solid ${colors[i % colors.length]}`,
-                      }}
-                    >
-                      <div className="flex flex-1 flex-col items-center justify-center px-1 py-2 text-center">
-                        <span
-                          className="text-[11px] font-semibold"
-                          style={{ color: colors[i % colors.length] }}
-                        >
-                          {b.label} · /{b.prefix}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">
-                          {b.requested} PCs
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-                {result.free > 0 && (
-                  <div
-                    className="relative flex items-center justify-center border-t-[3px] border-t-dashed border-t-muted-foreground/40"
-                    style={{
-                      width: `${(result.free / result.parentSize) * 100}%`,
-                      minWidth: 40,
-                    }}
-                  >
-                    <span className="text-[10px] text-muted-foreground">
-                      free ({result.free})
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className="mt-2 flex justify-between text-[10px] font-mono text-muted-foreground">
-                <span>{intToIp(result.parentNetwork)}</span>
-                <span>
-                  {intToIp(result.parentNetwork + result.parentSize - 1)}
-                </span>
-              </div>
-            </div>
+            <VerticalSubnetLine
+              blocks={result.blocks}
+              parentNetwork={result.parentNetwork}
+              parentSize={result.parentSize}
+              free={result.free}
+              basePrefix={result.basePrefix}
+              colors={colors}
+              intToIp={intToIp}
+            />
 
             {/* Table */}
             <div className="overflow-x-auto rounded-xl border">
