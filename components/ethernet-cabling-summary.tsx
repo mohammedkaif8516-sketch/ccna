@@ -1,1119 +1,937 @@
 "use client";
 
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  AlertTriangle,
-  Cable,
-  Check,
-  ChevronRight,
-  CircleDot,
-  Coins,
-  Cpu,
-  Gauge,
-  Layers,
-  Lightbulb,
-  MessageCircleQuestion,
-  Network,
-  Plug,
-  Radio,
-  ShieldCheck,
-  Sparkles,
-  Tv,
-  Wifi,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-/* ═════════════════════════════════════════════════════════════
-   Ethernet & Network Cabling — Summary
-   Structure: Big Picture · Cheat Sheet · How It Works ·
-              Common Misconceptions · Cable Picker (signature) ·
-              Interview Prep
-   Register as SUMMARY_VIEWS.ethernet = EthernetCablingSummary.
-   ═════════════════════════════════════════════════════════════ */
+/**
+ * EthernetCablingExplainer  (CCNA Topic 03)
+ *   1 Big picture        : what Ethernet is, where it came from, why it won, the speed ladder
+ *   2 Cable types        : twisted pair, coax, fiber, categories, fiber modes, transceivers
+ *   3 Wiring             : 568B pinout, which pins carry data, straight-through vs crossover
+ *   4 Power over Ethernet: standards, PSE and PD, "will this device work?" checker
+ *   5 How it works       : the five-step journey of a frame
+ *   6 Which cable?       : scenario guide (tap a scenario to see the answer and why)
+ *   7 Common mistakes    : wrong belief on the front, the truth on the back
+ *   8 Interview prep     : 30-second answer and the usual questions
+ */
 
-const cx = (...parts: Array<string | false | null | undefined>) =>
-  parts.filter(Boolean).join(" ");
+const RED = "#c92a2a";
+const BLUE = "#1971c2";
+const GREEN = "#2f9e44";
+const AMBER = "#f08c00";
+const PURPLE = "#9c36b5";
 
-const hue = (h: number) => ({ "--h": h }) as CSSProperties;
+const TABS = [
+  { id: "big", label: "1 · Big picture" },
+  { id: "cables", label: "2 · Cable types" },
+  { id: "wiring", label: "3 · Wiring" },
+  { id: "poe", label: "4 · PoE" },
+  { id: "how", label: "5 · How it works" },
+  { id: "pick", label: "6 · Which cable?" },
+  { id: "myths", label: "7 · Common mistakes" },
+  { id: "interview", label: "8 · Interview prep" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
 
-const ETH_CSS = `
-.eth-root .osi-tint{background:hsl(var(--h) 85% 55% / .12);border-color:hsl(var(--h) 85% 55% / .4)}
-.eth-root .osi-ink{color:hsl(var(--h) 72% 34%)}
-.dark .eth-root .osi-ink{color:hsl(var(--h) 92% 79%)}
-.eth-root .osi-solid{background:hsl(var(--h) 72% 44%);color:#fff}
-.dark .eth-root .osi-solid{background:hsl(var(--h) 68% 52%)}
-@keyframes ethFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.eth-root .osi-fade{animation:ethFade .22s ease-out both}
-@media (prefers-reduced-motion:reduce){.eth-root .osi-fade{animation:none}}
-`;
+/* ───────────────────────── small helpers ───────────────────────── */
 
-// ─────────────────────────────────────────────────────────────
-// Shared UI
-// ─────────────────────────────────────────────────────────────
+function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-xl border bg-background p-4 ${className}`}>{children}</div>;
+}
 
-function Chip({ children }: { children: ReactNode }) {
+function Tip({ title = "Remember", children }: { title?: string; children: React.ReactNode }) {
   return (
-    <span className="inline-flex max-w-full items-center rounded-md border bg-muted/60 px-2 py-0.5 text-[11px] leading-4 text-foreground/80">
-      <span className="min-w-0 break-words">{children}</span>
-    </span>
+    <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs leading-5">
+      <span className="font-semibold text-primary">{title}: </span>
+      <span className="text-muted-foreground">{children}</span>
+    </div>
   );
 }
 
-function Label({ children }: { children: ReactNode }) {
+function Pick({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "bg-background text-muted-foreground hover:border-primary/50"
+      }`}
+    >
       {children}
-    </p>
+    </button>
+  );
+}
+
+function SimpleTable({ head, rows, hit }: { head: string[]; rows: string[][]; hit?: number }) {
+  return (
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full min-w-[480px] text-xs">
+        <thead className="bg-muted/50">
+          <tr>
+            {head.map((h) => (
+              <th key={h} className="px-3 py-2 text-left font-medium">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} className="border-t" style={hit === i ? { color: GREEN, fontWeight: 600 } : undefined}>
+              {r.map((c, j) => (
+                <td key={j} className={`px-3 py-2 ${j === 0 ? "font-semibold" : ""}`}>{c}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
 function Bullets({ items }: { items: string[] }) {
   return (
-    <ul className="space-y-1.5">
-      {items.map((t) => (
-        <li key={t} className="flex gap-2 text-sm leading-relaxed">
-          <ChevronRight className="mt-1 size-3 shrink-0 text-muted-foreground" />
-          <span className="min-w-0">{t}</span>
-        </li>
+    <ul className="list-disc space-y-1 pl-4 text-xs leading-5 text-muted-foreground">
+      {items.map((x) => (
+        <li key={x}>{x}</li>
       ))}
     </ul>
   );
 }
 
-function Callout({
-  children,
-  icon: Icon = Lightbulb,
-}: {
-  children: ReactNode;
-  icon?: LucideIcon;
-}) {
+function Mini({ k, v, color }: { k: string; v: string; color?: string }) {
   return (
-    <div className="flex gap-2.5 rounded-xl border bg-[var(--accent-soft)] px-3.5 py-3 text-sm leading-relaxed">
-      <Icon className="mt-0.5 size-4 shrink-0 text-[var(--accent)]" />
-      <div className="min-w-0">{children}</div>
+    <div className="rounded-lg border bg-muted/30 px-3 py-2">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{k}</p>
+      <p className="text-xs font-medium" style={color ? { color } : undefined}>{v}</p>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Data
-// ─────────────────────────────────────────────────────────────
+/* ───────────────────────── 1 · big picture ───────────────────────── */
 
-const ETHERNET_SPEEDS: { name: string; short: string; mbps: number }[] = [
-  { name: "Ethernet", short: "10 Mbps", mbps: 10 },
-  { name: "Fast Ethernet", short: "100 Mbps", mbps: 100 },
-  { name: "Gigabit Ethernet", short: "1000 Mbps", mbps: 1000 },
-  { name: "10 Gigabit", short: "10 Gbps", mbps: 10_000 },
-  { name: "25 Gigabit", short: "25 Gbps", mbps: 25_000 },
-  { name: "40 Gigabit", short: "40 Gbps", mbps: 40_000 },
-  { name: "100 Gigabit", short: "100 Gbps", mbps: 100_000 },
-  { name: "200 Gigabit", short: "200 Gbps", mbps: 200_000 },
-  { name: "400 Gigabit", short: "400 Gbps", mbps: 400_000 },
+const HISTORY = [
+  { who: "Xerox", what: "First version at 2.94 Mbps, built for a LAN." },
+  { who: "DIX consortium", what: "Digital, Intel and Xerox released the first public version at 10 Mbps (Ethernet II)." },
+  { who: "IEEE", what: "Standardized it as IEEE 802.3. That is why the family is called 802.3 Ethernet." },
+  { who: "Today", what: "An open standard. Anyone can build Ethernet gear, and it all works together." },
 ];
 
-const CABLE_KINDS: Array<{
-  name: string;
-  hue: number;
-  icon: LucideIcon;
-  carries: string;
-  built: string;
-  best: string;
-  avoid: string;
-}> = [
-  {
-    name: "Twisted Pair (UTP / STP)",
-    hue: 150,
-    icon: Cable,
-    carries: "Electrical signal",
-    built: "8 wires in 4 twisted pairs",
-    best: "Short runs (≤100 m), cheap LAN cabling",
-    avoid: "Long distances, noisy industrial environments",
-  },
-  {
-    name: "Coaxial",
-    hue: 35,
-    icon: Tv,
-    carries: "Electrical signal",
-    built: "Copper core + 3 insulation layers",
-    best: "Television service today",
-    avoid: "Modern data networking — legacy only",
-  },
-  {
-    name: "Fiber Optic",
-    hue: 255,
-    icon: Sparkles,
-    carries: "Light",
-    built: "Glass core + cladding",
-    best: "Long distance, high speed, EMI immunity",
-    avoid: "Cheap short runs where copper is fine",
-  },
+const WHY = [
+  { t: "Inexpensive", d: "Cheap hardware and cheap cable." },
+  { t: "Simple to install", d: "Crimp an RJ-45 connector and plug in." },
+  { t: "Flexible and scalable", d: "10 Mbps to 400 Gbps, same basic idea." },
+  { t: "Multi-vendor", d: "Open standard means every vendor interoperates." },
 ];
 
-const TWISTED_PAIR_CATS = [
-  { cat: "Cat 3", detail: "3 twists / inch", note: "Old voice + 10 Mbps Ethernet", speed: "10 Mbps" },
-  { cat: "Cat 5", detail: "5 twists / inch", note: "100 Mbps Fast Ethernet", speed: "100 Mbps" },
-  { cat: "Cat 5e", detail: "Pairs twisted around each other", note: "Gigabit Ethernet, less crosstalk", speed: "1 Gbps" },
-  { cat: "Cat 6", detail: "6 twists / inch + better insulation", note: "Higher bandwidth, tighter tolerances", speed: "10 Gbps" },
+const SPEEDS = [
+  { name: "Ethernet", label: "10 Mbps", mbps: 10 },
+  { name: "Fast Ethernet", label: "100 Mbps", mbps: 100 },
+  { name: "Gigabit Ethernet", label: "1 Gbps", mbps: 1000 },
+  { name: "10 Gigabit", label: "10 Gbps", mbps: 10000 },
+  { name: "25 Gigabit", label: "25 Gbps", mbps: 25000 },
+  { name: "40 Gigabit", label: "40 Gbps", mbps: 40000 },
+  { name: "100 Gigabit", label: "100 Gbps", mbps: 100000 },
+  { name: "200 Gigabit", label: "200 Gbps", mbps: 200000 },
+  { name: "400 Gigabit", label: "400 Gbps", mbps: 400000 },
 ];
 
-const FIBER_MODES = [
-  {
-    mode: "Single-mode",
-    hue: 215,
-    icon: CircleDot,
-    core: "Small core",
-    light: "One ray of light",
-    distance: "Long distance (km) — 40 km, 100 km",
-    use: "Between cities / countries",
-  },
-  {
-    mode: "Multi-mode",
-    hue: 150,
-    icon: Radio,
-    core: "Larger core",
-    light: "Many rays of light at once",
-    distance: "Short distance",
-    use: "Inside one building, LAN / WAN campus",
-  },
-];
-
-const TRANSCEIVERS = [
-  { name: "SFP", speed: "1 Gbps", note: "Small Form-factor Pluggable" },
-  { name: "SFP+", speed: "10 Gbps", note: "Faster SFP, same footprint" },
-  { name: "QSFP", speed: "100 Gbps", note: "Quad SFP — 4 lanes" },
-];
-
-const PINOUT_568B = [
-  { pin: 1, color: "Orange / White", group: "orange" },
-  { pin: 2, color: "Orange", group: "orange" },
-  { pin: 3, color: "Green / White", group: "green" },
-  { pin: 4, color: "Blue", group: "blue" },
-  { pin: 5, color: "Blue / White", group: "blue" },
-  { pin: 6, color: "Green", group: "green" },
-  { pin: 7, color: "Brown / White", group: "brown" },
-  { pin: 8, color: "Brown", group: "brown" },
-];
-
-/** Colour hexes used by the picker so students can visually see the wire. */
-const COLOR_HEX: Record<string, { base: string; stripe?: string }> = {
-  "Orange / White": { base: "#ffffff", stripe: "#f97316" },
-  Orange: { base: "#f97316" },
-  "Green / White": { base: "#ffffff", stripe: "#16a34a" },
-  Blue: { base: "#2563eb" },
-  "Blue / White": { base: "#ffffff", stripe: "#2563eb" },
-  Green: { base: "#16a34a" },
-  "Brown / White": { base: "#ffffff", stripe: "#78350f" },
-  Brown: { base: "#78350f" },
-};
-
-const CABLE_TYPES = [
-  {
-    type: "Straight-through",
-    hue: 150,
-    icon: Plug,
-    connects: "Different device types",
-    examples: ["Switch ↔ PC", "Switch ↔ Router", "Router ↔ Firewall"],
-    wiring: "Both ends use the same pinout (1→1, 2→2, …)",
-  },
-  {
-    type: "Crossover",
-    hue: 335,
-    icon: Network,
-    connects: "Same device types",
-    examples: ["Switch ↔ Switch", "Router ↔ Router", "PC ↔ PC"],
-    wiring: "Tx and Rx pairs swapped (1↔3, 2↔6)",
-  },
-];
-
-const POE_STANDARDS = [
-  { std: "802.3af", name: "PoE", watts: "15.4 W" },
-  { std: "802.3at", name: "PoE+", watts: "30 W" },
-  { std: "802.3bt (Type 3)", name: "PoE++", watts: "60 W" },
-  { std: "802.3bt (Type 4)", name: "PoE++", watts: "90 W" },
-];
-
-const POE_DEVICES = [
-  "Wireless access points",
-  "IP cameras (CCTV)",
-  "VoIP phones",
-  "Door access control",
-  "Some LED lighting",
-];
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Big Picture
-// ─────────────────────────────────────────────────────────────
-
-function BigPictureTab() {
-  return (
-    <div className="space-y-6">
-      <div
-        style={hue(215)}
-        className="osi-tint rounded-xl border px-3.5 py-3.5"
-      >
-        <p className="osi-ink text-xs font-semibold">
-          What Ethernet actually is
-        </p>
-        <p className="mt-1 text-sm leading-relaxed">
-          Ethernet is not a single cable or a single speed. It is a{" "}
-          <strong>family of standards</strong> that decides how devices on a
-          local network frame bits, address each other, and share the wire.
-          It works in both LAN and WAN, and it is standardized by{" "}
-          <strong>IEEE</strong>.
-        </p>
-      </div>
-
-      <div>
-        <Label>Where it came from</Label>
-        <div className="overflow-hidden rounded-xl border bg-card">
-          {[
-            { who: "Xerox", what: "First version at 2.94 Mbps, LAN environment" },
-            { who: "Three-company consortium", what: "First public version at 10 Mbps" },
-            { who: "IEEE", what: "Standardized as Ethernet Version 2" },
-            { who: "Today", what: "Open standard — anyone can build Ethernet gear" },
-          ].map((r, i, arr) => (
-            <div
-              key={r.who}
-              className={cx(
-                "flex items-start gap-3 px-3.5 py-2.5",
-                i !== arr.length - 1 && "border-b",
-              )}
-            >
-              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[10px] font-semibold text-[var(--accent)]">
-                {i + 1}
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-medium">{r.who}</p>
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  {r.what}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <Label>Why Ethernet won</Label>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {[
-            { icon: Coins, t: "Inexpensive", d: "Cheap hardware, cheap cable" },
-            { icon: Plug, t: "Simple to install", d: "RJ-45 crimp and go" },
-            { icon: Layers, t: "Flexible & scalable", d: "10 Mbps to 400 Gbps, same idea" },
-            { icon: Network, t: "Multi-vendor", d: "Open standard = interoperability" },
-          ].map((b) => (
-            <div
-              key={b.t}
-              className="flex items-start gap-2.5 rounded-lg border bg-card px-3 py-2.5"
-            >
-              <b.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-sm font-medium">{b.t}</p>
-                <p className="text-xs text-muted-foreground">{b.d}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Callout icon={Lightbulb}>
-        Speed upgrades never change the <em>idea</em> of Ethernet — they
-        change the encoding and the medium. A 400G link and a 10 Mbps link
-        still send frames with source and destination MAC addresses.
-      </Callout>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Cheat Sheet
-// ─────────────────────────────────────────────────────────────
-
-function CheatSheetTab() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <Label>Ethernet speeds at a glance</Label>
-        <div className="overflow-x-auto rounded-xl border">
-          <table className="w-full min-w-[420px] text-left text-xs">
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 font-medium">Name</th>
-                <th className="px-3 py-2 font-medium">Speed</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ETHERNET_SPEEDS.map((s) => (
-                <tr key={s.name} className="border-t">
-                  <td className="px-3 py-2">{s.name}</td>
-                  <td className="px-3 py-2 font-mono text-muted-foreground">
-                    {s.short}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-3">
-        {CABLE_KINDS.map((c) => (
-          <div
-            key={c.name}
-            style={hue(c.hue)}
-            className="osi-tint rounded-xl border px-3.5 py-3"
-          >
-            <div className="flex items-center gap-2">
-              <span className="osi-solid flex size-7 items-center justify-center rounded-md">
-                <c.icon className="size-3.5" />
-              </span>
-              <p className="osi-ink text-xs font-semibold">{c.name}</p>
-            </div>
-            <dl className="mt-2 space-y-1 text-[11px]">
-              {[
-                ["Carries", c.carries],
-                ["Built", c.built],
-                ["Best", c.best],
-                ["Avoid", c.avoid],
-              ].map(([k, v]) => (
-                <div key={k} className="grid grid-cols-[50px_1fr] gap-2">
-                  <dt className="text-muted-foreground">{k}</dt>
-                  <dd className="min-w-0 break-words font-medium">{v}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <Label>Twisted pair categories</Label>
-          <div className="overflow-hidden rounded-xl border bg-card">
-            {TWISTED_PAIR_CATS.map((c, i, arr) => (
-              <div
-                key={c.cat}
-                className={cx(
-                  "grid grid-cols-[64px_1fr_70px] items-center gap-3 px-3.5 py-2",
-                  i !== arr.length - 1 && "border-b",
-                )}
-              >
-                <span className="text-sm font-semibold">{c.cat}</span>
-                <span className="text-[11px] text-muted-foreground">
-                  {c.detail}
-                </span>
-                <span className="text-right text-[11px] font-mono">
-                  {c.speed}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <Label>Fiber transceivers</Label>
-          <div className="overflow-hidden rounded-xl border bg-card">
-            {TRANSCEIVERS.map((t, i, arr) => (
-              <div
-                key={t.name}
-                className={cx(
-                  "grid grid-cols-[80px_1fr_80px] items-center gap-3 px-3.5 py-2.5",
-                  i !== arr.length - 1 && "border-b",
-                )}
-              >
-                <span className="text-sm font-semibold">{t.name}</span>
-                <span className="text-[11px] text-muted-foreground">
-                  {t.note}
-                </span>
-                <span className="text-right text-[11px] font-mono">
-                  {t.speed}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <Label>PoE standards</Label>
-          <div className="overflow-hidden rounded-xl border bg-card">
-            {POE_STANDARDS.map((p, i, arr) => (
-              <div
-                key={p.std}
-                className={cx(
-                  "flex items-center justify-between gap-3 px-3.5 py-2",
-                  i !== arr.length - 1 && "border-b",
-                )}
-              >
-                <span className="text-xs">
-                  <span className="font-medium">{p.name}</span>
-                  <span className="ml-1.5 font-mono text-[10px] text-muted-foreground">
-                    {p.std}
-                  </span>
-                </span>
-                <span className="text-xs font-mono">{p.watts}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <Label>Twisted pair limits</Label>
-          <div className="rounded-xl border bg-card px-3.5 py-3 text-sm">
-            <div className="flex items-center justify-between border-b pb-1.5">
-              <span className="text-muted-foreground">Max distance</span>
-              <span className="font-mono font-medium">100 m</span>
-            </div>
-            <div className="flex items-center justify-between pt-1.5">
-              <span className="text-muted-foreground">Max speed</span>
-              <span className="font-mono font-medium">1 Gbps</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Callout icon={Cable}>
-        If you can say one full sentence for each row of these tables, the
-        physical layer is genuinely solid.
-      </Callout>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · How It Works (step-by-step)
-// ─────────────────────────────────────────────────────────────
-
-const HOW_STEPS = [
-  {
-    title: "Bits enter the NIC",
-    hue: 150,
-    text: "The network interface card takes the frame and turns it into an electrical signal, light pulse, or radio wave — depending on the medium.",
-  },
-  {
-    title: "Signal travels on the medium",
-    hue: 215,
-    text: "The chosen cable carries the signal. Copper carries electricity, fiber carries light, Wi-Fi carries radio.",
-  },
-  {
-    title: "Signal reaches the far end",
-    hue: 255,
-    text: "The receiving NIC reads the electrical / light / radio signal and converts it back into bits.",
-  },
-  {
-    title: "Ethernet decodes the frame",
-    hue: 290,
-    text: "The receiving side reads the frame's source and destination MAC addresses and the FCS trailer that detects corruption.",
-  },
-  {
-    title: "Higher layers take over",
-    hue: 335,
-    text: "If the destination MAC is this device, the packet is passed up to Layer 3. If not, the frame is dropped.",
-  },
-];
-
-function HowItWorksTab() {
-  const [step, setStep] = useState(0);
-  const current = HOW_STEPS[step];
-
-  return (
-    <div className="space-y-6">
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        How one Ethernet frame crosses a cable, from the sending NIC to the
-        receiving NIC. Use Next / Previous or click a step below.
-      </p>
-
-      <div className="rounded-xl border bg-card p-4">
-        <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Step {step + 1} of {HOW_STEPS.length}
-          </span>
-          <span>{current.title}</span>
-        </div>
-        <div className="h-1 overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-[var(--accent)] transition-all duration-300"
-            style={{ width: `${((step + 1) / HOW_STEPS.length) * 100}%` }}
-          />
-        </div>
-        <div
-          style={hue(current.hue)}
-          className="osi-tint osi-fade mt-4 rounded-xl border px-3.5 py-3.5"
-        >
-          <p className="osi-ink text-xs font-semibold">
-            Step {step + 1}
-          </p>
-          <p className="mt-1 text-sm leading-relaxed">{current.text}</p>
-        </div>
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-            disabled={step === 0}
-            className="rounded-lg border px-3 py-1.5 text-xs outline-none transition-colors hover:bg-[var(--accent-soft)] focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40"
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              setStep((s) => Math.min(HOW_STEPS.length - 1, s + 1))
-            }
-            disabled={step === HOW_STEPS.length - 1}
-            className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-white outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-
-      <ol className="space-y-2">
-        {HOW_STEPS.map((s, i) => (
-          <li key={s.title}>
-            <button
-              type="button"
-              onClick={() => setStep(i)}
-              style={hue(s.hue)}
-              className={cx(
-                "flex w-full min-w-0 items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring",
-                i === step
-                  ? "osi-tint"
-                  : "bg-card hover:bg-[var(--accent-soft)]",
-              )}
-            >
-              <span
-                className={cx(
-                  "flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold",
-                  i === step ? "osi-solid" : "bg-muted text-muted-foreground",
-                )}
-              >
-                {i + 1}
-              </span>
-              <span className="min-w-0 flex-1">{s.title}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Common Misconceptions
-// ─────────────────────────────────────────────────────────────
-
-const MISCONCEPTIONS = [
-  {
-    wrong: "Ethernet is one speed.",
-    right:
-      "Ethernet is a family: 10 Mbps up to 400 Gbps, all standardized by IEEE.",
-  },
-  {
-    wrong: "Cat 5e is just Cat 5 with a fancy name.",
-    right:
-      "Cat 5e twists the pairs around each other for less crosstalk and supports Gigabit.",
-  },
-  {
-    wrong: "Fiber is 'just faster copper'.",
-    right:
-      "Fiber carries light, not electricity — immune to EMI and safe over long distances.",
-  },
-  {
-    wrong: "Single-mode fiber is faster than multi-mode.",
-    right:
-      "They are similar speeds. Single-mode goes farther; multi-mode is cheaper for short runs.",
-  },
-  {
-    wrong: "Crossover cables are obsolete.",
-    right:
-      "Auto MDI-X made them optional on modern gear, but old switches and routers still need them.",
-  },
-  {
-    wrong: "All 8 wires in Ethernet carry data.",
-    right:
-      "Only pins 1, 2, 3, 6 carry data (Tx and Rx). The rest are spare.",
-  },
-  {
-    wrong: "PoE sends power to everything plugged in.",
-    right:
-      "PoE first checks if the device is PoE-aware. Non-PoE devices get data only.",
-  },
-  {
-    wrong: "PoE+ and PoE++ are the same.",
-    right:
-      "PoE = 15.4 W, PoE+ = 30 W, PoE++ = 60 W or 90 W. Match the standard to the device.",
-  },
-  {
-    wrong: "Coaxial is dead.",
-    right:
-      "It is dead for data networking but still standard for TV and cable internet service.",
-  },
-  {
-    wrong: "100 metres is a suggestion.",
-    right:
-      "It is a hard limit for twisted pair Ethernet. Beyond it, packets start dropping.",
-  },
-];
-
-function MisconceptionsTab() {
-  return (
-    <div className="space-y-6">
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        The small confusions that quietly cost marks. Read the wrong line,
-        then read the right one.
-      </p>
-
-      <div className="space-y-2">
-        {MISCONCEPTIONS.map((t, i) => (
-          <div key={i} className="overflow-hidden rounded-xl border bg-card">
-            <div className="flex items-start gap-2.5 border-b border-destructive/30 bg-destructive/5 px-3.5 py-2.5">
-              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-destructive">
-                ✗ Wrong
-              </span>
-              <p className="min-w-0 text-sm">{t.wrong}</p>
-            </div>
-            <div className="flex items-start gap-2.5 bg-emerald-500/5 px-3.5 py-2.5">
-              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
-                ✓ Right
-              </span>
-              <p className="min-w-0 text-sm">{t.right}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Cable & Colour-Code Picker (signature)
-// ─────────────────────────────────────────────────────────────
-
-type PickerScenario = {
-  scene: string;
-  answer: string; // key into PICKS
-  why: string;
-};
-
-/** One chip per answer the picker can use. */
-const PICKS: Record<
-  string,
-  { label: string; hue: number; icon: LucideIcon }
-> = {
-  utp5e: { label: "Cat 5e UTP", hue: 150, icon: Cable },
-  utp6: { label: "Cat 6 UTP", hue: 165, icon: Cable },
-  stp: { label: "Cat 6 STP", hue: 185, icon: ShieldCheck },
-  coax: { label: "Coaxial", hue: 35, icon: Tv },
-  single: { label: "Single-mode fiber", hue: 215, icon: CircleDot },
-  multi: { label: "Multi-mode fiber", hue: 255, icon: Radio },
-  straight: { label: "Straight-through", hue: 150, icon: Plug },
-  cross: { label: "Crossover", hue: 335, icon: Network },
-  af: { label: "802.3af (15.4 W)", hue: 290, icon: Zap },
-  at: { label: "802.3at (30 W)", hue: 35, icon: Zap },
-  bt: { label: "802.3bt (60/90 W)", hue: 335, icon: Zap },
-};
-
-const PICKER_SCENARIOS: PickerScenario[] = [
-  {
-    scene: "You are running a Gigabit Ethernet cable from a wall jack to a desktop PC, 30 m away, in a normal office.",
-    answer: "utp5e",
-    why: "Cat 5e UTP handles Gigabit at 100 m — the cheapest option that works.",
-  },
-  {
-    scene: "Same office, but you need 10 Gbps to a workstation 40 m away.",
-    answer: "utp6",
-    why: "Cat 6 supports 10 Gbps over shorter distances with tighter tolerances.",
-  },
-  {
-    scene: "A factory floor with heavy motors is causing interference on the network cables.",
-    answer: "stp",
-    why: "Shielded twisted pair (STP) adds extra layers of shielding against EMI.",
-  },
-  {
-    scene: "You need to extend an internet link from one building to another 8 km away.",
-    answer: "single",
-    why: "Single-mode fiber reaches 40–100 km. Copper tops out at 100 m.",
-  },
-  {
-    scene: "Connecting two switches inside the same data-center rack, 20 m apart.",
-    answer: "multi",
-    why: "Multi-mode fiber is cheaper and perfect for short campus / intra-DC runs.",
-  },
-  {
-    scene: "An old 100 Mbps ISP modem in the basement needs to reach the TV upstairs. It's already coax.",
-    answer: "coax",
-    why: "Coaxial is the standard medium for cable internet and television.",
-  },
-  {
-    scene: "You connect a PC to a wall jack that runs to a switch. Which cable do you use?",
-    answer: "straight",
-    why: "PC and switch are different device types — straight-through is the classic answer.",
-  },
-  {
-    scene: "You connect two old switches directly, no wall jacks, older gear without Auto MDI-X.",
-    answer: "cross",
-    why: "Same device types = crossover. Auto MDI-X makes it optional on modern gear.",
-  },
-  {
-    scene: "You are powering a small VoIP phone that draws about 7 watts.",
-    answer: "af",
-    why: "802.3af (PoE) provides up to 15.4 W per port — plenty for a basic phone.",
-  },
-  {
-    scene: "You are powering a modern Wi-Fi 6 access point that draws about 25 watts.",
-    answer: "at",
-    why: "802.3at (PoE+) provides up to 30 W — the standard for modern APs.",
-  },
-  {
-    scene: "You are powering a pan-tilt-zoom camera with a heater that needs 75 watts.",
-    answer: "bt",
-    why: "Only 802.3bt (PoE++) reaches 60–90 W per port. af and at cannot.",
-  },
-];
-
-function CablePickerTab() {
-  const [i, setI] = useState(0);
-  const [picked, setPicked] = useState<string | null>(null);
-
-  const q = PICKER_SCENARIOS[i];
-  const isCorrect = picked === q.answer;
-  const isLast = i === PICKER_SCENARIOS.length - 1;
-
-  const answerKeys = Object.keys(PICKS);
-
-  const next = () => {
-    if (isLast) {
-      setI(0);
-      setPicked(null);
-      return;
-    }
-    setI(i + 1);
-    setPicked(null);
+function BigSection() {
+  const [h, setH] = useState(0);
+  const [sp, setSp] = useState(2);
+  const s = SPEEDS[sp];
+  const times = (mbps: number) => {
+    const sec = (1000 * 8) / mbps; // 1 GB = 8000 megabits
+    if (sec >= 1) return `${sec.toFixed(sec >= 10 ? 0 : 1)} seconds`;
+    return `${(sec * 1000).toFixed(sec * 1000 >= 10 ? 0 : 1)} milliseconds`;
   };
 
   return (
-    <div className="space-y-6">
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        Read the scenario. Pick the cable, wiring, or PoE standard that fits.
-        This is the signature drill for Topic 03 — the fastest way to make
-        Cat 5e, Cat 6, STP, UTP, single-mode, multi-mode, straight, crossover,
-        and PoE wattages stop looking like trivia.
-      </p>
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">Ethernet is a family of standards, not one cable or one speed</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          It decides how devices on a network build frames, address each other with MAC addresses, and share the wire.
+          It is standardized by the IEEE (802.3) and used mostly in LANs. It also appears in WAN links, for example
+          Metro Ethernet from a provider.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Badge variant="secondary">Speed changes. The idea does not.</Badge>
+          <Badge variant="secondary">Layers 1 and 2 of OSI</Badge>
+        </div>
+      </Panel>
 
-      <div className="rounded-xl border bg-card p-4">
-        <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Scenario {i + 1} of {PICKER_SCENARIOS.length}
-          </span>
-          <span>Pick the best fit</span>
+      <Panel>
+        <p className="text-sm font-semibold">Where it came from</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {HISTORY.map((x, i) => (
+            <Pick key={x.who} active={h === i} onClick={() => setH(i)}>{x.who}</Pick>
+          ))}
+        </div>
+        <p key={h} className="n3-fade mt-3 text-xs leading-5 text-muted-foreground">{HISTORY[h].what}</p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Why Ethernet won</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {WHY.map((w) => (
+            <Mini key={w.t} k={w.t} v={w.d} />
+          ))}
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">The speed ladder</p>
+        <p className="mt-1 text-xs text-muted-foreground">Tap a speed. Bars use a log scale, so each step is a big jump.</p>
+        <div className="mt-3 flex flex-col gap-1.5">
+          {SPEEDS.map((x, i) => (
+            <button
+              key={x.name}
+              type="button"
+              onClick={() => setSp(i)}
+              className={`flex items-center gap-3 rounded-lg border px-3 py-1.5 text-left text-xs transition-colors ${
+                sp === i ? "border-primary bg-primary/10" : "hover:border-primary/50"
+              }`}
+            >
+              <span className="w-32 font-semibold">{x.name}</span>
+              <span className="w-16 font-mono">{x.label}</span>
+              <span className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                <span
+                  className="block h-full rounded-full"
+                  style={{ width: `${(Math.log10(x.mbps) / Math.log10(400000)) * 100}%`, background: sp === i ? BLUE : `${BLUE}70` }}
+                />
+              </span>
+            </button>
+          ))}
+        </div>
+        <p key={sp} className="n3-fade mt-3 text-xs text-muted-foreground">
+          At <span className="font-semibold text-foreground">{s.label}</span>, a 1 GB file needs about{" "}
+          <span className="font-semibold" style={{ color: GREEN }}>{times(s.mbps)}</span> in theory (real links lose a little to overhead).
+        </p>
+      </Panel>
+
+      <Tip>
+        A 400 Gbps link and a 10 Mbps link both send frames with a source and destination MAC address. Upgrades change
+        the encoding and the medium, never the idea.
+      </Tip>
+      <Tip title="Also good to know">
+        Between 1 and 10 Gbps there are also 2.5 and 5 Gbps copper speeds (multigigabit). They exist so old Cat 5e cable can go faster.
+      </Tip>
+    </div>
+  );
+}
+
+/* ───────────────────────── 2 · cable types ───────────────────────── */
+
+const CABLES = [
+  {
+    id: "tp", name: "Twisted pair (UTP / STP)", carries: "Electrical signal", built: "8 wires in 4 twisted pairs, with a plastic jacket",
+    best: "Short runs (up to 100 m) and cheap LAN cabling", avoid: "Long distances and very noisy factories (unless shielded)",
+    hook: "The everyday LAN cable.",
+    extra: ["UTP = unshielded. STP = shielded: an extra foil or braid around the pairs blocks interference (EMI).", "Twisting the pairs cancels out interference between them."],
+  },
+  {
+    id: "coax", name: "Coaxial", carries: "Electrical signal", built: "Copper core, insulation, a metal shield and an outer jacket",
+    best: "Cable TV and cable internet service today", avoid: "New data networks inside buildings. It is legacy there.",
+    hook: "Dead for LANs, alive for TV.",
+    extra: ["Early Ethernet (10BASE2, 10BASE5) ran on coax.", "Your ISP may still bring cable internet to the home on coax. A cable modem then gives you Ethernet."],
+  },
+  {
+    id: "fiber", name: "Fiber optic", carries: "Light", built: "Glass core surrounded by cladding, plus a protective jacket",
+    best: "Long distance, high speed, and places with electrical interference", avoid: "Cheap short runs where copper is fine",
+    hook: "Light, not electricity.",
+    extra: ["Immune to EMI, because there is no electricity to disturb.", "Harder to tap than copper, so it is also more secure.", "Needs transceivers to turn electrical signals into light."],
+  },
+];
+
+const CATS = [
+  { cat: "Cat 3", speed: "10 Mbps", dist: "100 m", use: "Old phone lines and 10BASE-T. Obsolete.", rank: 1 },
+  { cat: "Cat 5", speed: "100 Mbps", dist: "100 m", use: "Fast Ethernet (100BASE-TX). Obsolete.", rank: 2 },
+  { cat: "Cat 5e", speed: "1 Gbps", dist: "100 m", use: "Gigabit Ethernet. Stricter crosstalk limits than Cat 5.", rank: 3 },
+  { cat: "Cat 6", speed: "1 Gbps (10 Gbps up to about 55 m)", dist: "100 m at 1 Gbps", use: "Tighter tolerances, often with a separator inside.", rank: 4 },
+  { cat: "Cat 6a", speed: "10 Gbps", dist: "100 m", use: "10 Gbps over a full 100 m run.", rank: 5 },
+];
+
+const MODES = [
+  { id: "sm", name: "Single-mode", core: "Very small core (about 9 micrometres)", light: "One ray of light", dist: "Very long: 10, 40, 100 km or more", use: "Between buildings, cities and countries", cost: "Cheaper cable, but more expensive optics (lasers)" },
+  { id: "mm", name: "Multi-mode", core: "Larger core (50 or 62.5 micrometres)", light: "Many rays of light at once", dist: "Short: roughly 100 to 550 m depending on speed", use: "Inside one building or campus, data centers", cost: "Cheaper optics, so cheaper for short runs" },
+];
+
+const XCVR = [
+  ["SFP", "1 Gbps", "Small Form-factor Pluggable. The original."],
+  ["SFP+", "10 Gbps", "Same size as SFP, 10 times faster."],
+  ["SFP28", "25 Gbps", "Same size again, 25 Gbps."],
+  ["QSFP+", "40 Gbps", "Quad (4 lanes of 10 Gbps)."],
+  ["QSFP28", "100 Gbps", "Quad (4 lanes of 25 Gbps)."],
+  ["QSFP-DD", "400 Gbps", "Double-density, 8 lanes. Used in data centers."],
+];
+
+function CablesSection() {
+  const [c, setC] = useState("tp");
+  const [m, setM] = useState("sm");
+  const [cat, setCat] = useState(2);
+  const cable = CABLES.find((x) => x.id === c)!;
+  const mode = MODES.find((x) => x.id === m)!;
+  const ct = CATS[cat];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">Three kinds of cable</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {CABLES.map((x) => (
+            <Pick key={x.id} active={c === x.id} onClick={() => setC(x.id)}>{x.name}</Pick>
+          ))}
+        </div>
+        <div key={c} className="n3-fade mt-3 flex flex-col gap-3">
+          <Badge variant="secondary" className="w-fit">{cable.hook}</Badge>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Mini k="Carries" v={cable.carries} color={BLUE} />
+            <Mini k="Built from" v={cable.built} />
+            <Mini k="Best for" v={cable.best} color={GREEN} />
+            <Mini k="Avoid for" v={cable.avoid} color={RED} />
+          </div>
+          <Bullets items={cable.extra} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Twisted pair categories</p>
+        <p className="mt-1 text-xs text-muted-foreground">Tap a category. Higher number means a better cable.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {CATS.map((x, i) => (
+            <Pick key={x.cat} active={cat === i} onClick={() => setCat(i)}>{x.cat}</Pick>
+          ))}
+        </div>
+        <div key={cat} className="n3-fade mt-3 grid gap-2 sm:grid-cols-3">
+          <Mini k="Typical use" v={ct.use} />
+          <Mini k="Speed" v={ct.speed} color={GREEN} />
+          <Mini k="Max run" v={ct.dist} color={AMBER} />
+        </div>
+        <div className="mt-3">
+          <SimpleTable head={["Category", "Speed", "Max run"]} rows={CATS.map((x) => [x.cat, x.speed, x.dist])} hit={cat} />
+        </div>
+        <div className="mt-3 flex flex-col gap-2">
+          <Tip title="Careful">
+            Notes often say Cat 3 = 3 twists per inch, Cat 5 = 5, Cat 6 = 6. It is a handy memory hook, but not an exact
+            rule. What really changes is the twist tightness, the quality and the crosstalk limits, so each category is
+            certified for a higher frequency.
+          </Tip>
+          <Tip title="Limit">
+            Twisted pair is limited to 100 m. The speed limit depends on the category, not on twisted pair itself: 1 Gbps
+            for Cat 5e, 10 Gbps for Cat 6a.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Fiber: single-mode vs multi-mode</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {MODES.map((x) => (
+            <Pick key={x.id} active={m === x.id} onClick={() => setM(x.id)}>{x.name}</Pick>
+          ))}
+        </div>
+        <div key={m} className="n3-fade mt-3 grid gap-2 sm:grid-cols-2">
+          <Mini k="Core" v={mode.core} />
+          <Mini k="Light" v={mode.light} />
+          <Mini k="Distance" v={mode.dist} color={GREEN} />
+          <Mini k="Used for" v={mode.use} />
+          <Mini k="Cost" v={mode.cost} />
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Memory hook: <span className="font-semibold text-foreground">single</span> ray goes the <span className="font-semibold text-foreground">longest</span> way.
+          Both can carry very high speeds. The real difference is distance and cost.
+        </p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Fiber transceivers</p>
+        <p className="mt-1 text-xs text-muted-foreground">A transceiver (transmitter + receiver) plugs into a switch port and turns electrical signals into light and back.</p>
+        <div className="mt-3">
+          <SimpleTable head={["Name", "Speed", "Note"]} rows={XCVR} />
+        </div>
+        <div className="mt-3">
+          <Tip title="Careful">
+            A plain QSFP is 40 Gbps in most books. 100 Gbps needs QSFP28. Each plug size has a Gbps number, so learn them as pairs.
+          </Tip>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 3 · wiring ───────────────────────── */
+
+type Pin = { n: number; name: string; color: string; stripe: boolean; pair: string; fe: string; ge: string };
+const PINS: Pin[] = [
+  { n: 1, name: "Orange / White", color: "#f08c00", stripe: true, pair: "Orange pair", fe: "Tx+", ge: "Pair 1 (BI_DA)" },
+  { n: 2, name: "Orange", color: "#f08c00", stripe: false, pair: "Orange pair", fe: "Tx−", ge: "Pair 1 (BI_DA)" },
+  { n: 3, name: "Green / White", color: "#2f9e44", stripe: true, pair: "Green pair", fe: "Rx+", ge: "Pair 2 (BI_DB)" },
+  { n: 4, name: "Blue", color: "#1971c2", stripe: false, pair: "Blue pair", fe: "Unused", ge: "Pair 3 (BI_DC)" },
+  { n: 5, name: "Blue / White", color: "#1971c2", stripe: true, pair: "Blue pair", fe: "Unused", ge: "Pair 3 (BI_DC)" },
+  { n: 6, name: "Green", color: "#2f9e44", stripe: false, pair: "Green pair", fe: "Rx−", ge: "Pair 2 (BI_DB)" },
+  { n: 7, name: "Brown / White", color: "#8a5a2b", stripe: true, pair: "Brown pair", fe: "Unused", ge: "Pair 4 (BI_DD)" },
+  { n: 8, name: "Brown", color: "#8a5a2b", stripe: false, pair: "Brown pair", fe: "Unused", ge: "Pair 4 (BI_DD)" },
+];
+
+const bg = (p: Pin) =>
+  p.stripe ? `repeating-linear-gradient(45deg, ${p.color} 0 5px, #ffffff 5px 10px)` : p.color;
+
+const STRAIGHT: Record<number, number> = { 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8 };
+const CROSS_FE: Record<number, number> = { 1: 3, 2: 6, 3: 1, 4: 4, 5: 5, 6: 2, 7: 7, 8: 8 };
+const CROSS_GE: Record<number, number> = { 1: 3, 2: 6, 3: 1, 4: 7, 5: 8, 6: 2, 7: 4, 8: 5 };
+
+const GROUPS = [
+  { g: "Group A: transmit on pins 1, 2", items: "PC, server, router, firewall, wireless access point" },
+  { g: "Group B: transmit on pins 3, 6", items: "Switch, hub" },
+];
+
+function WiringSection() {
+  const [spd, setSpd] = useState<"fe" | "ge">("fe");
+  const [cab, setCab] = useState<"st" | "cx">("st");
+  const [sel, setSel] = useState<number | null>(null);
+  const map = cab === "st" ? STRAIGHT : spd === "fe" ? CROSS_FE : CROSS_GE;
+  const dataPin = (p: Pin) => (spd === "fe" ? [1, 2, 3, 6].includes(p.n) : true);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">EIA/TIA-568B pinout (RJ-45)</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Hold the plug with the clip down and the pins facing you. Pin 1 is on the left. Tap a pin.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={spd === "fe"} onClick={() => setSpd("fe")}>10 / 100 Mbps</Pick>
+          <Pick active={spd === "ge"} onClick={() => setSpd("ge")}>1 Gbps and faster</Pick>
         </div>
 
-        <p className="text-base font-medium leading-relaxed">{q.scene}</p>
-
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {answerKeys.map((k) => {
-            const p = PICKS[k];
-            const right = picked !== null && k === q.answer;
-            const wrong = picked === k && k !== q.answer;
-            const Icon = p.icon;
+        <div className="mt-3 grid grid-cols-8 gap-1.5">
+          {PINS.map((p) => {
+            const used = dataPin(p);
             return (
               <button
-                key={k}
+                key={p.n}
                 type="button"
-                onClick={() => picked === null && setPicked(k)}
-                disabled={picked !== null}
-                style={hue(p.hue)}
-                className={cx(
-                  "flex min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-left text-xs font-medium outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring",
-                  picked === null && "hover:bg-[var(--accent-soft)]",
-                  right && "border-emerald-500 bg-emerald-500/10",
-                  wrong && "border-destructive bg-destructive/10",
-                  picked !== null && !right && !wrong && "opacity-50",
-                )}
+                onClick={() => setSel(sel === p.n ? null : p.n)}
+                className="flex flex-col items-center gap-1 rounded-lg border p-1.5 transition-all"
+                style={{ opacity: used ? 1 : 0.35, borderColor: sel === p.n ? BLUE : undefined, outline: sel === p.n ? `2px solid ${BLUE}` : undefined }}
+                aria-label={`Pin ${p.n} ${p.name}`}
               >
-                <Icon className="size-3.5 shrink-0 text-muted-foreground" />
-                <span className="min-w-0 flex-1 truncate">{p.label}</span>
-                {right && (
-                  <Check className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                )}
+                <span className="font-mono text-xs font-bold">{p.n}</span>
+                <span className="h-14 w-3 rounded-sm border" style={{ background: bg(p) }} />
+                <span className="text-[10px] font-medium">{spd === "fe" ? p.fe : used ? "data" : ""}</span>
               </button>
             );
           })}
         </div>
 
-        {picked !== null && (
-          <div className="osi-fade mt-4 space-y-3">
-            <p className="rounded-lg border bg-muted/40 px-3 py-2 text-sm leading-relaxed">
-              <span className="font-semibold">
-                {isCorrect ? "Correct. " : `Best answer: ${PICKS[q.answer].label}. `}
-              </span>
-              {q.why}
-            </p>
-            <button
-              type="button"
-              onClick={next}
-              className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {isLast ? "Start over" : "Next scenario"}
-            </button>
-          </div>
-        )}
-      </div>
+        <div className="mt-3">
+          {sel ? (
+            <div key={sel + spd} className="n3-fade grid gap-2 sm:grid-cols-3">
+              <Mini k="Colour" v={PINS[sel - 1].name} />
+              <Mini k="Pair" v={PINS[sel - 1].pair} />
+              <Mini k={spd === "fe" ? "Job at 10 / 100 Mbps" : "Job at 1 Gbps+"} v={spd === "fe" ? PINS[sel - 1].fe : PINS[sel - 1].ge} color={GREEN} />
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">Faded pins carry no data at this speed.</p>
+          )}
+        </div>
 
-      <Callout icon={Lightbulb}>
-        Rules of thumb: <strong>Copper for short, fiber for long</strong>;{" "}
-        <strong>UTP by default, STP when there is noise</strong>;{" "}
-        <strong>straight for different, crossover for same</strong>;{" "}
-        <strong>match the PoE standard to the wattage, not the cable</strong>.
-      </Callout>
+        <p className="mt-3 text-xs leading-5 text-muted-foreground">
+          {spd === "fe" ? (
+            <>At 10 and 100 Mbps only <span className="font-semibold text-foreground">pins 1, 2, 3 and 6</span> carry data: pins 1 and 2 transmit, pins 3 and 6 receive. The other four are spare.</>
+          ) : (
+            <>Gigabit and faster use <span className="font-semibold text-foreground">all four pairs (all 8 wires)</span>, and each pair sends and receives at the same time. That is why a cable with only 4 wires cannot do Gigabit.</>
+          )}
+        </p>
+        <div className="mt-3">
+          <Tip>Colour order for 568B: orange-white, orange, green-white, blue, blue-white, green, brown-white, brown.</Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Straight-through vs crossover</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={cab === "st"} onClick={() => setCab("st")}>Straight-through</Pick>
+          <Pick active={cab === "cx"} onClick={() => setCab("cx")}>Crossover</Pick>
+        </div>
+        <div key={cab + spd} className="n3-fade mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border p-3">
+            <p className="text-xs font-semibold">{cab === "st" ? "Connects different groups" : "Connects the same group"}</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+              {cab === "st"
+                ? "Switch to PC, switch to router, switch to access point. Pin 1 goes to pin 1, 2 to 2, and so on."
+                : "Switch to switch, router to router, PC to PC, PC to router. Transmit and receive pairs are swapped so one side's Tx meets the other side's Rx."}
+            </p>
+          </div>
+          <div className="rounded-lg border p-3">
+            <p className="mb-2 text-xs font-semibold">Pin on end A to pin on end B</p>
+            <div className="grid grid-cols-8 gap-1 text-center font-mono text-xs">
+              {PINS.map((p) => {
+                const swapped = map[p.n] !== p.n;
+                return (
+                  <div key={p.n} className="rounded-md border py-1" style={{ borderColor: swapped ? AMBER : undefined, background: swapped ? `${AMBER}18` : undefined }}>
+                    <p>{p.n}</p>
+                    <p className="text-muted-foreground">↓</p>
+                    <p className="font-bold" style={{ color: swapped ? AMBER : undefined }}>{map[p.n]}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              {cab === "st" ? "Nothing changes: same pin at both ends." : spd === "fe" ? "Swapped: 1 and 3, 2 and 6." : "Gigabit crossover also swaps 4 with 7 and 5 with 8."}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-3">
+          <SimpleTable head={["Group", "Devices"]} rows={GROUPS.map((x) => [x.g, x.items])} />
+        </div>
+        <div className="mt-3 flex flex-col gap-2">
+          <Tip title="Rule">Different group, straight-through. Same group, crossover.</Tip>
+          <Tip title="Today">
+            Auto MDI-X lets a port detect and fix the wiring by itself, so on modern gear either cable works. Old switches and routers may still need the right one.
+          </Tip>
+        </div>
+      </Panel>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Tab · Interview Prep
-// ─────────────────────────────────────────────────────────────
+/* ───────────────────────── 4 · PoE ───────────────────────── */
 
-const PITCH =
-  "Ethernet is a family of IEEE standards that defines how devices on a local network frame bits, address each other, and share the medium. It has evolved from 10 Mbps to 400 Gbps while keeping the same framing and MAC addressing. Three families of cable carry it: twisted pair for short runs up to 100 metres, coaxial for legacy and TV service, and fiber for long-distance and EMI-immune links. Twisted pair is categorized by twists-per-inch — Cat 3, 5, 5e, 6. Wiring uses the EIA/TIA-568B standard, with straight-through for different device types and crossover for the same. Power over Ethernet carries data and power over one cable so devices like access points and cameras need no separate outlet.";
-
-const QA: Array<{ q: string; a: string[] }> = [
-  {
-    q: "What is Ethernet, and who standardized it?",
-    a: [
-      "Ethernet is a family of networking standards for how devices frame, address, and share a local medium.",
-      "It was originally developed at Xerox, then a three-company consortium, and finally standardized by IEEE as Ethernet Version 2.",
-    ],
-  },
-  {
-    q: "List the Ethernet speeds from slowest to fastest.",
-    a: [
-      "10 Mbps (Ethernet), 100 Mbps (Fast Ethernet), 1 Gbps (Gigabit), 10/25/40/100/200/400 Gbps.",
-      "Each step increases speed without changing the fundamental frame format.",
-    ],
-  },
-  {
-    q: "What is the difference between UTP and STP?",
-    a: [
-      "UTP (Unshielded Twisted Pair) has two layers of insulation — one around each wire, one around the bundle.",
-      "STP (Shielded Twisted Pair) adds a third layer around each pair, giving extra protection against EMI.",
-    ],
-  },
-  {
-    q: "What is the difference between Cat 5, Cat 5e, and Cat 6?",
-    a: [
-      "Cat 5 — 5 twists per inch, supports up to Fast Ethernet.",
-      "Cat 5e — pairs are also twisted around each other, reduces crosstalk, supports Gigabit.",
-      "Cat 6 — 6 twists per inch with better insulation, supports higher bandwidth.",
-    ],
-  },
-  {
-    q: "What are the limits of twisted pair cable?",
-    a: [
-      "Maximum distance: 100 metres.",
-      "Maximum speed: 1 Gbps on standard Cat 5e.",
-      "Beyond 100 m the signal attenuates and packets begin to drop.",
-    ],
-  },
-  {
-    q: "Single-mode vs multi-mode fiber — which one, when?",
-    a: [
-      "Single-mode — small core, one ray of light, travels 40–100 km. Used between cities and countries.",
-      "Multi-mode — larger core, many rays, shorter distance. Used inside buildings and campuses.",
-    ],
-  },
-  {
-    q: "What is a transceiver? Name common types.",
-    a: [
-      "A transceiver = Transmitter + Receiver. It converts digital signals to light to send over fiber.",
-      "SFP (1 Gbps), SFP+ (10 Gbps), QSFP (100 Gbps).",
-    ],
-  },
-  {
-    q: "Explain the EIA/TIA-568B standard.",
-    a: [
-      "It defines the pinout for RJ-45 connectors: pins 1–8 have a fixed colour order (orange-white, orange, green-white, blue, blue-white, green, brown-white, brown).",
-      "Only pins 1, 2, 3, and 6 carry data — the Tx and Rx pairs.",
-    ],
-  },
-  {
-    q: "Straight-through vs crossover cable — how do you pick?",
-    a: [
-      "Straight-through for different device types — PC ↔ Switch, Switch ↔ Router.",
-      "Crossover for same device types — Switch ↔ Switch, Router ↔ Router.",
-      "Auto MDI-X on modern gear makes the distinction optional.",
-    ],
-  },
-  {
-    q: "What is PoE, and what problem does it solve?",
-    a: [
-      "Power over Ethernet sends both data and electrical power over one Ethernet cable.",
-      "It removes the need for a separate power outlet near the device — critical for ceiling cameras, wall access points, and VoIP phones.",
-    ],
-  },
-  {
-    q: "What are PSE and PD?",
-    a: [
-      "PSE — Power Sourcing Equipment. It provides power, e.g. a PoE switch.",
-      "PD — Powered Device. It receives power, e.g. an IP camera or access point.",
-    ],
-  },
-  {
-    q: "Name the PoE standards and their wattages.",
-    a: [
-      "802.3af — PoE — 15.4 W.",
-      "802.3at — PoE+ — 30 W.",
-      "802.3bt — PoE++ — 60 W (Type 3) or 90 W (Type 4).",
-    ],
-  },
-  {
-    q: "Does PoE ever damage a non-PoE device?",
-    a: [
-      "No. The PSE sends a small test signal first. Only if the device answers as PoE-aware does the switch supply power.",
-      "A laptop plugged into a PoE switch gets data only.",
-    ],
-  },
-  {
-    q: "Why is fiber preferred over copper for long distances?",
-    a: [
-      "Fiber carries light, not electricity, so it is immune to EMI.",
-      "It does not attenuate over distance the way copper does — single-mode reaches 40–100 km.",
-      "It is also harder to tap, making it inherently more secure.",
-    ],
-  },
+const POE = [
+  { std: "802.3af", name: "PoE", pse: 15.4, pd: 12.95 },
+  { std: "802.3at", name: "PoE+", pse: 30, pd: 25.5 },
+  { std: "802.3bt Type 3", name: "PoE++", pse: 60, pd: 51 },
+  { std: "802.3bt Type 4", name: "PoE++", pse: 90, pd: 71.3 },
 ];
 
-function InterviewPrepTab() {
-  const [open, setOpen] = useState<number | null>(0);
-  return (
-    <div className="space-y-6">
-      <section>
-        <Label>Your 30-second answer</Label>
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-sm leading-relaxed">{PITCH}</p>
-        </div>
-      </section>
+const DEVICES = [
+  { name: "VoIP phone", w: 7, note: "A basic desk phone." },
+  { name: "Fixed IP camera", w: 10, note: "A normal CCTV camera." },
+  { name: "Wi-Fi 6 access point", w: 25, note: "Right at the PoE+ limit, so plan carefully." },
+  { name: "PTZ camera with heater", w: 45, note: "Motors and a heater draw a lot." },
+  { name: "High-power device", w: 65, note: "For example a large display or a top-end access point." },
+  { name: "Laptop (no PoE support)", w: 0, note: "Not a PoE device at all." },
+];
 
-      <section>
-        <Label>Questions interviewers ask</Label>
-        <div className="space-y-2">
-          {QA.map((item, i) => {
-            const isOpen = open === i;
+const PSE_PD = [
+  ["PSE", "Power Sourcing Equipment. It gives the power.", "PoE switch, PoE injector"],
+  ["PD", "Powered Device. It receives the power.", "IP camera, access point, VoIP phone"],
+];
+
+function PoeSection() {
+  const [d, setD] = useState(2);
+  const dev = DEVICES[d];
+  const ok = (p: (typeof POE)[number]) => dev.w > 0 && dev.w <= p.pd;
+  const first = POE.find(ok);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">Power over Ethernet sends data and power down one cable</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          No power outlet is needed near the device. That is perfect for ceiling cameras, wall access points and desk phones.
+        </p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">PSE and PD</p>
+        <div className="mt-3">
+          <SimpleTable head={["Term", "Meaning", "Example"]} rows={PSE_PD} />
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Memory hook: <span className="font-semibold text-foreground">S</span>ourcing = <span className="font-semibold text-foreground">S</span>witch side. <span className="font-semibold text-foreground">P</span>owered = <span className="font-semibold text-foreground">P</span>hone side.
+        </p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">PoE standards</p>
+        <div className="mt-3">
+          <SimpleTable
+            head={["Standard", "Nickname", "Power from switch port", "Power at the device"]}
+            rows={POE.map((p) => [p.std, p.name, `${p.pse} W`, `${p.pd} W`])}
+          />
+        </div>
+        <div className="mt-3">
+          <Tip title="Careful">
+            The headline number (15.4, 30, 60, 90 W) is what the switch port sends. Some power is lost as heat in the cable,
+            so the device receives less. Always compare the device's draw with the right-hand column.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Will this device work?</p>
+        <p className="mt-1 text-xs text-muted-foreground">Pick a device and see which standards can power it.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {DEVICES.map((x, i) => (
+            <Pick key={x.name} active={d === i} onClick={() => setD(i)}>{x.name}</Pick>
+          ))}
+        </div>
+        <div key={d} className="n3-fade mt-3 flex flex-col gap-2">
+          <p className="text-xs text-muted-foreground">
+            {dev.note} {dev.w > 0 && <>It draws about <span className="font-semibold text-foreground">{dev.w} W</span>.</>}
+          </p>
+          {POE.map((p) => {
+            const good = ok(p);
             return (
               <div
-                key={item.q}
-                className="overflow-hidden rounded-xl border bg-card"
+                key={p.std}
+                className="flex items-center gap-3 rounded-lg border px-3 py-2 text-xs"
+                style={{ borderColor: good ? GREEN : undefined, background: good ? `${GREEN}10` : undefined, opacity: good ? 1 : 0.55 }}
               >
-                <button
-                  type="button"
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  aria-expanded={isOpen}
-                  className="flex w-full min-w-0 items-center gap-3 px-3.5 py-3 text-left outline-none transition-colors hover:bg-[var(--accent-soft)] focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <MessageCircleQuestion className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="min-w-0 flex-1 text-sm font-medium">
-                    {item.q}
-                  </span>
-                  <ChevronRight
-                    className={cx(
-                      "size-4 shrink-0 text-muted-foreground transition-transform",
-                      isOpen && "rotate-90",
-                    )}
-                  />
-                </button>
-                {isOpen && (
-                  <div className="osi-fade space-y-2 border-t px-3.5 pb-3.5 pt-3 text-sm leading-relaxed">
-                    {item.a.map((p) => (
-                      <p key={p}>{p}</p>
-                    ))}
-                  </div>
-                )}
+                <span className="w-32 font-semibold">{p.std}</span>
+                <span className="flex-1 text-muted-foreground">Device gets up to {p.pd} W</span>
+                <span className="font-semibold" style={{ color: good ? GREEN : RED }}>{good ? "✓ enough" : "✕ too weak"}</span>
               </div>
             );
           })}
+          <p className="text-xs font-medium">
+            {dev.w === 0
+              ? "A laptop gets data only. The switch tests first and only sends power to a device that answers as PoE-aware."
+              : first
+              ? `Lowest standard that works: ${first.std} (${first.name}).`
+              : "Nothing in this list is enough."}
+          </p>
         </div>
-      </section>
+      </Panel>
 
-      <Callout icon={ShieldCheck}>
-        Practice the 30-second pitch out loud until it flows without notes.
-        Every other answer here is a follow-up you can now handle.
-      </Callout>
+      <Panel>
+        <p className="text-sm font-semibold">Typical PoE devices</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {["Wireless access points", "IP cameras (CCTV)", "VoIP phones", "Door access control", "Some LED lighting"].map((x) => (
+            <Badge key={x} variant="secondary">{x}</Badge>
+          ))}
+        </div>
+      </Panel>
+
+      <Tip title="Rule">Match the PoE standard to the device's wattage, not to the cable colour or category.</Tip>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Root
-// ─────────────────────────────────────────────────────────────
+/* ───────────────────────── 5 · how it works ───────────────────────── */
 
-const TABS = [
-  { id: "big", label: "Big Picture" },
-  { id: "cheat", label: "Cheat Sheet" },
-  { id: "how", label: "How It Works" },
-  { id: "misconceptions", label: "Misconceptions" },
-  { id: "picker", label: "Cable Picker" },
-  { id: "prep", label: "Interview Prep" },
-] as const;
+const FLOW = [
+  { t: "Bits enter the NIC", d: "The sender's network interface card (NIC) takes the frame and turns it into a signal. Copper uses electricity, fiber uses light. (Wi-Fi uses radio, but that is 802.11, not Ethernet.)", tag: "Layer 2 to 1" },
+  { t: "Signal travels on the medium", d: "The cable carries the signal. Copper carries electricity, fiber carries light. Twisted pair stops being reliable past 100 m.", tag: "Layer 1" },
+  { t: "Signal reaches the far end", d: "The receiving NIC reads the electrical or light signal and converts it back into bits.", tag: "Layer 1" },
+  { t: "Ethernet decodes the frame", d: "The receiver reads the destination MAC and source MAC, and checks the FCS at the end of the frame. If the FCS does not match, the frame is damaged and is discarded.", tag: "Layer 2" },
+  { t: "Higher layers take over", d: "If the destination MAC is this device's MAC (or a broadcast or multicast it listens to), the Ethernet header and trailer are removed and the packet goes up to Layer 3. Any other frame is dropped.", tag: "Layer 2 to 3" },
+];
 
-type TabId = (typeof TABS)[number]["id"];
+function HowSection() {
+  const [i, setI] = useState(0);
+  const s = FLOW[i];
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">The journey of one frame</p>
+        <p className="mt-1 text-xs text-muted-foreground">Step through it, or tap a number.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {FLOW.map((_, k) => (
+            <Pick key={k} active={k === i} onClick={() => setI(k)}>{k + 1}</Pick>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel>
+        <div key={i} className="n3-fade flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs text-muted-foreground">Step {i + 1} of {FLOW.length}</p>
+            <Badge variant="secondary">{s.tag}</Badge>
+          </div>
+          <p className="text-sm font-semibold">{s.t}</p>
+          <p className="text-xs leading-5 text-muted-foreground">{s.d}</p>
+
+          <div className="overflow-x-auto rounded-lg border bg-muted/30 p-3">
+            <div className="flex min-w-max items-stretch gap-1.5">
+              {[
+                { l: "Dest MAC", c: PURPLE },
+                { l: "Source MAC", c: PURPLE },
+                { l: "Type", c: PURPLE },
+                { l: "Payload (the packet)", c: BLUE },
+                { l: "FCS", c: RED },
+              ].map((p, k) => {
+                const lit =
+                  (i === 3 && true) ||
+                  (i === 4 && (k <= 1 || k === 3)) ||
+                  (i < 3);
+                return (
+                  <div
+                    key={p.l}
+                    className="rounded-md border px-3 py-2 text-xs font-semibold transition-opacity"
+                    style={{ borderColor: p.c, background: `${p.c}14`, color: p.c, opacity: lit ? 1 : 0.3 }}
+                  >
+                    {p.l}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <p className="text-[11px] text-muted-foreground">An Ethernet frame. Highlighted parts are the ones used at this step.</p>
+        </div>
+      </Panel>
+
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" disabled={i === 0} onClick={() => setI((v) => Math.max(0, v - 1))}>Back</Button>
+        <Button size="sm" disabled={i === FLOW.length - 1} onClick={() => setI((v) => Math.min(FLOW.length - 1, v + 1))}>Next step</Button>
+      </div>
+
+      <Tip>FCS (Frame Check Sequence) detects damage but does not repair it. A bad frame is simply dropped.</Tip>
+    </div>
+  );
+}
+
+/* ───────────────────────── 6 · which cable ───────────────────────── */
+
+const SCEN = [
+  { s: "Gigabit link from a wall jack to a desktop PC, 30 m, normal office.", a: "Cat 5e UTP", w: "Cat 5e handles Gigabit up to 100 m and is the cheapest option that works." },
+  { s: "Same office, but 10 Gbps to a workstation 40 m away.", a: "Cat 6 UTP (Cat 6a for a full 100 m)", w: "Cat 6 supports 10 Gbps up to about 55 m. Cat 6a does it for the whole 100 m." },
+  { s: "Factory floor with heavy motors causing interference on the cable.", a: "Shielded twisted pair (STP), or fiber", w: "The extra shielding blocks EMI. Fiber is fully immune if the budget allows." },
+  { s: "Extend a link from one building to another 8 km away.", a: "Single-mode fiber", w: "Single-mode reaches tens of kilometres. Copper stops at 100 m." },
+  { s: "Connect two switches in the same data hall, 20 m apart.", a: "Multi-mode fiber", w: "Multi-mode is cheaper for short runs inside a building or campus." },
+  { s: "Cable TV and cable internet service already coming into a house.", a: "Coaxial", w: "Coax is still the standard for TV and cable internet service. A cable modem turns it into Ethernet." },
+  { s: "Connect a PC to a wall jack that runs to a switch.", a: "Straight-through", w: "PC (group A) and switch (group B) are different, so straight-through." },
+  { s: "Connect two old switches directly, no Auto MDI-X.", a: "Crossover", w: "Same group means crossover. Auto MDI-X makes it optional on modern gear." },
+  { s: "Power a small VoIP phone that draws about 7 W.", a: "802.3af (PoE, 15.4 W)", w: "Plenty for a basic phone." },
+  { s: "Power a Wi-Fi 6 access point that draws about 25 W.", a: "802.3at (PoE+, 30 W)", w: "Standard choice for modern access points. 802.3af is too weak." },
+  { s: "Power a PTZ camera with a heater that draws about 45 W.", a: "802.3bt Type 3 (60 W)", w: "Only 802.3bt goes beyond 30 W. Above about 51 W at the device you need Type 4 (90 W)." },
+];
+
+function PickSection() {
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const toggle = (i: number) =>
+    setOpen((p) => {
+      const n = new Set(p);
+      if (n.has(i)) n.delete(i);
+      else n.add(i);
+      return n;
+    });
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-xs text-muted-foreground">Read the scenario, decide your answer, then tap to check.</p>
+        <Button size="sm" variant="outline" onClick={() => setOpen(open.size === SCEN.length ? new Set() : new Set(SCEN.map((_, i) => i)))}>
+          {open.size === SCEN.length ? "Hide all answers" : "Show all answers"}
+        </Button>
+      </div>
+      <div className="flex flex-col gap-2">
+        {SCEN.map((x, i) => {
+          const shown = open.has(i);
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => toggle(i)}
+              className="rounded-xl border bg-background p-3 text-left transition-colors hover:border-primary/50"
+              style={{ borderColor: shown ? GREEN : undefined }}
+            >
+              <p className="text-xs font-medium"><span className="mr-2 font-mono text-muted-foreground">{i + 1}.</span>{x.s}</p>
+              {shown && (
+                <div className="n3-fade mt-2 border-t pt-2">
+                  <p className="text-xs font-semibold" style={{ color: GREEN }}>{x.a}</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{x.w}</p>
+                </div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <Panel>
+        <p className="text-sm font-semibold">Rules of thumb</p>
+        <div className="mt-2">
+          <Bullets
+            items={[
+              "Copper for short, fiber for long.",
+              "UTP by default, STP when there is noise.",
+              "Straight-through for different groups, crossover for the same group.",
+              "Match the PoE standard to the wattage, not the cable.",
+            ]}
+          />
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 7 · common mistakes ───────────────────────── */
+
+const MYTHS = [
+  { wrong: "Ethernet is one speed.", right: "Ethernet is a family: 10 Mbps up to 400 Gbps, all standardized by the IEEE." },
+  { wrong: "Cat 5e is just Cat 5 with a fancy name.", right: "Cat 5e is built and tested to much stricter crosstalk limits, which makes reliable Gigabit possible." },
+  { wrong: "Fiber is just faster copper.", right: "Fiber carries light, not electricity. It is immune to EMI and works over very long distances." },
+  { wrong: "Single-mode fiber is faster than multi-mode.", right: "The real difference is distance. Single-mode goes much farther, multi-mode is cheaper for short runs." },
+  { wrong: "Crossover cables are obsolete.", right: "Auto MDI-X made them optional on modern gear, but old equipment may still need them." },
+  { wrong: "All 8 wires always carry data, or only 4 ever do.", right: "At 10 and 100 Mbps only pins 1, 2, 3 and 6 carry data. At Gigabit and faster all 8 wires are used." },
+  { wrong: "Twisted pair can never go above 1 Gbps.", right: "Cat 5e stops at 1 Gbps, but Cat 6 reaches 10 Gbps up to about 55 m and Cat 6a does 10 Gbps over 100 m." },
+  { wrong: "PoE sends power to everything plugged in.", right: "The switch first checks whether the device is PoE-aware. Non-PoE devices get data only." },
+  { wrong: "PoE+ and PoE++ are the same.", right: "PoE is 15.4 W, PoE+ is 30 W, PoE++ is 60 W or 90 W. Match the standard to the device." },
+  { wrong: "A 30 W PoE+ port gives the device 30 W.", right: "Some power is lost in the cable. A PoE+ device gets up to 25.5 W." },
+  { wrong: "Coaxial is dead.", right: "It is dead for new data networks, but still standard for TV and cable internet service." },
+  { wrong: "100 metres is a suggestion.", right: "It is the limit for twisted pair Ethernet. Beyond it the signal weakens and frames start getting lost." },
+];
+
+function MythsSection() {
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const toggle = (i: number) =>
+    setOpen((s) => {
+      const n = new Set(s);
+      if (n.has(i)) n.delete(i);
+      else n.add(i);
+      return n;
+    });
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-xs text-muted-foreground">Tap a card to flip it from the wrong belief to the truth.</p>
+        <Button size="sm" variant="outline" onClick={() => setOpen(open.size === MYTHS.length ? new Set() : new Set(MYTHS.map((_, i) => i)))}>
+          {open.size === MYTHS.length ? "Hide all" : "Show all"}
+        </Button>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {MYTHS.map((m, i) => {
+          const shown = open.has(i);
+          return (
+            <button key={i} type="button" onClick={() => toggle(i)} className="rounded-xl border bg-background p-4 text-left transition-colors hover:border-primary/50" style={{ borderColor: shown ? GREEN : undefined }}>
+              <p className="text-xs font-semibold" style={{ color: RED }}>✕ Wrong</p>
+              <p className="mt-1 text-sm font-medium">{m.wrong}</p>
+              {shown ? (
+                <div className="n3-fade mt-3 border-t pt-3">
+                  <p className="text-xs font-semibold" style={{ color: GREEN }}>✓ Right</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{m.right}</p>
+                </div>
+              ) : (
+                <p className="mt-3 text-[11px] text-muted-foreground">Tap to see the truth</p>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── 8 · interview prep ───────────────────────── */
+
+const QA: { q: string; a: string[] }[] = [
+  { q: "What is Ethernet, and who standardized it?", a: ["Ethernet is a family of networking standards that define how devices on a local network frame data, address each other with MAC addresses, and share the medium.", "It started at Xerox, was released publicly at 10 Mbps by the DIX consortium (Digital, Intel, Xerox), and was standardized by the IEEE as 802.3."] },
+  { q: "List the Ethernet speeds from slowest to fastest.", a: ["10 Mbps (Ethernet), 100 Mbps (Fast Ethernet), 1 Gbps (Gigabit), then 10, 25, 40, 100, 200 and 400 Gbps.", "Each step is faster, but the frame format and MAC addressing stay the same."] },
+  { q: "What is the difference between UTP and STP?", a: ["UTP (Unshielded Twisted Pair) relies only on the twisting of the pairs to reduce interference.", "STP (Shielded Twisted Pair) adds a metal foil or braid around the pairs, which gives extra protection against EMI. It costs more and must be grounded properly."] },
+  { q: "What is the difference between Cat 5, Cat 5e and Cat 6?", a: ["Cat 5 supports up to 100 Mbps (Fast Ethernet).", "Cat 5e is tested to stricter crosstalk limits and supports 1 Gbps.", "Cat 6 has tighter tolerances and better construction. It supports 10 Gbps up to about 55 m. Cat 6a does 10 Gbps for the full 100 m."] },
+  { q: "What are the limits of twisted pair cable?", a: ["Maximum run of 100 m. Beyond that the signal weakens and frames get lost.", "The speed limit depends on the category: 1 Gbps for Cat 5e, 10 Gbps for Cat 6 (short) and Cat 6a.", "It can pick up interference, so use STP or fiber in noisy places."] },
+  { q: "Single-mode vs multi-mode fiber: which one, when?", a: ["Single-mode has a small core and one ray of light. It reaches 10 to 100 km or more, so it is used between buildings, cities and countries.", "Multi-mode has a larger core and many rays. It reaches a few hundred metres, so it is used inside buildings and campuses. Its optics are cheaper."] },
+  { q: "What is a transceiver? Name common types.", a: ["A transceiver is a transmitter and receiver in one pluggable module. It converts electrical signals to light and back.", "SFP (1 Gbps), SFP+ (10 Gbps), SFP28 (25 Gbps), QSFP+ (40 Gbps), QSFP28 (100 Gbps), QSFP-DD (400 Gbps)."] },
+  { q: "Explain the EIA/TIA-568B standard.", a: ["It defines the colour order of the 8 wires in an RJ-45 connector: orange-white, orange, green-white, blue, blue-white, green, brown-white, brown.", "At 10 and 100 Mbps only pins 1, 2, 3 and 6 carry data (Tx on 1 and 2, Rx on 3 and 6). At Gigabit and faster all 8 wires are used."] },
+  { q: "Straight-through vs crossover cable: how do you pick?", a: ["Straight-through connects different groups: PC to switch, router to switch, access point to switch.", "Crossover connects the same group: switch to switch, router to router, PC to PC, PC to router.", "Auto MDI-X on modern gear makes the choice optional."] },
+  { q: "What is PoE, and what problem does it solve?", a: ["Power over Ethernet sends data and electrical power over the same Ethernet cable.", "It removes the need for a power outlet near the device, which is critical for ceiling cameras, wall access points and VoIP phones. It also lets you power them from a central UPS-backed switch."] },
+  { q: "What are PSE and PD?", a: ["PSE (Power Sourcing Equipment) provides the power, for example a PoE switch or injector.", "PD (Powered Device) receives the power, for example an IP camera or access point."] },
+  { q: "Name the PoE standards and their wattages.", a: ["802.3af (PoE): 15.4 W from the port, about 12.95 W at the device.", "802.3at (PoE+): 30 W, about 25.5 W at the device.", "802.3bt (PoE++): Type 3 is 60 W and Type 4 is 90 W."] },
+  { q: "Does PoE ever damage a non-PoE device?", a: ["No, not with standard PoE. The switch sends a small detection signal first. Only if the device answers as PoE-aware does it send power.", "A laptop plugged into a PoE switch gets data only. (Old passive PoE gear does not do this detection, so avoid mixing it in.)"] },
+  { q: "Why is fiber preferred over copper for long distances?", a: ["Fiber carries light, not electricity, so it is immune to EMI.", "It loses much less signal over distance, so single-mode reaches tens of kilometres, while copper stops at 100 m.", "It is also harder to tap, which makes it more secure."] },
+];
+
+function InterviewSection() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">Your 30-second answer</p>
+        <p className="mt-2 text-xs leading-5 text-muted-foreground">
+          Ethernet is a family of IEEE 802.3 standards that defines how devices on a local network frame data, address each
+          other with MAC addresses, and share the medium. It grew from 10 Mbps to 400 Gbps while keeping the same framing.
+          Three kinds of cable carry it: twisted pair for short runs up to 100 metres, coaxial for legacy and TV service, and
+          fiber for long distance and interference-free links. Twisted pair comes in categories like Cat 5e and Cat 6. Wiring
+          follows the 568B standard, with straight-through cables between different device groups and crossover between the
+          same. Power over Ethernet sends data and power over one cable, so devices like access points and cameras need no
+          separate outlet.
+        </p>
+        <p className="mt-2 text-[11px] text-muted-foreground">Practice it out loud until it flows without notes.</p>
+      </Panel>
+
+      <div className="flex flex-col gap-2">
+        {QA.map((x, i) => {
+          const isOpen = open === i;
+          return (
+            <div key={x.q} className="rounded-xl border bg-background">
+              <button type="button" onClick={() => setOpen(isOpen ? null : i)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left" aria-expanded={isOpen}>
+                <span className="text-sm font-medium">
+                  <span className="mr-2 font-mono text-xs text-muted-foreground">{i + 1}.</span>
+                  {x.q}
+                </span>
+                <span className="text-muted-foreground">{isOpen ? "−" : "+"}</span>
+              </button>
+              {isOpen && (
+                <ul className="n3-fade list-disc space-y-1 border-t px-8 py-3 text-xs leading-5 text-muted-foreground">
+                  {x.a.map((l) => <li key={l}>{l}</li>)}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <Tip title="Rule of thumb">Copper for short, fiber for long. Different groups straight, same group crossover. Match PoE to watts.</Tip>
+    </div>
+  );
+}
+
+/* ───────────────────────── main component ───────────────────────── */
 
 export function EthernetCablingSummary() {
   const [tab, setTab] = useState<TabId>("big");
 
   return (
-    <div className="eth-root mx-auto w-full min-w-0 max-w-4xl overflow-x-hidden px-4 py-8 sm:px-6">
-      <style>{ETH_CSS}</style>
+    <Card className="mt-8 border-primary/20 bg-primary/[0.02]">
+      <style>{`
+        @keyframes n3-fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+        .n3-fade { animation: n3-fade .5s ease-out both; }
+        @media (prefers-reduced-motion: reduce) { .n3-fade { animation: none; opacity: 1; } }
+      `}</style>
 
-      <header className="mb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Topic 03 · Summary
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-          Ethernet & Network Cabling
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          The standards, the media, and the physical choices that connect
-          everything from a 10 Mbps hub to a 400 Gbps backbone — with a
-          scenario drill to lock the cable choices in.
-        </p>
-      </header>
+      <CardHeader>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-base">Topic 03: Ethernet and network cabling</CardTitle>
+            <CardDescription className="mt-1">
+              The standard, the cables, the wiring and PoE. Eight short sections, tap through them in any order.
+            </CardDescription>
+          </div>
+          <Badge variant="secondary">Interactive</Badge>
+        </div>
+      </CardHeader>
 
-      <div
-        role="tablist"
-        aria-label="Ethernet and cabling sections"
-        className="mb-6 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1"
-      >
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={cx(
-              "shrink-0 rounded-lg px-3.5 py-2 text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring",
-              tab === t.id
-                ? "bg-[var(--accent)] font-medium text-white"
-                : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground",
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <CardContent className="flex flex-col gap-5">
+        <div className="flex flex-wrap gap-2" role="tablist">
+          {TABS.map((t) => (
+            <Pick key={t.id} active={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</Pick>
+          ))}
+        </div>
 
-      <div role="tabpanel" className="min-w-0">
-        {tab === "big" && <BigPictureTab />}
-        {tab === "cheat" && <CheatSheetTab />}
-        {tab === "how" && <HowItWorksTab />}
-        {tab === "misconceptions" && <MisconceptionsTab />}
-        {tab === "picker" && <CablePickerTab />}
-        {tab === "prep" && <InterviewPrepTab />}
-      </div>
-    </div>
+        <div key={tab}>
+          {tab === "big" && <BigSection />}
+          {tab === "cables" && <CablesSection />}
+          {tab === "wiring" && <WiringSection />}
+          {tab === "poe" && <PoeSection />}
+          {tab === "how" && <HowSection />}
+          {tab === "pick" && <PickSection />}
+          {tab === "myths" && <MythsSection />}
+          {tab === "interview" && <InterviewSection />}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

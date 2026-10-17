@@ -1,1059 +1,990 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  AlertTriangle,
-  Binary,
-  Calculator,
-  ChevronRight,
-  CircleDot,
-  Globe,
-  Hash,
-  Layers,
-  Lightbulb,
-  Lock,
-  MessageCircleQuestion,
-  Network,
-  ShieldCheck,
-  Split,
-  Table2,
-  type LucideIcon,
-} from "lucide-react";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-/* ═════════════════════════════════════════════════════════════
-   IP Addressing & Subnetting — Summary
-   Structure: Big Picture · Cheat Sheet · How It Works ·
-              Misconceptions · Subnet Visualizer (signature) ·
-              Interview Prep
-   Register as SUMMARY_VIEWS.ip = IpAddressingSummary.
-   ═════════════════════════════════════════════════════════════ */
+/**
+ * IpAddressingExplainer  (CCNA Topic 05)
+ *   1 Big picture        : two sides of an address, the mask line, IPv4 vs IPv6
+ *   2 Classes and ranges : class explorer, address checker, private and special ranges
+ *   3 Powers of two      : hosts per prefix, formulas, "how many hosts do I need?"
+ *   4 Subnet visualizer  : type any address and prefix, see everything
+ *   5 Step by step       : the six-step subnetting method on a live example
+ *   6 FLSM vs VLSM       : same job, two ways, see the waste
+ *   7 Common mistakes    : wrong belief on the front, the truth on the back
+ *   8 Interview prep     : 30-second answer and the usual questions
+ */
 
-const cx = (...parts: Array<string | false | null | undefined>) =>
-  parts.filter(Boolean).join(" ");
+const RED = "#c92a2a";
+const BLUE = "#1971c2";
+const GREEN = "#2f9e44";
+const AMBER = "#f08c00";
+const PURPLE = "#9c36b5";
 
-const hue = (h: number) => ({ "--h": h }) as CSSProperties;
+const TABS = [
+  { id: "big", label: "1 · Big picture" },
+  { id: "classes", label: "2 · Classes and ranges" },
+  { id: "powers", label: "3 · Powers of two" },
+  { id: "viz", label: "4 · Subnet visualizer" },
+  { id: "steps", label: "5 · Step by step" },
+  { id: "vlsm", label: "6 · FLSM vs VLSM" },
+  { id: "myths", label: "7 · Common mistakes" },
+  { id: "interview", label: "8 · Interview prep" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
 
-const IP_CSS = `
-.ip-root .osi-tint{background:hsl(var(--h) 85% 55% / .12);border-color:hsl(var(--h) 85% 55% / .4)}
-.ip-root .osi-ink{color:hsl(var(--h) 72% 34%)}
-.dark .ip-root .osi-ink{color:hsl(var(--h) 92% 79%)}
-.ip-root .osi-solid{background:hsl(var(--h) 72% 44%);color:#fff}
-.dark .ip-root .osi-solid{background:hsl(var(--h) 68% 52%)}
-@keyframes ipFade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.ip-root .osi-fade{animation:ipFade .22s ease-out both}
-@media (prefers-reduced-motion:reduce){.ip-root .osi-fade{animation:none}}
-`;
+/* ───────────────────────── small helpers ───────────────────────── */
 
-// ─────────────────────────────────────────────────────────────
-// Shared UI
-// ─────────────────────────────────────────────────────────────
+function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={`rounded-xl border bg-background p-4 ${className}`}>{children}</div>;
+}
 
-function Chip({ children }: { children: ReactNode }) {
+function Tip({ title = "Remember", children }: { title?: string; children: React.ReactNode }) {
   return (
-    <span className="inline-flex max-w-full items-center rounded-md border bg-muted/60 px-2 py-0.5 text-[11px] leading-4 text-foreground/80">
-      <span className="min-w-0 break-words">{children}</span>
-    </span>
+    <div className="rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs leading-5">
+      <span className="font-semibold text-primary">{title}: </span>
+      <span className="text-muted-foreground">{children}</span>
+    </div>
   );
 }
 
-function Label({ children }: { children: ReactNode }) {
+function Pick({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
-    <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "bg-background text-muted-foreground hover:border-primary/50"
+      }`}
+    >
       {children}
-    </p>
+    </button>
+  );
+}
+
+function SimpleTable({ head, rows, hit }: { head: string[]; rows: string[][]; hit?: number }) {
+  return (
+    <div className="overflow-x-auto rounded-lg border">
+      <table className="w-full min-w-[480px] text-xs">
+        <thead className="bg-muted/50">
+          <tr>
+            {head.map((h) => (
+              <th key={h} className="px-3 py-2 text-left font-medium">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} className="border-t" style={hit === i ? { color: GREEN, fontWeight: 600 } : undefined}>
+              {r.map((c, j) => (
+                <td key={j} className={`px-3 py-2 ${j === 0 ? "font-semibold" : ""}`}>{c}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
 function Bullets({ items }: { items: string[] }) {
   return (
-    <ul className="space-y-1.5">
-      {items.map((t) => (
-        <li key={t} className="flex gap-2 text-sm leading-relaxed">
-          <ChevronRight className="mt-1 size-3 shrink-0 text-muted-foreground" />
-          <span className="min-w-0">{t}</span>
-        </li>
+    <ul className="list-disc space-y-1 pl-4 text-xs leading-5 text-muted-foreground">
+      {items.map((x) => (
+        <li key={x}>{x}</li>
       ))}
     </ul>
   );
 }
 
-function Callout({
-  children,
-  icon: Icon = Lightbulb,
-}: {
-  children: ReactNode;
-  icon?: LucideIcon;
-}) {
+function Mini({ k, v, color }: { k: string; v: string; color?: string }) {
   return (
-    <div className="flex gap-2.5 rounded-xl border bg-[var(--accent-soft)] px-3.5 py-3 text-sm leading-relaxed">
-      <Icon className="mt-0.5 size-4 shrink-0 text-[var(--accent)]" />
-      <div className="min-w-0">{children}</div>
+    <div className="rounded-lg border bg-muted/30 px-3 py-2">
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{k}</p>
+      <p className="break-words font-mono text-xs font-semibold" style={color ? { color } : undefined}>{v}</p>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Data
-// ─────────────────────────────────────────────────────────────
+/* ───────────────────────── IP maths ───────────────────────── */
 
-const ADDRESS_CLASSES = [
-  {
-    cls: "A",
-    range: "1 – 126",
-    mask: "255.0.0.0",
-    prefix: "/8",
-    structure: "N · H · H · H",
-    note: "10.0.0.0/8 is private; 127.0.0.0/8 is loopback; rest is public",
-    hue: 335,
-  },
-  {
-    cls: "B",
-    range: "128 – 191",
-    mask: "255.255.0.0",
-    prefix: "/16",
-    structure: "N · N · H · H",
-    note: "172.16.0.0/12 is the private slice inside B",
-    hue: 290,
-  },
-  {
-    cls: "C",
-    range: "192 – 223",
-    mask: "255.255.255.0",
-    prefix: "/24",
-    structure: "N · N · N · H",
-    note: "192.168.0.0/16 is the private slice inside C",
-    hue: 150,
-  },
-  {
-    cls: "D",
-    range: "224 – 239",
-    mask: "n/a",
-    prefix: "n/a",
-    structure: "Multicast groups",
-    note: "No network, host, or broadcast addresses. Each IP is a multicast group",
-    hue: 185,
-  },
-  {
-    cls: "E",
-    range: "240 – 255",
-    mask: "n/a",
-    prefix: "n/a",
-    structure: "Research",
-    note: "Reserved for scientific and research use",
-    hue: 215,
-  },
-];
+const toInt = (o: number[]) => (((o[0] << 24) | (o[1] << 16) | (o[2] << 8) | o[3]) >>> 0);
+const toIp = (n: number) => [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+const maskInt = (p: number) => (p === 0 ? 0 : (0xffffffff << (32 - p)) >>> 0);
+const bitAt = (n: number, i: number) => (n >>> (31 - i)) & 1;
 
-const PRIVATE_RANGES = [
-  { range: "10.0.0.0/8", cls: "A", size: "/8" },
-  { range: "172.16.0.0/12", cls: "B", size: "/12" },
-  { range: "192.168.0.0/16", cls: "C", size: "/16" },
-];
-
-const POWERS_OF_TWO = [
-  { bits: 1, addrs: 2, prefix: "/31" },
-  { bits: 2, addrs: 4, prefix: "/30" },
-  { bits: 3, addrs: 8, prefix: "/29" },
-  { bits: 4, addrs: 16, prefix: "/28" },
-  { bits: 5, addrs: 32, prefix: "/27" },
-  { bits: 6, addrs: 64, prefix: "/26" },
-  { bits: 7, addrs: 128, prefix: "/25" },
-  { bits: 8, addrs: 256, prefix: "/24" },
-];
-
-// ─────────────────────────────────────────────────────────────
-// Helpers for the visualizer
-// ─────────────────────────────────────────────────────────────
-
-function ipToInt(ip: string): number | null {
-  const parts = ip.trim().split(".");
+function parseIp(s: string): number[] | null {
+  const parts = s.trim().split(".");
   if (parts.length !== 4) return null;
-  const nums = parts.map((p) => Number(p));
-  if (nums.some((n) => !Number.isInteger(n) || n < 0 || n > 255)) return null;
-  return nums.reduce((acc, n) => (acc * 256 + n) >>> 0, 0);
+  const o = parts.map((x) => (/^\d{1,3}$/.test(x) ? Number(x) : NaN));
+  return o.some((x) => Number.isNaN(x) || x > 255) ? null : o;
 }
 
-function intToIp(n: number): string {
-  return [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].join(".");
+function calc(octets: number[], p: number) {
+  const ip = toInt(octets);
+  const m = maskInt(p);
+  const net = (ip & m) >>> 0;
+  const bc = (net | (~m >>> 0)) >>> 0;
+  const total = 2 ** (32 - p);
+  const usable = p === 32 ? 1 : p === 31 ? 2 : total - 2;
+  const first = p >= 31 ? net : net + 1;
+  const last = p === 32 ? net : p === 31 ? bc : bc - 1;
+  const oct = p >= 32 ? 4 : Math.min(4, Math.floor(p / 8) + 1);
+  const maskOctets = [m >>> 24, (m >>> 16) & 255, (m >>> 8) & 255, m & 255];
+  const mv = maskOctets[oct - 1];
+  const block = 256 - mv;
+  return { ip, m, net, bc, total, usable, first, last, oct, mv, block, maskOctets, ipOctets: octets };
 }
 
-function toBinaryOctets(ip: string): string[] {
-  const n = ipToInt(ip);
-  if (n === null) return [];
-  return [n >>> 24, (n >>> 16) & 255, (n >>> 8) & 255, n & 255].map((o) =>
-    o.toString(2).padStart(8, "0"),
-  );
+function classify(o: number[]) {
+  const [a, b] = o;
+  const isPrivate = a === 10 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168);
+  let cls = "";
+  let kind = "";
+  if (o.every((x) => x === 255)) { cls = "E (range)"; kind = "Limited broadcast (255.255.255.255)"; }
+  else if (a === 0) { cls = "Reserved"; kind = o.every((x) => x === 0) ? "This host / any interface (0.0.0.0)" : "Reserved (0.0.0.0/8)"; }
+  else if (a === 127) { cls = "A range"; kind = "Loopback (127.0.0.0/8). The device talks to itself."; }
+  else if (a === 169 && b === 254) { cls = "B"; kind = "Link-local / APIPA (169.254.0.0/16). DHCP failed."; }
+  else if (a <= 126) { cls = "A"; kind = isPrivate ? "Private (10.0.0.0/8)" : "Public unicast"; }
+  else if (a <= 191) { cls = "B"; kind = isPrivate ? "Private (172.16.0.0/12)" : "Public unicast"; }
+  else if (a <= 223) { cls = "C"; kind = isPrivate ? "Private (192.168.0.0/16)" : "Public unicast"; }
+  else if (a <= 239) { cls = "D"; kind = "Multicast group (224.0.0.0/4)"; }
+  else { cls = "E"; kind = "Reserved for research / experimental"; }
+  return { cls, kind, isPrivate };
 }
 
-// ─────────────────────────────────────────────────────────────
-// Tab · Big Picture
-// ─────────────────────────────────────────────────────────────
-
-function BigPictureTab() {
+function Bits({ ip, p, small = false }: { ip: number; p: number; small?: boolean }) {
   return (
-    <div className="space-y-6">
-      <div style={hue(215)} className="osi-tint rounded-xl border px-3.5 py-3.5">
-        <p className="osi-ink text-xs font-semibold">What an IP address is</p>
-        <p className="mt-1 text-sm leading-relaxed">
-          An IP address is a <strong>logical address</strong> assigned by the
-          network engineer to identify a device on the network. Every address
-          has two sides: the <strong>network side</strong> (which network it
-          belongs to) and the <strong>host side</strong> (which device on that
-          network). The subnet mask draws the line between them.
-        </p>
-        <pre className="mt-3 overflow-x-auto rounded-lg border bg-background px-3 py-2 font-mono text-[11px] leading-5">
-{`192.168.1.1
-|_______|  |
-Network    Host side
-side`}
-        </pre>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div style={hue(150)} className="osi-tint rounded-xl border px-3.5 py-3">
-          <p className="osi-ink text-sm font-semibold">IPv4</p>
-          <Bullets
-            items={[
-              "32 bits → ~4 billion addresses",
-              "Written in decimal octets, e.g. 8.8.8.8",
-              "Each octet is 8 bits, e.g. 8 = 00001000",
-            ]}
-          />
-        </div>
-        <div style={hue(290)} className="osi-tint rounded-xl border px-3.5 py-3">
-          <p className="osi-ink text-sm font-semibold">IPv6</p>
-          <Bullets
-            items={[
-              "128 bits → astronomically larger space",
-              "Written in hexadecimal, e.g. AD12:1306:1034:0000:1111:2222:3333:4444",
-              "8 fields of 16 bits each",
-            ]}
-          />
-        </div>
-      </div>
-
-      <div>
-        <Label>Why subnets exist</Label>
-        <div className="rounded-xl border bg-card p-4 text-sm leading-relaxed">
-          Without subnetting, every device would sit in one giant network.
-          Broadcasts would reach millions of hosts, address blocks would be
-          handed out in wasteful chunks, and there would be no simple way to
-          tell "this device is local" from "this device is remote".
-          Subnetting breaks big networks into smaller ones — one broadcast
-          domain each, one gateway each, sized to fit the actual need.
-        </div>
-      </div>
-
-      <Callout icon={Globe}>
-        The mask is not decoration. It is the rule that decides which part of
-        an IP is the <em>network</em> and which part is the <em>host</em>.
-        Everything else in this topic follows from that.
-      </Callout>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Cheat Sheet
-// ─────────────────────────────────────────────────────────────
-
-function CheatSheetTab() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <Label>IP address classes</Label>
-        <div className="overflow-x-auto rounded-xl border">
-          <table className="w-full min-w-[560px] text-left text-xs">
-            <thead className="bg-muted/50 text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 font-medium">Class</th>
-                <th className="px-3 py-2 font-medium">First octet</th>
-                <th className="px-3 py-2 font-medium">Default mask</th>
-                <th className="px-3 py-2 font-medium">Prefix</th>
-                <th className="px-3 py-2 font-medium">Structure</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ADDRESS_CLASSES.map((c) => (
-                <tr key={c.cls} className="border-t">
-                  <td className="px-3 py-2 font-semibold">{c.cls}</td>
-                  <td className="px-3 py-2 font-mono">{c.range}</td>
-                  <td className="px-3 py-2 font-mono">{c.mask}</td>
-                  <td className="px-3 py-2 font-mono">{c.prefix}</td>
-                  <td className="px-3 py-2 text-muted-foreground">
-                    {c.structure}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
-          <Label>Private ranges</Label>
-          <div className="overflow-hidden rounded-xl border bg-card">
-            {PRIVATE_RANGES.map((p, i, arr) => (
-              <div
-                key={p.range}
-                className={cx(
-                  "grid grid-cols-[1fr_60px_60px] items-center gap-3 px-3.5 py-2.5",
-                  i !== arr.length - 1 && "border-b",
-                )}
-              >
-                <span className="font-mono text-xs">{p.range}</span>
-                <span className="text-center text-xs">Class {p.cls}</span>
-                <span className="text-right text-xs font-mono">
-                  {p.size}
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            All the rest of Class A, B, C is public and globally routable.
-          </p>
-        </div>
-
-        <div>
-          <Label>Special addresses</Label>
-          <div className="space-y-1.5">
-            {[
-              { a: "127.0.0.0/8", d: "Loopback — device tests itself" },
-              { a: "169.254.0.0/16", d: "Link-local (APIPA) if DHCP fails" },
-              { a: "0.0.0.0", d: "This host / any interface" },
-              { a: "255.255.255.255", d: "Limited broadcast" },
-              { a: "224.0.0.0/4", d: "Class D multicast groups" },
-            ].map((s) => (
-              <div
-                key={s.a}
-                className="flex items-start gap-2.5 rounded-lg border bg-card px-3 py-2"
-              >
-                <span className="shrink-0 font-mono text-xs">{s.a}</span>
-                <span className="min-w-0 text-[11px] text-muted-foreground">
-                  {s.d}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <Label>Powers of two — hosts per prefix</Label>
-        <div className="overflow-hidden rounded-xl border bg-card">
-          {POWERS_OF_TWO.map((p, i, arr) => (
-            <div
-              key={p.prefix}
-              className={cx(
-                "grid grid-cols-[80px_80px_1fr] items-center gap-3 px-3.5 py-2",
-                i !== arr.length - 1 && "border-b",
-              )}
-            >
-              <span className="font-mono text-xs">{p.prefix}</span>
-              <span className="font-mono text-xs text-muted-foreground">
-                2^{p.bits} = {p.addrs}
-              </span>
-              <span className="text-[11px] text-muted-foreground">
-                {p.addrs === 256 ? "Class C boundary" : `Block size ${p.addrs}`}
-              </span>
-            </div>
-          ))}
-        </div>
-        <p className="mt-2 text-xs text-muted-foreground">
-          Usable hosts = addresses − 2 (network and broadcast).
-        </p>
-      </div>
-
-      <div>
-        <Label>Key formulas</Label>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {[
-            { t: "Total addresses", d: "2^(32 − prefix)" },
-            { t: "Usable hosts", d: "2^(32 − prefix) − 2" },
-            { t: "Block size", d: "256 − mask value in the interesting octet" },
-            { t: "Network address", d: "IP AND mask" },
-            { t: "Broadcast address", d: "Network OR inverse mask" },
-            { t: "Number of subnets", d: "2^(borrowed bits)" },
-          ].map((f) => (
-            <div
-              key={f.t}
-              className="rounded-lg border bg-card px-3 py-2"
-            >
-              <p className="text-xs font-medium">{f.t}</p>
-              <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
-                {f.d}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Callout icon={Table2}>
-        If you can write the address-class table and the powers-of-two table
-        from memory, subnetting questions become arithmetic instead of
-        guesswork.
-      </Callout>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · How It Works (step-by-step)
-// ─────────────────────────────────────────────────────────────
-
-const HOW_STEPS = [
-  {
-    title: "Write the IP and mask",
-    hue: 215,
-    text: "Start with the address and prefix, e.g. 192.168.10.77/26. Convert the prefix to a dotted mask: /26 = 255.255.255.192.",
-  },
-  {
-    title: "Find the interesting octet",
-    hue: 150,
-    text: "The interesting octet is where the mask is neither 255 nor 0. For a /26, that is the fourth octet, with mask value 192.",
-  },
-  {
-    title: "Calculate the block size",
-    hue: 185,
-    text: "Block size = 256 − mask value. 256 − 192 = 64. Every subnet grows by 64 in the interesting octet.",
-  },
-  {
-    title: "Locate the subnet boundaries",
-    hue: 255,
-    text: "Subnets start at multiples of 64: .0, .64, .128, .192. Our address .77 falls in the .64 block.",
-  },
-  {
-    title: "Derive network and broadcast",
-    hue: 290,
-    text: "Network = first address in the block (192.168.10.64). Broadcast = last address in the block (192.168.10.127).",
-  },
-  {
-    title: "List the usable host range",
-    hue: 335,
-    text: "Usable hosts sit strictly between network and broadcast: 192.168.10.65 → 192.168.10.126. That is 62 usable hosts.",
-  },
-];
-
-function HowItWorksTab() {
-  const [step, setStep] = useState(0);
-  const current = HOW_STEPS[step];
-
-  return (
-    <div className="space-y-6">
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        Walk through solving one subnet question step by step. Use Next /
-        Previous or click any step below.
-      </p>
-
-      <div className="rounded-xl border bg-card p-4">
-        <div className="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Step {step + 1} of {HOW_STEPS.length}
-          </span>
-          <span>{current.title}</span>
-        </div>
-        <div className="h-1 overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-[var(--accent)] transition-all duration-300"
-            style={{ width: `${((step + 1) / HOW_STEPS.length) * 100}%` }}
-          />
-        </div>
-        <div
-          style={hue(current.hue)}
-          className="osi-tint osi-fade mt-4 rounded-xl border px-3.5 py-3.5"
-        >
-          <p className="osi-ink text-xs font-semibold">Step {step + 1}</p>
-          <p className="mt-1 text-sm leading-relaxed">{current.text}</p>
-        </div>
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
-            disabled={step === 0}
-            className="rounded-lg border px-3 py-1.5 text-xs outline-none transition-colors hover:bg-[var(--accent-soft)] focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40"
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              setStep((s) => Math.min(HOW_STEPS.length - 1, s + 1))
-            }
-            disabled={step === HOW_STEPS.length - 1}
-            className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-medium text-white outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-
-      <ol className="space-y-2">
-        {HOW_STEPS.map((s, i) => (
-          <li key={s.title}>
-            <button
-              type="button"
-              onClick={() => setStep(i)}
-              style={hue(s.hue)}
-              className={cx(
-                "flex w-full min-w-0 items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring",
-                i === step
-                  ? "osi-tint"
-                  : "bg-card hover:bg-[var(--accent-soft)]",
-              )}
-            >
-              <span
-                className={cx(
-                  "flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold",
-                  i === step ? "osi-solid" : "bg-muted text-muted-foreground",
-                )}
-              >
-                {i + 1}
-              </span>
-              <span className="min-w-0 flex-1">{s.title}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Common Misconceptions
-// ─────────────────────────────────────────────────────────────
-
-const MISCONCEPTIONS = [
-  {
-    wrong: "The IP address alone tells you the network.",
-    right:
-      "You need the address AND the mask. 10.0.0.1 could be one network of 16 million hosts, or thousands of small ones — the mask decides.",
-  },
-  {
-    wrong: "Class A/B/C still controls how networks are assigned today.",
-    right:
-      "Classful addressing is legacy. Real networks use CIDR — any prefix length is allowed. The classes are still useful vocabulary and for spotting private ranges.",
-  },
-  {
-    wrong: "127.0.0.0/8 is the private range for Class A.",
-    right:
-      "10.0.0.0/8 is the private range. 127.0.0.0/8 is the loopback range — the device talking to itself.",
-  },
-  {
-    wrong: "IPv6 is just IPv4 with more addresses.",
-    right:
-      "IPv6 is a different protocol: 128-bit addresses, hexadecimal notation, no broadcast (multicast + anycast instead), and simpler headers.",
-  },
-  {
-    wrong: "The first and last address of a subnet are usable.",
-    right:
-      "The first address is the network address and the last is the broadcast address. Neither is assigned to a host on normal subnets.",
-  },
-  {
-    wrong: "VLSM wastes more than FLSM.",
-    right:
-      "FLSM gives every subnet the same size — wasteful when needs differ. VLSM assigns each subnet exactly what it needs. VLSM saves addresses.",
-  },
-  {
-    wrong: "Block size equals the mask value.",
-    right:
-      "Block size equals 256 minus the mask value in the interesting octet. A /26 has mask value 192 in the fourth octet, so block size is 64, not 192.",
-  },
-  {
-    wrong: "Two devices with the same IP will simply 'share' the address.",
-    right:
-      "Duplicate IPs cause an IP conflict. Both hosts lose reliability — one may fail to send, and the other may stop receiving.",
-  },
-  {
-    wrong: "Any private IP can talk to the internet directly.",
-    right:
-      "Private addresses are not routable on the internet. They need NAT to be translated to a public address before leaving the local network.",
-  },
-  {
-    wrong: "IANA hands IP addresses directly to end customers.",
-    right:
-      "IANA → RIRs → ISPs → customers. Each layer allocates large blocks downward and keeps the global space consistent.",
-  },
-];
-
-function MisconceptionsTab() {
-  return (
-    <div className="space-y-6">
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        The small confusions that quietly cost marks. Read the wrong line,
-        then read the right one.
-      </p>
-
-      <div className="space-y-2">
-        {MISCONCEPTIONS.map((m, i) => (
-          <div key={i} className="overflow-hidden rounded-xl border bg-card">
-            <div className="flex items-start gap-2.5 border-b border-destructive/30 bg-destructive/5 px-3.5 py-2.5">
-              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-destructive">
-                ✗ Wrong
-              </span>
-              <p className="min-w-0 text-sm">{m.wrong}</p>
-            </div>
-            <div className="flex items-start gap-2.5 bg-emerald-500/5 px-3.5 py-2.5">
-              <span className="mt-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
-                ✓ Right
-              </span>
-              <p className="min-w-0 text-sm">{m.right}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <Callout icon={AlertTriangle}>
-        If you can explain all ten of these in your own words, subnetting
-        questions stop being tricky — they become arithmetic.
-      </Callout>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Binary & Subnet Visualizer (signature)
-// ─────────────────────────────────────────────────────────────
-
-function SubnetVisualizerTab() {
-  const [ip, setIp] = useState("192.168.10.77");
-  const [cidr, setCidr] = useState("26");
-
-  const result = useMemo(() => {
-    const n = ipToInt(ip);
-    const prefix = Number(cidr);
-    if (n === null) return { error: "Enter a valid IPv4 address." };
-    if (!Number.isInteger(prefix) || prefix < 0 || prefix > 32)
-      return { error: "CIDR must be between 0 and 32." };
-
-    const mask = prefix === 0 ? 0 : (0xffffffff << (32 - prefix)) >>> 0;
-    const network = (n & mask) >>> 0;
-    const broadcast = (network | (~mask >>> 0)) >>> 0;
-    const total = 2 ** (32 - prefix);
-    const usable = prefix >= 31 ? (prefix === 32 ? 1 : 2) : total - 2;
-    const first = prefix >= 31 ? network : network + 1;
-    const last = prefix >= 31 ? broadcast : broadcast - 1;
-
-    // Interesting octet — where the mask is neither 255 nor 0
-    const maskOctets = [mask >>> 24, (mask >>> 16) & 255, (mask >>> 8) & 255, mask & 255];
-    const interestingIdx = maskOctets.findIndex((o) => o !== 0 && o !== 255);
-    const blockSize = interestingIdx === -1 ? null : 256 - maskOctets[interestingIdx];
-
-    return {
-      error: "",
-      prefix,
-      network,
-      broadcast,
-      first,
-      last,
-      total,
-      usable,
-      blockSize,
-      interestingIdx,
-      maskOctets,
-      ipBinary: toBinaryOctets(ip),
-      maskBinary: toBinaryOctets(intToIp(mask)),
-    };
-  }, [ip, cidr]);
-
-  return (
-    <div className="space-y-6">
-      <p className="text-sm leading-relaxed text-muted-foreground">
-        Type any IPv4 address and prefix. See the binary split between
-        network and host bits, and the exact subnet boundaries that fall out
-        of it.
-      </p>
-
-      <div className="rounded-xl border bg-card p-4">
-        <div className="grid gap-3 sm:grid-cols-[1fr_100px]">
-          <label className="text-xs font-medium">
-            IPv4 address
-            <input
-              value={ip}
-              onChange={(e) => setIp(e.target.value)}
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 font-mono text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              placeholder="192.168.10.77"
-            />
-          </label>
-          <label className="text-xs font-medium">
-            Prefix
-            <input
-              value={cidr}
-              onChange={(e) => setCidr(e.target.value)}
-              className="mt-2 w-full rounded-lg border bg-background px-3 py-2 font-mono text-sm outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              inputMode="numeric"
-              placeholder="26"
-            />
-          </label>
-        </div>
-
-        {result.error && (
-          <p role="alert" className="mt-3 text-xs font-medium text-destructive">
-            {result.error}
-          </p>
-        )}
-
-        {!result.error && "network" in result && (
-          <div className="mt-5 space-y-5">
-            {/* Binary visual */}
-            <div>
-              <Label>Binary split — network bits vs host bits</Label>
-              <div className="space-y-2">
-                {[0, 1, 2, 3].map((octet) => {
-                  const ipBits = result.ipBinary[octet] ?? "00000000";
-                  const maskBits = result.maskBinary[octet] ?? "00000000";
-                  return (
-                    <div key={octet} className="flex items-center gap-2">
-                      <span className="w-12 shrink-0 text-[10px] font-mono text-muted-foreground">
-                        Octet {octet + 1}
-                      </span>
-                      <div className="flex gap-0.5">
-                        {ipBits.split("").map((bit, i) => {
-                          const isNetwork = maskBits[i] === "1";
-                          return (
-                            <span
-                              key={i}
-                              style={hue(isNetwork ? 215 : 150)}
-                              className={cx(
-                                "flex size-6 items-center justify-center rounded font-mono text-[10px] font-semibold",
-                                isNetwork
-                                  ? "osi-solid"
-                                  : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-                              )}
-                            >
-                              {bit}
-                            </span>
-                          );
-                        })}
-                      </div>
-                      <span className="ml-2 shrink-0 font-mono text-[10px] text-muted-foreground">
-                        = {parseInt(ipBits, 2)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-3 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <span className="inline-block size-2.5 rounded bg-[var(--accent)]" />
-                  Network bits (from the mask)
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="inline-block size-2.5 rounded bg-emerald-500/40" />
-                  Host bits (free for devices)
-                </span>
-              </div>
-            </div>
-
-            {/* Facts */}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {[
-                ["Network", `${intToIp(result.network)}/${result.prefix}`],
-                ["Broadcast", intToIp(result.broadcast)],
-                ["First host", intToIp(result.first)],
-                ["Last host", intToIp(result.last)],
-                ["Total addresses", String(result.total)],
-                ["Usable hosts", String(result.usable)],
-              ].map(([k, v]) => (
-                <div key={k} className="rounded-lg border bg-background p-2.5">
-                  <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    {k}
-                  </p>
-                  <p className="mt-0.5 break-all font-mono text-xs font-medium">
-                    {v}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            {/* Block math */}
-            {result.blockSize !== null && result.interestingIdx !== -1 && (
-              <div
-                style={hue(290)}
-                className="osi-tint rounded-xl border px-3.5 py-3"
-              >
-                <p className="osi-ink text-xs font-semibold">
-                  How the boundaries were found
-                </p>
-                <ul className="mt-2 space-y-1 text-xs leading-relaxed">
-                  <li>
-                    Interesting octet = #4 (mask value{" "}
-                    <span className="font-mono">
-                      {result.maskOctets[result.interestingIdx]}
-                    </span>
-                    )
-                  </li>
-                  <li>
-                    Block size = 256 −{" "}
-                    <span className="font-mono">
-                      {result.maskOctets[result.interestingIdx]}
-                    </span>{" "}
-                    ={" "}
-                    <span className="font-mono font-semibold">
-                      {result.blockSize}
-                    </span>
-                  </li>
-                  <li>
-                    Subnets begin at multiples of{" "}
-                    <span className="font-mono">{result.blockSize}</span>
-                  </li>
-                  <li>
-                    Our IP{" "}
-                    <span className="font-mono">{ip}</span> falls in the block
-                    starting at{" "}
-                    <span className="font-mono">{intToIp(result.network)}</span>
-                  </li>
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <Callout icon={Binary}>
-        Every subnet question is just this: read the mask, find the block
-        size, locate the address inside the block, and derive the two
-        endpoints.
-      </Callout>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Tab · Interview Prep
-// ─────────────────────────────────────────────────────────────
-
-const PITCH =
-  "An IP address is a logical address with two sides — a network side and a host side. The subnet mask draws the line between them. IPv4 is 32 bits written as four decimal octets; IPv6 is 128 bits written in hexadecimal. Classful addressing splits IPv4 into five classes — A, B, C are unicast, D is multicast, E is research. Class A, B, and C each have a private slice — 10/8, 172.16/12, 192.168/16 — that is not routable on the public internet. Subnetting divides a big network into smaller ones to control broadcast size and avoid address waste. FLSM uses equal-size subnets, VLSM matches size to need. Every subnet has a network address, a broadcast address, and a usable host range strictly between them.";
-
-const QA: Array<{ q: string; a: string[] }> = [
-  {
-    q: "What is an IP address, and why does it have two sides?",
-    a: [
-      "It is a logical address assigned to a device so other devices can find it.",
-      "Every address has a network side (which network) and a host side (which device on that network).",
-      "The subnet mask draws the line between them.",
-    ],
-  },
-  {
-    q: "Compare IPv4 and IPv6.",
-    a: [
-      "IPv4 — 32 bits, written as four decimal octets, about 4 billion addresses.",
-      "IPv6 — 128 bits, written in hexadecimal, 8 fields of 16 bits.",
-      "IPv6 also removes broadcast (using multicast and anycast) and simplifies the header.",
-    ],
-  },
-  {
-    q: "Name the IP address classes and their ranges.",
-    a: [
-      "A — 1–126, /8 default mask.",
-      "B — 128–191, /16 default mask.",
-      "C — 192–223, /24 default mask.",
-      "D — 224–239, multicast.",
-      "E — 240–255, research.",
-    ],
-  },
-  {
-    q: "What are the private IP ranges?",
-    a: [
-      "10.0.0.0/8 — the private slice inside Class A.",
-      "172.16.0.0/12 — the private slice inside Class B.",
-      "192.168.0.0/16 — the private slice inside Class C.",
-      "Private addresses are not routable on the public internet. They need NAT to reach it.",
-    ],
-  },
-  {
-    q: "What is 127.0.0.0/8?",
-    a: [
-      "The loopback range — the device talking to itself.",
-      "127.0.0.1 is the classic loopback address used to test the local TCP/IP stack.",
-      "It sits inside Class A, but it is not the private range; 10.0.0.0/8 is the private one.",
-    ],
-  },
-  {
-    q: "Why does subnetting exist?",
-    a: [
-      "To break a large network into smaller ones — one broadcast domain per subnet.",
-      "To match the number of hosts to the actual need, avoiding address waste.",
-      "To create a clear boundary between local and remote traffic, using a default gateway.",
-    ],
-  },
-  {
-    q: "Explain the difference between FLSM and VLSM.",
-    a: [
-      "FLSM — Fixed Length Subnet Mask — every subnet is the same size.",
-      "VLSM — Variable Length Subnet Mask — each subnet gets exactly the size it needs.",
-      "VLSM saves addresses; FLSM is simpler but wasteful when needs differ.",
-    ],
-  },
-  {
-    q: "How do you quickly find the network and broadcast of an address?",
-    a: [
-      "Convert the prefix to a dotted mask, e.g. /26 = 255.255.255.192.",
-      "Find the interesting octet (where the mask is not 0 or 255), and compute block size = 256 − mask value.",
-      "Subnets start at multiples of the block size. The network is the block start; the broadcast is the next block start minus one.",
-    ],
-  },
-  {
-    q: "For 192.168.10.77/26, what are the network and broadcast?",
-    a: [
-      "/26 → mask 255.255.255.192 → block size 64.",
-      "Subnets start at .0, .64, .128, .192. .77 falls in the .64 block.",
-      "Network: 192.168.10.64. Broadcast: 192.168.10.127. Usable hosts: .65 to .126, which is 62 hosts.",
-    ],
-  },
-  {
-    q: "Why are two addresses reserved in every subnet?",
-    a: [
-      "The first address is the network address — all host bits set to 0.",
-      "The last address is the broadcast address — all host bits set to 1.",
-      "Neither is assigned to a host, which is why usable = 2^(host bits) − 2.",
-    ],
-  },
-  {
-    q: "What is IANA, and how does allocation work?",
-    a: [
-      "IANA (Internet Assigned Numbers Authority) is the top-level coordinator of IP addresses, ASNs, and protocol parameters.",
-      "Allocation flows IANA → RIRs → ISPs → end customers.",
-      "This hierarchy is why address classes and private ranges are globally consistent.",
-    ],
-  },
-  {
-    q: "What happens if two devices have the same IP?",
-    a: [
-      "An IP conflict occurs. Frames may be sent to the wrong device or dropped.",
-      "The network usually shows intermittent connectivity, not a clean failure — that makes it tricky to diagnose.",
-      "Tools: arp -a, ping duplicates, DHCP lease logs.",
-    ],
-  },
-];
-
-function InterviewPrepTab() {
-  const [open, setOpen] = useState<number | null>(0);
-  return (
-    <div className="space-y-6">
-      <section>
-        <Label>Your 30-second answer</Label>
-        <div className="rounded-xl border bg-card p-4">
-          <p className="text-sm leading-relaxed">{PITCH}</p>
-        </div>
-      </section>
-
-      <section>
-        <Label>Questions interviewers ask</Label>
-        <div className="space-y-2">
-          {QA.map((item, i) => {
-            const isOpen = open === i;
+    <div className="flex flex-wrap gap-x-3 gap-y-1 font-mono">
+      {[0, 1, 2, 3].map((g) => (
+        <div key={g} className="flex gap-px">
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((k) => {
+            const i = g * 8 + k;
+            const net = i < p;
             return (
-              <div
-                key={item.q}
-                className="overflow-hidden rounded-xl border bg-card"
+              <span
+                key={i}
+                className={`flex items-center justify-center rounded-sm ${small ? "h-5 w-3.5 text-[10px]" : "h-6 w-4 text-xs"}`}
+                style={{ background: net ? `${BLUE}22` : `${AMBER}22`, color: net ? BLUE : AMBER, fontWeight: 600 }}
               >
-                <button
-                  type="button"
-                  onClick={() => setOpen(isOpen ? null : i)}
-                  aria-expanded={isOpen}
-                  className="flex w-full min-w-0 items-center gap-3 px-3.5 py-3 text-left outline-none transition-colors hover:bg-[var(--accent-soft)] focus-visible:ring-1 focus-visible:ring-ring"
-                >
-                  <MessageCircleQuestion className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="min-w-0 flex-1 text-sm font-medium">
-                    {item.q}
-                  </span>
-                  <ChevronRight
-                    className={cx(
-                      "size-4 shrink-0 text-muted-foreground transition-transform",
-                      isOpen && "rotate-90",
-                    )}
-                  />
-                </button>
-                {isOpen && (
-                  <div className="osi-fade space-y-2 border-t px-3.5 pb-3.5 pt-3 text-sm leading-relaxed">
-                    {item.a.map((p) => (
-                      <p key={p}>{p}</p>
-                    ))}
-                  </div>
-                )}
-              </div>
+                {bitAt(ip, i)}
+              </span>
             );
           })}
         </div>
-      </section>
-
-      <Callout icon={ShieldCheck}>
-        Practice the 30-second pitch out loud until it flows without notes.
-        Every follow-up question below is now answerable.
-      </Callout>
+      ))}
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Root
-// ─────────────────────────────────────────────────────────────
+function Legend() {
+  return (
+    <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
+      <span><span className="mr-1 inline-block h-2 w-2 rounded-sm" style={{ background: BLUE }} />network bits</span>
+      <span><span className="mr-1 inline-block h-2 w-2 rounded-sm" style={{ background: AMBER }} />host bits</span>
+    </div>
+  );
+}
 
-const TABS = [
-  { id: "big", label: "Big Picture" },
-  { id: "cheat", label: "Cheat Sheet" },
-  { id: "how", label: "How It Works" },
-  { id: "misconceptions", label: "Misconceptions" },
-  { id: "visualizer", label: "Subnet Visualizer" },
-  { id: "prep", label: "Interview Prep" },
-] as const;
+/* ───────────────────────── 1 · big picture ───────────────────────── */
 
-type TabId = (typeof TABS)[number]["id"];
+const V6 = [
+  ["Size", "32 bits, about 4.3 billion addresses", "128 bits, about 3.4 x 10^38 addresses"],
+  ["Notation", "Four decimal octets: 8.8.8.8", "Eight hex fields: AD12:1306:1034:0000:1111:2222:3333:4444"],
+  ["Structure", "Each octet is 8 bits (8 = 00001000)", "Each field is 16 bits"],
+  ["Broadcast", "Yes", "No. Uses multicast and anycast instead."],
+  ["Header", "Variable length, more fields", "Fixed length, simpler"],
+];
+
+function BigSection() {
+  const [p, setP] = useState(24);
+  const [v, setV] = useState<"4" | "6">("4");
+  const ip = toInt([192, 168, 1, 1]);
+  const o = [192, 168, 1, 1];
+  const split = (i: number) => {
+    const lo = i * 8;
+    const bitsNet = Math.max(0, Math.min(8, p - lo));
+    return bitsNet === 8 ? "net" : bitsNet === 0 ? "host" : "mixed";
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">An IP address is a logical address with two sides</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          The network engineer (or DHCP) assigns it to identify a device. The <span className="font-semibold text-foreground">network side</span> says
+          which network the device is on. The <span className="font-semibold text-foreground">host side</span> says which device on that network.
+          The subnet mask draws the line between them.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Badge variant="secondary">Logical: it can change, unlike a MAC address</Badge>
+          <Badge variant="secondary">Layer 3 of OSI</Badge>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Move the line</p>
+        <p className="mt-1 text-xs text-muted-foreground">Drag the prefix. The mask decides where the network side ends.</p>
+        <input
+          type="range"
+          min={8}
+          max={30}
+          value={p}
+          onChange={(e) => setP(Number(e.target.value))}
+          className="mt-3 w-full accent-primary"
+          aria-label="Prefix length"
+        />
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <Badge variant="secondary">/{p}</Badge>
+          <span className="font-mono text-xs">{toIp(maskInt(p))}</span>
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-2 font-mono text-lg font-bold">
+          {o.map((x, i) => {
+            const s = split(i);
+            return (
+              <span key={i} className="flex items-center gap-2">
+                <span style={{ color: s === "net" ? BLUE : s === "host" ? AMBER : PURPLE }}>{x}</span>
+                {i < 3 && <span className="text-muted-foreground">.</span>}
+              </span>
+            );
+          })}
+        </div>
+        <div className="mt-2"><Bits ip={ip} p={p} /></div>
+        <div className="mt-2"><Legend /></div>
+        <p className="mt-3 text-xs leading-5 text-muted-foreground">
+          <span className="font-semibold" style={{ color: BLUE }}>{p} network bits</span> and{" "}
+          <span className="font-semibold" style={{ color: AMBER }}>{32 - p} host bits</span>.
+          {p % 8 !== 0 && <> Purple means the line cuts through the middle of that octet.</>}
+        </p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">IPv4 vs IPv6</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={v === "4"} onClick={() => setV("4")}>IPv4</Pick>
+          <Pick active={v === "6"} onClick={() => setV("6")}>IPv6</Pick>
+        </div>
+        <div key={v} className="n5-fade mt-3 flex flex-col gap-3">
+          {v === "4" ? (
+            <>
+              <p className="font-mono text-sm">8.8.8.8 = 00001000.00001000.00001000.00001000</p>
+              <p className="text-xs leading-5 text-muted-foreground">Four octets, each 0 to 255, separated by dots. 32 bits in total.</p>
+            </>
+          ) : (
+            <>
+              <p className="break-all font-mono text-sm">AD12:1306:1034:0000:1111:2222:3333:4444</p>
+              <p className="text-xs leading-5 text-muted-foreground">Eight fields of 16 bits each, in hexadecimal, separated by colons. 128 bits in total.</p>
+              <Bullets items={["Drop leading zeros in a field: 0000 becomes 0, 0db8 becomes db8.", "Replace one run of all-zero fields with :: (only once per address). 2001:0db8:0000:0000:0000:0000:0000:0001 becomes 2001:db8::1."]} />
+            </>
+          )}
+        </div>
+        <div className="mt-3">
+          <SimpleTable head={["", "IPv4", "IPv6"]} rows={V6} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Why subnets exist</p>
+        <div className="mt-2">
+          <Bullets
+            items={[
+              "Without subnets, every device sits in one giant network and broadcasts reach everyone.",
+              "Address blocks would be handed out in wasteful chunks.",
+              "There would be no simple way to tell local from remote traffic.",
+              "Subnetting makes smaller networks: one broadcast domain and one default gateway each, sized to the real need.",
+            ]}
+          />
+        </div>
+      </Panel>
+
+      <Tip>The mask is not decoration. It is the rule that decides which part of an IP is network and which part is host. Everything else follows from that.</Tip>
+    </div>
+  );
+}
+
+/* ───────────────────────── 2 · classes and ranges ───────────────────────── */
+
+const CLASSES = [
+  { c: "A", first: "1 to 126", mask: "255.0.0.0", pre: "/8", struct: ["N", "H", "H", "H"], hosts: "16,777,214", note: "10.0.0.0/8 is private. 127.0.0.0/8 is loopback. The rest is public." },
+  { c: "B", first: "128 to 191", mask: "255.255.0.0", pre: "/16", struct: ["N", "N", "H", "H"], hosts: "65,534", note: "172.16.0.0/12 (172.16 to 172.31) is the private slice." },
+  { c: "C", first: "192 to 223", mask: "255.255.255.0", pre: "/24", struct: ["N", "N", "N", "H"], hosts: "254", note: "192.168.0.0/16 is the private slice." },
+  { c: "D", first: "224 to 239", mask: "none", pre: "none", struct: ["M", "M", "M", "M"], hosts: "none", note: "Multicast. No network, host or broadcast. Each address is a group." },
+  { c: "E", first: "240 to 255", mask: "none", pre: "none", struct: ["R", "R", "R", "R"], hosts: "none", note: "Reserved for research and experiments." },
+];
+
+const PRIVATE = [
+  ["10.0.0.0/8", "A", "10.0.0.0 to 10.255.255.255", "16,777,216"],
+  ["172.16.0.0/12", "B", "172.16.0.0 to 172.31.255.255", "1,048,576"],
+  ["192.168.0.0/16", "C", "192.168.0.0 to 192.168.255.255", "65,536"],
+];
+
+const SPECIAL = [
+  ["127.0.0.0/8", "Loopback. The device tests itself (127.0.0.1)."],
+  ["169.254.0.0/16", "Link-local (APIPA). A host gives itself one when DHCP fails."],
+  ["0.0.0.0", "This host, or any interface."],
+  ["255.255.255.255", "Limited broadcast. Stays on the local network."],
+  ["224.0.0.0/4", "Class D multicast groups."],
+];
+
+function ClassesSection() {
+  const [sel, setSel] = useState(2);
+  const [txt, setTxt] = useState("172.20.5.9");
+  const k = CLASSES[sel];
+  const o = parseIp(txt);
+  const r = o ? classify(o) : null;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">The five classes</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {CLASSES.map((x, i) => (
+            <Pick key={x.c} active={sel === i} onClick={() => setSel(i)}>Class {x.c}</Pick>
+          ))}
+        </div>
+        <div key={sel} className="n5-fade mt-3 flex flex-col gap-3">
+          <div className="flex gap-1.5">
+            {k.struct.map((s, i) => (
+              <span
+                key={i}
+                className="flex h-9 w-14 items-center justify-center rounded-md border font-mono text-xs font-bold"
+                style={{ color: s === "N" ? BLUE : s === "H" ? AMBER : PURPLE, borderColor: s === "N" ? BLUE : s === "H" ? AMBER : PURPLE }}
+              >
+                {s === "N" ? "Network" : s === "H" ? "Host" : s === "M" ? "Group" : "Reserved"}
+              </span>
+            ))}
+          </div>
+          <div className="grid gap-2 sm:grid-cols-4">
+            <Mini k="First octet" v={k.first} />
+            <Mini k="Default mask" v={k.mask} />
+            <Mini k="Prefix" v={k.pre} />
+            <Mini k="Usable hosts" v={k.hosts} color={GREEN} />
+          </div>
+          <p className="text-xs leading-5 text-muted-foreground">{k.note}</p>
+        </div>
+        <div className="mt-3">
+          <Tip title="Careful">
+            1 to 126 skips 127 on purpose: 127 is loopback. Classes are legacy vocabulary. Real networks use CIDR, where any prefix length is allowed.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Check an address</p>
+        <input
+          value={txt}
+          onChange={(e) => setTxt(e.target.value)}
+          className="mt-2 w-full rounded-lg border bg-background px-3 py-2 font-mono text-sm"
+          placeholder="e.g. 192.168.1.1"
+          aria-label="IPv4 address"
+        />
+        {r ? (
+          <div className="n5-fade mt-3 grid gap-2 sm:grid-cols-3">
+            <Mini k="Class" v={r.cls} />
+            <Mini k="Type" v={r.kind} color={r.isPrivate ? AMBER : GREEN} />
+            <Mini k="Internet-routable?" v={r.isPrivate || r.cls.startsWith("Reserved") ? "No (needs NAT)" : o![0] === 127 || (o![0] === 169 && o![1] === 254) ? "No" : o![0] >= 224 ? "Special use" : "Yes"} />
+          </div>
+        ) : (
+          <p className="mt-3 text-xs" style={{ color: RED }}>Enter four numbers from 0 to 255, separated by dots.</p>
+        )}
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Private ranges</p>
+        <div className="mt-3">
+          <SimpleTable head={["Range", "Class", "Spans", "Addresses"]} rows={PRIVATE} />
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Private addresses are not routable on the internet. To go out, they need NAT to be translated to a public address. All the rest of Class A, B and C is public.
+        </p>
+        <div className="mt-3">
+          <Tip>Memory hook: 10 (one block of 8), 172.16 (/12, so 16 to 31), 192.168 (/16).</Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Special addresses</p>
+        <div className="mt-3">
+          <SimpleTable head={["Address", "What it is"]} rows={SPECIAL} />
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 3 · powers of two ───────────────────────── */
+
+const FORMULAS = [
+  ["Total addresses", "2^(32 − prefix)"],
+  ["Usable hosts", "2^(32 − prefix) − 2"],
+  ["Block size", "256 − mask value in the interesting octet"],
+  ["Network address", "IP AND mask"],
+  ["Broadcast address", "Network OR inverse mask"],
+  ["Number of subnets", "2^(borrowed bits)"],
+];
+
+const PREFIXES = [32, 31, 30, 29, 28, 27, 26, 25, 24];
+
+function PowersSection() {
+  const [pi, setPi] = useState(8);
+  const [need, setNeed] = useState("50");
+  const p = PREFIXES[pi];
+  const total = 2 ** (32 - p);
+  const n = Number(need);
+  const valid = Number.isInteger(n) && n >= 1 && n <= 1_000_000;
+  const hb = valid ? Math.ceil(Math.log2(n + 2)) : 0;
+  const np = 32 - hb;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">Hosts per prefix</p>
+        <p className="mt-1 text-xs text-muted-foreground">Tap a prefix. The pattern: each step smaller doubles the addresses.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {PREFIXES.map((x, i) => (
+            <Pick key={x} active={pi === i} onClick={() => setPi(i)}>/{x}</Pick>
+          ))}
+        </div>
+        <div key={p} className="n5-fade mt-3 grid gap-2 sm:grid-cols-4">
+          <Mini k="Mask" v={toIp(maskInt(p))} />
+          <Mini k="Addresses" v={`2^${32 - p} = ${total}`} />
+          <Mini k="Usable hosts" v={p === 32 ? "1 (single host)" : p === 31 ? "2 (point-to-point only)" : String(total - 2)} color={GREEN} />
+          <Mini k="Block size (last octet)" v={String(256 - (maskInt(p) & 255))} />
+        </div>
+        <div className="mt-3">
+          <SimpleTable
+            head={["Prefix", "Mask", "Addresses", "Usable hosts"]}
+            rows={PREFIXES.map((x) => [
+              `/${x}`,
+              toIp(maskInt(x)),
+              `2^${32 - x} = ${2 ** (32 - x)}`,
+              x === 32 ? "1" : x === 31 ? "2 (RFC 3021)" : String(2 ** (32 - x) - 2),
+            ])}
+            hit={pi}
+          />
+        </div>
+        <div className="mt-3 flex flex-col gap-2">
+          <Tip title="Rule">Usable hosts = addresses − 2 (network and broadcast). /24 is the Class C boundary.</Tip>
+          <Tip title="Careful">
+            Classic rule: /31 has no usable hosts. RFC 3021 allows /31 on point-to-point links, with both addresses usable. /32 is a single host address, like a loopback.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">How many hosts do I need?</p>
+        <input
+          value={need}
+          onChange={(e) => setNeed(e.target.value)}
+          inputMode="numeric"
+          className="mt-2 w-40 rounded-lg border bg-background px-3 py-2 font-mono text-sm"
+          aria-label="Hosts needed"
+        />
+        {valid ? (
+          <div className="n5-fade mt-3 flex flex-col gap-2">
+            <div className="grid gap-2 sm:grid-cols-4">
+              <Mini k="Host bits needed" v={String(hb)} />
+              <Mini k="Prefix" v={`/${np}`} color={GREEN} />
+              <Mini k="Usable hosts" v={String(2 ** hb - 2)} />
+              <Mini k="Spare" v={String(2 ** hb - 2 - n)} />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Add 2 for network and broadcast ({n} + 2 = {n + 2}), then find the next power of two: 2^{hb} = {2 ** hb}. So {hb} host bits, so /{np}.
+            </p>
+          </div>
+        ) : (
+          <p className="mt-3 text-xs" style={{ color: RED }}>Enter a whole number from 1 to 1,000,000.</p>
+        )}
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Key formulas</p>
+        <div className="mt-3">
+          <SimpleTable head={["Formula", "Expression"]} rows={FORMULAS} />
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 4 · subnet visualizer ───────────────────────── */
+
+function VizSection() {
+  const [txt, setTxt] = useState("192.168.10.77");
+  const [pre, setPre] = useState(26);
+  const o = parseIp(txt);
+  const c = o ? calc(o, pre) : null;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">Subnet visualizer</p>
+        <p className="mt-1 text-xs text-muted-foreground">Type any IPv4 address and choose a prefix.</p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <input
+            value={txt}
+            onChange={(e) => setTxt(e.target.value)}
+            className="w-44 rounded-lg border bg-background px-3 py-2 font-mono text-sm"
+            aria-label="IPv4 address"
+          />
+          <span className="font-mono text-lg">/</span>
+          <input
+            type="number"
+            min={0}
+            max={32}
+            value={pre}
+            onChange={(e) => setPre(Math.max(0, Math.min(32, Number(e.target.value) || 0)))}
+            className="w-20 rounded-lg border bg-background px-3 py-2 font-mono text-sm"
+            aria-label="Prefix length"
+          />
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={32}
+          value={pre}
+          onChange={(e) => setPre(Number(e.target.value))}
+          className="mt-3 w-full accent-primary"
+          aria-label="Prefix slider"
+        />
+      </Panel>
+
+      {!c ? (
+        <p className="text-xs" style={{ color: RED }}>Enter four numbers from 0 to 255, separated by dots.</p>
+      ) : (
+        <div className="n5-fade flex flex-col gap-4">
+          <Panel>
+            <p className="text-sm font-semibold">Binary split</p>
+            <div className="mt-3 flex flex-col gap-2">
+              <div>
+                <p className="mb-1 text-[11px] text-muted-foreground">IP address</p>
+                <Bits ip={c.ip} p={pre} />
+              </div>
+              <div>
+                <p className="mb-1 text-[11px] text-muted-foreground">Mask ({toIp(c.m)})</p>
+                <Bits ip={c.m} p={pre} />
+              </div>
+              <div>
+                <p className="mb-1 text-[11px] text-muted-foreground">Network address (host bits all 0)</p>
+                <Bits ip={c.net} p={pre} />
+              </div>
+              <div>
+                <p className="mb-1 text-[11px] text-muted-foreground">Broadcast address (host bits all 1)</p>
+                <Bits ip={c.bc} p={pre} />
+              </div>
+            </div>
+            <div className="mt-3"><Legend /></div>
+          </Panel>
+
+          <Panel>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Mini k="Network address" v={`${toIp(c.net)}/${pre}`} color={BLUE} />
+              <Mini k="Broadcast address" v={toIp(c.bc)} color={RED} />
+              <Mini k="First host" v={toIp(c.first)} color={GREEN} />
+              <Mini k="Last host" v={toIp(c.last)} color={GREEN} />
+              <Mini k="Subnet mask" v={toIp(c.m)} />
+              <Mini k="Wildcard (inverse) mask" v={toIp(~c.m >>> 0)} />
+              <Mini k="Total addresses" v={String(c.total)} />
+              <Mini k="Usable hosts" v={String(c.usable)} />
+            </div>
+            {pre >= 31 && (
+              <div className="mt-3">
+                <Tip title="Note">
+                  {pre === 32 ? "/32 is a single host address. There is no network or broadcast." : "/31 is for point-to-point links (RFC 3021). Both addresses are usable, with no network or broadcast."}
+                </Tip>
+              </div>
+            )}
+          </Panel>
+
+          <Panel>
+            <p className="text-sm font-semibold">Block math</p>
+            <div className="mt-2">
+              <Bullets
+                items={[
+                  `Interesting octet = #${c.oct} (mask value ${c.mv}).`,
+                  `Block size = 256 − ${c.mv} = ${c.block}.`,
+                  `Subnets begin at multiples of ${c.block} in octet ${c.oct}.`,
+                  `${toIp(c.ip)} falls in the block starting at ${toIp(c.net)}.`,
+                ]}
+              />
+            </div>
+          </Panel>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ───────────────────────── 5 · step by step ───────────────────────── */
+
+const PRESETS = [
+  { ip: "192.168.10.77", p: 26 },
+  { ip: "172.16.45.200", p: 20 },
+  { ip: "10.1.5.130", p: 27 },
+];
+
+function StepsSection() {
+  const [pi, setPi] = useState(0);
+  const [i, setI] = useState(0);
+  const pr = PRESETS[pi];
+  const o = parseIp(pr.ip)!;
+  const c = calc(o, pr.p);
+  const octVal = o[c.oct - 1];
+  const start = Math.floor(octVal / c.block) * c.block;
+  const mults: number[] = [];
+  for (let v = 0; v < 256 && mults.length < 6; v += c.block) mults.push(v);
+  const more = 256 / c.block > mults.length;
+
+  const STEPS = [
+    {
+      t: "Write the IP and mask",
+      d: `Start with ${pr.ip}/${pr.p}. Convert the prefix to a dotted mask: /${pr.p} = ${toIp(c.m)}.`,
+    },
+    {
+      t: "Find the interesting octet",
+      d: `It is the octet where the mask is neither 255 nor 0 (for an exact /8, /16 or /24, it is the first octet with mask 0). Here it is octet ${c.oct}, with mask value ${c.mv}.`,
+    },
+    {
+      t: "Calculate the block size",
+      d: `Block size = 256 − mask value = 256 − ${c.mv} = ${c.block}. Every subnet grows by ${c.block} in octet ${c.oct}.`,
+    },
+    {
+      t: "Locate the subnet boundaries",
+      d: `Subnets start at multiples of ${c.block}: ${mults.join(", ")}${more ? ", ..." : ""}. Our octet is ${octVal}, so it falls in the block that starts at ${start}.`,
+    },
+    {
+      t: "Derive network and broadcast",
+      d: `Network = first address of the block = ${toIp(c.net)}. Broadcast = last address of the block = ${toIp(c.bc)} (next block start minus one).`,
+    },
+    {
+      t: "List the usable host range",
+      d: `Usable hosts sit strictly between network and broadcast: ${toIp(c.first)} to ${toIp(c.last)}. That is ${c.usable} usable hosts.`,
+    },
+  ];
+  const s = STEPS[i];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">Pick an example</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {PRESETS.map((x, k) => (
+            <Pick key={x.ip} active={pi === k} onClick={() => { setPi(k); setI(0); }}>{x.ip}/{x.p}</Pick>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {STEPS.map((_, k) => (
+            <Pick key={k} active={k === i} onClick={() => setI(k)}>{k + 1}</Pick>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel>
+        <div key={`${pi}-${i}`} className="n5-fade flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs text-muted-foreground">Step {i + 1} of {STEPS.length}</p>
+            <Badge variant="secondary">{pr.ip}/{pr.p}</Badge>
+          </div>
+          <p className="text-sm font-semibold">{s.t}</p>
+          <p className="text-xs leading-5 text-muted-foreground">{s.d}</p>
+
+          {i >= 3 && (
+            <div className="overflow-x-auto rounded-lg border bg-muted/30 p-3">
+              <p className="mb-2 text-[11px] text-muted-foreground">Octet {c.oct} from 0 to 255, split into blocks of {c.block}</p>
+              <div className="flex min-w-max gap-1">
+                {Array.from({ length: Math.min(256 / c.block, 16) }, (_, k) => {
+                  const b = k * c.block;
+                  const here = b === start;
+                  return (
+                    <div
+                      key={b}
+                      className="rounded-md border px-2 py-2 text-center font-mono text-[11px]"
+                      style={{ borderColor: here ? GREEN : undefined, background: here ? `${GREEN}18` : undefined, color: here ? GREEN : undefined, fontWeight: here ? 700 : 400 }}
+                    >
+                      {b}
+                    </div>
+                  );
+                })}
+                {256 / c.block > 16 && <span className="self-center text-xs text-muted-foreground">...</span>}
+              </div>
+            </div>
+          )}
+          {i === 4 && (
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Mini k="Network" v={toIp(c.net)} color={BLUE} />
+              <Mini k="Broadcast" v={toIp(c.bc)} color={RED} />
+            </div>
+          )}
+          {i === 5 && (
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Mini k="First host" v={toIp(c.first)} color={GREEN} />
+              <Mini k="Last host" v={toIp(c.last)} color={GREEN} />
+              <Mini k="Usable hosts" v={String(c.usable)} />
+            </div>
+          )}
+        </div>
+      </Panel>
+
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" disabled={i === 0} onClick={() => setI((v) => Math.max(0, v - 1))}>Back</Button>
+        <Button size="sm" disabled={i === STEPS.length - 1} onClick={() => setI((v) => Math.min(STEPS.length - 1, v + 1))}>Next step</Button>
+      </div>
+
+      <Tip>Every subnet question is the same: read the mask, find the block size, locate the address inside its block, derive the two endpoints.</Tip>
+    </div>
+  );
+}
+
+/* ───────────────────────── 6 · FLSM vs VLSM ───────────────────────── */
+
+const NEEDS = [
+  { name: "Sales", h: 60 },
+  { name: "Engineering", h: 30 },
+  { name: "Guests", h: 20 },
+  { name: "Servers", h: 10 },
+];
+
+function allocate(mode: "flsm" | "vlsm") {
+  const maxBits = Math.ceil(Math.log2(Math.max(...NEEDS.map((n) => n.h)) + 2));
+  let off = 0;
+  return NEEDS.map((n) => {
+    const bits = mode === "flsm" ? maxBits : Math.ceil(Math.log2(n.h + 2));
+    const size = 2 ** bits;
+    const row = { ...n, start: off, size, prefix: 32 - bits, usable: size - 2 };
+    off += size;
+    return row;
+  });
+}
+
+function VlsmSection() {
+  const [mode, setMode] = useState<"flsm" | "vlsm">("flsm");
+  const rows = allocate(mode);
+  const used = rows.reduce((a, r) => a + r.size, 0);
+  const wasted = rows.reduce((a, r) => a + (r.usable - r.h), 0);
+  const COL = [BLUE, GREEN, AMBER, PURPLE];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <p className="text-sm font-semibold">One job, two ways</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          Split 192.168.10.0/24 for four departments: Sales 60 hosts, Engineering 30, Guests 20, Servers 10.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={mode === "flsm"} onClick={() => setMode("flsm")}>FLSM: all the same size</Pick>
+          <Pick active={mode === "vlsm"} onClick={() => setMode("vlsm")}>VLSM: size to need</Pick>
+        </div>
+
+        <div key={mode} className="n5-fade mt-3 flex flex-col gap-3">
+          <div className="flex h-8 overflow-hidden rounded-lg border bg-muted/40">
+            {rows.map((r, k) => (
+              <div
+                key={r.name}
+                className="flex items-center justify-center text-[10px] font-semibold text-white"
+                style={{ width: `${(r.size / 256) * 100}%`, background: COL[k] }}
+                title={`${r.name}: ${r.size} addresses`}
+              >
+                {r.size >= 32 ? r.name : ""}
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">Bar = the 256 addresses of the /24. Grey space on the right is still free.</p>
+
+          <SimpleTable
+            head={["Subnet", "Needs", "Network", "Usable", "Wasted"]}
+            rows={rows.map((r) => [r.name, String(r.h), `192.168.10.${r.start}/${r.prefix}`, String(r.usable), String(r.usable - r.h)])}
+          />
+
+          <div className="grid gap-2 sm:grid-cols-3">
+            <Mini k="Addresses used" v={`${used} of 256`} />
+            <Mini k="Addresses still free" v={String(256 - used)} color={GREEN} />
+            <Mini k="Unused hosts inside subnets" v={String(wasted)} color={wasted > 40 ? RED : GREEN} />
+          </div>
+        </div>
+      </Panel>
+
+      <Tip>
+        FLSM is simple but wasteful when needs differ, because every subnet must fit the biggest one. VLSM gives each subnet exactly the size it needs and saves addresses. With VLSM, allocate the biggest subnet first.
+      </Tip>
+    </div>
+  );
+}
+
+/* ───────────────────────── 7 · common mistakes ───────────────────────── */
+
+const MYTHS = [
+  { wrong: "The IP address alone tells you the network.", right: "You need the address AND the mask. 10.0.0.1 could be one network of 16 million hosts, or thousands of small ones. The mask decides." },
+  { wrong: "Class A, B and C still control how networks are assigned.", right: "Classful addressing is legacy. Real networks use CIDR, where any prefix length is allowed. Classes are still useful vocabulary and for spotting private ranges." },
+  { wrong: "127.0.0.0/8 is the private range for Class A.", right: "10.0.0.0/8 is the private range. 127.0.0.0/8 is loopback: the device talking to itself." },
+  { wrong: "IPv6 is just IPv4 with more addresses.", right: "IPv6 is a different protocol: 128-bit addresses, hexadecimal, no broadcast (multicast and anycast instead), and a simpler header." },
+  { wrong: "The first and last address of a subnet are usable.", right: "The first is the network address and the last is the broadcast address. Neither is given to a host on a normal subnet." },
+  { wrong: "VLSM wastes more than FLSM.", right: "FLSM makes every subnet the same size, which wastes addresses when needs differ. VLSM gives each subnet what it needs, so it saves addresses." },
+  { wrong: "Block size equals the mask value.", right: "Block size = 256 minus the mask value in the interesting octet. A /26 has mask value 192, so the block size is 64, not 192." },
+  { wrong: "Two devices with the same IP just share it.", right: "It causes an IP conflict. Traffic may go to the wrong device or fail, so connectivity becomes intermittent for one or both hosts." },
+  { wrong: "Any private IP can talk to the internet directly.", right: "Private addresses are not routable on the internet. NAT must translate them to a public address first." },
+  { wrong: "IANA hands IP addresses straight to end customers.", right: "IANA gives large blocks to the five RIRs (ARIN, RIPE NCC, APNIC, LACNIC, AFRINIC). RIRs give blocks to ISPs, and ISPs give addresses to customers." },
+  { wrong: "A /24 has 256 hosts.", right: "A /24 has 256 addresses but 254 usable hosts, because the network and broadcast addresses are not assigned to hosts." },
+];
+
+function MythsSection() {
+  const [open, setOpen] = useState<Set<number>>(new Set());
+  const toggle = (i: number) =>
+    setOpen((s) => {
+      const n = new Set(s);
+      if (n.has(i)) n.delete(i);
+      else n.add(i);
+      return n;
+    });
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-xs text-muted-foreground">Tap a card to flip it from the wrong belief to the truth.</p>
+        <Button size="sm" variant="outline" onClick={() => setOpen(open.size === MYTHS.length ? new Set() : new Set(MYTHS.map((_, i) => i)))}>
+          {open.size === MYTHS.length ? "Hide all" : "Show all"}
+        </Button>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {MYTHS.map((m, i) => {
+          const shown = open.has(i);
+          return (
+            <button key={i} type="button" onClick={() => toggle(i)} className="rounded-xl border bg-background p-4 text-left transition-colors hover:border-primary/50" style={{ borderColor: shown ? GREEN : undefined }}>
+              <p className="text-xs font-semibold" style={{ color: RED }}>✕ Wrong</p>
+              <p className="mt-1 text-sm font-medium">{m.wrong}</p>
+              {shown ? (
+                <div className="n5-fade mt-3 border-t pt-3">
+                  <p className="text-xs font-semibold" style={{ color: GREEN }}>✓ Right</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{m.right}</p>
+                </div>
+              ) : (
+                <p className="mt-3 text-[11px] text-muted-foreground">Tap to see the truth</p>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── 8 · interview prep ───────────────────────── */
+
+const QA: { q: string; a: string[] }[] = [
+  { q: "What is an IP address, and why does it have two sides?", a: ["It is a logical address assigned to a device so other devices can find it.", "Every address has a network side (which network) and a host side (which device on that network).", "The subnet mask draws the line between them."] },
+  { q: "Compare IPv4 and IPv6.", a: ["IPv4 is 32 bits, written as four decimal octets, about 4.3 billion addresses.", "IPv6 is 128 bits, written in hexadecimal as 8 fields of 16 bits.", "IPv6 also removes broadcast (it uses multicast and anycast) and has a simpler header."] },
+  { q: "Name the IP address classes and their ranges.", a: ["A: 1 to 126, default mask /8.", "B: 128 to 191, default mask /16.", "C: 192 to 223, default mask /24.", "D: 224 to 239, multicast. E: 240 to 255, reserved for research.", "127 is skipped because it is loopback."] },
+  { q: "What are the private IP ranges?", a: ["10.0.0.0/8 (inside Class A).", "172.16.0.0/12, which is 172.16.0.0 to 172.31.255.255 (inside Class B).", "192.168.0.0/16 (inside Class C).", "They are not routable on the internet and need NAT to reach it."] },
+  { q: "What is 127.0.0.0/8?", a: ["The loopback range: the device talking to itself.", "127.0.0.1 is the classic address, used to test the local TCP/IP stack.", "It is not the private range. 10.0.0.0/8 is."] },
+  { q: "What is 169.254.0.0/16?", a: ["The link-local range, also called APIPA.", "A host gives itself an address from it when DHCP fails. Seeing one usually means the DHCP server is unreachable."] },
+  { q: "Why does subnetting exist?", a: ["To break a large network into smaller ones, each with its own broadcast domain.", "To match the size of each network to the real need and avoid wasting addresses.", "To create a clear boundary between local and remote traffic through a default gateway."] },
+  { q: "Explain the difference between FLSM and VLSM.", a: ["FLSM (Fixed Length Subnet Mask): every subnet is the same size.", "VLSM (Variable Length Subnet Mask): each subnet gets exactly the size it needs.", "VLSM saves addresses. FLSM is simpler but wasteful when needs differ."] },
+  { q: "How do you quickly find the network and broadcast of an address?", a: ["Convert the prefix to a dotted mask, for example /26 = 255.255.255.192.", "Find the interesting octet and calculate block size = 256 − mask value.", "Subnets start at multiples of the block size. The network is the start of the block. The broadcast is the next block start minus one."] },
+  { q: "For 192.168.10.77/26, what are the network and broadcast?", a: ["/26 gives mask 255.255.255.192 and block size 64.", "Subnets start at .0, .64, .128, .192. The address .77 falls in the .64 block.", "Network: 192.168.10.64. Broadcast: 192.168.10.127. Usable: .65 to .126, which is 62 hosts."] },
+  { q: "Why are two addresses reserved in every subnet?", a: ["The first is the network address: all host bits are 0.", "The last is the broadcast address: all host bits are 1.", "Neither is given to a host, which is why usable hosts = 2^(host bits) − 2. (/31 and /32 are special cases.)"] },
+  { q: "How many hosts do you need a /27 for 25 devices?", a: ["25 + 2 = 27, and the next power of two is 32 = 2^5, so 5 host bits.", "32 − 5 = /27, which gives 30 usable hosts."] },
+  { q: "What is IANA, and how does allocation work?", a: ["IANA (Internet Assigned Numbers Authority) coordinates IP addresses, AS numbers and protocol parameters at the top level.", "Blocks flow from IANA to the five RIRs, then to ISPs, then to customers. India falls under APNIC.", "This keeps the global address space consistent."] },
+  { q: "What happens if two devices have the same IP?", a: ["An IP conflict. Traffic can go to the wrong device or be lost.", "Symptoms are usually intermittent connectivity, not a clean failure, which makes it tricky to diagnose.", "Check with arp -a (look for the same IP with different MACs), the DHCP lease logs, and the OS conflict warning."] },
+];
+
+function InterviewSection() {
+  const [open, setOpen] = useState<number | null>(0);
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">Your 30-second answer</p>
+        <p className="mt-2 text-xs leading-5 text-muted-foreground">
+          An IP address is a logical address with two sides: a network side and a host side. The subnet mask draws the line
+          between them. IPv4 is 32 bits written as four decimal octets. IPv6 is 128 bits written in hexadecimal. Classful
+          addressing splits IPv4 into five classes: A, B and C are unicast, D is multicast, E is research. Each of A, B and C
+          has a private slice (10/8, 172.16/12, 192.168/16) that is not routable on the public internet. Subnetting divides a
+          big network into smaller ones to control broadcast size and avoid wasting addresses. FLSM uses equal-size subnets,
+          VLSM matches size to need. Every subnet has a network address, a broadcast address, and a usable host range strictly
+          between them.
+        </p>
+        <p className="mt-2 text-[11px] text-muted-foreground">Practice it out loud until it flows without notes.</p>
+      </Panel>
+
+      <div className="flex flex-col gap-2">
+        {QA.map((x, i) => {
+          const isOpen = open === i;
+          return (
+            <div key={x.q} className="rounded-xl border bg-background">
+              <button type="button" onClick={() => setOpen(isOpen ? null : i)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left" aria-expanded={isOpen}>
+                <span className="text-sm font-medium">
+                  <span className="mr-2 font-mono text-xs text-muted-foreground">{i + 1}.</span>
+                  {x.q}
+                </span>
+                <span className="text-muted-foreground">{isOpen ? "−" : "+"}</span>
+              </button>
+              {isOpen && (
+                <ul className="n5-fade list-disc space-y-1 border-t px-8 py-3 text-xs leading-5 text-muted-foreground">
+                  {x.a.map((l) => <li key={l}>{l}</li>)}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <Tip title="Rule of thumb">Read the mask, find the block size, locate the block, derive network and broadcast. Usable = addresses − 2.</Tip>
+    </div>
+  );
+}
+
+/* ───────────────────────── main component ───────────────────────── */
 
 export function IpAddressingSummary() {
   const [tab, setTab] = useState<TabId>("big");
 
   return (
-    <div className="ip-root mx-auto w-full min-w-0 max-w-4xl overflow-x-hidden px-4 py-8 sm:px-6">
-      <style>{IP_CSS}</style>
+    <Card className="mt-8 border-primary/20 bg-primary/[0.02]">
+      <style>{`
+        @keyframes n5-fade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+        .n5-fade { animation: n5-fade .5s ease-out both; }
+        @media (prefers-reduced-motion: reduce) { .n5-fade { animation: none; opacity: 1; } }
+      `}</style>
 
-      <header className="mb-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-          Topic 05 · Summary
-        </p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
-          IP Addressing & Subnetting
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Logical addressing, CIDR notation, and the binary math behind
-          efficient networks — with a live subnet visualizer.
-        </p>
-      </header>
+      <CardHeader>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-base">Topic 05: IP addressing and subnetting</CardTitle>
+            <CardDescription className="mt-1">
+              Addresses, masks, classes and subnets. Eight short sections, tap through them in any order.
+            </CardDescription>
+          </div>
+          <Badge variant="secondary">Interactive</Badge>
+        </div>
+      </CardHeader>
 
-      <div
-        role="tablist"
-        aria-label="IP addressing sections"
-        className="mb-6 flex gap-1 overflow-x-auto rounded-xl border bg-card p-1"
-      >
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={cx(
-              "shrink-0 rounded-lg px-3.5 py-2 text-sm outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring",
-              tab === t.id
-                ? "bg-[var(--accent)] font-medium text-white"
-                : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground",
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <CardContent className="flex flex-col gap-5">
+        <div className="flex flex-wrap gap-2" role="tablist">
+          {TABS.map((t) => (
+            <Pick key={t.id} active={tab === t.id} onClick={() => setTab(t.id)}>{t.label}</Pick>
+          ))}
+        </div>
 
-      <div role="tabpanel" className="min-w-0">
-        {tab === "big" && <BigPictureTab />}
-        {tab === "cheat" && <CheatSheetTab />}
-        {tab === "how" && <HowItWorksTab />}
-        {tab === "misconceptions" && <MisconceptionsTab />}
-        {tab === "visualizer" && <SubnetVisualizerTab />}
-        {tab === "prep" && <InterviewPrepTab />}
-      </div>
-    </div>
+        <div key={tab}>
+          {tab === "big" && <BigSection />}
+          {tab === "classes" && <ClassesSection />}
+          {tab === "powers" && <PowersSection />}
+          {tab === "viz" && <VizSection />}
+          {tab === "steps" && <StepsSection />}
+          {tab === "vlsm" && <VlsmSection />}
+          {tab === "myths" && <MythsSection />}
+          {tab === "interview" && <InterviewSection />}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
