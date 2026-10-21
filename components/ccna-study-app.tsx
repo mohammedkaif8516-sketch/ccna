@@ -2,7 +2,16 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCompletedTopics, progressKey } from "@/lib/use-completed";
-import { useMemo, useState, useTransition, type ComponentType } from "react";
+import {
+  useMemo,
+  useState,
+  useTransition,
+  type ComponentType,
+  useRef,
+  useEffect,
+  useCallback,
+  useId,
+} from "react";
 import {
   Accordion,
   AccordionContent,
@@ -43,6 +52,10 @@ import {
 } from "@/lib/topics";
 import {
   Brackets,
+  X,
+  CornerDownLeft,
+  ArrowUp,
+  ArrowDown,
   Terminal,
   Route,
   Cable,
@@ -60,6 +73,7 @@ import {
   ArrowLeft,
   ArrowRightLeft,
   BookOpen,
+  Search,
 } from "lucide-react";
 import { quizById } from "@/lib/quizzes";
 import { QuizView } from "@/components/quiz-view";
@@ -84,16 +98,10 @@ import { TransportLayerSummary } from "@/components/transport-layer-summary";
 import { RouterFundamentalsSummary } from "@/components/router-fundamentals-summary";
 import { RoutingSummary } from "@/components/routing-summary";
 import { PacketFlowSummary } from "@/components/packet-flow-summary";
-
-import { useEffect, useRef } from "react";
 import { useTheme } from "@/lib/use-theme";
 
 // ─────────────────────────────────────────────────────────────
 // Summary pages
-// A topic gets a "Summary" row in the sidebar (right after its quiz) when
-// its entry in topics.ts has  summary: "<key>"  and that key exists here.
-// To add one later: build the component, import it, add one line below,
-// then set `summary: "<key>"` on the topic in topics.ts.
 // ─────────────────────────────────────────────────────────────
 const SUMMARY_VIEWS: Record<string, ComponentType> = {
   intro: IntroNetworkingSummary,
@@ -110,7 +118,6 @@ const SUMMARY_VIEWS: Record<string, ComponentType> = {
 // ─────────────────────────────────────────────────────────────
 // Helper: convert dotted IP to 32-bit uint and back
 // ─────────────────────────────────────────────────────────────
-
 function ipToInt(ip: string): number | null {
   const parts = ip.trim().split(".");
   if (parts.length !== 4) return null;
@@ -148,6 +155,15 @@ type Block = {
   waste: number;
 };
 
+type SearchItem = {
+  topic: Topic;
+  subtopic: Subtopic;
+  haystack: string;
+  title: string;
+};
+
+const MAX_RESULTS = 10;
+
 export function SubnetPlanner() {
   const [baseIp, setBaseIp] = useState("192.168.10.0");
   const [baseCidr, setBaseCidr] = useState("24");
@@ -175,10 +191,7 @@ export function SubnetPlanner() {
     const parentNetwork = (baseInt & baseMask) >>> 0;
     const parentSize = 2 ** (32 - basePrefix);
 
-    // Sort largest-first for both modes
     const sorted = [...needs].sort((a, b) => b - a);
-
-    // FLSM: everyone gets the prefix the LARGEST requirement needs
     const uniformPrefix = mode === "flsm" ? prefixForHosts(sorted[0]) : null;
 
     const blocks: Block[] = [];
@@ -260,7 +273,6 @@ export function SubnetPlanner() {
         </div>
       </CardHeader>
       <CardContent>
-        {/* FLSM / VLSM mode switch */}
         <div className="mb-5 inline-flex rounded-lg border bg-background p-1">
           <button
             type="button"
@@ -332,7 +344,6 @@ export function SubnetPlanner() {
 
         {!result.error && "blocks" in result && (
           <div className="mt-6 flex flex-col gap-6">
-            {/* Mode summary line */}
             <p className="text-xs text-muted-foreground">
               {mode === "flsm" ? (
                 <>
@@ -349,7 +360,6 @@ export function SubnetPlanner() {
               )}
             </p>
 
-            {/* Horizontal subnet line */}
             <VerticalSubnetLine
               blocks={result.blocks}
               parentNetwork={result.parentNetwork}
@@ -360,7 +370,6 @@ export function SubnetPlanner() {
               intToIp={intToIp}
             />
 
-            {/* Table */}
             <div className="overflow-x-auto rounded-xl border">
               <table className="w-full text-xs">
                 <thead className="bg-muted/50">
@@ -508,7 +517,6 @@ function groupSubtopicsWithQuiz(
 ): GroupBlock[] {
   const groups: GroupBlock[] = [];
 
-  // Merge by name regardless of position. Map preserves insertion order.
   const byName = new Map<string | null, GroupBlock>();
   for (const s of subtopics) {
     const name = s.group ?? null;
@@ -516,12 +524,11 @@ function groupSubtopicsWithQuiz(
     if (!group) {
       group = { name, items: [] };
       byName.set(name, group);
-      groups.push(group); // insertion order = first appearance
+      groups.push(group);
     }
     group.items.push(s);
   }
 
-  // Attach group quizzes
   for (const group of groups) {
     if (!group.name) continue;
     const q = quizFor(topicSlug, group.name);
@@ -550,6 +557,397 @@ function groupSubtopicsWithQuiz(
   return groups;
 }
 
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function Highlight({ text, words }: { text: string; words: string[] }) {
+  if (words.length === 0) return <>{text}</>;
+  const re = new RegExp(`(${words.map(escapeRegExp).join("|")})`, "gi");
+  const parts = text.split(re);
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <mark
+            key={i}
+            className="rounded-[2px] bg-primary/15 font-semibold text-foreground"
+          >
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
+function Kbd({ children }: { children: React.ReactNode }) {
+  return (
+    <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border bg-muted px-1 font-sans text-[11px] font-medium text-muted-foreground">
+      {children}
+    </kbd>
+  );
+}
+
+function GlobalSearch({
+  onSelect,
+}: {
+  onSelect: (topic: Topic, subtopic: Subtopic) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isMac, setIsMac] = useState(false);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const listId = useId();
+
+  useEffect(() => {
+    setIsMac(/Mac|iPhone|iPad/i.test(navigator.platform));
+  }, []);
+
+  // Global shortcuts: Ctrl/⌘+K and "/"
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null;
+      const typing =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+        if (query.trim()) setIsOpen(true);
+      } else if (e.key === "/" && !typing) {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [query]);
+
+  // Close on outside click
+  useEffect(() => {
+    function onDown(e: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  // Index built once
+  const index = useMemo<SearchItem[]>(
+    () =>
+      topics.flatMap((topic) =>
+        topic.subtopics.map((subtopic) => ({
+          topic,
+          subtopic,
+          title: subtopic.title.toLowerCase(),
+          haystack: [
+            topic.slug,
+            topic.title,
+            subtopic.slug,
+            subtopic.title,
+            subtopic.group || "",
+          ]
+            .join(" ")
+            .toLowerCase(),
+        })),
+      ),
+    [],
+  );
+
+  const words = useMemo(
+    () => query.trim().toLowerCase().split(/\s+/).filter(Boolean),
+    [query],
+  );
+
+  // Ranked results (best matches first)
+  const results = useMemo(() => {
+    if (words.length === 0) return [];
+    const phrase = words.join(" ");
+
+    return index
+      .filter((item) => words.every((w) => item.haystack.includes(w)))
+      .map((item) => {
+        let score = 0;
+        if (item.title === phrase) score += 100;
+        if (item.title.startsWith(phrase)) score += 40;
+        if (item.title.includes(phrase)) score += 20;
+        // Each word that appears in the subtopic title counts for more
+        // than a match buried in the slug or group.
+        for (const w of words) {
+          if (item.title.includes(w)) score += 5;
+          if (new RegExp(`\\b${escapeRegExp(w)}`).test(item.title)) score += 3;
+        }
+        return { ...item, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_RESULTS);
+  }, [index, words]);
+
+  // Group by topic while keeping a flat index for keyboard navigation
+  const groups = useMemo(() => {
+    const map = new Map<string, { topic: Topic; items: typeof results }>();
+    for (const r of results) {
+      const g = map.get(r.topic.slug);
+      if (g) g.items.push(r);
+      else map.set(r.topic.slug, { topic: r.topic, items: [r] });
+    }
+    let i = 0;
+    return [...map.values()].map((g) => ({
+      topic: g.topic,
+      items: g.items.map((r) => ({ ...r, flatIndex: i++ })),
+    }));
+  }, [results]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [results]);
+
+  // Keep the active row visible when navigating by keyboard
+  useEffect(() => {
+    if (!isOpen) return;
+    listRef.current
+      ?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`)
+      ?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex, isOpen]);
+
+  const commit = useCallback(
+    (topic: Topic, subtopic: Subtopic) => {
+      onSelect(topic, subtopic);
+      setQuery("");
+      setIsOpen(false);
+      inputRef.current?.blur();
+    },
+    [onSelect],
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      if (query) {
+        setQuery("");
+      } else {
+        setIsOpen(false);
+        inputRef.current?.blur();
+      }
+      return;
+    }
+    if (results.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setIsOpen(true);
+      setActiveIndex((p) => (p + 1) % results.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setIsOpen(true);
+      setActiveIndex((p) => (p - 1 + results.length) % results.length);
+    } else if (e.key === "Enter" && isOpen) {
+      e.preventDefault();
+      const r = results[activeIndex];
+      if (r) commit(r.topic, r.subtopic);
+    }
+  };
+
+  const showPanel = isOpen && query.trim() !== "";
+  const activeId = results[activeIndex]
+    ? `${listId}-opt-${activeIndex}`
+    : undefined;
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative w-full max-w-[220px] sm:w-72 sm:max-w-none"
+    >
+      {/* Input */}
+      <div className="group relative">
+        <Search
+          aria-hidden
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-foreground"
+        />
+        <Input
+          ref={inputRef}
+          role="combobox"
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => {
+            if (query.trim()) setIsOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder="Search topics"
+          aria-label="Search topics"
+          aria-expanded={showPanel}
+          aria-controls={listId}
+          aria-activedescendant={activeId}
+          aria-autocomplete="list"
+          autoComplete="off"
+          spellCheck={false}
+          className="h-9 rounded-sm bg-muted/50 pl-9 pr-16 text-sm shadow-none transition-all focus-visible:bg-background focus-visible:shadow-sm"
+        />
+
+        <div className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">
+          {query ? (
+            <button
+              type="button"
+              aria-label="Clear search"
+              onClick={() => {
+                setQuery("");
+                inputRef.current?.focus();
+              }}
+              className="flex size-5 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <X className="size-3.5" />
+            </button>
+          ) : (
+            <span className="hidden items-center gap-0.5 sm:flex" aria-hidden>
+              <Kbd>{isMac ? "⌘" : "Ctrl"}</Kbd>
+              <Kbd>K</Kbd>
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Results panel */}
+      {showPanel && (
+        <div className="fixed inset-x-3 top-14 z-50 overflow-hidden rounded-sm border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[400px]">
+          {results.length > 0 ? (
+            <>
+              <ul
+                ref={listRef}
+                id={listId}
+                role="listbox"
+                aria-label="Search results"
+                className="max-h-[min(60vh,360px)] overflow-y-auto p-1.5"
+              >
+                {groups.map((group) => (
+                  <li
+                    key={group.topic.slug}
+                    role="presentation"
+                    className="mb-1 last:mb-0"
+                  >
+                    <div className="px-2.5 pb-1 pt-2 text-xs font-medium text-muted-foreground">
+                      <Highlight text={group.topic.title} words={words} />
+                    </div>
+                    <ul role="presentation">
+                      {group.items.map((r) => {
+                        const active = r.flatIndex === activeIndex;
+                        return (
+                          <li
+                            key={`${r.topic.slug}-${r.subtopic.slug}`}
+                            id={`${listId}-opt-${r.flatIndex}`}
+                            data-index={r.flatIndex}
+                            role="option"
+                            aria-selected={active}
+                          >
+                            <button
+                              type="button"
+                              tabIndex={-1}
+                              onMouseEnter={() => setActiveIndex(r.flatIndex)}
+                              onClick={() => commit(r.topic, r.subtopic)}
+                              className={`flex w-full items-center gap-2 rounded-sm px-2.5 py-2 text-left text-sm transition-colors ${
+                                active
+                                  ? "bg-foreground/[0.06] text-foreground"
+                                  : "text-foreground/90"
+                              }`}
+                            >
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate font-medium">
+                                  <Highlight
+                                    text={r.subtopic.title}
+                                    words={words}
+                                  />
+                                </span>
+                                {r.subtopic.group && (
+                                  <span className="block truncate text-xs text-muted-foreground">
+                                    <Highlight
+                                      text={r.subtopic.group}
+                                      words={words}
+                                    />
+                                  </span>
+                                )}
+                              </span>
+                              <CornerDownLeft
+                                aria-hidden
+                                className={`size-3.5 shrink-0 text-muted-foreground transition-opacity ${
+                                  active ? "opacity-100" : "opacity-0"
+                                }`}
+                              />
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Footer: keyboard hints (desktop only) */}
+              <div className="hidden items-center justify-between border-t bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex">
+                <span className="flex items-center gap-3">
+                  <span className="flex items-center gap-1">
+                    <Kbd>
+                      <ArrowUp className="size-3" />
+                    </Kbd>
+                    <Kbd>
+                      <ArrowDown className="size-3" />
+                    </Kbd>
+                    Navigate
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Kbd>
+                      <CornerDownLeft className="size-3" />
+                    </Kbd>
+                    Open
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Kbd>Esc</Kbd>
+                    Close
+                  </span>
+                </span>
+                <span aria-live="polite">
+                  {results.length} {results.length === 1 ? "result" : "results"}
+                </span>
+              </div>
+            </>
+          ) : (
+            <div
+              className="flex flex-col items-center gap-1 px-6 py-8 text-center"
+              role="status"
+            >
+              <div className="mb-1 flex size-10 items-center justify-center rounded-full bg-muted">
+                <Search className="size-4 text-muted-foreground" />
+              </div>
+              <p className="text-sm font-medium">
+                No topics match “{query.trim()}”
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Try a shorter term or an abbreviation, like “ospf” or “vlan”.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Sidebar({
   selected,
   selectedQuizId,
@@ -563,7 +961,6 @@ function Sidebar({
 }: {
   selected?: string;
   selectedQuizId?: string;
-  /** Slug of the topic whose Summary page is open */
   selectedSummary?: string;
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
   onSelectQuiz: (quizId: string) => void;
@@ -575,7 +972,6 @@ function Sidebar({
   const activeRef = useRef<HTMLButtonElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  // Find which topic contains the currently selected subtopic / summary
   const topicWithActive = useMemo(() => {
     if (selectedSummary) return selectedSummary;
     if (!selected) return null;
@@ -585,12 +981,10 @@ function Sidebar({
     return null;
   }, [selected, selectedSummary]);
 
-  // Controlled accordion state — all topics open by default
   const [openTopics, setOpenTopics] = useState<string[]>(() =>
     topics.map((t) => t.slug),
   );
 
-  // Whenever the active topic changes, make sure it's expanded
   useEffect(() => {
     if (!topicWithActive) return;
     setOpenTopics((prev) =>
@@ -598,10 +992,8 @@ function Sidebar({
     );
   }, [topicWithActive]);
 
-  // Whatever is currently open in the main pane (subtopic, quiz or summary)
   const activeKey = selected ?? selectedQuizId ?? selectedSummary;
 
-  // After mount / when active changes / when topics expand → scroll active into view
   useEffect(() => {
     if (!mobile) return;
     if (!activeKey) return;
@@ -615,8 +1007,6 @@ function Sidebar({
       attempts++;
       const el = activeRef.current;
       if (el && el.offsetParent !== null) {
-        // The target is now in the DOM and visible. Scroll it to the middle
-        // of the container using its bounding box so nested offsets are correct.
         const elRect = el.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         const target =
@@ -772,7 +1162,6 @@ function Sidebar({
                         },
                       )}
 
-                      {/* Summary — sits after the quiz, only for topics that have one */}
                       {hasSummary && (
                         <button
                           ref={isSummaryActive ? activeRef : null}
@@ -811,7 +1200,6 @@ type DiagramSlotProps = {
 };
 
 function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
-  // Placeholder mode — diagram is still just a string caption in topics.ts
   if (diagram.placeholder || !diagram.src) {
     return (
       <div className="flex min-h-32 flex-col items-center justify-center rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
@@ -828,7 +1216,6 @@ function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
     );
   }
 
-  // Real image mode
   return (
     <figure
       className={
@@ -1068,7 +1455,6 @@ function Dashboard({
   onSelectVisit: (entry: VisitEntry) => void;
   onClearHistory: () => void;
 }) {
-  // First visit — no history yet
   if (visitHistory.length === 0) {
     return (
       <div className="flex h-[calc(100vh-4rem)] w-full flex-col items-center justify-center bg-background px-6">
@@ -1088,7 +1474,6 @@ function Dashboard({
     );
   }
 
-  // There's history — show the animated tree
   return (
     <div className="glass-canvas min-h-full w-full px-4 py-10 sm:px-6 lg:px-10">
       <div className="relative z-10 mx-auto w-full max-w-2xl">
@@ -1119,14 +1504,11 @@ export default function CcnaStudyApp() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Read topic + sub from the URL on every render
-  // 1. Read params from URL
   const topicSlug = searchParams.get("topic");
   const subSlug = searchParams.get("sub");
   const quizParam = searchParams.get("quiz");
   const summaryParam = searchParams.get("summary");
 
-  // 2. Resolve the normal subtopic (unchanged from before)
   const selected = useMemo(() => {
     if (!topicSlug || !subSlug) return null;
     const topic = topics.find((t) => t.slug === topicSlug);
@@ -1136,13 +1518,11 @@ export default function CcnaStudyApp() {
     return { topic, subtopic };
   }, [topicSlug, subSlug]);
 
-  // 3. Resolve the quiz
   const selectedQuiz = useMemo(() => {
     if (!quizParam) return null;
     return quizById(quizParam) ?? null;
   }, [quizParam]);
 
-  // 4. Resolve the summary page (?summary=<topic slug>)
   const selectedSummary = useMemo(() => {
     if (!summaryParam) return null;
     const topic = topics.find((t) => t.slug === summaryParam);
@@ -1153,12 +1533,10 @@ export default function CcnaStudyApp() {
     ? SUMMARY_VIEWS[selectedSummary.viewKey]
     : null;
 
-  // Start every summary at the top of the page
   useEffect(() => {
     mainRef.current?.scrollTo({ top: 0 });
   }, [summaryParam]);
 
-  // 5. Navigation actions
   const selectQuiz = (quizId: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("quiz", quizId);
@@ -1266,7 +1644,9 @@ export default function CcnaStudyApp() {
                 />
               </SheetContent>
             </Sheet>
-            <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
+
+            {/* Breadcrumb navigation - hidden on very small screens to save space */}
+            <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex shrink-0">
               <button
                 type="button"
                 onClick={goHome}
@@ -1285,7 +1665,7 @@ export default function CcnaStudyApp() {
                     {selected.topic.title}
                   </button>
                   <ChevronRight className="size-3" />
-                  <span className="text-foreground">
+                  <span className="truncate max-w-[200px] text-foreground">
                     {selected.subtopic.title}
                   </span>
                 </>
@@ -1305,7 +1685,10 @@ export default function CcnaStudyApp() {
                 </>
               )}
             </div>
+
+            {/* Right side: Search + Theme toggle */}
             <div className="ml-auto flex items-center gap-2">
+              <GlobalSearch onSelect={select} />
               <Button
                 variant="ghost"
                 size="icon"
@@ -1396,7 +1779,6 @@ export default function CcnaStudyApp() {
                 {current.diagrams && (
                   <div className="mt-8 flex flex-col gap-4">
                     {(() => {
-                      // Normalize: strings become placeholder entries, objects pass through.
                       const normalized = current.diagrams.map((d, i) =>
                         typeof d === "string"
                           ? {
@@ -1409,9 +1791,7 @@ export default function CcnaStudyApp() {
                           : { ...d, _key: d.src },
                       );
 
-                      // If there's only ONE diagram in the subtopic, treat it as wide by default.
                       const onlyOne = normalized.length === 1;
-
                       const isWide = (d: { src: string }) =>
                         onlyOne || d.src.includes("_wide");
 
