@@ -98,6 +98,9 @@ import { TransportLayerSummary } from "@/components/transport-layer-summary";
 import { RouterFundamentalsSummary } from "@/components/router-fundamentals-summary";
 import { RoutingSummary } from "@/components/routing-summary";
 import { PacketFlowSummary } from "@/components/packet-flow-summary";
+import { OsiModel } from "@/components/extra-example";
+import { DnsResolution } from "@/components/extra-example-2";
+import {TcpHttp} from "@/components/extra-example-3";
 import { useTheme } from "@/lib/use-theme";
 
 // ─────────────────────────────────────────────────────────────
@@ -113,6 +116,17 @@ const SUMMARY_VIEWS: Record<string, ComponentType> = {
   router: RouterFundamentalsSummary,
   routing: RoutingSummary,
   packetflow: PacketFlowSummary,
+};
+
+const ExtraPlaceholder = () => (
+  <div className="p-4 border rounded-xl mt-6">Extra content coming soon...</div>
+);
+
+// Mapping of subtopic slugs to their Extra components
+const EXTRA_VIEWS: Record<string, ComponentType> = {
+  "physical-layer-binary-format-physical-transmission": OsiModel,
+  "network-architectures-client-server-mainframe-terminal-peer-to-peer" :DnsResolution,
+  "protocol-numbers-and-port-ranges-well-known-registered-ephemeral":TcpHttp,
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -955,16 +969,23 @@ function Sidebar({
   onSelect,
   onSelectQuiz,
   onSelectSummary,
+  onSelectExtra,
+  selectedExtra,
+  openedExtras,
   completed,
   bestFor,
   mobile = false,
 }: {
   selected?: string;
   selectedQuizId?: string;
+  /** Slug of the topic whose Summary page is open */
   selectedSummary?: string;
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
   onSelectQuiz: (quizId: string) => void;
   onSelectSummary: (topicSlug: string) => void;
+  onSelectExtra: (topic: Topic, subtopic: Subtopic) => void;
+  selectedExtra?: string;
+  openedExtras: Set<string>;
   completed: Set<string>;
   bestFor: (quizId: string) => QuizScore | undefined;
   mobile?: boolean;
@@ -1106,33 +1127,75 @@ function Sidebar({
                               )}
 
                               {group.items.map((subtopic, index) => {
-                                const isActive = selected === subtopic.slug;
+                                const isExtraActive =
+                                  selectedExtra === subtopic.slug;
+                                const isActive =
+                                  selected === subtopic.slug && !isExtraActive;
                                 const isDone = completed.has(
                                   progressKey(topic.slug, subtopic.slug),
                                 );
+
                                 return (
-                                  <button
-                                    key={`${subtopic.slug}-${index}`}
-                                    ref={isActive ? activeRef : null}
-                                    onClick={() => onSelect(topic, subtopic)}
-                                    className={`flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
-                                      isActive
-                                        ? "bg-primary/10 font-medium text-primary"
-                                        : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground"
-                                    }`}
-                                  >
-                                    <ChevronRight
-                                      className={`mt-0.5 size-3 shrink-0 ${
-                                        isActive ? "text-primary" : "opacity-50"
-                                      }`}
-                                    />
-                                    <span className="flex-1">
-                                      {subtopic.title}
-                                    </span>
-                                    {isDone && (
-                                      <Check className="mt-0.5 size-3 shrink-0 text-primary" />
+                                  <div key={`${subtopic.slug}-${index}`}>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        ref={
+                                          selected === subtopic.slug
+                                            ? activeRef
+                                            : null
+                                        }
+                                        onClick={() =>
+                                          onSelect(topic, subtopic)
+                                        }
+                                        className={`flex flex-1 items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+                                          isActive
+                                            ? "bg-primary/10 font-medium text-primary"
+                                            : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground"
+                                        }`}
+                                      >
+                                        <ChevronRight
+                                          className={`mt-0.5 size-3 shrink-0 ${
+                                            isActive
+                                              ? "text-primary"
+                                              : "opacity-50"
+                                          }`}
+                                        />
+                                        <span className="flex-1">
+                                          {subtopic.title}
+                                        </span>
+                                      </button>
+                                      {isDone && (
+                                        <Check className="mr-1 size-3 shrink-0 text-primary" />
+                                      )}
+                                    </div>
+
+                                    {/* Only exists while the Extra page is open */}
+                                    {openedExtras.has(subtopic.slug) && (
+                                      <button
+                                        onClick={() =>
+                                          onSelectExtra(topic, subtopic)
+                                        }
+                                        className={`mt-0.5 flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+                                          isExtraActive
+                                            ? "bg-primary/10 font-medium text-primary"
+                                            : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground"
+                                        }`}
+                                      >
+                                        <span
+                                          className={`mt-px flex size-3 shrink-0 items-center justify-center text-[10px] font-bold leading-none ${
+                                            isExtraActive
+                                              ? "text-primary"
+                                              : "opacity-60"
+                                          }`}
+                                        >
+                                          E
+                                        </span>
+                                        <span className="flex-1">
+                                          {subtopic.title}-Extra
+                                        </span>
+                                      </button>
                                     )}
-                                  </button>
+                                  </div>
                                 );
                               })}
 
@@ -1508,6 +1571,8 @@ export default function CcnaStudyApp() {
   const subSlug = searchParams.get("sub");
   const quizParam = searchParams.get("quiz");
   const summaryParam = searchParams.get("summary");
+  const [openedExtras, setOpenedExtras] = useState<Set<string>>(new Set());
+  const extraParam = searchParams.get("extra");
 
   const selected = useMemo(() => {
     if (!topicSlug || !subSlug) return null;
@@ -1529,6 +1594,17 @@ export default function CcnaStudyApp() {
     if (!topic?.summary || !SUMMARY_VIEWS[topic.summary]) return null;
     return { topic, viewKey: topic.summary };
   }, [summaryParam]);
+
+  const selectedExtra = useMemo(() => {
+    if (!extraParam) return null;
+    const topic = topics.find((t) => t.slug === topicSlug);
+    if (!topic) return null;
+    const subtopic = topic.subtopics.find((s) => s.slug === subSlug);
+    if (!subtopic || !EXTRA_VIEWS[subtopic.slug]) return null;
+    return { topic, subtopic, viewKey: subtopic.slug };
+  }, [extraParam, topicSlug, subSlug]);
+
+  const ExtraView = selectedExtra ? EXTRA_VIEWS[selectedExtra.viewKey] : null;
   const SummaryView = selectedSummary
     ? SUMMARY_VIEWS[selectedSummary.viewKey]
     : null;
@@ -1537,10 +1613,29 @@ export default function CcnaStudyApp() {
     mainRef.current?.scrollTo({ top: 0 });
   }, [summaryParam]);
 
+  useEffect(() => {
+    if (!selectedExtra) return;
+    setOpenedExtras((prev) =>
+      prev.has(selectedExtra.subtopic.slug)
+        ? prev
+        : new Set(prev).add(selectedExtra.subtopic.slug),
+    );
+  }, [selectedExtra]);
+
   const selectQuiz = (quizId: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("quiz", quizId);
     params.delete("summary");
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
+    setMobileOpen(false);
+  };
+
+  const selectExtra = (topic: Topic, subtopic: Subtopic) => {
+    setOpenedExtras((prev) => new Set(prev).add(subtopic.slug));
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("extra", subtopic.slug);
     startTransition(() => {
       router.push(`?${params.toString()}`, { scroll: false });
     });
@@ -1562,6 +1657,7 @@ export default function CcnaStudyApp() {
     params.set("sub", subtopic.slug);
     params.delete("quiz");
     params.delete("summary");
+    params.delete("extra");
     recordVisit({
       slug: subtopic.slug,
       topicSlug: topic.slug,
@@ -1617,6 +1713,9 @@ export default function CcnaStudyApp() {
           onSelect={select}
           onSelectQuiz={selectQuiz}
           onSelectSummary={selectSummary}
+          onSelectExtra={selectExtra}
+          openedExtras={openedExtras}
+          selectedExtra={selectedExtra?.subtopic.slug}
           completed={completed}
           bestFor={bestFor}
         />
@@ -1638,6 +1737,9 @@ export default function CcnaStudyApp() {
                   onSelect={select}
                   onSelectQuiz={selectQuiz}
                   onSelectSummary={selectSummary}
+                  onSelectExtra={selectExtra}
+                  openedExtras={openedExtras}
+                  selectedExtra={selectedExtra?.subtopic.slug}
                   completed={completed}
                   bestFor={bestFor}
                   mobile
@@ -1710,7 +1812,26 @@ export default function CcnaStudyApp() {
                 <SquareLoader />
               </div>
             )}
-            {selectedSummary && SummaryView ? (
+            {selectedExtra && ExtraView ? (
+              <>
+                <div className="w-full px-4 pt-6 sm:px-6">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      select(selectedExtra.topic, selectedExtra.subtopic)
+                    }
+                    className="-ml-2 gap-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <ChevronRight className="size-4 rotate-180" />
+                    Back to notes
+                  </Button>
+                </div>
+                <div className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
+                  <ExtraView />
+                </div>
+              </>
+            ) : selectedSummary && SummaryView ? (
               <>
                 <div className="w-full px-4 pt-6 sm:px-6">
                   <Button
@@ -1895,6 +2016,17 @@ export default function CcnaStudyApp() {
                   >
                     <ChevronRight className="size-4" />
                   </button>
+                  {EXTRA_VIEWS[current.slug] && (
+                    <button
+                      type="button"
+                      onClick={() => selectExtra(selected.topic, current)}
+                      aria-label={`Open extra examples for ${current.title}`}
+                      title="Extra examples"
+                      className="flex w-11 shrink-0 items-center justify-center rounded-xl border bg-card text-sm font-semibold text-muted-foreground transition-colors hover:bg-[var(--accent-soft)] hover:text-foreground"
+                    >
+                      E
+                    </button>
+                  )}
 
                   <button
                     type="button"
