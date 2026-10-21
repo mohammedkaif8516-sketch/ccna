@@ -15,17 +15,48 @@ const GROUP_LENGTHS = [5, 15, 20] as const;
 const FINAL_MIN = 30;
 const GROUP_MIN = 20;
 
-const AUTO_ADVANCE_MS = 2900;
+const AUTO_ADVANCE_MS = 2000;
 
 type Phase = "choose-length" | "answering" | "done" | "review";
+
+// Unbiased random int in [0, max) using the browser's crypto RNG
+function randomInt(max: number) {
+  const buf = new Uint32Array(1);
+  const limit = Math.floor(0x100000000 / max) * max;
+  let x: number;
+  do {
+    crypto.getRandomValues(buf);
+    x = buf[0];
+  } while (x >= limit);
+  return x % max;
+}
 
 function shuffle<T>(arr: readonly T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomInt(i + 1);
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+// Options like "All of the above" must stay last or the question breaks
+const PINNED_OPTION = /\b(all|none|both|neither) of the (above|these)\b/i;
+
+// Shuffle options and remap the correct answer index
+function shuffleOptions(q: QuizQuestion): QuizQuestion {
+  const entries = q.options.map((text, i) => ({
+    text,
+    correct: i === q.answer,
+  }));
+  const free = entries.filter((e) => !PINNED_OPTION.test(e.text));
+  const pinned = entries.filter((e) => PINNED_OPTION.test(e.text));
+  const ordered = [...shuffle(free), ...pinned];
+  return {
+    ...q,
+    options: ordered.map((e) => e.text),
+    answer: ordered.findIndex((e) => e.correct),
+  };
 }
 
 export function QuizView({
@@ -54,6 +85,7 @@ export function QuizView({
   const [animKey, setAnimKey] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const seenRef = useRef<Set<string | number>>(new Set());
   const { enabled: autoNextEnabled, toggle: toggleAutoNext } = useAutoNext();
 
   const total = pool.length;
@@ -67,8 +99,37 @@ export function QuizView({
     };
   }, []);
 
+  // Reset all state when a different quiz is loaded
+  useEffect(() => {
+    if (autoAdvanceRef.current) {
+      clearTimeout(autoAdvanceRef.current);
+      autoAdvanceRef.current = null;
+    }
+    seenRef.current.clear();
+    setPhase("choose-length");
+    setLength(null);
+    setPool([]);
+    setIndex(0);
+    setPicked(null);
+    setScore(0);
+    setAnswers([]);
+  }, [quiz.id]);
+
   const start = (chosenLength: number) => {
-    const shuffled = shuffle(quiz.questions).slice(0, chosenLength);
+    // Once every question has been seen, start a fresh cycle
+    if (quiz.questions.every((x) => seenRef.current.has(x.id))) {
+      seenRef.current.clear();
+    }
+    const unseen = shuffle(
+      quiz.questions.filter((x) => !seenRef.current.has(x.id)),
+    );
+    const seen = shuffle(
+      quiz.questions.filter((x) => seenRef.current.has(x.id)),
+    );
+    const chosen = [...unseen, ...seen].slice(0, chosenLength);
+    chosen.forEach((x) => seenRef.current.add(x.id));
+    // Shuffle question order again, then shuffle each question's options
+    const shuffled = shuffle(chosen).map(shuffleOptions);
     setPool(shuffled);
     setLength(chosenLength);
     setIndex(0);
@@ -360,7 +421,7 @@ export function QuizView({
   // ─────────────────────────────────────────────────────────────
   // Answering
   // ─────────────────────────────────────────────────────────────
-    // ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
   // Answering
   // ─────────────────────────────────────────────────────────────
   return (
@@ -484,4 +545,4 @@ export function QuizView({
       </div>
     </div>
   );
-      }
+}
