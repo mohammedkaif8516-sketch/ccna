@@ -103,6 +103,7 @@ import { OsiModel } from "@/components/extra-example";
 import { DnsResolution } from "@/components/extra-example-2";
 import {TcpHttp} from "@/components/extra-example-3";
 import { useTheme } from "@/lib/use-theme";
+import { createPortal } from "react-dom";
 
 // ─────────────────────────────────────────────────────────────
 // Summary pages
@@ -620,6 +621,18 @@ function GlobalSearch({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+useEffect(() => {
+  const media = window.matchMedia("(max-width: 639px)");
+
+  const update = () => setIsMobile(media.matches);
+
+  update();
+  media.addEventListener("change", update);
+
+  return () => media.removeEventListener("change", update);
+}, []);
   const listId = useId();
 
   useEffect(() => {
@@ -652,17 +665,25 @@ function GlobalSearch({
 
   // Close on outside click
   useEffect(() => {
-    function onDown(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
+  function onDown(e: PointerEvent) {
+    const target = e.target as Node;
+
+    const insideSearch = containerRef.current?.contains(target);
+    const insideResults = listRef.current?.contains(target);
+
+    if (!insideSearch && !insideResults) {
+      setIsOpen(false);
     }
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, []);
+  }
+
+  document.addEventListener("pointerdown", onDown);
+
+  return () => {
+    document.removeEventListener("pointerdown", onDown);
+  };
+}, []);
+
+
 
   // Index built once
   const index = useMemo<SearchItem[]>(
@@ -714,6 +735,7 @@ function GlobalSearch({
       .sort((a, b) => b.score - a.score)
       .slice(0, MAX_RESULTS);
   }, [index, words]);
+
 
   // Group by topic while keeping a flat index for keyboard navigation
   const groups = useMemo(() => {
@@ -778,7 +800,113 @@ function GlobalSearch({
       if (r) commit(r.topic, r.subtopic);
     }
   };
+const resultsPanel = (
+  <div className="overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl">
+    {results.length > 0 ? (
+      <>
+        <ul
+          ref={listRef}
+          id={listId}
+          role="listbox"
+          aria-label="Search results"
+          className="max-h-[calc(100dvh-150px)] overflow-y-auto overscroll-contain p-1.5"
+        >
+          {groups.map((group) => (
+            <li
+              key={group.topic.slug}
+              role="presentation"
+              className="mb-1 last:mb-0"
+            >
+              <div className="px-2.5 pb-1 pt-2 text-xs font-medium text-muted-foreground">
+                <Highlight text={group.topic.title} words={words} />
+              </div>
 
+              <ul role="presentation">
+                {group.items.map((r) => {
+                  const active = r.flatIndex === activeIndex;
+
+                  return (
+                    <li
+                      key={`${r.topic.slug}-${r.subtopic.slug}`}
+                      id={`${listId}-opt-${r.flatIndex}`}
+                      data-index={r.flatIndex}
+                      role="option"
+                      aria-selected={active}
+                    >
+                      <button
+                        type="button"
+                        onMouseEnter={() => setActiveIndex(r.flatIndex)}
+                        onClick={() => commit(r.topic, r.subtopic)}
+                        className={`flex w-full items-center gap-2 rounded-md px-2.5 py-3 text-left text-sm ${
+                          active
+                            ? "bg-accent text-accent-foreground"
+                            : "text-foreground"
+                        }`}
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-medium">
+                            <Highlight
+                              text={r.subtopic.title}
+                              words={words}
+                            />
+                          </span>
+
+                          {r.subtopic.group && (
+                            <span className="block truncate text-xs text-muted-foreground">
+                              <Highlight
+                                text={r.subtopic.group}
+                                words={words}
+                              />
+                            </span>
+                          )}
+                        </span>
+
+                        <CornerDownLeft
+                          aria-hidden
+                          className={`size-3.5 shrink-0 text-muted-foreground ${
+                            active ? "opacity-100" : "opacity-0"
+                          }`}
+                        />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          ))}
+        </ul>
+
+        <div
+          className="hidden items-center justify-between border-t bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex"
+        >
+          <span>
+            ↑ ↓ Navigate · Enter Open · Esc Close
+          </span>
+
+          <span aria-live="polite">
+            {results.length}{" "}
+            {results.length === 1 ? "result" : "results"}
+          </span>
+        </div>
+      </>
+    ) : (
+      <div
+        className="flex flex-col items-center gap-1 px-6 py-8 text-center"
+        role="status"
+      >
+        <Search className="mb-2 size-5 text-muted-foreground" />
+
+        <p className="text-sm font-medium">
+          No topics match “{query.trim()}”
+        </p>
+
+        <p className="text-xs text-muted-foreground">
+          Try a shorter term or an abbreviation, like “ospf” or “vlan”.
+        </p>
+      </div>
+    )}
+  </div>
+)
   const showPanel = isOpen && query.trim() !== "";
   const activeId = results[activeIndex]
     ? `${listId}-opt-${activeIndex}`
@@ -841,8 +969,21 @@ function GlobalSearch({
       </div>
 
       {/* Results panel */}
-      {showPanel && (
-                <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-sm border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 sm:left-auto sm:right-0 sm:w-[400px]">
+            {showPanel &&
+        createPortal(
+          <>
+            {/* Mobile backdrop */}
+            {isMobile && (
+              <button
+                type="button"
+                aria-label="Close search"
+                onClick={() => setIsOpen(false)}
+                className="fixed inset-0 z-[9998] bg-black/50"
+              />
+            )}
+
+            {/* Search results overlay */}
+            <div className="fixed inset-x-3 top-[76px] z-[9999] mx-auto max-w-lg overflow-hidden rounded-sm border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 sm:inset-x-auto sm:right-4 sm:top-16 sm:mx-0 sm:w-[400px]">
           {results.length > 0 ? (
             <>
               <ul
@@ -957,9 +1098,11 @@ function GlobalSearch({
                 Try a shorter term or an abbreviation, like “ospf” or “vlan”.
               </p>
             </div>
-          )}
-        </div>
-      )}
+                      )}
+            </div>
+          </>,
+          document.body
+        )}
     </div>
   );
 }
