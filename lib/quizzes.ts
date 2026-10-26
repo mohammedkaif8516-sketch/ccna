@@ -5938,6 +5938,374 @@ export const quizzes: Quiz[] = [
     }
   ]
 },
+{
+  id: "switching-vlans-and-trunking-final",
+  topicSlug: "switching-vlans-and-trunking",
+  final: true,
+  title: "Switching, VLANs & Trunking Quiz",
+  questions: [
+    {
+      id: "q1",
+      prompt: "Which traffic forwarding method provides the lowest latency by copying only the first six bytes of a frame?",
+      options: [
+        "Store & forward",
+        "Modified cut-through",
+        "Cut-through",
+        "Fragment-free"
+      ],
+      answer: 2,
+      explanation: "Cut-through switching copies only the destination MAC address (the first six bytes) to forward the frame immediately, making it the fastest method, though it lacks error checking."
+    },
+    {
+      id: "q2",
+      prompt: "Why does the store & forward switching method introduce the highest latency?",
+      options: [
+        "It waits for a VMPS server to respond with the destination VLAN.",
+        "It copies the entire frame into the buffer to perform a CRC error check.",
+        "It fragments the frame into 64-byte chunks before forwarding.",
+        "It strips the 802.1Q tag before inspecting the IP header."
+      ],
+      answer: 1,
+      explanation: "The switch must copy the entire frame into its memory buffer to run a Cyclic Redundancy Check (CRC), which guarantees frame integrity but adds significant latency."
+    },
+    {
+      id: "q3",
+      prompt: "In modified cut-through (fragment-free) switching, how much of the frame is copied into the buffer before forwarding?",
+      options: [
+        "The first 6 bytes",
+        "The first 64 bytes",
+        "The entire frame",
+        "Only the 4-byte VLAN tag"
+      ],
+      answer: 1,
+      explanation: "Fragment-free switching buffers the first 64 bytes because most collisions and errors happen in this initial section of the frame."
+    },
+    {
+      id: "q4",
+      prompt: "Which command globally enables routing capabilities on a multilayer switch (MLS)?",
+      options: [
+        "ip route 0.0.0.0 0.0.0.0",
+        "switchport mode route",
+        "enable routing",
+        "ip routing"
+      ],
+      answer: 3,
+      explanation: "By default, routing is disabled on a multilayer switch. It must be enabled globally using the 'ip routing' command."
+    },
+    {
+      id: "q5",
+      prompt: "When converting a Layer 2 switchport to a Layer 3 routed port on an MLS, which command must be issued before assigning an IP address?",
+      options: [
+        "no switchport",
+        "switchport nonegotiate",
+        "switchport mode access",
+        "ip routing"
+      ],
+      answer: 0,
+      explanation: "The 'no switchport' command removes the Layer 2 characteristics from the port, allowing you to assign a Layer 3 IP address to it directly."
+    },
+    {
+      id: "q6",
+      prompt: "What is the result of applying the command `default interface f0/0` on a switch?",
+      options: [
+        "It clears the MAC address table entries associated with interface f0/0.",
+        "It configures the interface to use the default VLAN (VLAN 1).",
+        "It resets the interface configuration back to its factory default settings.",
+        "It automatically negotiates a trunk link using DTP."
+      ],
+      answer: 2,
+      explanation: "The 'default interface <id>' command completely clears any custom configuration on that specific interface, returning it to its default state."
+    },
+    {
+      id: "q7",
+      prompt: "What accurately describes the relationship between a VLAN and a broadcast domain?",
+      options: [
+        "A VLAN spans multiple broadcast domains by default.",
+        "A single broadcast domain must contain at least two VLANs.",
+        "A VLAN is essentially a single broadcast domain.",
+        "Broadcast domains are only created by routers, not VLANs."
+      ],
+      answer: 2,
+      explanation: "A VLAN logically segments a switched network, and each VLAN operates as its own distinct broadcast domain."
+    },
+    {
+      id: "q8",
+      prompt: "What is the extended range of VLAN IDs available on newer switches?",
+      options: [
+        "1 - 1005",
+        "1 - 4094",
+        "1006 - 4094",
+        "1 - 65535"
+      ],
+      answer: 1,
+      explanation: "While the old (normal) range is 1-1005, the new (extended) range supports VLAN IDs from 1 up to 4094."
+    },
+    {
+      id: "q9",
+      prompt: "Why is a Layer 3 device required for inter-VLAN communication?",
+      options: [
+        "Because each VLAN is a separate network segment and switches only forward traffic within the same VLAN.",
+        "Because VLANs rely on IP addresses instead of MAC addresses for switching.",
+        "Because trunk ports cannot carry traffic for more than one VLAN simultaneously.",
+        "Because the switch's CAM table cannot store MAC addresses from different VLANs."
+      ],
+      answer: 0,
+      explanation: "Traffic cannot flow between different VLANs at Layer 2 because they are distinct broadcast domains. A router or multilayer switch is required to route traffic between them."
+    },
+    {
+      id: "q10",
+      prompt: "Which mechanism assigns VLAN membership dynamically based on the host's MAC address?",
+      options: [
+        "DTP (Dynamic Trunking Protocol)",
+        "STP (Spanning Tree Protocol)",
+        "VMPS (VLAN Membership Policy Server)",
+        "802.1Q Tagging"
+      ],
+      answer: 2,
+      explanation: "VMPS uses a centralized server containing a database of MAC addresses and their assigned VLANs, automatically placing switchports into the correct VLAN when a host connects."
+    },
+    {
+      id: "q11",
+      prompt: "Where is the VLAN database (vlan.dat) stored on a Cisco switch?",
+      options: [
+        "In the running configuration",
+        "In NVRAM",
+        "In flash memory",
+        "In the CAM table"
+      ],
+      answer: 2,
+      explanation: "The VLAN database is stored in the switch's flash memory as a separate file called 'vlan.dat', not in the standard startup or running config."
+    },
+    {
+      id: "q12",
+      prompt: "What happens to the dedicated CAM (MAC address) table associated with VLAN 10 if the administrator issues the command `no vlan 10`?",
+      options: [
+        "It merges with the VLAN 1 CAM table.",
+        "It is permanently deleted when the VLAN is deleted.",
+        "It is retained until the switch is rebooted.",
+        "It is moved into NVRAM for archival purposes."
+      ],
+      answer: 1,
+      explanation: "Each VLAN maintains its own separate MAC address table. When a VLAN is deleted, its associated CAM table is deleted simultaneously."
+    },
+    {
+      id: "q13",
+      prompt: "SW1 and SW3 are separated by transit switch SW2. SW1 and SW3 have VLAN 30 configured, but SW2 does not have VLAN 30 in its database. What happens to VLAN 30 traffic passing through SW2?",
+      options: [
+        "SW2 automatically learns VLAN 30 and forwards the packet.",
+        "SW2 forwards the packet out all ports except the receiving port.",
+        "SW2 drops the packet because it doesn't recognize the VLAN.",
+        "SW2 forwards the packet using the native VLAN."
+      ],
+      answer: 2,
+      explanation: "If a transit switch does not have a specific VLAN in its local vlan.dat database, it will immediately drop any traffic tagged for that VLAN."
+    },
+    {
+      id: "q14",
+      prompt: "Which characteristic is true regarding access ports?",
+      options: [
+        "They tag frames with 802.1Q headers.",
+        "They are designed to connect to routers for inter-VLAN routing.",
+        "They negotiate their status using DTP.",
+        "They carry traffic for only one VLAN and belong to that VLAN alone."
+      ],
+      answer: 3,
+      explanation: "Access ports are meant for host devices (like PCs and printers). They only belong to a single VLAN and carry untagged traffic for that VLAN."
+    },
+    {
+      id: "q15",
+      prompt: "How many bytes does the ISL (Inter-Switch Link) encapsulation protocol add to a frame?",
+      options: [
+        "4 bytes",
+        "8 bytes",
+        "16 bytes",
+        "26 bytes"
+      ],
+      answer: 3,
+      explanation: "ISL is a Cisco-proprietary protocol that encapsulates the entire original frame and attaches a large 26-byte tag, which adds latency compared to the newer 4-byte 802.1Q standard."
+    },
+    {
+      id: "q16",
+      prompt: "Which frame tagging protocol is an open IEEE standard supported by all vendors and adds a 4-byte tag?",
+      options: [
+        "ISL",
+        "802.1Q",
+        "DTP",
+        "VMPS"
+      ],
+      answer: 1,
+      explanation: "IEEE 802.1Q (often called dot1q) is the industry standard for VLAN tagging. It inserts a small 4-byte tag into the original Ethernet header."
+    },
+    {
+      id: "q17",
+      prompt: "What is the command to remove VLAN 40 from an active trunk link's allowed list without restricting the other VLANs?",
+      options: [
+        "switchport trunk allowed vlan 40 remove",
+        "switchport trunk allowed vlan remove 40",
+        "no switchport trunk allowed vlan 40",
+        "switchport trunk remove vlan 40"
+      ],
+      answer: 1,
+      explanation: "To safely remove a specific VLAN while keeping others allowed, the correct syntax is 'switchport trunk allowed vlan remove <id>'."
+    },
+    {
+      id: "q18",
+      prompt: "If you connect a PC to a switchport configured as a dot1q trunk, why can the PC still communicate over VLAN 1?",
+      options: [
+        "Because PCs are capable of stripping 802.1Q tags automatically.",
+        "Because DTP negotiates the trunk port down to an access port.",
+        "Because VLAN 1 is the default native VLAN, and its traffic is sent untagged.",
+        "Because trunk ports dynamically assign the PC's MAC to the VLAN database."
+      ],
+      answer: 2,
+      explanation: "By default, VLAN 1 is the native VLAN on a dot1q trunk. Native VLAN traffic is untagged, allowing standard network interface cards in PCs to read the frames normally."
+    },
+    {
+      id: "q19",
+      prompt: "You are troubleshooting a trunk link between two switches. The speed, duplex, and allowed VLAN lists match. What other critical parameter must match on both ends for normal operation without spanning-tree errors?",
+      options: [
+        "The management IP address subnet",
+        "The native VLAN",
+        "The DTP hello timer",
+        "The VTP domain name"
+      ],
+      answer: 1,
+      explanation: "Both ends of a dot1q trunk must agree on the native VLAN. If there is a native VLAN mismatch, traffic will leak between VLANs and Spanning Tree will block the ports or generate continuous errors."
+    },
+    {
+      id: "q20",
+      prompt: "In a scenario where SW1's port is hardcoded to VLAN 10, SW2's port is hardcoded to VLAN 20, and they are connected via an untagged link, can a PC on SW1 talk to a PC on SW2 if they are in the same IP subnet?",
+      options: [
+        "No, because their VLAN IDs are different.",
+        "Yes, because the untagged link effectively merges the two VLAN segments.",
+        "No, because the switches will block the port due to a native VLAN mismatch.",
+        "Yes, but only if DTP is configured as Dynamic Desirable on both sides."
+      ],
+      answer: 1,
+      explanation: "Since the link is untagged (an access link), no VLAN tags are exchanged. The switches just forward the raw Ethernet frames to each other, effectively merging VLAN 10 and VLAN 20 into a single broadcast domain."
+    },
+    {
+      id: "q21",
+      prompt: "What is the fundamental mechanism behind a VLAN double tagging attack?",
+      options: [
+        "An attacker spoofs the DTP hello timer to force a trunk negotiation.",
+        "An attacker encapsulates two 802.1Q tags inside an ISL header.",
+        "An attacker crafts a frame with two VLAN tags, exploiting how switches process untagged native VLAN traffic.",
+        "An attacker changes their MAC address to match the VMPS database."
+      ],
+      answer: 2,
+      explanation: "In a double tagging attack, the attacker places a second, hidden 802.1Q tag inside the frame. The first switch strips the outer native VLAN tag and forwards the inner tag to the next switch, directing the traffic into a victim VLAN."
+    },
+    {
+      id: "q22",
+      prompt: "Which action provides the most effective mitigation against VLAN double tagging attacks?",
+      options: [
+        "Changing the native VLAN from VLAN 1 to VLAN 999.",
+        "Configuring `switchport nonegotiate` on all access ports.",
+        "Forcing the switch to attach an 802.1Q tag to native VLAN traffic as well.",
+        "Disabling spanning tree on all trunk interfaces."
+      ],
+      answer: 2,
+      explanation: "While changing the native VLAN helps, tagging the native VLAN using 'switchport trunk native vlan tagged' completely prevents double tagging attacks because all traffic on the trunk becomes explicitly tagged."
+    },
+    {
+      id: "q23",
+      prompt: "Which two modes are utilized by the Dynamic Trunking Protocol (DTP) to negotiate trunk links?",
+      options: [
+        "Dynamic Trunk and Dynamic Access",
+        "Dynamic Desirable and Dynamic Auto",
+        "Dynamic Active and Dynamic Passive",
+        "Dynamic Client and Dynamic Server"
+      ],
+      answer: 1,
+      explanation: "DTP uses 'Dynamic Desirable' (actively tries to form a trunk) and 'Dynamic Auto' (passively waits for a request) to negotiate trunk status."
+    },
+    {
+      id: "q24",
+      prompt: "What are the default Hello and Hold timer values for DTP?",
+      options: [
+        "Hello: 10 seconds, Hold: 30 seconds",
+        "Hello: 30 seconds, Hold: 300 seconds",
+        "Hello: 60 seconds, Hold: 120 seconds",
+        "Hello: 300 seconds, Hold: 600 seconds"
+      ],
+      answer: 1,
+      explanation: "DTP sends negotiation frames every 30 seconds (Hello timer) and retains the DTP information for 300 seconds (Hold timer) before discarding it."
+    },
+    {
+      id: "q25",
+      prompt: "Two switches are connected together. SW1 is configured for Dynamic Auto, and SW2 is configured for Dynamic Auto. What is the resulting state of the link?",
+      options: [
+        "No trunk is formed (access mode).",
+        "An ISL trunk is formed.",
+        "An 802.1Q trunk is formed.",
+        "The link shuts down due to a negotiation mismatch."
+      ],
+      answer: 0,
+      explanation: "Because Dynamic Auto only responds to DTP requests and never initiates them, neither side will start the negotiation, resulting in a standard access link (no trunk)."
+    },
+    {
+      id: "q26",
+      prompt: "Which command completely disables DTP negotiation frames from being sent on a switchport?",
+      options: [
+        "no dtp enable",
+        "switchport mode access",
+        "switchport trunk allowed vlan none",
+        "switchport nonegotiate"
+      ],
+      answer: 3,
+      explanation: "The 'switchport nonegotiate' command stops the interface from generating DTP frames, forcing manual trunk configuration and preventing negotiation delays or spoofing."
+    },
+    {
+      id: "q27",
+      prompt: "If one side of a link is manually configured with `switchport mode trunk` and the other side is configured with `switchport mode dynamic auto`, what will happen?",
+      options: [
+        "A trunk will form successfully.",
+        "The link will become an access port.",
+        "The link will fall into an error-disabled state.",
+        "The Dynamic Auto side will ignore the trunking attempt."
+      ],
+      answer: 0,
+      explanation: "A port in 'trunk' mode actively sends DTP frames (unless nonegotiate is set). The 'dynamic auto' side will hear the DTP frames and transition into a trunk port."
+    },
+    {
+      id: "q28",
+      prompt: "You issue the command `switchport access vlan 50` on a port, but VLAN 50 does not currently exist in the switch's VLAN database. How does the Cisco switch react?",
+      options: [
+        "It rejects the command with an 'invalid input' error.",
+        "It automatically creates VLAN 50 in the database.",
+        "It places the port in an error-disabled state until VLAN 50 is created.",
+        "It assigns the port to the native VLAN instead."
+      ],
+      answer: 1,
+      explanation: "If you assign an access port to a VLAN that does not yet exist, modern Cisco switches will automatically create that VLAN in the local vlan.dat database and output a console message stating 'Access VLAN does not exist. Creating vlan 50'."
+    },
+    {
+      id: "q29",
+      prompt: "In an Ethernet frame, exactly where does an IEEE 802.1Q switch insert the 4-byte VLAN tag?",
+      options: [
+        "At the very beginning of the frame, before the Destination MAC.",
+        "Between the Source MAC address and the Type/Length field.",
+        "Immediately following the IP header.",
+        "At the end of the frame, right before the FCS (Frame Check Sequence)."
+      ],
+      answer: 1,
+      explanation: "The 4-byte 802.1Q tag is inserted directly between the original Source MAC Address field and the Type/Length field, slightly altering the frame's header structure."
+    },
+    {
+      id: "q30",
+      prompt: "Which protocol actively detects and continuously reports native VLAN mismatches via syslog messages between directly connected Cisco switches?",
+      options: [
+        "DTP (Dynamic Trunking Protocol)",
+        "VMPS (VLAN Membership Policy Server)",
+        "CDP (Cisco Discovery Protocol)",
+        "VTP (VLAN Trunking Protocol)"
+      ],
+      answer: 2,
+      explanation: "CDP (Cisco Discovery Protocol) shares device information with direct neighbors, including the native VLAN configured on the port. If CDP detects a mismatch, it generates a '%CDP-4-NATIVE_VLAN_MISMATCH' syslog warning."
+    }
+  ]
+},
 ]
 
 
