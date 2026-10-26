@@ -92,6 +92,7 @@ import { RoutedPacketFlow } from "@/components/packet-flow-inter-1";
 import { IntroNetworkingSummary } from "@/components/intro-networking-summary";
 import { OsiModelExplainer } from "@/components/osi-model-explainer";
 import { EthernetCablingSummary } from "@/components/ethernet-cabling-summary";
+import { SwitchingVlanExplainer } from "@/components/switching-summary";
 import { NetworkDevicesSummary } from "@/components/network-devices-summary";
 import { IpAddressingSummary } from "@/components/ip-addressing-summary";
 import { TransportLayerSummary } from "@/components/transport-layer-summary";
@@ -116,6 +117,7 @@ const SUMMARY_VIEWS: Record<string, ComponentType> = {
   router: RouterFundamentalsSummary,
   routing: RoutingSummary,
   packetflow: PacketFlowSummary,
+  switching: SwitchingVlanExplainer,
 };
 
 const ExtraPlaceholder = () => (

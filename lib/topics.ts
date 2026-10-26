@@ -3683,9 +3683,13 @@ export const topics: Topic[] = [
 
     ],
   },
+  // ─────────────────────────────────────────────────────────────
+  // 09 · PACKET FLOW
+  // ─────────────────────────────────────────────────────────────
+
   {
     slug: 'packet-flow',
-    number: '01',
+    number: '09',
     title: 'Packet Flow',
     icon: 'arrow-right-left',
     summary: 'packetflow',
@@ -4103,7 +4107,555 @@ export const topics: Topic[] = [
     ]
 
   },
-
+  // ─────────────────────────────────────────────────────────────
+  // 10 · SWITCHING
+  // ─────────────────────────────────────────────────────────────
+{
+    slug: 'switching-vlans-and-trunking',
+    number: '02',
+    title: 'Switching, VLANs & Trunking',
+    icon: 'network',
+    summary: 'switching',
+    description: 'How switches forward frames, how VLANs segment a network, and how trunks, DTP and the native VLAN carry and secure multi-VLAN traffic.',
+    subtopics: [
+      {
+        slug: 'traffic-forwarding-methods-in-switches',
+        title: 'Traffic forwarding methods in switches',
+        description: 'Switches forward frames using store & forward, cut-through, or modified cut-through (fragment-free), trading speed against error checking.',
+        blocks: [
+          { type: 'heading', text: '1. Store & forward' },
+          {
+            type: 'bullets', items: [
+              'The switchport copies the entire frame into buffer memory and performs a CRC (Cyclic Redundancy Check) to ensure frame integrity.',
+              'This level of error checking produces latency.',
+              'Ensures the frame is not corrupted before forwarding.',
+              'Suitable for sensitive environments.',
+            ]
+          },
+          { type: 'heading', text: '2. Cut-through' },
+          {
+            type: 'bullets', items: [
+              'The switchport copies only enough of the frame header to determine the destination MAC address (usually the first six bytes).',
+              'Frames are forwarded at much higher speed with the lowest latency.',
+              'No error checking.',
+              'Suitable for real-time communication environments, e.g. voice & video networks.',
+            ]
+          },
+          { type: 'heading', text: '3. Modified cut-through (fragment-free)' },
+          {
+            type: 'bullets', items: [
+              'The switchport copies the first 64 bytes of the frame into buffer memory for error checking and to learn the destination MAC.',
+              'Most collisions and corruption happen within the first 64 bytes.',
+              'A combination of store & forward and cut-through.',
+              'Faster than store & forward (but not as fast as cut-through).',
+              'Has error checking (but not as thorough as store & forward).',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Store & forward', value: 'Full frame + CRC, highest latency, most reliable' },
+          { label: 'Cut-through', value: 'First 6 bytes (dest MAC), fastest, no error checking' },
+          { label: 'Modified cut-through', value: 'First 64 bytes, balance of speed and checking' },
+        ],
+      },
+      {
+        slug: 'mls-routing-and-l2-l3-port-conversion',
+        title: 'MLS routing, L2/L3 port conversion & interface reset',
+        description: 'Routing is disabled on a multilayer switch by default; enable it globally and convert switchports into routed ports as needed.',
+        blocks: [
+          { type: 'heading', text: 'Enable routing on an MLS' },
+          { type: 'paragraph', text: 'By default the routing capability is disabled on a multilayer switch (MLS).' },
+          { type: 'bullets', items: ['(conf)# ip routing'] },
+          { type: 'heading', text: 'L2 port to L3 port (switchport to routed port)' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface f0/0',
+              '(conf-if)# no switchport',
+              '(conf-if)# ip address 192.168.1.1 255.255.255.0',
+              '(conf-if)# no shutdown',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'heading', text: 'L3 port back to L2 port' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface f0/0',
+              '(conf-if)# switchport',
+              '(conf-if)# no sh',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'heading', text: 'Reset an interface to default settings' },
+          {
+            type: 'bullets', items: [
+              '(conf)# default interface f0/0',
+              'Multiple interfaces: (conf)# default interface range f0/0-3, f2/1-2, f3/0, f4/0, f5/1',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Enable routing', value: 'ip routing (global config)' },
+          { label: 'L2 to L3 port', value: 'no switchport, then assign IP' },
+          { label: 'Reset interface', value: 'default interface <id>' },
+        ],
+      },
+      {
+        slug: 'vlan-concepts-ranges-and-advantages',
+        title: 'VLAN concepts, ranges & advantages',
+        description: 'A VLAN is a broadcast domain; VLANs logically segment a switched network and need a Layer 3 device for inter-VLAN communication.',
+        blocks: [
+          { type: 'heading', text: 'What a VLAN is' },
+          {
+            type: 'bullets', items: [
+              'A VLAN is a broadcast domain.',
+              'By default every switchport belongs to a single broadcast domain called VLAN 1 (the default VLAN, which cannot be deleted).',
+              'VLAN technology lets you logically segregate networks within switches.',
+              'Traffic between devices inside the same VLAN is forwarded by switching (L2 connectivity).',
+              'Traffic between different VLANs is not forwarded without a L3 device, because each VLAN is a separate network and needs inter-VLAN routing.',
+            ]
+          },
+          { type: 'heading', text: 'VLAN ranges' },
+          { type: 'bullets', items: ['Old (normal) range: 1 - 1005', 'New (extended) range: 1 - 4094'] },
+          { type: 'heading', text: 'Example VLAN plan' },
+          {
+            type: 'bullets', items: [
+              'VLAN 10 = HR: 192.168.10.0/24',
+              'VLAN 20 = IT: 192.168.20.0/24',
+              'VLAN 30 = Mgmt: 192.168.30.0/24',
+              'VLAN 40 = R&D: 192.168.40.0/24',
+              'VLAN 50 = Sales: 192.168.50.0/24',
+              'VLAN 60 = CCTV: 192.168.60.0/24',
+              'VLAN 999 = Unused ports (best practice: park unused ports here)',
+            ]
+          },
+          { type: 'heading', text: 'Advantages of VLANs' },
+          {
+            type: 'bullets', items: [
+              'Performance: eliminates unnecessary broadcast traffic.',
+              'Security: logically separates users and departments, and lets administrators control inter-VLAN traffic with ACLs (Access Control Lists).',
+              'Flexibility: removes physical boundaries, so a user can be located anywhere in the network.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Default VLAN', value: 'VLAN 1, cannot be deleted' },
+          { label: 'VLAN range', value: '1-1005 (old), 1-4094 (new)' },
+          { label: 'Inter-VLAN traffic', value: 'Requires a L3 device (inter-VLAN routing)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/vlan-interswitch1.png', alt: 'Inter-switch VLAN topology with SW1 and SW2', caption: 'Inter-switch VLAN topology (VLANs 10-60, unused ports in VLAN 999)' },
+        ],
+      },
+      {
+        slug: 'vlan-membership-static-and-dynamic-vmps',
+        title: 'VLAN membership (Static vs Dynamic / VMPS)',
+        description: 'A switchport can join a VLAN statically by manual configuration or dynamically through a VMPS server based on the host MAC address.',
+        blocks: [
+          { type: 'heading', text: 'Static membership' },
+          {
+            type: 'bullets', items: [
+              'VLAN membership is manually configured on the switchport.',
+              'The port immediately becomes a member of the VLAN.',
+              'No negotiation.',
+            ]
+          },
+          { type: 'heading', text: 'Dynamic membership (VMPS)' },
+          {
+            type: 'bullets', items: [
+              'A VLAN database is stored on a separate server along with host MAC address information.',
+              'This server is the VMPS (VLAN Membership Policy Server).',
+              'When a host connects, the switch sends a VMPS request asking for VLAN membership information.',
+              'Once the server responds, the switchport becomes a member of that VLAN.',
+              'Complex and inefficient, Cisco proprietary, and prone to negotiation delays and errors, so rarely used in real-world networks.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Static', value: 'Manual, immediate, no negotiation' },
+          { label: 'Dynamic', value: 'VMPS server maps MAC to VLAN, Cisco proprietary, rarely used' },
+        ],
+        diagrams: [
+          { src: '/diagrams/vmps1.png', alt: 'VMPS dynamic VLAN membership', caption: 'VMPS dynamic VLAN membership (MAC aaa to VLAN lookup)' },
+        ],
+      },
+      {
+        slug: 'vlan-configuration-database-and-verification',
+        title: 'VLAN configuration, database & verification',
+        description: 'Create, name, and delete VLANs (singly or in batches), and verify them; the VLAN database lives in flash as vlan.dat.',
+        blocks: [
+          { type: 'heading', text: 'Create a VLAN' },
+          {
+            type: 'bullets', items: [
+              '(conf)# vlan 10',
+              '(conf-vlan)# name HR',
+              '(conf-vlan)# exit',
+              'Batch: (conf)# vlan 10-20, 25-30, 31, 36, 51, 60-90',
+            ]
+          },
+          { type: 'paragraph', text: 'Each VLAN has its own CAM / MAC address table, created when the VLAN is created and deleted when the VLAN is deleted.' },
+          { type: 'heading', text: 'Delete a VLAN' },
+          {
+            type: 'bullets', items: [
+              '(conf)# no vlan 10',
+              'Batch: (conf)# no vlan 15-17, 20-32, 41, 45',
+            ]
+          },
+          { type: 'heading', text: 'VLAN database' },
+          { type: 'paragraph', text: 'The VLAN database is stored in the switch flash memory as a file called vlan.dat.' },
+          { type: 'bullets', items: ['# show flash'] },
+          { type: 'heading', text: 'Verification commands' },
+          {
+            type: 'bullets', items: [
+              '# show vlan',
+              '# show vlan id 10',
+              '# show vlan name <name>',
+              '# show run',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Create', value: 'vlan <id> then name <name>' },
+          { label: 'Delete', value: 'no vlan <id or range>' },
+          { label: 'Database file', value: 'vlan.dat in flash' },
+        ],
+      },
+      {
+        slug: 'vlan-ports-access-port-configuration',
+        title: 'VLAN ports and access port configuration',
+        description: 'Cisco VLAN-enabled switches use access ports for hosts (one VLAN) and trunk ports for uplinks (many VLANs).',
+        blocks: [
+          { type: 'heading', text: 'Interview question' },
+          { type: 'paragraph', text: 'Q. The user in VLAN 192.168.30.1 (on SW1) cannot connect to VLAN 192.168.30.2 (on SW3 side via SW2). Why?' },
+          { type: 'paragraph', text: 'Ans. SW2 has no VLAN 30 in its database. SW1 forwards the traffic to SW2, but SW2 does not have VLAN 30, so it drops the packet.' },
+          { type: 'heading', text: 'Two port types' },
+          { type: 'bullets', items: ['Access port', 'Trunk port'] },
+          { type: 'heading', text: 'Access port' },
+          {
+            type: 'bullets', items: [
+              'Member of a single VLAN only.',
+              'Carries only that VLAN traffic.',
+              'All client and host devices connect to access ports.',
+            ]
+          },
+          { type: 'heading', text: 'Configuration' },
+          {
+            type: 'bullets', items: [
+              'Step 1: configure the switchport as an access port. Step 2: make it a member of the proper VLAN.',
+              '# interface f0/0',
+              '# description CCTV-VLAN30',
+              '# switchport mode access',
+              '# switchport access vlan 30',
+              '# no sh',
+              '# exit',
+            ]
+          },
+          { type: 'heading', text: 'Multiple interfaces with range' },
+          { type: 'bullets', items: ['# interface range f0/0-3, f1/2-3, f2/0-2, f4/3, f5/2'] },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets', items: [
+              '# show vlan',
+              '# sh ip int br',
+              '# sh int status',
+              '# sh run int f0/0',
+            ]
+          },
+          { type: 'heading', text: 'Example VLAN plan' },
+          {
+            type: 'bullets', items: [
+              'VLAN 10 = HR (192.168.10.0/24)',
+              'VLAN 20 = IT (192.168.20.0/24)',
+              'VLAN 30 = Marketing (192.168.30.0/24)',
+              'VLAN 40 = Management (192.168.40.0/24)',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Access port', value: 'One VLAN, untagged, for hosts' },
+          { label: 'Config', value: 'switchport mode access + switchport access vlan <id>' },
+          { label: 'Missing VLAN on a transit switch', value: 'Traffic for that VLAN is dropped' },
+        ],
+        diagrams: [
+          { src: '/diagrams/vlan-interview1_wide.png', alt: 'Interview topology SW1, SW2, SW3 with missing VLAN 30 on SW2', caption: 'Interview question: VLAN 30 missing on SW2' },
+          { src: '/diagrams/vlan-access-ports1_wide.png', alt: 'Access ports mapped to VLANs 10, 20, 30, 40 across three switches', caption: 'Access ports mapped to VLANs 10, 20, 30, 40' },
+        ],
+      },
+      {
+        slug: 'trunk-ports-and-frame-tagging-isl-vs-dot1q',
+        title: 'Trunk ports and frame tagging (ISL vs 802.1Q)',
+        description: 'Trunk ports carry multiple VLANs between switches by tagging frames with ISL or IEEE 802.1Q.',
+        blocks: [
+          { type: 'heading', text: 'Trunk port' },
+          {
+            type: 'bullets', items: [
+              'Not a member of a single VLAN; carries traffic of multiple VLANs.',
+              'Used to build uplinks between switches.',
+              'To identify VLAN traffic, the switch uses frame tagging protocols (trunk encapsulation).',
+              'When forwarding, the trunk port attaches a VLAN tag inside the Layer 2 header; when receiving, it reads the tag to identify the VLAN and forwards accordingly.',
+              'Frames are tagged only on trunk ports; on access ports they are untagged.',
+              'Native VLAN traffic is not tagged in dot1q.',
+            ]
+          },
+          { type: 'paragraph', text: 'Frame layout: Dst MAC | Src MAC | VLAN tag | IP header | TCP header | Data payload' },
+          { type: 'heading', text: '1. ISL (Inter-Switch Link)' },
+          {
+            type: 'bullets', items: [
+              'Cisco proprietary; works only on Cisco devices.',
+              'Attaches a 26-byte tag to frames.',
+              'Supports only the old VLAN range (1-1005).',
+              'Rarely used: no multivendor support, and the 26-byte tag adds latency.',
+            ]
+          },
+          { type: 'heading', text: '2. IEEE 802.1Q (dot1q)' },
+          {
+            type: 'bullets', items: [
+              'Developed by IEEE; open standard supported by every vendor.',
+              'Attaches a 4-byte VLAN tag to the frame.',
+              'Faster than ISL.',
+              'Supports the new VLAN range (1-4094).',
+              'Newer Cisco switches use dot1q by default.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'ISL', value: 'Cisco only, 26-byte tag, VLANs 1-1005' },
+          { label: 'dot1q', value: 'Open standard, 4-byte tag, VLANs 1-4094' },
+          { label: 'Tagging', value: 'Tagged on trunks, untagged on access ports' },
+        ],
+        diagrams: [
+          { src: '/diagrams/fss.png', alt: 'Structure', caption: 'Frame Structure' },
+        ],
+      },
+      {
+        slug: 'trunk-configuration-verification-and-troubleshooting',
+        title: 'Trunk configuration, verification & troubleshooting',
+        description: 'Configure encapsulation, trunk mode and allowed VLANs, then verify and check the conditions that must match on both ends.',
+        blocks: [
+          { type: 'heading', text: 'Configuration steps' },
+          {
+            type: 'bullets', items: [
+              'Step 1: set the frame tagging / encapsulation protocol (not needed on new devices, which use dot1q).',
+              'Step 2: configure the switchport as a trunk port.',
+              'Step 3: allow / filter VLANs on the trunk (VLAN pruning).',
+            ]
+          },
+          {
+            type: 'bullets', items: [
+              '# interface f0/0',
+              '# switchport trunk encapsulation <isl/dot1q>',
+              '# switchport mode trunk',
+              '# switchport trunk allowed vlan 10',
+              '# switchport trunk allowed vlan 10,20,30-35',
+              '# switchport trunk allowed vlan none',
+              '# switchport trunk allowed vlan add 50',
+              '# switchport trunk allowed vlan remove 40',
+              '# no sh',
+              '# exit',
+            ]
+          },
+          { type: 'paragraph', text: 'By default all VLANs are allowed on a trunk.' },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets', items: [
+              '# show interface trunk',
+              '# show ip interface brief',
+              '# show interface status',
+              '# show vlan',
+              '# show run interface f0/0',
+              '# show interface f0/0 (everything related to the interface)',
+              '# show log | include f0/0',
+            ]
+          },
+          { type: 'heading', text: 'Trunk conditions (troubleshooting checklist)' },
+          {
+            type: 'bullets', items: [
+              'Check the L1 status (transceiver).',
+              'Check speed and duplex.',
+              'Same allowed VLANs.',
+              'Same native VLAN.',
+              'Same trunk encapsulation protocol.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Make a trunk', value: 'switchport mode trunk' },
+          { label: 'Allowed VLANs', value: 'allowed vlan <list> | add | remove | none' },
+          { label: 'Must match both ends', value: 'Allowed VLANs, native VLAN, encapsulation, speed/duplex' },
+        ],
+      },
+      {
+        slug: 'native-vlan-vs-default-vlan-and-interview-questions',
+        title: 'Native VLAN vs Default VLAN & interview questions',
+        description: 'The default VLAN is VLAN 1 and cannot be deleted; the native VLAN is the untagged VLAN on a dot1q trunk and can be changed.',
+        blocks: [
+          { type: 'heading', text: 'Default VLAN vs Native VLAN' },
+          {
+            type: 'bullets', items: [
+              'Default VLAN: VLAN 1, the default, non-deletable VLAN.',
+              'Native VLAN: the untagged VLAN on a dot1q trunk.',
+            ]
+          },
+          { type: 'heading', text: 'Native VLAN' },
+          {
+            type: 'bullets', items: [
+              'The untagged VLAN on a dot1q trunk port, but it can be changed to any VLAN.',
+              'Untagged frames are processed faster by switches, enabling faster communication.',
+              'Switching control frames such as negotiation frames and spanning-tree messages are forwarded in the native VLAN.',
+              'All other VLANs on a dot1q trunk are tagged.',
+            ]
+          },
+          { type: 'heading', text: 'Interview question 1' },
+          { type: 'paragraph', text: 'Q. Can a PC communicate through a trunk port? Ans. Yes. VLAN 1 is untagged and all others are tagged, so VLAN 1 traffic can reach the PC through the trunk port.' },
+          { type: 'heading', text: 'Interview question 2' },
+          { type: 'paragraph', text: 'Q. Can VLAN 10 communicate with VLAN 20 over an untagged uplink between SW1 (port in VLAN 10) and SW2 (port in VLAN 20)? Ans. Yes, because the uplink is untagged (an access link), traffic passes between the two VLAN ports, as if they were one segment.' },
+          { type: 'heading', text: 'Interview question 3' },
+          { type: 'paragraph', text: 'Q. SW1 and SW2 are both in VLAN 10 over a trunk uplink; PCs are 10.1/24 and 10.2/25. Can they communicate? Ans. Yes, when the AND operation (IP with subnet mask) is performed, both IPs fall in the same network.' },
+        ],
+        quickReference: [
+          { label: 'Default VLAN', value: 'VLAN 1, non-deletable' },
+          { label: 'Native VLAN', value: 'Untagged on dot1q trunk, changeable' },
+          { label: 'Native VLAN carries', value: 'Negotiation frames, STP messages' },
+        ],
+        diagrams: [
+          { src: '/diagrams/trunk-pc-interview1.png', alt: 'Switch with access ports 10-60 connected to a PC via a trunk port', caption: 'Interview question 1: PC connected via a trunk port' },
+          { src: '/diagrams/untagged-uplink1.png', alt: 'SW1 port 10 to SW2 port 20 over an untagged uplink', caption: 'Interview question 2: untagged uplink' },
+          { src: '/diagrams/tagged-trunk-uplink1.png', alt: 'SW1 and SW2 in VLAN 10 over a trunk uplink', caption: 'Interview question 3: tagged trunk uplink (10.1/24 and 10.2/25)' },
+        ],
+      },
+      {
+        slug: 'native-vlan-security-double-tagging-attack',
+        title: 'Native VLAN security: double tagging attack',
+        description: 'Untagged native VLAN traffic can be abused by an attacker who double-tags frames; fix it by changing the native VLAN or tagging it.',
+        blocks: [
+          { type: 'heading', text: 'The threat' },
+          {
+            type: 'bullets', items: [
+              'On trunk interfaces, all untagged traffic belongs to the native VLAN because no VLAN tag is attached; the rest of the VLAN traffic is tagged.',
+              'This untagged traffic is a security threat: an attacker can double tag a frame and launch an attack towards a victim VLAN. This is the VLAN double tagging attack.',
+              'It is a one-way communication attack, but it is enough to launch a DoS (denial of service) attack.',
+            ]
+          },
+          { type: 'heading', text: 'Solution 1: change the native VLAN' },
+          { type: 'paragraph', text: 'Change the native VLAN from the obvious VLAN 1 to some other random VLAN.' },
+          {
+            type: 'bullets', items: [
+              '# interface f0/0',
+              '# switchport trunk native vlan 10',
+              '# no shut',
+              '# exit',
+            ]
+          },
+          { type: 'heading', text: 'Solution 2: tag the native VLAN (more effective)' },
+          { type: 'paragraph', text: 'The first solution is not that effective on its own; the better solution is to attach a VLAN tag to native VLAN traffic as well.' },
+          {
+            type: 'bullets', items: [
+              '# interface f0/0',
+              '# switchport trunk native vlan tagged',
+              '# no shut',
+              '# exit',
+              'ISL does not have this issue because all VLAN traffic is tagged.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Attack', value: 'VLAN double tagging, one-way, enables DoS' },
+          { label: 'Fix 1', value: 'Move native VLAN away from VLAN 1' },
+          { label: 'Fix 2', value: 'Tag native VLAN traffic as well' },
+        ],
+      },
+      {
+        slug: 'dtp-dynamic-trunking-protocol',
+        title: 'DTP (Dynamic Trunking Protocol)',
+        description: 'DTP negotiates trunks between switches (tagging protocol, native VLAN, allowed VLANs) using Dynamic Desirable and Dynamic Auto modes.',
+        blocks: [
+          { type: 'heading', text: 'Overview' },
+          {
+            type: 'bullets', items: [
+              'DTP establishes a trunk between switches after a negotiation.',
+              'Negotiated parameters: (i) frame tagging protocol, (ii) native VLAN, (iii) allowed VLANs, etc.',
+            ]
+          },
+          { type: 'heading', text: 'DTP modes' },
+          {
+            type: 'bullets', items: [
+              'Dynamic Desirable (DD): actively tries to form a trunk with the neighbor by sending DTP frames periodically.',
+              'Dynamic Auto (DA): passively waits for DTP frames; it does not initiate negotiation, it only responds.',
+            ]
+          },
+          { type: 'heading', text: 'DTP timers' },
+          {
+            type: 'bullets', items: [
+              'Hello timer: 30 seconds by default; how often the switch sends DTP frames.',
+              'Hold timer: 300 seconds by default; how long the switch keeps DTP frames before discarding them.',
+            ]
+          },
+          { type: 'heading', text: 'DTP mode combinations' },
+          {
+            type: 'bullets', items: [
+              'DD + DA = Trunk',
+              'DA + DD = Trunk',
+              'DD + DD = Trunk',
+              'DA + DA = No trunk',
+              'DD + Trunk = Trunk',
+              'Trunk + DA = Trunk',
+              'Trunk + Trunk = Trunk',
+            ]
+          },
+          { type: 'paragraph', text: 'Best practice: avoid DTP and configure trunks manually, so there are no negotiation delays or errors.' },
+        ],
+        quickReference: [
+          { label: 'Hello / Hold timers', value: '30 s / 300 s' },
+          { label: 'No trunk formed', value: 'DA + DA' },
+          { label: 'Best practice', value: 'Manual trunk, disable DTP' },
+        ],
+        diagrams: [
+          { src: '/diagrams/dtp1.png', alt: 'DTP negotiation between Dynamic Desirable and Dynamic Auto switches', caption: 'DTP negotiation (native=10, allowed=10,20,30, dot1q)' },
+        ],
+      },
+      {
+        slug: 'dtp-configuration-and-disabling-negotiation',
+        title: 'DTP configuration & disabling negotiation',
+        description: 'Example DD/DA trunk configuration between SW1 and SW2, verification commands, and switchport nonegotiate.',
+        blocks: [
+          { type: 'heading', text: 'SW1 (Dynamic Desirable)' },
+          {
+            type: 'bullets', items: [
+              '# interface f0/0',
+              '# switchport trunk encapsulation dot1q',
+              '# switchport trunk native vlan 10',
+              '# switchport trunk allowed vlan 10,20,30,40',
+              '# switchport mode dynamic desirable',
+              '# no sh',
+              '# exit',
+            ]
+          },
+          { type: 'heading', text: 'SW2 (Dynamic Auto)' },
+          {
+            type: 'bullets', items: [
+              '# interface f0/1',
+              '# switchport mode dynamic auto',
+              '# no sh',
+              '# exit',
+            ]
+          },
+          { type: 'heading', text: 'Verification' },
+          { type: 'bullets', items: ['# show interface trunk', '# show run interface f0/0'] },
+          { type: 'heading', text: 'Disable DTP negotiation' },
+          {
+            type: 'bullets', items: [
+              '# interface f0/0',
+              '# switchport nonegotiate',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'DD / DA', value: 'switchport mode dynamic desirable / auto' },
+          { label: 'Disable DTP', value: 'switchport nonegotiate' },
+          { label: 'Verify', value: 'show interface trunk' },
+        ],
+      },
+    ],
+  },
 ]
 
 export function getSubtopic(topicSlug: string, subtopicSlug: string) {
