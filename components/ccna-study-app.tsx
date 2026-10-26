@@ -842,7 +842,7 @@ function GlobalSearch({
 
       {/* Results panel */}
       {showPanel && (
-        <div className="fixed inset-x-3 top-14 z-50 overflow-hidden rounded-sm border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[400px]">
+                <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-sm border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 sm:left-auto sm:right-0 sm:w-[400px]">
           {results.length > 0 ? (
             <>
               <ul

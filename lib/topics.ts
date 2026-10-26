@@ -75,7 +75,7 @@ export const topics: Topic[] = [
           { type: 'paragraph', text: 'A computer network is a collection of devices connected through a wired or wireless medium for a specific purpose — exchanging information. These devices can share a virtually limitless range of information and services through the network.' },
           { type: 'heading', text: 'Device examples' },
           { type: 'bullets', items: ['Computers', 'Mobile phones & tablets', 'Printers', 'Servers', 'Authentication devices', 'CCTV cameras'] },
-          { type: 'heading', text: 'Information and services carried over a network' },
+          { type: 'heading', text: 'Information & services carried over a network' },
           { type: 'bullets', items: ['Documents & files', 'Emails', 'Instant messaging (IM)', 'Websites', 'Storing and accessing databases', 'Streaming audio and video', 'Audio & video conferencing'] },
         ],
         quickReference: [{ label: 'Network', value: 'Devices + medium + purpose (exchanging information)' }],
