@@ -4113,7 +4113,7 @@ export const topics: Topic[] = [
 {
     slug: 'switching-vlans-and-trunking',
     number: '02',
-    title: 'Switching, VLANs & Trunking',
+    title: 'Switching',
     icon: 'network',
     summary: 'switching',
     description: 'How switches forward frames, how VLANs segment a network, and how trunks, DTP and the native VLAN carry and secure multi-VLAN traffic.',
