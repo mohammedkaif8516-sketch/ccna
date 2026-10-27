@@ -104,7 +104,7 @@ function Pick({ active, onClick, children }: { active: boolean; onClick: () => v
 function SimpleTable({ head, rows, hit }: { head: string[]; rows: string[][]; hit?: number }) {
   return (
     <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full min-w-[480px] text-xs">
+      <table className="w-full text-xs">
         <thead className="bg-muted/50">
           <tr>
             {head.map((h) => (
@@ -147,7 +147,7 @@ function Mini({ k, v, color }: { k: string; v: string; color?: string }) {
 
 function Code({ lines }: { lines: string[] }) {
   return (
-    <pre className="overflow-x-auto rounded-lg border bg-black/90 p-3 font-mono text-[11px] leading-5 text-green-300">
+    <pre className="whitespace-pre-wrap break-words rounded-lg border bg-black/90 p-3 font-mono text-[11px] leading-5 text-green-300">
       {lines.join("\n")}
     </pre>
   );
