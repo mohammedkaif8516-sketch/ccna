@@ -4121,7 +4121,7 @@ export const topics: Topic[] = [
       {
         slug: 'traffic-forwarding-methods-in-switches',
         title: 'Traffic forwarding methods in switches',
-        group:'Network Design & Switching Architecture',
+        group: 'Network Design & Switching Architecture',
         description: 'Switches forward frames using store & forward, cut-through, or modified cut-through (fragment-free), trading speed against error checking.',
         blocks: [
           { type: 'heading', text: '1. Store & forward' },
@@ -4162,6 +4162,7 @@ export const topics: Topic[] = [
       {
         slug: 'mls-routing-and-l2-l3-port-conversion',
         title: 'MLS routing, L2/L3 port conversion & interface reset',
+        group: 'Layer 3 Services & Inter-VLAN Routing',
         description: 'Routing is disabled on a multilayer switch by default; enable it globally and convert switchports into routed ports as needed.',
         blocks: [
           { type: 'heading', text: 'Enable routing on an MLS' },
@@ -4203,6 +4204,7 @@ export const topics: Topic[] = [
       {
         slug: 'vlan-concepts-ranges-and-advantages',
         title: 'VLAN concepts, ranges & advantages',
+        group: 'VLAN Fundamentals & Port Membership',
         description: 'A VLAN is a broadcast domain; VLANs logically segment a switched network and need a Layer 3 device for inter-VLAN communication.',
         blocks: [
           { type: 'heading', text: 'What a VLAN is' },
@@ -4250,6 +4252,7 @@ export const topics: Topic[] = [
       {
         slug: 'vlan-membership-static-and-dynamic-vmps',
         title: 'VLAN membership (Static vs Dynamic / VMPS)',
+        group: 'VLAN Fundamentals & Port Membership',
         description: 'A switchport can join a VLAN statically by manual configuration or dynamically through a VMPS server based on the host MAC address.',
         blocks: [
           { type: 'heading', text: 'Static membership' },
@@ -4282,6 +4285,7 @@ export const topics: Topic[] = [
       {
         slug: 'vlan-configuration-database-and-verification',
         title: 'VLAN configuration, database & verification',
+        group: 'VLAN Fundamentals & Port Membership',
         description: 'Create, name, and delete VLANs (singly or in batches), and verify them; the VLAN database lives in flash as vlan.dat.',
         blocks: [
           { type: 'heading', text: 'Create a VLAN' },
@@ -4323,6 +4327,7 @@ export const topics: Topic[] = [
       {
         slug: 'vlan-ports-access-port-configuration',
         title: 'VLAN ports and access port configuration',
+        group: 'VLAN Fundamentals & Port Membership',
         description: 'Cisco VLAN-enabled switches use access ports for hosts (one VLAN) and trunk ports for uplinks (many VLANs).',
         blocks: [
           { type: 'heading', text: 'Interview question' },
@@ -4384,6 +4389,7 @@ export const topics: Topic[] = [
       {
         slug: 'trunk-ports-and-frame-tagging-isl-vs-dot1q',
         title: 'Trunk ports and frame tagging (ISL vs 802.1Q)',
+        group: 'Trunking Protocols & Operations',
         description: 'Trunk ports carry multiple VLANs between switches by tagging frames with ISL or IEEE 802.1Q.',
         blocks: [
           { type: 'heading', text: 'Trunk port' },
@@ -4430,6 +4436,7 @@ export const topics: Topic[] = [
       {
         slug: 'trunk-configuration-verification-and-troubleshooting',
         title: 'Trunk configuration, verification & troubleshooting',
+        group: 'Trunking Protocols & Operations',
         description: 'Configure encapsulation, trunk mode and allowed VLANs, then verify and check the conditions that must match on both ends.',
         blocks: [
           { type: 'heading', text: 'Configuration steps' },
@@ -4487,6 +4494,7 @@ export const topics: Topic[] = [
       {
         slug: 'native-vlan-vs-default-vlan-and-interview-questions',
         title: 'Native VLAN vs Default VLAN & interview questions',
+        group: 'VLAN Security & Operations',
         description: 'The default VLAN is VLAN 1 and cannot be deleted; the native VLAN is the untagged VLAN on a dot1q trunk and can be changed.',
         blocks: [
           { type: 'heading', text: 'Default VLAN vs Native VLAN' },
@@ -4526,6 +4534,7 @@ export const topics: Topic[] = [
       {
         slug: 'native-vlan-security-double-tagging-attack',
         title: 'Native VLAN security: double tagging attack',
+        group: 'VLAN Security & Operations',
         description: 'Untagged native VLAN traffic can be abused by an attacker who double-tags frames; fix it by changing the native VLAN or tagging it.',
         blocks: [
           { type: 'heading', text: 'The threat' },
@@ -4567,6 +4576,7 @@ export const topics: Topic[] = [
       {
         slug: 'dtp-dynamic-trunking-protocol',
         title: 'DTP (Dynamic Trunking Protocol)',
+        group: 'Trunking Protocols & Operations',
         description: 'DTP negotiates trunks between switches (tagging protocol, native VLAN, allowed VLANs) using Dynamic Desirable and Dynamic Auto modes.',
         blocks: [
           { type: 'heading', text: 'Overview' },
@@ -4616,6 +4626,7 @@ export const topics: Topic[] = [
       {
         slug: 'dtp-configuration-and-disabling-negotiation',
         title: 'DTP configuration & disabling negotiation',
+        group: 'Trunking Protocols & Operations',
         description: 'Example DD/DA trunk configuration between SW1 and SW2, verification commands, and switchport nonegotiate.',
         blocks: [
           { type: 'heading', text: 'SW1 (Dynamic Desirable)' },
@@ -4655,10 +4666,10 @@ export const topics: Topic[] = [
           { label: 'Verify', value: 'show interface trunk' },
         ],
       },
-
       {
         slug: 'etherchannel-fundamentals',
         title: 'Etherchannel fundamentals',
+        group: 'EtherChannel (Link Aggregation)',
         description: 'Etherchannel bundles multiple physical links into one logical link for more bandwidth and redundancy, and STP treats the bundle as a single link.',
         blocks: [
           { type: 'heading', text: 'What is Etherchannel?' },
@@ -4700,6 +4711,7 @@ export const topics: Topic[] = [
       {
         slug: 'etherchannel-protocols-lacp-vs-pagp',
         title: 'Etherchannel protocols (LACP vs PAgP)',
+        group: 'EtherChannel (Link Aggregation)',
         description: 'LACP is the open standard (16 links, 8 active, Active/Passive); PAgP is Cisco proprietary (8 links, all active, Desirable/Auto).',
         blocks: [
           { type: 'heading', text: '1. LACP (Link Aggregation Control Protocol)' },
@@ -4760,6 +4772,7 @@ export const topics: Topic[] = [
       {
         slug: 'etherchannel-formation-conditions',
         title: 'Etherchannel formation conditions',
+        group: 'EtherChannel (Link Aggregation)',
         description: 'All member interfaces must match on type, bundle number, STP type, speed/duplex, protocol, trunk encapsulation, allowed VLANs and native VLAN.',
         blocks: [
           { type: 'heading', text: 'Conditions (troubleshooting checklist)' },
@@ -4790,6 +4803,7 @@ export const topics: Topic[] = [
       {
         slug: 'etherchannel-configuration-manual-lacp-pagp',
         title: 'Etherchannel configuration (Manual, LACP, PAgP)',
+        group: 'EtherChannel (Link Aggregation)',
         description: 'Create the bundle with channel-group on the physical interfaces, then configure the logical port-channel interface as trunk, access or L3.',
         blocks: [
           { type: 'heading', text: 'Manual Etherchannel' },
@@ -4861,6 +4875,7 @@ export const topics: Topic[] = [
       {
         slug: 'inter-vlan-routing-router-on-a-stick',
         title: 'Inter-VLAN routing: Router on a Stick',
+        group: 'Layer 3 Services & Inter-VLAN Routing',
         description: 'A router uses one physical trunk link split into dot1q subinterfaces, one per VLAN, to route between VLANs when all switches are L2.',
         blocks: [
           { type: 'heading', text: 'Concept' },
@@ -4924,6 +4939,7 @@ export const topics: Topic[] = [
       {
         slug: 'inter-vlan-routing-mls-and-svi',
         title: 'Inter-VLAN routing: MLS & SVI',
+        group: 'Layer 3 Services & Inter-VLAN Routing',
         description: 'A multilayer switch routes between VLANs using one SVI per VLAN; enable ip routing and make sure the VLAN exists before creating the SVI.',
         blocks: [
           { type: 'heading', text: 'SVI (Switched Virtual Interface)' },
@@ -4979,7 +4995,7 @@ export const topics: Topic[] = [
       {
         slug: 'cisco-3-tier-network-architecture',
         title: 'Cisco 3-tier network architecture',
-        group:'Network Design & Switching Architecture',
+        group: 'Network Design & Switching Architecture',
         description: 'The 3-tier model splits the network into Core, Distribution and Access layers, with edge routers connecting the core to the ISPs.',
         blocks: [
           { type: 'heading', text: 'Layers' },
@@ -5009,12 +5025,8 @@ export const topics: Topic[] = [
           { src: '/diagrams/three-tier-architecture1.png', alt: 'Core, distribution and access layers with edge routers connecting to ISPs', caption: 'Cisco 3-tier: Core, Distribution, Access with edge routers to ISPs' },
         ],
       },
-
-      
-      
     ],
-    
-  },
+},
 ]
 
 export function getSubtopic(topicSlug: string, subtopicSlug: string) {
