@@ -101,7 +101,7 @@ import { RoutingSummary } from "@/components/routing-summary";
 import { PacketFlowSummary } from "@/components/packet-flow-summary";
 import { OsiModel } from "@/components/extra-example";
 import { DnsResolution } from "@/components/extra-example-2";
-import {TcpHttp} from "@/components/extra-example-3";
+import { TcpHttp } from "@/components/extra-example-3";
 import { useTheme } from "@/lib/use-theme";
 import { createPortal } from "react-dom";
 
@@ -128,8 +128,9 @@ const ExtraPlaceholder = () => (
 // Mapping of subtopic slugs to their Extra components
 const EXTRA_VIEWS: Record<string, ComponentType> = {
   "physical-layer-binary-format-physical-transmission": OsiModel,
-  "network-architectures-client-server-mainframe-terminal-peer-to-peer" :DnsResolution,
-  "protocol-numbers-and-port-ranges-well-known-registered-ephemeral":TcpHttp,
+  "network-architectures-client-server-mainframe-terminal-peer-to-peer":
+    DnsResolution,
+  "protocol-numbers-and-port-ranges-well-known-registered-ephemeral": TcpHttp,
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -534,6 +535,31 @@ function groupSubtopicsWithQuiz(
 ): GroupBlock[] {
   const groups: GroupBlock[] = [];
 
+  // 1. Custom ordered grouping for Switching
+  if (topicSlug === "switching-vlans-and-trunking") {
+    const preferredOrder = [
+      "Network Design & Switching Architecture",
+      "VLAN Fundamentals & Port Membership",
+      "VLAN Security & Operations",
+      "Layer 3 Services & Inter-VLAN Routing",
+      "Trunking Protocols & Operations",
+      "EtherChannel (Link Aggregation)",
+    ];
+
+    for (const groupName of preferredOrder) {
+      const items = subtopics.filter((s) => s.group === groupName);
+      if (items.length > 0) {
+        const group: GroupBlock = { name: groupName, items };
+        const q = quizFor(topicSlug, groupName);
+        if (q) group.quiz = q;
+        groups.push(group);
+      }
+    }
+
+    return groups;
+  }
+
+  // 2. Original logic for all other topics
   const byName = new Map<string | null, GroupBlock>();
   for (const s of subtopics) {
     const name = s.group ?? null;
@@ -623,16 +649,16 @@ function GlobalSearch({
   const listRef = useRef<HTMLUListElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-useEffect(() => {
-  const media = window.matchMedia("(max-width: 639px)");
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 639px)");
 
-  const update = () => setIsMobile(media.matches);
+    const update = () => setIsMobile(media.matches);
 
-  update();
-  media.addEventListener("change", update);
+    update();
+    media.addEventListener("change", update);
 
-  return () => media.removeEventListener("change", update);
-}, []);
+    return () => media.removeEventListener("change", update);
+  }, []);
   const listId = useId();
 
   useEffect(() => {
@@ -665,25 +691,23 @@ useEffect(() => {
 
   // Close on outside click
   useEffect(() => {
-  function onDown(e: PointerEvent) {
-    const target = e.target as Node;
+    function onDown(e: PointerEvent) {
+      const target = e.target as Node;
 
-    const insideSearch = containerRef.current?.contains(target);
-    const insideResults = listRef.current?.contains(target);
+      const insideSearch = containerRef.current?.contains(target);
+      const insideResults = listRef.current?.contains(target);
 
-    if (!insideSearch && !insideResults) {
-      setIsOpen(false);
+      if (!insideSearch && !insideResults) {
+        setIsOpen(false);
+      }
     }
-  }
 
-  document.addEventListener("pointerdown", onDown);
+    document.addEventListener("pointerdown", onDown);
 
-  return () => {
-    document.removeEventListener("pointerdown", onDown);
-  };
-}, []);
-
-
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, []);
 
   // Index built once
   const index = useMemo<SearchItem[]>(
@@ -735,7 +759,6 @@ useEffect(() => {
       .sort((a, b) => b.score - a.score)
       .slice(0, MAX_RESULTS);
   }, [index, words]);
-
 
   // Group by topic while keeping a flat index for keyboard navigation
   const groups = useMemo(() => {
@@ -800,113 +823,108 @@ useEffect(() => {
       if (r) commit(r.topic, r.subtopic);
     }
   };
-const resultsPanel = (
-  <div className="overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl">
-    {results.length > 0 ? (
-      <>
-        <ul
-          ref={listRef}
-          id={listId}
-          role="listbox"
-          aria-label="Search results"
-          className="max-h-[calc(100dvh-150px)] overflow-y-auto overscroll-contain p-1.5"
-        >
-          {groups.map((group) => (
-            <li
-              key={group.topic.slug}
-              role="presentation"
-              className="mb-1 last:mb-0"
-            >
-              <div className="px-2.5 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-                <Highlight text={group.topic.title} words={words} />
-              </div>
+  const resultsPanel = (
+    <div className="overflow-hidden rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl">
+      {results.length > 0 ? (
+        <>
+          <ul
+            ref={listRef}
+            id={listId}
+            role="listbox"
+            aria-label="Search results"
+            className="max-h-[calc(100dvh-150px)] overflow-y-auto overscroll-contain p-1.5"
+          >
+            {groups.map((group) => (
+              <li
+                key={group.topic.slug}
+                role="presentation"
+                className="mb-1 last:mb-0"
+              >
+                <div className="px-2.5 pb-1 pt-2 text-xs font-medium text-muted-foreground">
+                  <Highlight text={group.topic.title} words={words} />
+                </div>
 
-              <ul role="presentation">
-                {group.items.map((r) => {
-                  const active = r.flatIndex === activeIndex;
+                <ul role="presentation">
+                  {group.items.map((r) => {
+                    const active = r.flatIndex === activeIndex;
 
-                  return (
-                    <li
-                      key={`${r.topic.slug}-${r.subtopic.slug}`}
-                      id={`${listId}-opt-${r.flatIndex}`}
-                      data-index={r.flatIndex}
-                      role="option"
-                      aria-selected={active}
-                    >
-                      <button
-                        type="button"
-                        onMouseEnter={() => setActiveIndex(r.flatIndex)}
-                        onClick={() => commit(r.topic, r.subtopic)}
-                        className={`flex w-full items-center gap-2 rounded-md px-2.5 py-3 text-left text-sm ${
-                          active
-                            ? "bg-accent text-accent-foreground"
-                            : "text-foreground"
-                        }`}
+                    return (
+                      <li
+                        key={`${r.topic.slug}-${r.subtopic.slug}`}
+                        id={`${listId}-opt-${r.flatIndex}`}
+                        data-index={r.flatIndex}
+                        role="option"
+                        aria-selected={active}
                       >
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate font-medium">
-                            <Highlight
-                              text={r.subtopic.title}
-                              words={words}
-                            />
-                          </span>
-
-                          {r.subtopic.group && (
-                            <span className="block truncate text-xs text-muted-foreground">
+                        <button
+                          type="button"
+                          onMouseEnter={() => setActiveIndex(r.flatIndex)}
+                          onClick={() => commit(r.topic, r.subtopic)}
+                          className={`flex w-full items-center gap-2 rounded-md px-2.5 py-3 text-left text-sm ${
+                            active
+                              ? "bg-accent text-accent-foreground"
+                              : "text-foreground"
+                          }`}
+                        >
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-medium">
                               <Highlight
-                                text={r.subtopic.group}
+                                text={r.subtopic.title}
                                 words={words}
                               />
                             </span>
-                          )}
-                        </span>
 
-                        <CornerDownLeft
-                          aria-hidden
-                          className={`size-3.5 shrink-0 text-muted-foreground ${
-                            active ? "opacity-100" : "opacity-0"
-                          }`}
-                        />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </li>
-          ))}
-        </ul>
+                            {r.subtopic.group && (
+                              <span className="block truncate text-xs text-muted-foreground">
+                                <Highlight
+                                  text={r.subtopic.group}
+                                  words={words}
+                                />
+                              </span>
+                            )}
+                          </span>
 
+                          <CornerDownLeft
+                            aria-hidden
+                            className={`size-3.5 shrink-0 text-muted-foreground ${
+                              active ? "opacity-100" : "opacity-0"
+                            }`}
+                          />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ul>
+
+          <div className="hidden items-center justify-between border-t bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex">
+            <span>↑ ↓ Navigate · Enter Open · Esc Close</span>
+
+            <span aria-live="polite">
+              {results.length} {results.length === 1 ? "result" : "results"}
+            </span>
+          </div>
+        </>
+      ) : (
         <div
-          className="hidden items-center justify-between border-t bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex"
+          className="flex flex-col items-center gap-1 px-6 py-8 text-center"
+          role="status"
         >
-          <span>
-            ↑ ↓ Navigate · Enter Open · Esc Close
-          </span>
+          <Search className="mb-2 size-5 text-muted-foreground" />
 
-          <span aria-live="polite">
-            {results.length}{" "}
-            {results.length === 1 ? "result" : "results"}
-          </span>
+          <p className="text-sm font-medium">
+            No topics match “{query.trim()}”
+          </p>
+
+          <p className="text-xs text-muted-foreground">
+            Try a shorter term or an abbreviation, like “ospf” or “vlan”.
+          </p>
         </div>
-      </>
-    ) : (
-      <div
-        className="flex flex-col items-center gap-1 px-6 py-8 text-center"
-        role="status"
-      >
-        <Search className="mb-2 size-5 text-muted-foreground" />
-
-        <p className="text-sm font-medium">
-          No topics match “{query.trim()}”
-        </p>
-
-        <p className="text-xs text-muted-foreground">
-          Try a shorter term or an abbreviation, like “ospf” or “vlan”.
-        </p>
-      </div>
-    )}
-  </div>
-)
+      )}
+    </div>
+  );
   const showPanel = isOpen && query.trim() !== "";
   const activeId = results[activeIndex]
     ? `${listId}-opt-${activeIndex}`
@@ -969,7 +987,7 @@ const resultsPanel = (
       </div>
 
       {/* Results panel */}
-            {showPanel &&
+      {showPanel &&
         createPortal(
           <>
             {/* Mobile backdrop */}
@@ -984,124 +1002,128 @@ const resultsPanel = (
 
             {/* Search results overlay */}
             <div className="fixed inset-x-3 top-[76px] z-[9999] mx-auto max-w-lg overflow-hidden rounded-sm border bg-popover text-popover-foreground shadow-xl animate-in fade-in-0 zoom-in-95 sm:inset-x-auto sm:right-4 sm:top-16 sm:mx-0 sm:w-[400px]">
-          {results.length > 0 ? (
-            <>
-              <ul
-                ref={listRef}
-                id={listId}
-                role="listbox"
-                aria-label="Search results"
-                className="max-h-[min(60vh,360px)] overflow-y-auto p-1.5"
-              >
-                {groups.map((group) => (
-                  <li
-                    key={group.topic.slug}
-                    role="presentation"
-                    className="mb-1 last:mb-0"
+              {results.length > 0 ? (
+                <>
+                  <ul
+                    ref={listRef}
+                    id={listId}
+                    role="listbox"
+                    aria-label="Search results"
+                    className="max-h-[min(60vh,360px)] overflow-y-auto p-1.5"
                   >
-                    <div className="px-2.5 pb-1 pt-2 text-xs font-medium text-muted-foreground">
-                      <Highlight text={group.topic.title} words={words} />
-                    </div>
-                    <ul role="presentation">
-                      {group.items.map((r) => {
-                        const active = r.flatIndex === activeIndex;
-                        return (
-                          <li
-                            key={`${r.topic.slug}-${r.subtopic.slug}`}
-                            id={`${listId}-opt-${r.flatIndex}`}
-                            data-index={r.flatIndex}
-                            role="option"
-                            aria-selected={active}
-                          >
-                            <button
-                              type="button"
-                              tabIndex={-1}
-                              onMouseEnter={() => setActiveIndex(r.flatIndex)}
-                              onClick={() => commit(r.topic, r.subtopic)}
-                              className={`flex w-full items-center gap-2 rounded-sm px-2.5 py-2 text-left text-sm transition-colors ${
-                                active
-                                  ? "bg-foreground/[0.06] text-foreground"
-                                  : "text-foreground/90"
-                              }`}
-                            >
-                              <span className="min-w-0 flex-1">
-                                <span className="block truncate font-medium">
-                                  <Highlight
-                                    text={r.subtopic.title}
-                                    words={words}
-                                  />
-                                </span>
-                                {r.subtopic.group && (
-                                  <span className="block truncate text-xs text-muted-foreground">
-                                    <Highlight
-                                      text={r.subtopic.group}
-                                      words={words}
-                                    />
+                    {groups.map((group) => (
+                      <li
+                        key={group.topic.slug}
+                        role="presentation"
+                        className="mb-1 last:mb-0"
+                      >
+                        <div className="px-2.5 pb-1 pt-2 text-xs font-medium text-muted-foreground">
+                          <Highlight text={group.topic.title} words={words} />
+                        </div>
+                        <ul role="presentation">
+                          {group.items.map((r) => {
+                            const active = r.flatIndex === activeIndex;
+                            return (
+                              <li
+                                key={`${r.topic.slug}-${r.subtopic.slug}`}
+                                id={`${listId}-opt-${r.flatIndex}`}
+                                data-index={r.flatIndex}
+                                role="option"
+                                aria-selected={active}
+                              >
+                                <button
+                                  type="button"
+                                  tabIndex={-1}
+                                  onMouseEnter={() =>
+                                    setActiveIndex(r.flatIndex)
+                                  }
+                                  onClick={() => commit(r.topic, r.subtopic)}
+                                  className={`flex w-full items-center gap-2 rounded-sm px-2.5 py-2 text-left text-sm transition-colors ${
+                                    active
+                                      ? "bg-foreground/[0.06] text-foreground"
+                                      : "text-foreground/90"
+                                  }`}
+                                >
+                                  <span className="min-w-0 flex-1">
+                                    <span className="block truncate font-medium">
+                                      <Highlight
+                                        text={r.subtopic.title}
+                                        words={words}
+                                      />
+                                    </span>
+                                    {r.subtopic.group && (
+                                      <span className="block truncate text-xs text-muted-foreground">
+                                        <Highlight
+                                          text={r.subtopic.group}
+                                          words={words}
+                                        />
+                                      </span>
+                                    )}
                                   </span>
-                                )}
-                              </span>
-                              <CornerDownLeft
-                                aria-hidden
-                                className={`size-3.5 shrink-0 text-muted-foreground transition-opacity ${
-                                  active ? "opacity-100" : "opacity-0"
-                                }`}
-                              />
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
+                                  <CornerDownLeft
+                                    aria-hidden
+                                    className={`size-3.5 shrink-0 text-muted-foreground transition-opacity ${
+                                      active ? "opacity-100" : "opacity-0"
+                                    }`}
+                                  />
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
 
-              {/* Footer: keyboard hints (desktop only) */}
-              <div className="hidden items-center justify-between border-t bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex">
-                <span className="flex items-center gap-3">
-                  <span className="flex items-center gap-1">
-                    <Kbd>
-                      <ArrowUp className="size-3" />
-                    </Kbd>
-                    <Kbd>
-                      <ArrowDown className="size-3" />
-                    </Kbd>
-                    Navigate
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Kbd>
-                      <CornerDownLeft className="size-3" />
-                    </Kbd>
-                    Open
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Kbd>Esc</Kbd>
-                    Close
-                  </span>
-                </span>
-                <span aria-live="polite">
-                  {results.length} {results.length === 1 ? "result" : "results"}
-                </span>
-              </div>
-            </>
-          ) : (
-            <div
-              className="flex flex-col items-center gap-1 px-6 py-8 text-center"
-              role="status"
-            >
-              <div className="mb-1 flex size-10 items-center justify-center rounded-full bg-muted">
-                <Search className="size-4 text-muted-foreground" />
-              </div>
-              <p className="text-sm font-medium">
-                No topics match “{query.trim()}”
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Try a shorter term or an abbreviation, like “ospf” or “vlan”.
-              </p>
-            </div>
-                      )}
+                  {/* Footer: keyboard hints (desktop only) */}
+                  <div className="hidden items-center justify-between border-t bg-muted/30 px-3 py-2 text-xs text-muted-foreground sm:flex">
+                    <span className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <Kbd>
+                          <ArrowUp className="size-3" />
+                        </Kbd>
+                        <Kbd>
+                          <ArrowDown className="size-3" />
+                        </Kbd>
+                        Navigate
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Kbd>
+                          <CornerDownLeft className="size-3" />
+                        </Kbd>
+                        Open
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Kbd>Esc</Kbd>
+                        Close
+                      </span>
+                    </span>
+                    <span aria-live="polite">
+                      {results.length}{" "}
+                      {results.length === 1 ? "result" : "results"}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div
+                  className="flex flex-col items-center gap-1 px-6 py-8 text-center"
+                  role="status"
+                >
+                  <div className="mb-1 flex size-10 items-center justify-center rounded-full bg-muted">
+                    <Search className="size-4 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium">
+                    No topics match “{query.trim()}”
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Try a shorter term or an abbreviation, like “ospf” or
+                    “vlan”.
+                  </p>
+                </div>
+              )}
             </div>
           </>,
-          document.body
+          document.body,
         )}
     </div>
   );
