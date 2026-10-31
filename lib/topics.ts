@@ -4112,7 +4112,7 @@ export const topics: Topic[] = [
   // ─────────────────────────────────────────────────────────────
 {
     slug: 'switching-vlans-and-trunking',
-    number: '02',
+    number: '10',
     title: 'Switching',
     icon: 'network',
     summary: 'switching',
@@ -4121,6 +4121,7 @@ export const topics: Topic[] = [
       {
         slug: 'traffic-forwarding-methods-in-switches',
         title: 'Traffic forwarding methods in switches',
+        group:'Network Design & Switching Architecture',
         description: 'Switches forward frames using store & forward, cut-through, or modified cut-through (fragment-free), trading speed against error checking.',
         blocks: [
           { type: 'heading', text: '1. Store & forward' },
@@ -4654,7 +4655,365 @@ export const topics: Topic[] = [
           { label: 'Verify', value: 'show interface trunk' },
         ],
       },
+
+      {
+        slug: 'etherchannel-fundamentals',
+        title: 'Etherchannel fundamentals',
+        description: 'Etherchannel bundles multiple physical links into one logical link for more bandwidth and redundancy, and STP treats the bundle as a single link.',
+        blocks: [
+          { type: 'heading', text: 'What is Etherchannel?' },
+          {
+            type: 'bullets', items: [
+              'Also called Port-Channel, Link Aggregation Group (LAG) or Port-Aggregation.',
+              'Etherchannel is the Cisco term.',
+              'Bundles multiple physical links so they act as a single logical link.',
+              'Provides high bandwidth for uplinks and link redundancy.',
+              'STP treats an Etherchannel bundle as a single link, so no ports inside the bundle are blocked.',
+            ]
+          },
+          { type: 'heading', text: 'Why it is needed' },
+          {
+            type: 'bullets', items: [
+              'Without Etherchannel, STP blocks all but one of the parallel links between two switches, wasting bandwidth.',
+              'If one member link fails, traffic continues over the remaining links without an STP recalculation.',
+              'Can also be configured on L3 devices (L3 Etherchannel).',
+            ]
+          },
+          { type: 'heading', text: 'Establishment methods' },
+          {
+            type: 'bullets', items: [
+              'Manual link: configured manually, without any negotiation protocol.',
+              'Dynamic link: established dynamically using a negotiation protocol (LACP or PAgP).',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Other names', value: 'Port-Channel, LAG, Port-Aggregation' },
+          { label: 'STP behaviour', value: 'Bundle seen as one link, no member blocked' },
+          { label: 'Methods', value: 'Manual (mode on) or dynamic (LACP / PAgP)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/etherchannel-stp-blocking1_wide.png', alt: 'Four parallel links between SW1 and SW2 with STP blocking three of them', caption: 'Without Etherchannel: STP blocks the redundant links' },
+          { src: '/diagrams/etherchannel-bundle1_wide.png', alt: 'Four physical links between SW1 and SW2 bundled into one logical port-channel', caption: 'With Etherchannel: four links act as one logical link' },
+        ],
+      },
+      {
+        slug: 'etherchannel-protocols-lacp-vs-pagp',
+        title: 'Etherchannel protocols (LACP vs PAgP)',
+        description: 'LACP is the open standard (16 links, 8 active, Active/Passive); PAgP is Cisco proprietary (8 links, all active, Desirable/Auto).',
+        blocks: [
+          { type: 'heading', text: '1. LACP (Link Aggregation Control Protocol)' },
+          {
+            type: 'bullets', items: [
+              'Open-standard protocol (IEEE 802.3ad), supported by every vendor.',
+              'Supports up to 16 links in a bundle.',
+              'Only 8 links are active (forwarding traffic); the remaining 8 stay in standby.',
+              'Active mode: initiates negotiation.',
+              'Passive mode: listens for negotiation and only responds.',
+            ]
+          },
+          { type: 'heading', text: '2. PAgP (Port Aggregation Protocol)' },
+          {
+            type: 'bullets', items: [
+              'Cisco proprietary; works only with Cisco devices.',
+              'Supports a maximum of 8 links in a bundle, and all 8 are active and forwarding traffic.',
+              'Desirable mode: initiates negotiation.',
+              'Auto mode: listens for negotiation and only responds.',
+            ]
+          },
+          { type: 'heading', text: 'Mode combinations' },
+          {
+            type: 'bullets', items: [
+              'LACP: Active + Active = Etherchannel',
+              'LACP: Active + Passive = Etherchannel',
+              'LACP: Passive + Passive = No Etherchannel',
+              'PAgP: Desirable + Desirable = Etherchannel',
+              'PAgP: Desirable + Auto = Etherchannel',
+              'PAgP: Auto + Auto = No Etherchannel',
+              'Manual: On + On = Etherchannel (no negotiation); On does not negotiate with LACP or PAgP.',
+            ]
+          },
+          { type: 'paragraph', text: 'Protocols can differ per segment (for example LACP between SW1 and SW2, PAgP between SW2 and SW3), but both ends of each point-to-point bundle must use the same protocol.' },
+          { type: 'heading', text: '3. Layer 3 EtherChannel Configuration' },
+          { type: 'paragraph', text: 'EtherChannel can be configured in Layer 3 (L3) devices as well.' },
+          { type: 'heading', text: '4. Network Topology Architecture' },
+          {
+            type: 'bullets', items: [
+              'Server connects to SW1 via an L2 EtherChannel (Trunk).',
+              'SW1 connects to SW2 (Multi-Layer Switch / MLS) via an L2 EtherChannel (Trunk).',
+              'SW2 (MLS) connects to a Layer 3 Router via an L3 EtherChannel (IP endpoints: SW2 side .10.1, Router side .10.2).',
+              'The Router links directly to a Firewall (FW) device (IP endpoints: Router side .20.1, Firewall side .20.2).'
+            ]
+          }
+        ],
+        quickReference: [
+          { label: 'LACP', value: 'Open standard, 16 links (8 active + 8 standby), Active / Passive' },
+          { label: 'PAgP', value: 'Cisco proprietary, 8 links (all active), Desirable / Auto' },
+          { label: 'No bundle formed', value: 'Passive + Passive, Auto + Auto' },
+          { label: 'L3 Support', value: 'Supported on L3 devices (e.g., Multi-Layer Switches and Routers)' }
+        ],
+        diagrams: [
+          { src: '/diagrams/lacp-vs-pagp-topology1_wide.png', alt: 'LACP between SW1 and SW2, PAgP between SW2 and SW3', caption: 'LACP on SW1-SW2 and PAgP on SW2-SW3 (protocol matches per link)' },
+          { src: '/diagrams/l2-l3-etherchannel-topology_wide.png', alt: 'Topology showing Server, SW1, SW2 (MLS) with L2 Trunk EtherChannels, leading to an L3 EtherChannel connection to a Router and Firewall', caption: 'End-to-end topology combining L2 Trunk and L3 routed EtherChannels' }
+        ],
+      },
+      {
+        slug: 'etherchannel-formation-conditions',
+        title: 'Etherchannel formation conditions',
+        description: 'All member interfaces must match on type, bundle number, STP type, speed/duplex, protocol, trunk encapsulation, allowed VLANs and native VLAN.',
+        blocks: [
+          { type: 'heading', text: 'Conditions (troubleshooting checklist)' },
+          {
+            type: 'bullets', items: [
+              '(i) Same type of interfaces: cannot bundle Fast Ethernet with Gigabit Ethernet.',
+              '(ii) Same Etherchannel number: the bundle number must match on both sides.',
+              '(iii) Same type of Spanning Tree: both switches must run the same STP type (7 types exist).',
+              '(iv) Same speed and duplex on all member interfaces.',
+              '(v) Same Etherchannel protocol: both devices must use LACP or both must use PAgP.',
+              '(vi) Same trunk encapsulation, e.g. dot1q.',
+              '(vii) Same allowed VLANs.',
+              '(viii) Same native VLAN.',
+              '(ix) Check the L1 status: the physical layer must be up.',
+            ]
+          },
+          { type: 'paragraph', text: 'If a member port does not match the others, it is suspended from the bundle (shown as s or I in show etherchannel summary) while the remaining links keep working.' },
+        ],
+        quickReference: [
+          { label: 'Must match', value: 'Interface type, bundle #, STP type, speed/duplex, protocol' },
+          { label: 'Also match', value: 'Trunk encapsulation, allowed VLANs, native VLAN' },
+          { label: 'First check', value: 'L1 status (cable / transceiver)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/etherchannel-mismatch1.png', alt: 'Bundle with one member port mismatched on speed and suspended', caption: 'Mismatched member port is suspended from the bundle' },
+        ],
+      },
+      {
+        slug: 'etherchannel-configuration-manual-lacp-pagp',
+        title: 'Etherchannel configuration (Manual, LACP, PAgP)',
+        description: 'Create the bundle with channel-group on the physical interfaces, then configure the logical port-channel interface as trunk, access or L3.',
+        blocks: [
+          { type: 'heading', text: 'Manual Etherchannel' },
+          { type: 'paragraph', text: 'Step 1: configure the bundle. This creates the logical port-channel interface.' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface range f0/0-3',
+              '(conf-if)# description port channel 10',
+              '(conf-if)# channel-group 10 mode on',
+              '(conf-if)# no sh',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'paragraph', text: 'Step 2: configure the logical interface (trunk, access or L3).' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface port-channel 10',
+              '(conf-if)# description Trunk-switch2',
+              '(conf-if)# switchport trunk allowed vlan 1,10,20,30,40',
+              '(conf-if)# no sh',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'heading', text: 'LACP configuration' },
+          { type: 'paragraph', text: 'Step 2 is the same as manual; step 1 changes as follows.' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface range f0/0-3',
+              '(conf-if)# description LACP_SW2',
+              '(conf-if)# channel-protocol lacp',
+              '(conf-if)# channel-group 10 mode <active/passive>',
+              '(conf-if)# no sh',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'heading', text: 'PAgP configuration' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface range f0/0-3',
+              '(conf-if)# description PAgP_SW2',
+              '(conf-if)# channel-protocol pagp',
+              '(conf-if)# channel-group 10 mode <desirable/auto>',
+              '(conf-if)# no sh',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets', items: [
+              '# show etherchannel summary',
+              '# show etherchannel 10 detail',
+              '# show run interface',
+              '# show ip int br',
+              '# show int',
+              '# show log | include port-channel 10',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Manual', value: 'channel-group <n> mode on' },
+          { label: 'LACP', value: 'channel-protocol lacp + channel-group <n> mode active/passive' },
+          { label: 'PAgP', value: 'channel-protocol pagp + channel-group <n> mode desirable/auto' },
+          { label: 'Verify', value: 'show etherchannel summary' },
+        ],
+        diagrams: [
+          { src: '/diagrams/etherchannel-config-topology1.png', alt: 'SW1 and SW2 connected by f0/0-3 bundled into port-channel 10', caption: 'Port-channel 10 built from f0/0-3 between SW1 and SW2' },
+        ],
+      },
+      {
+        slug: 'inter-vlan-routing-router-on-a-stick',
+        title: 'Inter-VLAN routing: Router on a Stick',
+        description: 'A router uses one physical trunk link split into dot1q subinterfaces, one per VLAN, to route between VLANs when all switches are L2.',
+        blocks: [
+          { type: 'heading', text: 'Concept' },
+          {
+            type: 'bullets', items: [
+              'Used when all switches are L2 switches (L2 cannot route), so an L3 device (a router) performs the routing.',
+              'Enables inter-VLAN routing using subinterfaces.',
+              'One physical routing port is split into multiple virtual / logical subinterfaces, one per VLAN.',
+              'VLAN traffic is identified using dot1q tags.',
+              'The switch side is configured as a trunk so multi-VLAN traffic reaches the router with dot1q tags.',
+              'Each subinterface IP address is the default gateway of its VLAN.',
+            ]
+          },
+          { type: 'heading', text: 'Router configuration' },
+          { type: 'paragraph', text: 'Step 1: bring up the physical interface.' },
+          {
+            type: 'bullets', items: [
+              '# int f0/0',
+              '# no sh',
+              '# exit',
+            ]
+          },
+          { type: 'paragraph', text: 'Step 2: create a subinterface per VLAN (repeat for VLAN 20, 30, 40).' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface f0/0.10',
+              '(conf-if)# description GW - vlan 10',
+              '(conf-if)# encapsulation dot1q 10',
+              '(conf-if)# ip address 192.168.10.100 255.255.255.0',
+              '(conf-if)# no sh',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'heading', text: 'Switch side' },
+          {
+            type: 'bullets', items: [
+              'Configure the port facing the router as a trunk (switchport mode trunk) and allow the required VLANs.',
+              'Alternative variant: one access port per VLAN on the switch, each connected to its own router interface (uses more physical ports).',
+            ]
+          },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets', items: [
+              '# show ip interface brief',
+              '# show ip route',
+              '# show interface trunk (on the switch)',
+              '# ping between hosts in different VLANs',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Used when', value: 'Only L2 switches are available' },
+          { label: 'Subinterface', value: 'interface f0/0.<vlan> + encapsulation dot1q <vlan>' },
+          { label: 'Switch port to router', value: 'Trunk (or one access port per VLAN in the variant)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/router-on-a-stick1_wide.png', alt: 'Router connected by a single trunk link to a switch carrying VLANs 10, 20, 30, 40', caption: 'Router on a stick: one trunk link, one subinterface per VLAN' },
+          { src: '/diagrams/roas-subinterfaces1_wide.png', alt: 'Router physical interface f0/0 split into subinterfaces f0/0.10 to f0/0.40', caption: 'Subinterfaces f0/0.10 - f0/0.40 acting as VLAN gateways' },
+        ],
+      },
+      {
+        slug: 'inter-vlan-routing-mls-and-svi',
+        title: 'Inter-VLAN routing: MLS & SVI',
+        description: 'A multilayer switch routes between VLANs using one SVI per VLAN; enable ip routing and make sure the VLAN exists before creating the SVI.',
+        blocks: [
+          { type: 'heading', text: 'SVI (Switched Virtual Interface)' },
+          {
+            type: 'bullets', items: [
+              'A virtual / logical interface created on an L3 switch for every VLAN.',
+              'No physical switchport is wasted for inter-VLAN routing.',
+              'Has the bandwidth of a physical switchport, but is handled by the CPU.',
+              'The SVI IP address is the default gateway of that VLAN.',
+            ]
+          },
+          { type: 'heading', text: 'Configuration' },
+          { type: 'paragraph', text: 'Step 1: enable routing (disabled by default on an MLS).' },
+          { type: 'bullets', items: ['(conf)# ip routing'] },
+          { type: 'paragraph', text: 'Step 2: make sure the VLAN exists in the VLAN database. The SVI will not come up without it.' },
+          { type: 'bullets', items: ['(conf)# vlan 10', '# show vlan'] },
+          { type: 'paragraph', text: 'Step 3: create the SVI and configure its parameters.' },
+          {
+            type: 'bullets', items: [
+              '(conf)# interface vlan 10',
+              '(conf-if)# description GW-VLAN10',
+              '(conf-if)# ip address 192.168.10.100 255.255.255.0',
+              '(conf-if)# no sh',
+              '(conf-if)# exit',
+            ]
+          },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets', items: [
+              '# show ip interface brief',
+              '# show ip route',
+              '# show vlan',
+              '# ping between hosts in different VLANs',
+            ]
+          },
+          { type: 'heading', text: 'Router on a stick vs SVI' },
+          {
+            type: 'bullets', items: [
+              'Router on a stick: external router, single trunk link (a possible bottleneck), used with L2 switches.',
+              'SVI: routing inside the multilayer switch, no extra router needed, preferred in modern networks.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Enable routing', value: 'ip routing (global config)' },
+          { label: 'SVI', value: 'interface vlan <id> + ip address' },
+          { label: 'SVI stays down if', value: 'The VLAN does not exist in the VLAN database' },
+        ],
+        diagrams: [
+          { src: '/diagrams/mls-svi1.png', alt: 'Multilayer switch with SVIs for VLANs 10, 20, 30, 40 and access switches below', caption: 'MLS with one SVI per VLAN acting as the gateway' },
+        ],
+      },
+      {
+        slug: 'cisco-3-tier-network-architecture',
+        title: 'Cisco 3-tier network architecture',
+        group:'Network Design & Switching Architecture',
+        description: 'The 3-tier model splits the network into Core, Distribution and Access layers, with edge routers connecting the core to the ISPs.',
+        blocks: [
+          { type: 'heading', text: 'Layers' },
+          {
+            type: 'bullets', items: [
+              'Core: high-speed backbone; connects the distribution layers and the edge routers to the ISPs.',
+              'Distribution: policy enforcement, routing between VLANs, and aggregation of access switches.',
+              'Access: end-device connectivity (servers, PCs); L2 switching and VLAN access ports.',
+            ]
+          },
+          { type: 'heading', text: 'How it fits together' },
+          {
+            type: 'bullets', items: [
+              'Traffic flows Access to Distribution to Core, with edge routers connecting the core to the ISPs.',
+              'Inter-VLAN routing (SVIs on MLS) typically lives at the distribution layer.',
+              'Etherchannel is commonly used for uplinks between access and distribution, and between distribution and core.',
+              'Redundant links and devices at each layer avoid a single point of failure.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Core', value: 'Fast backbone, links distribution and edge routers' },
+          { label: 'Distribution', value: 'Policies, inter-VLAN routing, aggregation' },
+          { label: 'Access', value: 'End devices, L2 switching, VLAN access ports' },
+        ],
+        diagrams: [
+          { src: '/diagrams/three-tier-architecture1.png', alt: 'Core, distribution and access layers with edge routers connecting to ISPs', caption: 'Cisco 3-tier: Core, Distribution, Access with edge routers to ISPs' },
+        ],
+      },
+
+      
+      
     ],
+    
   },
 ]
 
