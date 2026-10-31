@@ -1319,10 +1319,10 @@ export const topics: Topic[] = [
           { type: 'paragraph', text: 'TCP is a connection-oriented protocol, which means a condition (connection) must be in place before sending TCP traffic. The three-way handshake ensures this connection exists before any traffic is sent.' },
           { type: 'paragraph', text: 'TCP works at the transport layer (Layer 4) and gives applications a reliable, ordered, error-checked stream of bytes. To do that, both hosts keep state about the conversation: starting sequence numbers, window sizes, timers and buffers. The handshake is how both ends agree on that state and confirm that the other side is reachable and ready.' },
           { type: 'paragraph', text: 'UDP is connectionless — there is no need for any connection to be in place before sending UDP traffic.' },
-          
 
-        
-          
+
+
+
 
           // ───────────── Three-way handshake ─────────────
           { type: 'heading', text: 'Three-way handshake' },
@@ -1378,7 +1378,7 @@ export const topics: Topic[] = [
             ]
           },
 
-          
+
 
           // ───────────── Four-way handshake ─────────────
           { type: 'heading', text: 'Four-way handshake (termination)' },
@@ -1421,7 +1421,7 @@ export const topics: Topic[] = [
               'RST is the abrupt alternative: one segment ends the connection immediately and the receiver discards its state.',
             ]
           },
-          
+
 
           // ───────────── Windowing ─────────────
           { type: 'heading', text: 'Windowing: how TCP controls the flow of data' },
@@ -1445,7 +1445,7 @@ export const topics: Topic[] = [
               'Not yet sent and not allowed: beyond the window, must wait.',
             ]
           },
-        
+
           { type: 'heading', text: 'Worked example: window shrinks, hits zero, then reopens' },
           { type: 'paragraph', text: 'Segment size (MSS) is 1000 bytes and the receiver first advertises a window of 3000 bytes. Sequence numbers are counted from byte 1 to keep the numbers small.' },
           {
@@ -1465,11 +1465,11 @@ export const topics: Topic[] = [
               'A window of 0 means stop. The sender must not send data (except tiny probes, below) until the window reopens.',
             ]
           },
-           
 
-          
 
-          
+
+
+
         ],
         quickReference: [
           { label: 'Establish', value: '3-way handshake (SYN, SYN-ACK, ACK)' },
@@ -1479,7 +1479,7 @@ export const topics: Topic[] = [
           { label: 'Window scale', value: 'Shift 0 – 14, set in SYN. Max about 1 GiB' },
           { label: 'Throughput limit', value: 'Window size ÷ round-trip time' },
         ],
-        
+
       },
 
       {
@@ -4060,7 +4060,7 @@ export const topics: Topic[] = [
           { label: 'Forward vs reply', value: 'Forward needs 3 ARPs, reply needs none' },
           { label: 'TTL', value: 'Reduced by 1 at every router' },
         ],
- 
+
       },
       {
         slug: 'pdu-names-segment-packet-frame-bits',
@@ -4110,7 +4110,7 @@ export const topics: Topic[] = [
   // ─────────────────────────────────────────────────────────────
   // 10 · SWITCHING
   // ─────────────────────────────────────────────────────────────
-{
+  {
     slug: 'switching-vlans-and-trunking',
     number: '10',
     title: 'Switching',
@@ -4583,7 +4583,8 @@ export const topics: Topic[] = [
           {
             type: 'bullets', items: [
               'DTP establishes a trunk between switches after a negotiation.',
-              'Negotiated parameters: (i) frame tagging protocol, (ii) native VLAN, (iii) allowed VLANs, etc.',
+              'Negotiated parameters: (i) trunk or access, (ii) frame tagging protocol (ISL or dot1q).',
+              'Not negotiated: the native VLAN and the allowed VLANs. Configure both manually and make sure they match on both ends.',
             ]
           },
           { type: 'heading', text: 'DTP modes' },
@@ -5026,7 +5027,7 @@ export const topics: Topic[] = [
         ],
       },
     ],
-},
+  },
 ]
 
 export function getSubtopic(topicSlug: string, subtopicSlug: string) {
