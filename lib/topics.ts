@@ -5028,6 +5028,51 @@ export const topics: Topic[] = [
       },
     ],
   },
+  {
+  slug: 'labs',
+  number: '11',
+  title: 'LABS',
+  icon: 'terminal', // or 'brackets', 'layers', etc. based on your iconMap
+  description: 'Hands-on practice labs for switching, routing, and network configuration.',
+  subtopics: [
+    {
+      slug: 'static-routing-lab-1',
+      title: 'Static Routing Lab 1',
+      group: 'Routing Labs',
+      description: 'Practice configuring static routes between three routers (R1, R2, R3) and their connected switches and PCs.',
+      blocks: [
+        { type: 'heading', text: 'Topology Overview' },
+        {
+          type: 'paragraph',
+          text: 'You have three routers connected in a line. R1 connects to R2 via the 4.0/24 network. R2 connects to R3 via the 5.0/24 network. Each router has a LAN with two PCs (192.168.1.0/24, 2.0/24, 3.0/24).'
+        },
+        { type: 'heading', text: 'Objective' },
+        {
+          type: 'bullets',
+          items: [
+            'Assign IP addresses to all interfaces as shown in the diagram.',
+            'Configure static routes so that PC VPC7 can ping PC VPC12.',
+            'Verify connectivity using ping.',
+          ]
+        },
+      ],
+      quickReference: [
+        { label: 'R1 LAN', value: '192.168.1.0/24 (GW: .100)' },
+        { label: 'R1-R2 Link', value: '192.168.4.0/24' },
+        { label: 'R2-R3 Link', value: '192.168.5.0/24' },
+        { label: 'R3 LAN', value: '192.168.3.0/24 (GW: .100)' },
+      ],
+      diagrams: [
+        {
+          src: '/diagrams/static-routing-lab-1.png', // Make sure to save the image here
+          alt: 'Static Routing Lab 1 Topology',
+          caption: 'Static Routing Lab - 1 (R1, R2, R3 connected in series)'
+        }
+      ]
+    }
+  ]
+},
+
 ]
 
 export function getSubtopic(topicSlug: string, subtopicSlug: string) {

@@ -104,6 +104,7 @@ import { DnsResolution } from "@/components/extra-example-2";
 import { TcpHttp } from "@/components/extra-example-3";
 import { useTheme } from "@/lib/use-theme";
 import { createPortal } from "react-dom";
+import { StaticRoutingLab } from "@/components/static-routing-lab";
 
 // ─────────────────────────────────────────────────────────────
 // Summary pages
@@ -1182,6 +1183,17 @@ function Sidebar({
 
   const activeKey = selected ?? selectedQuizId ?? selectedSummary;
 
+  
+  // Sort topics so the LABS topic is always last
+  const sortedTopics = useMemo(() => {
+    return [...topics].sort((a, b) => {
+      if (a.slug === "labs") return 1;
+      if (b.slug === "labs") return -1;
+      return 0; // Keep original order for everything else
+    });
+  }, []);
+
+
   useEffect(() => {
     if (!mobile) return;
     if (!activeKey) return;
@@ -1235,7 +1247,7 @@ function Sidebar({
           onValueChange={setOpenTopics}
           className="w-full"
         >
-          {topics.map((topic) => {
+          {sortedTopics.map((topic) => {
             const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network;
             const doneCount = topic.subtopics.filter((s) =>
               completed.has(progressKey(topic.slug, s.slug)),
@@ -2144,6 +2156,9 @@ export default function CcnaStudyApp() {
                 {current.slug === "packet-flow-between-networks-reply-path" && (
                   <ReplyPacketFlow />
                 )}
+                {current.slug === "static-routing-lab-1" && (
+  <StaticRoutingLab />
+)}
 
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
