@@ -102,9 +102,17 @@ import { PacketFlowSummary } from "@/components/packet-flow-summary";
 import { OsiModel } from "@/components/extra-example";
 import { DnsResolution } from "@/components/extra-example-2";
 import { TcpHttp } from "@/components/extra-example-3";
+import { SwitchForwardingMethods } from "@/components/sw-fw";
 import { useTheme } from "@/lib/use-theme";
 import { createPortal } from "react-dom";
 import { StaticRoutingLab } from "@/components/static-routing-lab";
+import { ThreeTierArchitecture } from "./3-tier";
+import { VlanConcepts } from "./vlan-basics";
+import { AccessPortLab } from "./access-port";
+import { TrunkPortLab } from "./trunk-port";
+import { TrunkConfigLab } from "./trunk-lab";
+import EtherChannelLab from "./ether-channel-lab";
+import InterVlanRoutingLab from "./inter-vlan-lab";
 
 // ─────────────────────────────────────────────────────────────
 // Summary pages
@@ -1183,7 +1191,6 @@ function Sidebar({
 
   const activeKey = selected ?? selectedQuizId ?? selectedSummary;
 
-  
   // Sort topics so the LABS topic is always last
   const sortedTopics = useMemo(() => {
     return [...topics].sort((a, b) => {
@@ -1192,7 +1199,6 @@ function Sidebar({
       return 0; // Keep original order for everything else
     });
   }, []);
-
 
   useEffect(() => {
     if (!mobile) return;
@@ -2157,8 +2163,43 @@ export default function CcnaStudyApp() {
                   <ReplyPacketFlow />
                 )}
                 {current.slug === "static-routing-lab-1" && (
-  <StaticRoutingLab />
-)}
+                  <StaticRoutingLab />
+                )}
+                {current.slug === "traffic-forwarding-methods-in-switches" && (
+                  <SwitchForwardingMethods />
+                )}
+
+                {current.slug === "cisco-3-tier-network-architecture" && (
+                  <ThreeTierArchitecture />
+                )}
+
+                {current.slug === "vlan-concepts-ranges-and-advantages" && (
+                  <VlanConcepts />
+                )}
+
+                {current.slug === "vlan-ports-access-port-configuration" && (
+                  <AccessPortLab />
+                )}
+
+                {current.slug ===
+                  "trunk-ports-and-frame-tagging-isl-vs-dot1q" && (
+                  <TrunkPortLab />
+                )}
+
+                {current.slug ===
+                  "trunk-configuration-verification-and-troubleshooting" && (
+                  <TrunkConfigLab />
+                )}
+
+                {current.slug ===
+                  "etherchannel-configuration-manual-lacp-pagp" && (
+                  <EtherChannelLab />
+                )}
+
+                {current.slug ===
+                  "inter-vlan-routing-mls-and-svi" && (
+                  <InterVlanRoutingLab />
+                )}
 
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
