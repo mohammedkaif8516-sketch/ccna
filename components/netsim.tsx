@@ -753,7 +753,10 @@ export function NetLab({ title, width = 900, height = 560, children }: { title: 
   const store = useMemo(createStore, []);
   const [tabs, setTabs] = useState<string[]>([]), [active, setActive] = useState<string>(), [mx, setMx] = useState(false);
   const s = useSyncExternalStore(store.subscribe, store.get);
-  useEffect(() => {
+  // remembers the last "interface ..." / "router ..." line clicked per device
+const lastCtx = useRef<Record<string, string>>({});
+
+useEffect(() => {
   const onRun = (e: Event) => {
     const { device, commands, config } = (e as CustomEvent).detail as {
       device: string; commands: string[]; config: boolean;
@@ -762,13 +765,37 @@ export function NetLab({ title, width = 900, height = 560, children }: { title: 
     if (!d) return;
     setActive(device); // open that device's tab
 
-    const mode = d.session.cli?.mode;
+    const cli = d.session.cli;
+    const mode: string = cli?.mode ?? "";
+
+    // Enter config mode only if the router isn't there yet.
     const pre: string[] = [];
     if (config) {
       if (mode === "user") pre.push("enable");
       if (mode === "user" || mode === "priv") pre.push("configure terminal");
     }
-    [...pre, ...commands].forEach((line) => submit(store, device, line));
+
+    // A click on an indented line arrives as [parent, child]. Drop the parent
+    // if the device is already inside it.
+    let cmds = commands;
+    const parent = commands[0] ?? "";
+    const isContext = /^(interface|router)\s/.test(parent);
+    if (isContext && commands.length === 2) {
+      const [kw, arg = ""] = parent.split(/\s+/);
+      let already = false;
+      if (kw === "interface" && mode === "config-if") {
+        // "e0/0" vs "Ethernet0/0": same letters at the start, same numbers at the end
+        const cur = (cli?.ifs?.[0] ?? "").toLowerCase();
+        const m = arg.toLowerCase().match(/^([a-z]+)(.*)$/);
+        already = !!m && cur.startsWith(m[1]) && cur.endsWith(m[2]);
+      } else if (kw === "router") {
+        already = mode.includes("router") && lastCtx.current[device] === parent;
+      }
+      if (already) cmds = commands.slice(1);
+    }
+    if (isContext) lastCtx.current[device] = parent;
+
+    [...pre, ...cmds].forEach((line) => submit(store, device, line));
   };
   window.addEventListener("netlab:run", onRun);
   return () => window.removeEventListener("netlab:run", onRun);

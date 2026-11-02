@@ -114,6 +114,9 @@ import { TrunkConfigLab } from "./trunk-lab";
 import EtherChannelLab from "./ether-channel-lab";
 import InterVlanRoutingLab from "./inter-vlan-lab";
 import MlsEigrpOspfLab from "./MlsEigrpOspfLab";
+import { AsymmetricRoutingLab } from "./assymetric-lab2";
+import { AsymmetricRoutingLab3 } from "./assymetric-lab-3";
+import { RipV1Lab } from "./rip-v1";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2202,6 +2205,18 @@ export default function CcnaStudyApp() {
                 )}
                 {current.slug === "mls-eigrp-ospf-lab" && (
                   <MlsEigrpOspfLab />
+                )}
+                {current.slug === "asymmetric-routing-lab-2" && (
+                  <AsymmetricRoutingLab />
+                )}
+                {current.slug === "asymmetric-routing-lab-3" && (
+                  <AsymmetricRoutingLab3 />
+                )}
+                {current.slug === "rip-v1-lab" && (
+                  <RipV1Lab />
+                )}
+                {current.slug === "rip-v2-lab" && (
+                  <RipV2Lab />
                 )}
 
                 <div className="mt-10 flex items-stretch gap-2">

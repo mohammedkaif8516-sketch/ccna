@@ -5036,77 +5036,325 @@ export const topics: Topic[] = [
   description: 'Hands-on practice labs for switching, routing, and network configuration.',
   subtopics: [
     {
-      slug: 'static-routing-lab-1',
-      title: 'Static Routing Lab 1',
-      group: 'Routing Labs',
-      description: 'Practice configuring static routes between three routers (R1, R2, R3) and their connected switches and PCs.',
-      blocks: [
-        { type: 'heading', text: 'Topology Overview' },
-        {
-          type: 'paragraph',
-          text: 'You have three routers connected in a line. R1 connects to R2 via the 4.0/24 network. R2 connects to R3 via the 5.0/24 network. Each router has a LAN with two PCs (192.168.1.0/24, 2.0/24, 3.0/24).'
-        },
-        { type: 'heading', text: 'Objective' },
-        {
-          type: 'bullets',
-          items: [
-            'Assign IP addresses to all interfaces as shown in the diagram.',
-            'Configure static routes so that PC VPC7 can ping PC VPC12.',
-            'Verify connectivity using ping.',
-          ]
-        },
-      ],
-      quickReference: [
-        { label: 'R1 LAN', value: '192.168.1.0/24 (GW: .100)' },
-        { label: 'R1-R2 Link', value: '192.168.4.0/24' },
-        { label: 'R2-R3 Link', value: '192.168.5.0/24' },
-        { label: 'R3 LAN', value: '192.168.3.0/24 (GW: .100)' },
-      ],
-      diagrams: [
-        {
-          src: '/diagrams/static-routing-lab-1.png', // Make sure to save the image here
-          alt: 'Static Routing Lab 1 Topology',
-          caption: 'Static Routing Lab - 1 (R1, R2, R3 connected in series)'
-        }
-      ]
-    },
-    {
-  slug: 'mls-eigrp-ospf-lab',
-  title: 'Four MLS: LACP, STP, EIGRP and OSPF',
-  group: 'Advanced Switching & Routing',
-  description: 'Practice configuring four multilayer switches in a square using LACP bundles, trunking, rapid-PVST, SVIs, and running EIGRP and OSPF across diagonals.',
+  slug: 'static-routing-lab-1',
+  title: 'Static Routing Lab 1',
+  group: 'Routing Labs',
+  description:
+    'Bring up a three-router chain from a factory-fresh state, then use static routes to make all six PCs reach each other.',
   blocks: [
-    { type: 'heading', text: 'Topology Overview' },
+    { type: 'heading', text: 'Scenario' },
     {
       type: 'paragraph',
-      text: 'You have four multilayer switches (SW1, SW2, SW3, SW4) arranged in a square and connected by four EtherChannel bundles (Po12, Po13, Po24, Po34). Two routing domains run over SVIs: EIGRP between SW1 and SW4 over VLAN 14, and OSPF between SW2 and SW3 over VLAN 23.'
+      text:
+        'Three branch offices are connected in a line: R1 ↔ R2 ↔ R3. Each office has a switch and two PCs on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. There is no routing protocol, so each router only knows the networks attached to it until you tell it more.'
     },
-    { type: 'heading', text: 'Objective' },
+
+    { type: 'heading', text: 'Addressing Plan' },
     {
       type: 'bullets',
       items: [
-        'Form LACP bundles using active/passive mode configurations.',
-        'Configure dot1q trunking on all port-channels.',
-        'Create and propagate VLANs 14 and 23 across transit and destination switches.',
-        'Tune Spanning Tree (Rapid-PVST) priorities to control the root bridge and blocked ports.',
-        'Configure IP routing, SVI interfaces, loopbacks, and verify EIGRP/OSPF neighbor adjacencies.'
+        'R1–R2 backbone: 192.168.4.0/24 (R1 e0/0 = .1, R2 e0/0 = .2)',
+        'R2–R3 backbone: 192.168.5.0/24 (R2 e0/1 = .2, R3 e0/0 = .3)',
+        'R1 LAN: 192.168.1.0/24 on e0/1, with the router at .100 (VPC7 = .1, VPC8 = .2)',
+        'R2 LAN: 192.168.2.0/24 on e0/2, with the router at .100 (VPC9 = .1, VPC10 = .2)',
+        'R3 LAN: 192.168.3.0/24 on e0/1, with the router at .100 (VPC11 = .1, VPC12 = .2)',
+        'Every PC uses its LAN router (.100) as its default gateway.',
       ]
-    }
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Address every router interface and every PC according to the plan above.',
+        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+        'Add static routes so every PC can ping every other PC. Watch the Ping matrix turn green.',
+        'Break something on purpose: delete one return route, then compare a ping timeout with a "Destination unreachable" reply.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'A router can only forward to networks in its routing table. Count the networks each router is not directly connected to: R1 and R3 are each missing three, and R2 is missing two. A ping needs a working path in both directions, so a missing return route on any router will make it fail even if the outbound path is perfect.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show ip interface brief: every interface should be up/up.',
+        'show ip route: look for C and L entries (connected) and S entries (static).',
+        'ping from a PC to its own gateway first, then to the next LAN, then to the far end.',
+        'trace from VPC7 to VPC12 to see each hop along the path.',
+      ]
+    },
   ],
   quickReference: [
-    { label: 'SW1/SW4 EIGRP VLAN', value: 'VLAN 14 (10.1.4.0/24)' },
-    { label: 'SW2/SW3 OSPF VLAN', value: 'VLAN 23 (10.2.3.0/24)' },
-    { label: 'Loopbacks', value: 'SW1: 1.1.1.1, SW2: 2.2.2.2, SW3: 3.3.3.3, SW4: 4.4.4.4' },
-    { label: 'STP Priorities', value: 'SW1: 4096, SW2: 8192, SW3: 16384, SW4: 32768' }
+    { label: 'R1 LAN', value: '192.168.1.0/24 (GW .100)' },
+    { label: 'R2 LAN', value: '192.168.2.0/24 (GW .100)' },
+    { label: 'R3 LAN', value: '192.168.3.0/24 (GW .100)' },
+    { label: 'R1–R2 Link', value: '192.168.4.0/24 (.1 ↔ .2)' },
+    { label: 'R2–R3 Link', value: '192.168.5.0/24 (.2 ↔ .3)' },
+    { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
+    { label: 'PC address', value: 'ip <addr>/24 <gateway>' },
+    { label: 'Save (router)', value: 'copy running-config startup-config' },
   ],
-  diagrams: [
+},
+{
+  slug: 'asymmetric-routing-lab-2',
+  title: 'Asymmetric Routing Lab 2',
+  group: 'Routing Labs',
+  description:
+    'Build a four-router ring from a factory-fresh state, then use static routes so a request travels one way around the ring and the reply returns the other way.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
     {
-      src: '/diagrams/mls-eigrp-ospf-lab.png', // Make sure to save the image here
-      alt: 'Four MLS LACP STP EIGRP OSPF Topology',
-      caption: 'Four Multilayer Switches - LACP, STP, EIGRP & OSPF Lab'
-    }
-  ]
-    }
+      type: 'paragraph',
+      text:
+        'Four sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. There is no routing protocol, so every path through the ring is one you create with static routes.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'Router links use 10.10.10.XX/30: R1–R2 is .0 (R1 .1, R2 .2), R2–R3 is .4 (R2 .5, R3 .6), R3–R4 is .8 (R3 .9, R4 .10) and R4–R1 is .12 (R4 .13, R1 .14).',
+        'R1 LAN: 192.168.10.0/26 on e0/2, with the router at .1 (VPC9 = .10)',
+        'R2 LAN: 192.168.10.64/26 on e0/2, with the router at .65 (VPC10 = .74)',
+        'R3 LAN: 192.168.10.128/26 on e0/2, with the router at .129 (VPC11 = .138)',
+        'R4 LAN: 192.168.10.192/26 on e0/2, with the router at .193 (VPC12 = .202)',
+        'Every PC uses its LAN router as its default gateway.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Address every router interface and every PC according to the plan above.',
+        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+        'Add static routes so every PC can ping every other PC.',
+        'Make VPC9 → VPC11 travel R1 → R2 → R3, and the reply VPC11 → VPC9 travel R3 → R4 → R1.',
+        'Run trace in both directions and compare the hops.',
+        'Break something on purpose: delete R4\'s route to 192.168.10.0/26 and see which direction fails.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'Static routes are stateless. A router only decides where to send the next packet, and nothing makes a reply retrace the request. Each router needs a route to the three LANs it does not own, and for each one you choose the next hop. Pick the neighbour on the side of the ring you want the traffic to use. Choosing a different next hop for the same pair of LANs on each end is what makes the path asymmetric.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show ip interface brief: every interface should be up/up.',
+        'show ip route static: each router should list exactly three S routes.',
+        'ping from each PC to its own gateway first, then to the other LANs.',
+        'trace from VPC9 to VPC11 should pass through R2 (10.10.10.2).',
+        'trace from VPC11 to VPC9 should pass through R4 (10.10.10.10) instead.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'R1 LAN', value: '192.168.10.0/26 (GW .1)' },
+    { label: 'R2 LAN', value: '192.168.10.64/26 (GW .65)' },
+    { label: 'R3 LAN', value: '192.168.10.128/26 (GW .129)' },
+    { label: 'R4 LAN', value: '192.168.10.192/26 (GW .193)' },
+    { label: 'Router links', value: '10.10.10.0, .4, .8, .12 (/30)' },
+    { label: 'LAN mask', value: '/26 = 255.255.255.192' },
+    { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
+    { label: 'Trace (PC)', value: 'trace <ip>' },
+  ],
+},
+{
+  slug: 'asymmetric-routing-lab-3',
+  title: 'Asymmetric Routing Lab 3',
+  group: 'Routing Labs',
+  description:
+    'Extend the four-router ring with two stub routers that use default routes, then steer requests and replies along different paths.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'Four core routers form a ring (R1 ↔ R2 ↔ R3 ↔ R4 ↔ R1). R5 hangs off R1 and R6 hangs off R3, each with its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. The core routers need specific static routes, while R5 and R6 only have one way out and can use a default route.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'Router links use 10.10.10.XX/30: R1–R2 .0, R2–R3 .4, R3–R4 .8, R4–R1 .12, R1–R5 .16 (R1 .17, R5 .18) and R3–R6 .20 (R3 .21, R6 .22).',
+        'R1 LAN: 192.168.10.0/26 on e0/3, router .1, VPC13 .2',
+        'R2 LAN: 192.168.10.64/26 on e0/2, router .65, VPC14 .66',
+        'R3 LAN: 192.168.10.128/26 on e0/3, router .129, VPC15 .130',
+        'R4 LAN: 192.168.10.192/26 on e0/2, router .193, VPC16 .194',
+        'R5 LAN: 192.168.20.0/26 on e0/1, router .1, VPC17 .2',
+        'R6 LAN: 192.168.20.64/26 on e0/1, router .65, VPC18 .66',
+        'Every PC uses its LAN router as its default gateway.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Address every router interface and every PC according to the plan above.',
+        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+        'Add specific static routes on R1–R4 so every LAN is reachable.',
+        'Make VPC13 → VPC15 travel R1 → R2 → R3, and the reply travel R3 → R4 → R1.',
+        'Give R5 and R6 a single default route each, and check the "Gateway of last resort" in show ip route.',
+        'Run trace in both directions for VPC13 ↔ VPC15 and VPC17 ↔ VPC15, and compare them with VPC13 ↔ VPC18.',
+        'Break something on purpose: delete R5\'s default route and see which destinations VPC17 can still reach.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'A default route says "send anything I don\'t know about to this neighbour". That is only safe on a stub router, where there is just one neighbour to choose. R1 and R3 are different: each has two ways to reach the far side of the ring, so they need specific routes to say which one to use. Check each pair of LANs in both directions, because the request and the reply are chosen by different routers.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show ip interface brief: every interface in use should be up/up.',
+        'show ip route static: R1–R4 should list S routes, and R5 and R6 should show a single S* default.',
+        'ping from each PC to its own gateway first, then to the other LANs.',
+        'trace from VPC13 to VPC15 should pass through R2 (10.10.10.2).',
+        'trace from VPC15 to VPC13 should pass through R4 (10.10.10.10) instead.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'Ring LANs', value: '192.168.10.0, .64, .128, .192 (/26)' },
+    { label: 'Stub LANs', value: '192.168.20.0 and .64 (/26)' },
+    { label: 'Router links', value: '10.10.10.0, .4, .8, .12, .16, .20 (/30)' },
+    { label: 'R5 default', value: 'ip route 0.0.0.0 0.0.0.0 10.10.10.17' },
+    { label: 'R6 default', value: 'ip route 0.0.0.0 0.0.0.0 10.10.10.21' },
+    { label: 'LAN mask', value: '/26 = 255.255.255.192' },
+    { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
+    { label: 'Trace (PC)', value: 'trace <ip>' },
+  ],
+},
+{
+  slug: 'rip-v1-lab',
+  title: 'RIP v1 Lab',
+  group: 'Routing Labs',
+  description:
+    'Build a five-router ring from a factory-fresh state and let RIP version 1 learn every route, with no static routes.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'Five sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R5 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. Instead of writing static routes, you will turn on RIP so the routers tell each other which networks they can reach.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'Router links: R1–R2 192.168.10.0/24, R2–R3 192.168.20.0/24, R3–R4 192.168.30.0/24, R4–R5 192.168.40.0/24, R5–R1 192.168.50.0/24.',
+        'On each link the addresses match the diagram: R1 uses .1, R2 .2, R3 .3, R4 .4 and R5 .5. R1 uses .1 on both of its links.',
+        'LANs: R1 192.168.1.0/24, R2 192.168.2.0/24, R3 192.168.3.0/24, R4 192.168.4.0/24, R5 192.168.5.0/24, all on e0/2.',
+        'Each router uses .1 on its LAN and each PC uses .10, with the router as its default gateway.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Address every router interface and every PC according to the plan above.',
+        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+        'Enable RIP on every router and advertise each directly connected network. Use no static routes.',
+        'Verify with show ip route rip and show ip protocols. Each router should learn 7 remote networks.',
+        'Make every PC ping every other PC.',
+        'Find the one network on each router that has two equal-cost paths.',
+        'Break something on purpose: shut down the R2–R3 link and watch the routing tables on R1 and R4 change.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'RIP version 1 is classful: it sends no subnet masks, so every network in this lab is a /24 on purpose. A router advertises only the networks you list under router rip, so a missing network statement hides that network from everyone else. The metric is the hop count, and the best route is the one with the fewest routers to cross. Count the hops both ways around the ring for each network and find the one that ties.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show ip interface brief: every interface in use should be up/up.',
+        'show ip route rip: routes start with R and show [120/hops], where 120 is the administrative distance.',
+        'show ip protocols: lists the networks RIP is advertising and the neighbours it has heard from.',
+        'ping from each PC to its own gateway first, then to the other LANs.',
+        'trace from VPC11 to VPC13 to see the hops RIP chose.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'Router links', value: '192.168.10.0, .20.0, .30.0, .40.0, .50.0 (/24)' },
+    { label: 'LANs', value: '192.168.1.0 to 192.168.5.0 (/24)' },
+    { label: 'Enable RIP', value: 'router rip' },
+    { label: 'Advertise', value: 'network <classful network>' },
+    { label: 'RIP routes', value: 'show ip route rip' },
+    { label: 'RIP status', value: 'show ip protocols' },
+    { label: 'Metric / AD', value: 'hop count (max 15) / 120' },
+    { label: 'Trace (PC)', value: 'trace <ip>' },
+  ],
+},
+  //   {
+  // slug: 'mls-eigrp-ospf-lab',
+  // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
+  // group: 'Advanced Switching & Routing',
+  // description: 'Practice configuring four multilayer switches in a square using LACP bundles, trunking, rapid-PVST, SVIs, and running EIGRP and OSPF across diagonals.',
+  // blocks: [
+  //   { type: 'heading', text: 'Topology Overview' },
+  //   {
+  //     type: 'paragraph',
+  //     text: 'You have four multilayer switches (SW1, SW2, SW3, SW4) arranged in a square and connected by four EtherChannel bundles (Po12, Po13, Po24, Po34). Two routing domains run over SVIs: EIGRP between SW1 and SW4 over VLAN 14, and OSPF between SW2 and SW3 over VLAN 23.'
+  //   },
+  //   { type: 'heading', text: 'Objective' },
+  //   {
+  //     type: 'bullets',
+  //     items: [
+  //       'Form LACP bundles using active/passive mode configurations.',
+  //       'Configure dot1q trunking on all port-channels.',
+  //       'Create and propagate VLANs 14 and 23 across transit and destination switches.',
+  //       'Tune Spanning Tree (Rapid-PVST) priorities to control the root bridge and blocked ports.',
+  //       'Configure IP routing, SVI interfaces, loopbacks, and verify EIGRP/OSPF neighbor adjacencies.'
+  //     ]
+  //   }
+  // ],
+  // quickReference: [
+  //   { label: 'SW1/SW4 EIGRP VLAN', value: 'VLAN 14 (10.1.4.0/24)' },
+  //   { label: 'SW2/SW3 OSPF VLAN', value: 'VLAN 23 (10.2.3.0/24)' },
+  //   { label: 'Loopbacks', value: 'SW1: 1.1.1.1, SW2: 2.2.2.2, SW3: 3.3.3.3, SW4: 4.4.4.4' },
+  //   { label: 'STP Priorities', value: 'SW1: 4096, SW2: 8192, SW3: 16384, SW4: 32768' }
+  // ],
+  // diagrams: [
+  //   {
+  //     src: '/diagrams/mls-eigrp-ospf-lab.png', // Make sure to save the image here
+  //     alt: 'Four MLS LACP STP EIGRP OSPF Topology',
+  //     caption: 'Four Multilayer Switches - LACP, STP, EIGRP & OSPF Lab'
+  //   }
+  // ]
+  //   }
   ]
 },
 
