@@ -753,6 +753,26 @@ export function NetLab({ title, width = 900, height = 560, children }: { title: 
   const store = useMemo(createStore, []);
   const [tabs, setTabs] = useState<string[]>([]), [active, setActive] = useState<string>(), [mx, setMx] = useState(false);
   const s = useSyncExternalStore(store.subscribe, store.get);
+  useEffect(() => {
+  const onRun = (e: Event) => {
+    const { device, commands, config } = (e as CustomEvent).detail as {
+      device: string; commands: string[]; config: boolean;
+    };
+    const d = store.get().devs[device];
+    if (!d) return;
+    setActive(device); // open that device's tab
+
+    const mode = d.session.cli?.mode;
+    const pre: string[] = [];
+    if (config) {
+      if (mode === "user") pre.push("enable");
+      if (mode === "user" || mode === "priv") pre.push("configure terminal");
+    }
+    [...pre, ...commands].forEach((line) => submit(store, device, line));
+  };
+  window.addEventListener("netlab:run", onRun);
+  return () => window.removeEventListener("netlab:run", onRun);
+}, [store]);
   const open = (id: string) => { setTabs((t) => (t.includes(id) ? t : [...t, id])); setActive(id); };
   const close = (id: string) => { setTabs((t) => t.filter((x) => x !== id)); if (active === id) setActive(tabs.filter((x) => x !== id).pop()); };
   const live = tabs.filter((t) => s.devs[t]);
