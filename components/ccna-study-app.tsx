@@ -113,7 +113,7 @@ import { TrunkPortLab } from "./trunk-port";
 import { TrunkConfigLab } from "./trunk-lab";
 import EtherChannelLab from "./ether-channel-lab";
 import InterVlanRoutingLab from "./inter-vlan-lab";
-
+import MlsEigrpOspfLab from "./MlsEigrpOspfLab";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2199,6 +2199,9 @@ export default function CcnaStudyApp() {
                 {current.slug ===
                   "inter-vlan-routing-mls-and-svi" && (
                   <InterVlanRoutingLab />
+                )}
+                {current.slug === "mls-eigrp-ospf-lab" && (
+                  <MlsEigrpOspfLab />
                 )}
 
                 <div className="mt-10 flex items-stretch gap-2">
