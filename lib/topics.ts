@@ -5318,6 +5318,77 @@ export const topics: Topic[] = [
     { label: 'Trace (PC)', value: 'trace <ip>' },
   ],
 },
+{
+  slug: 'rip-v2-lab',
+  title: 'RIP v2 Lab',
+  group: 'Routing Labs',
+  description:
+    'Build a five-router ring with mixed /30 and /27 subnets and let RIP version 2 learn every route, with no static routes.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'Five sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R5 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. The router links are small /30 subnets and the LANs are /27 subnets, so this time the routing protocol has to carry subnet masks.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'Router links (10.10.10.XX/30): R1–R2 .0, R2–R3 .4, R3–R4 .8, R4–R5 .12, R5–R1 .16. Each router takes the addresses shown in the diagram.',
+        'LANs (192.168.10.XX/27): R1 .0, R2 .32, R3 .64, R4 .96, R5 .128, all on e0/2.',
+        'Each router uses the first usable address of its LAN: .1, .33, .65, .97 and .129.',
+        'PCs: VPC11 .10, VPC12 .40, VPC13 .70, VPC14 .100 and VPC15 .140, each with its LAN router as the default gateway.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Address every router interface and every PC according to the plan above.',
+        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+        'Enable RIP version 2 on every router and advertise the two classful networks. Use no static routes.',
+        'Turn off automatic summarisation, then verify with show ip route rip and show ip protocols. Each router should learn 7 remote networks.',
+        'Make every PC ping every other PC.',
+        'Find the one router link on each router that has two equal-cost paths.',
+        'Break something on purpose: shut down the R2–R3 link and watch the routing tables on R1 and R4 change.',
+        'Experiment: turn automatic summarisation back on at R3 only and compare what R2 and R4 learn from it.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'RIP version 1 would not work here, because it sends no masks and could not tell a /30 from a /27. Version 2 includes the mask with every route. RIP also groups subnets by their classful network when it advertises them, which is called automatic summarisation. With two classful networks in play (10.0.0.0 and 192.168.10.0), decide whether you want that behaviour or not, and look for the command that controls it.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show ip interface brief: every interface in use should be up/up.',
+        'show ip route rip: routes start with R, show [120/hops] and keep their /30 or /27 mask.',
+        'show ip protocols: shows RIP version 2, automatic summarisation, the networks advertised and the neighbours heard from.',
+        'ping from each PC to its own gateway first, then to the other LANs.',
+        'trace from VPC11 to VPC13 to see the hops RIP chose.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'Router links', value: '10.10.10.0, .4, .8, .12, .16 (/30)' },
+    { label: 'LANs', value: '192.168.10.0, .32, .64, .96, .128 (/27)' },
+    { label: 'Enable RIPv2', value: 'router rip → version 2' },
+    { label: 'Advertise', value: 'network <classful network>' },
+    { label: 'No summary', value: 'no auto-summary' },
+    { label: 'RIP routes', value: 'show ip route rip' },
+    { label: 'Masks', value: '/30 = 255.255.255.252, /27 = 255.255.255.224' },
+    { label: 'Trace (PC)', value: 'trace <ip>' },
+  ],
+},
   //   {
   // slug: 'mls-eigrp-ospf-lab',
   // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
