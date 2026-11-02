@@ -5069,6 +5069,43 @@ export const topics: Topic[] = [
           caption: 'Static Routing Lab - 1 (R1, R2, R3 connected in series)'
         }
       ]
+    },
+    {
+  slug: 'mls-eigrp-ospf-lab',
+  title: 'Four MLS: LACP, STP, EIGRP and OSPF',
+  group: 'Advanced Switching & Routing',
+  description: 'Practice configuring four multilayer switches in a square using LACP bundles, trunking, rapid-PVST, SVIs, and running EIGRP and OSPF across diagonals.',
+  blocks: [
+    { type: 'heading', text: 'Topology Overview' },
+    {
+      type: 'paragraph',
+      text: 'You have four multilayer switches (SW1, SW2, SW3, SW4) arranged in a square and connected by four EtherChannel bundles (Po12, Po13, Po24, Po34). Two routing domains run over SVIs: EIGRP between SW1 and SW4 over VLAN 14, and OSPF between SW2 and SW3 over VLAN 23.'
+    },
+    { type: 'heading', text: 'Objective' },
+    {
+      type: 'bullets',
+      items: [
+        'Form LACP bundles using active/passive mode configurations.',
+        'Configure dot1q trunking on all port-channels.',
+        'Create and propagate VLANs 14 and 23 across transit and destination switches.',
+        'Tune Spanning Tree (Rapid-PVST) priorities to control the root bridge and blocked ports.',
+        'Configure IP routing, SVI interfaces, loopbacks, and verify EIGRP/OSPF neighbor adjacencies.'
+      ]
+    }
+  ],
+  quickReference: [
+    { label: 'SW1/SW4 EIGRP VLAN', value: 'VLAN 14 (10.1.4.0/24)' },
+    { label: 'SW2/SW3 OSPF VLAN', value: 'VLAN 23 (10.2.3.0/24)' },
+    { label: 'Loopbacks', value: 'SW1: 1.1.1.1, SW2: 2.2.2.2, SW3: 3.3.3.3, SW4: 4.4.4.4' },
+    { label: 'STP Priorities', value: 'SW1: 4096, SW2: 8192, SW3: 16384, SW4: 32768' }
+  ],
+  diagrams: [
+    {
+      src: '/diagrams/mls-eigrp-ospf-lab.png', // Make sure to save the image here
+      alt: 'Four MLS LACP STP EIGRP OSPF Topology',
+      caption: 'Four Multilayer Switches - LACP, STP, EIGRP & OSPF Lab'
+    }
+  ]
     }
   ]
 },
