@@ -2252,7 +2252,7 @@ export default function CcnaStudyApp() {
                 {current.slug === "physical-logical-lab" && (
                   <PhysicalLogicalLab />
                 )}
-                {current.slug === "mls-ring" && (
+                {current.slug === "mls-ring-all-vlans" && (
                   <MlsRingLab />
                 )}
                 <div className="mt-10 flex items-stretch gap-2">
