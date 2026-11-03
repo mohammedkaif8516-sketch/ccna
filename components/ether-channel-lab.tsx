@@ -553,7 +553,7 @@ function snippet(l3: boolean, proto: Proto): string[] {
 }
 
 // ---------- component ----------
-export function EtherChannelLab() {
+export function EtherChannelLabS() {
   const [lab, setLab] = useState<Lab>(mkLab);
   const [tab, setTab] = useState<Idx>(0);
   const [cmd, setCmd] = useState("");
@@ -986,4 +986,4 @@ export function EtherChannelLab() {
   );
 }
 
-export default EtherChannelLab;
+export default EtherChannelLabS;

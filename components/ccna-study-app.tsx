@@ -111,7 +111,6 @@ import { VlanConcepts } from "./vlan-basics";
 import { AccessPortLab } from "./access-port";
 import { TrunkPortLab } from "./trunk-port";
 import { TrunkConfigLab } from "./trunk-lab";
-import EtherChannelLab from "./ether-channel-lab";
 import InterVlanRoutingLab from "./inter-vlan-lab";
 import MlsEigrpOspfLab from "./MlsEigrpOspfLab";
 import { AsymmetricRoutingLab } from "./assymetric-lab2";
@@ -120,6 +119,13 @@ import { RipV1Lab } from "./rip-v1";
 import { RipV2Lab } from "./rip-v2";
 import { EigrpLab } from "./eigrp-lab";
 import { OspfLab } from "./ospf-lab";
+import { AccessPortLabS } from "./access-port-lab";
+import TrunkLab from "./manual-trunk-lab";
+import DtpTrunkLab from "./dtp-trunk-lab";
+import InterVlanLab from "./intervlan-lab";
+import EtherChannelLab from "@/components/etherch-lab";
+import PhysicalLogicalLab from "./phy-log";
+import MlsRingLab from "./mls-ring-lab";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2197,10 +2203,10 @@ export default function CcnaStudyApp() {
                   <TrunkConfigLab />
                 )}
 
-                {current.slug ===
+                {/* {current.slug ===
                   "etherchannel-configuration-manual-lacp-pagp" && (
                   <EtherChannelLab />
-                )}
+                )} */}
 
                 {current.slug ===
                   "inter-vlan-routing-mls-and-svi" && (
@@ -2227,7 +2233,28 @@ export default function CcnaStudyApp() {
                 {current.slug === "ospf-lab" && (
                   <OspfLab />
                 )}
-
+                {current.slug === "access-port-lab" && (
+                  <AccessPortLabS />
+                )}
+                {current.slug === "trunk-lab" && (
+                  <TrunkLab />
+                )}
+                {current.slug === "dtp-trunk-lab" && (
+                  <DtpTrunkLab />
+                )}
+                {current.slug === "etherchannel-lab" && (
+                  <EtherChannelLab />
+                )}
+                {current.slug === "intervlan-lab" && (
+                  <InterVlanLab />
+                )}
+                
+                {current.slug === "physical-logical-lab" && (
+                  <PhysicalLogicalLab />
+                )}
+                {current.slug === "mls-ring" && (
+                  <MlsRingLab />
+                )}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
                     type="button"

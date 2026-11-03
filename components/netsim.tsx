@@ -9,6 +9,7 @@
  *
  * Router.tsx / Switch.tsx / VPC.tsx import from here and register their CLI engine.
  */
+"use client";
 import React, {
   createContext,
   useContext,
@@ -2405,13 +2406,15 @@ export const Note = ({
 export function Cable({
   a,
   b,
-  aTag,
+    aTag,
   bTag,
+  offset = 0,
 }: {
   a: string;
   b: string;
   aTag?: string;
-  bTag?: string;
+   bTag?: string;
+  offset?: number;
 }) {
   const { store, w, h } = useLab(),
     s = useSyncExternalStore(store.subscribe, store.get);
@@ -2426,6 +2429,9 @@ export function Cable({
   const L = Math.hypot(B.x - A.x, B.y - A.y) || 1,
     ux = (B.x - A.x) / L,
     uy = (B.y - A.y) / L;
+// sideways shift for parallel cables (positive = right when A is above B)
+const sx = uy * offset,
+  sy = -ux * offset;
   const st = (d: Dev, raw: string) => {
     const p = findIf(d, raw);
     return !p
@@ -2456,8 +2462,8 @@ export function Cable({
     key: string,
   ) => {
     const wdt = raw.length * 6.6 + 24;
-    const x = d.x + ux2 * 62 - (ux2 < -0.3 ? wdt : ux2 > 0.3 ? 0 : wdt / 2);
-    const y = d.y + uy2 * 62 - 9 + (Math.abs(uy2) > 0.7 ? uy2 * 6 : 0);
+    const x = d.x + ux2 * 62 + sx - (ux2 < -0.3 ? wdt : ux2 > 0.3 ? 0 : wdt / 2);
+const y = d.y + uy2 * 62 + sy - 9 + (Math.abs(uy2) > 0.7 ? uy2 * 6 : 0);
     const dot =
       state === "up"
         ? "var(--ns-up)"
@@ -2504,7 +2510,7 @@ export function Cable({
     return (
       <g
         key={key}
-        transform={`translate(${d.x + ux2 * dist},${d.y + uy2 * dist})`}
+        transform={`translate(${d.x + ux2 * dist + sx},${d.y + uy2 * dist + sy})`}
       >
         <rect
           x={-tw / 2}
@@ -2538,15 +2544,13 @@ export function Cable({
       viewBox={`0 0 ${w} ${h}`}
       aria-hidden
     >
-      <line
-        x1={A.x}
-        y1={A.y}
-        x2={B.x}
-        y2={B.y}
-        stroke={col}
-        strokeWidth={2.2}
-        strokeDasharray={live ? undefined : "6 5"}
-      />
+      <polyline
+points={`${A.x},${A.y} ${A.x + ux * 68 + sx},${A.y + uy * 68 + sy} ${B.x - ux * 68 + sx},${B.y - uy * 68 + sy} ${B.x},${B.y}`}
+fill="none"
+stroke={col}
+strokeWidth={2.2}
+strokeDasharray={live ? undefined : "6 5"}
+/>
       {pill(A, ap, ux, uy, sa, "pa")}
       {pill(B, bp, -ux, -uy, sb, "pb")}
       {tag(A, ap, aTag, ux, uy, "ta")}

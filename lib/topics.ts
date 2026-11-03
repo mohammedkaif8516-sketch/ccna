@@ -5029,36 +5029,622 @@ export const topics: Topic[] = [
     ],
   },
   {
-  slug: 'labs',
-  number: '11',
-  title: 'LABS',
-  icon: 'terminal', // or 'brackets', 'layers', etc. based on your iconMap
-  description: 'Hands-on practice labs for switching, routing, and network configuration.',
-  subtopics: [
-    {
-  slug: 'static-routing-lab-1',
-  title: 'Static Routing Lab 1',
-  group: 'Routing Labs',
+    slug: 'labs',
+    number: '11',
+    title: 'LABS',
+    icon: 'terminal', // or 'brackets', 'layers', etc. based on your iconMap
+    description: 'Hands-on practice labs for switching, routing, and network configuration.',
+    subtopics: [
+      {
+        slug: 'static-routing-lab-1',
+        title: 'Static Routing Lab 1',
+        group: 'Routing Labs',
+        description:
+          'Bring up a three-router chain from a factory-fresh state, then use static routes to make all six PCs reach each other.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Three branch offices are connected in a line: R1 ↔ R2 ↔ R3. Each office has a switch and two PCs on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. There is no routing protocol, so each router only knows the networks attached to it until you tell it more.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'R1–R2 backbone: 192.168.4.0/24 (R1 e0/0 = .1, R2 e0/0 = .2)',
+              'R2–R3 backbone: 192.168.5.0/24 (R2 e0/1 = .2, R3 e0/0 = .3)',
+              'R1 LAN: 192.168.1.0/24 on e0/1, with the router at .100 (VPC7 = .1, VPC8 = .2)',
+              'R2 LAN: 192.168.2.0/24 on e0/2, with the router at .100 (VPC9 = .1, VPC10 = .2)',
+              'R3 LAN: 192.168.3.0/24 on e0/1, with the router at .100 (VPC11 = .1, VPC12 = .2)',
+              'Every PC uses its LAN router (.100) as its default gateway.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Address every router interface and every PC according to the plan above.',
+              'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+              'Add static routes so every PC can ping every other PC. Watch the Ping matrix turn green.',
+              'Break something on purpose: delete one return route, then compare a ping timeout with a "Destination unreachable" reply.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'A router can only forward to networks in its routing table. Count the networks each router is not directly connected to: R1 and R3 are each missing three, and R2 is missing two. A ping needs a working path in both directions, so a missing return route on any router will make it fail even if the outbound path is perfect.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip interface brief: every interface should be up/up.',
+              'show ip route: look for C and L entries (connected) and S entries (static).',
+              'ping from a PC to its own gateway first, then to the next LAN, then to the far end.',
+              'trace from VPC7 to VPC12 to see each hop along the path.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'R1 LAN', value: '192.168.1.0/24 (GW .100)' },
+          { label: 'R2 LAN', value: '192.168.2.0/24 (GW .100)' },
+          { label: 'R3 LAN', value: '192.168.3.0/24 (GW .100)' },
+          { label: 'R1–R2 Link', value: '192.168.4.0/24 (.1 ↔ .2)' },
+          { label: 'R2–R3 Link', value: '192.168.5.0/24 (.2 ↔ .3)' },
+          { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
+          { label: 'PC address', value: 'ip <addr>/24 <gateway>' },
+          { label: 'Save (router)', value: 'copy running-config startup-config' },
+        ],
+      },
+      {
+        slug: 'asymmetric-routing-lab-2',
+        title: 'Asymmetric Routing Lab 2',
+        group: 'Routing Labs',
+        description:
+          'Build a four-router ring from a factory-fresh state, then use static routes so a request travels one way around the ring and the reply returns the other way.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Four sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. There is no routing protocol, so every path through the ring is one you create with static routes.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Router links use 10.10.10.XX/30: R1–R2 is .0 (R1 .1, R2 .2), R2–R3 is .4 (R2 .5, R3 .6), R3–R4 is .8 (R3 .9, R4 .10) and R4–R1 is .12 (R4 .13, R1 .14).',
+              'R1 LAN: 192.168.10.0/26 on e0/2, with the router at .1 (VPC9 = .10)',
+              'R2 LAN: 192.168.10.64/26 on e0/2, with the router at .65 (VPC10 = .74)',
+              'R3 LAN: 192.168.10.128/26 on e0/2, with the router at .129 (VPC11 = .138)',
+              'R4 LAN: 192.168.10.192/26 on e0/2, with the router at .193 (VPC12 = .202)',
+              'Every PC uses its LAN router as its default gateway.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Address every router interface and every PC according to the plan above.',
+              'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+              'Add static routes so every PC can ping every other PC.',
+              'Make VPC9 → VPC11 travel R1 → R2 → R3, and the reply VPC11 → VPC9 travel R3 → R4 → R1.',
+              'Run trace in both directions and compare the hops.',
+              'Break something on purpose: delete R4\'s route to 192.168.10.0/26 and see which direction fails.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'Static routes are stateless. A router only decides where to send the next packet, and nothing makes a reply retrace the request. Each router needs a route to the three LANs it does not own, and for each one you choose the next hop. Pick the neighbour on the side of the ring you want the traffic to use. Choosing a different next hop for the same pair of LANs on each end is what makes the path asymmetric.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip interface brief: every interface should be up/up.',
+              'show ip route static: each router should list exactly three S routes.',
+              'ping from each PC to its own gateway first, then to the other LANs.',
+              'trace from VPC9 to VPC11 should pass through R2 (10.10.10.2).',
+              'trace from VPC11 to VPC9 should pass through R4 (10.10.10.10) instead.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'R1 LAN', value: '192.168.10.0/26 (GW .1)' },
+          { label: 'R2 LAN', value: '192.168.10.64/26 (GW .65)' },
+          { label: 'R3 LAN', value: '192.168.10.128/26 (GW .129)' },
+          { label: 'R4 LAN', value: '192.168.10.192/26 (GW .193)' },
+          { label: 'Router links', value: '10.10.10.0, .4, .8, .12 (/30)' },
+          { label: 'LAN mask', value: '/26 = 255.255.255.192' },
+          { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
+          { label: 'Trace (PC)', value: 'trace <ip>' },
+        ],
+      },
+      {
+        slug: 'asymmetric-routing-lab-3',
+        title: 'Asymmetric Routing Lab 3',
+        group: 'Routing Labs',
+        description:
+          'Extend the four-router ring with two stub routers that use default routes, then steer requests and replies along different paths.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Four core routers form a ring (R1 ↔ R2 ↔ R3 ↔ R4 ↔ R1). R5 hangs off R1 and R6 hangs off R3, each with its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. The core routers need specific static routes, while R5 and R6 only have one way out and can use a default route.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Router links use 10.10.10.XX/30: R1–R2 .0, R2–R3 .4, R3–R4 .8, R4–R1 .12, R1–R5 .16 (R1 .17, R5 .18) and R3–R6 .20 (R3 .21, R6 .22).',
+              'R1 LAN: 192.168.10.0/26 on e0/3, router .1, VPC13 .2',
+              'R2 LAN: 192.168.10.64/26 on e0/2, router .65, VPC14 .66',
+              'R3 LAN: 192.168.10.128/26 on e0/3, router .129, VPC15 .130',
+              'R4 LAN: 192.168.10.192/26 on e0/2, router .193, VPC16 .194',
+              'R5 LAN: 192.168.20.0/26 on e0/1, router .1, VPC17 .2',
+              'R6 LAN: 192.168.20.64/26 on e0/1, router .65, VPC18 .66',
+              'Every PC uses its LAN router as its default gateway.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Address every router interface and every PC according to the plan above.',
+              'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+              'Add specific static routes on R1–R4 so every LAN is reachable.',
+              'Make VPC13 → VPC15 travel R1 → R2 → R3, and the reply travel R3 → R4 → R1.',
+              'Give R5 and R6 a single default route each, and check the "Gateway of last resort" in show ip route.',
+              'Run trace in both directions for VPC13 ↔ VPC15 and VPC17 ↔ VPC15, and compare them with VPC13 ↔ VPC18.',
+              'Break something on purpose: delete R5\'s default route and see which destinations VPC17 can still reach.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'A default route says "send anything I don\'t know about to this neighbour". That is only safe on a stub router, where there is just one neighbour to choose. R1 and R3 are different: each has two ways to reach the far side of the ring, so they need specific routes to say which one to use. Check each pair of LANs in both directions, because the request and the reply are chosen by different routers.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip interface brief: every interface in use should be up/up.',
+              'show ip route static: R1–R4 should list S routes, and R5 and R6 should show a single S* default.',
+              'ping from each PC to its own gateway first, then to the other LANs.',
+              'trace from VPC13 to VPC15 should pass through R2 (10.10.10.2).',
+              'trace from VPC15 to VPC13 should pass through R4 (10.10.10.10) instead.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Ring LANs', value: '192.168.10.0, .64, .128, .192 (/26)' },
+          { label: 'Stub LANs', value: '192.168.20.0 and .64 (/26)' },
+          { label: 'Router links', value: '10.10.10.0, .4, .8, .12, .16, .20 (/30)' },
+          { label: 'R5 default', value: 'ip route 0.0.0.0 0.0.0.0 10.10.10.17' },
+          { label: 'R6 default', value: 'ip route 0.0.0.0 0.0.0.0 10.10.10.21' },
+          { label: 'LAN mask', value: '/26 = 255.255.255.192' },
+          { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
+          { label: 'Trace (PC)', value: 'trace <ip>' },
+        ],
+      },
+      {
+        slug: 'rip-v1-lab',
+        title: 'RIP v1 Lab',
+        group: 'Routing Labs',
+        description:
+          'Build a five-router ring from a factory-fresh state and let RIP version 1 learn every route, with no static routes.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Five sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R5 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. Instead of writing static routes, you will turn on RIP so the routers tell each other which networks they can reach.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Router links: R1–R2 192.168.10.0/24, R2–R3 192.168.20.0/24, R3–R4 192.168.30.0/24, R4–R5 192.168.40.0/24, R5–R1 192.168.50.0/24.',
+              'On each link the addresses match the diagram: R1 uses .1, R2 .2, R3 .3, R4 .4 and R5 .5. R1 uses .1 on both of its links.',
+              'LANs: R1 192.168.1.0/24, R2 192.168.2.0/24, R3 192.168.3.0/24, R4 192.168.4.0/24, R5 192.168.5.0/24, all on e0/2.',
+              'Each router uses .1 on its LAN and each PC uses .10, with the router as its default gateway.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Address every router interface and every PC according to the plan above.',
+              'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+              'Enable RIP on every router and advertise each directly connected network. Use no static routes.',
+              'Verify with show ip route rip and show ip protocols. Each router should learn 7 remote networks.',
+              'Make every PC ping every other PC.',
+              'Find the one network on each router that has two equal-cost paths.',
+              'Break something on purpose: shut down the R2–R3 link and watch the routing tables on R1 and R4 change.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'RIP version 1 is classful: it sends no subnet masks, so every network in this lab is a /24 on purpose. A router advertises only the networks you list under router rip, so a missing network statement hides that network from everyone else. The metric is the hop count, and the best route is the one with the fewest routers to cross. Count the hops both ways around the ring for each network and find the one that ties.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip interface brief: every interface in use should be up/up.',
+              'show ip route rip: routes start with R and show [120/hops], where 120 is the administrative distance.',
+              'show ip protocols: lists the networks RIP is advertising and the neighbours it has heard from.',
+              'ping from each PC to its own gateway first, then to the other LANs.',
+              'trace from VPC11 to VPC13 to see the hops RIP chose.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Router links', value: '192.168.10.0, .20.0, .30.0, .40.0, .50.0 (/24)' },
+          { label: 'LANs', value: '192.168.1.0 to 192.168.5.0 (/24)' },
+          { label: 'Enable RIP', value: 'router rip' },
+          { label: 'Advertise', value: 'network <classful network>' },
+          { label: 'RIP routes', value: 'show ip route rip' },
+          { label: 'RIP status', value: 'show ip protocols' },
+          { label: 'Metric / AD', value: 'hop count (max 15) / 120' },
+          { label: 'Trace (PC)', value: 'trace <ip>' },
+        ],
+      },
+      {
+        slug: 'rip-v2-lab',
+        title: 'RIP v2 Lab',
+        group: 'Routing Labs',
+        description:
+          'Build a five-router ring with mixed /30 and /27 subnets and let RIP version 2 learn every route, with no static routes.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Five sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R5 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. The router links are small /30 subnets and the LANs are /27 subnets, so this time the routing protocol has to carry subnet masks.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Router links (10.10.10.XX/30): R1–R2 .0, R2–R3 .4, R3–R4 .8, R4–R5 .12, R5–R1 .16. Each router takes the addresses shown in the diagram.',
+              'LANs (192.168.10.XX/27): R1 .0, R2 .32, R3 .64, R4 .96, R5 .128, all on e0/2.',
+              'Each router uses the first usable address of its LAN: .1, .33, .65, .97 and .129.',
+              'PCs: VPC11 .10, VPC12 .40, VPC13 .70, VPC14 .100 and VPC15 .140, each with its LAN router as the default gateway.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Address every router interface and every PC according to the plan above.',
+              'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+              'Enable RIP version 2 on every router and advertise the two classful networks. Use no static routes.',
+              'Turn off automatic summarisation, then verify with show ip route rip and show ip protocols. Each router should learn 7 remote networks.',
+              'Make every PC ping every other PC.',
+              'Find the one router link on each router that has two equal-cost paths.',
+              'Break something on purpose: shut down the R2–R3 link and watch the routing tables on R1 and R4 change.',
+              'Experiment: turn automatic summarisation back on at R3 only and compare what R2 and R4 learn from it.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'RIP version 1 would not work here, because it sends no masks and could not tell a /30 from a /27. Version 2 includes the mask with every route. RIP also groups subnets by their classful network when it advertises them, which is called automatic summarisation. With two classful networks in play (10.0.0.0 and 192.168.10.0), decide whether you want that behaviour or not, and look for the command that controls it.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip interface brief: every interface in use should be up/up.',
+              'show ip route rip: routes start with R, show [120/hops] and keep their /30 or /27 mask.',
+              'show ip protocols: shows RIP version 2, automatic summarisation, the networks advertised and the neighbours heard from.',
+              'ping from each PC to its own gateway first, then to the other LANs.',
+              'trace from VPC11 to VPC13 to see the hops RIP chose.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Router links', value: '10.10.10.0, .4, .8, .12, .16 (/30)' },
+          { label: 'LANs', value: '192.168.10.0, .32, .64, .96, .128 (/27)' },
+          { label: 'Enable RIPv2', value: 'router rip → version 2' },
+          { label: 'Advertise', value: 'network <classful network>' },
+          { label: 'No summary', value: 'no auto-summary' },
+          { label: 'RIP routes', value: 'show ip route rip' },
+          { label: 'Masks', value: '/30 = 255.255.255.252, /27 = 255.255.255.224' },
+          { label: 'Trace (PC)', value: 'trace <ip>' },
+        ],
+      },
+      {
+        slug: 'eigrp-lab',
+        title: 'EIGRP 100 Lab',
+        group: 'Routing Labs',
+        description:
+          'Bring up an eight-router network with two shared segments and let EIGRP learn every route, including loopbacks and equal-cost paths.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Eight routers share a campus network. R3, R4, R5 and R6 sit on one shared segment (150.10.7.0/24) and are also joined by direct links. R1 and R2 hang off R3, and R6 shares a second segment (150.10.8.0/24) with R7 and R8. Every device starts in its factory state: interfaces are shut down with no IP addresses and there is no routing protocol. Each router also gets four loopback interfaces to act as test destinations.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Router links (150.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
+              'Shared segment 7.0 (through SW9): R3 .3, R4 .4, R5 .5 and R6 .6.',
+              'Shared segment 8.0 (through SW10): R6 .6, R7 .7 and R8 .8.',
+              'On every link the last octet is the router number, as shown in the diagram.',
+              'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Address every Ethernet interface and create the four loopbacks on every router.',
+              'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+              'Enable EIGRP 100 on every router, set the router ID to the first loopback, and advertise each interface with a wildcard mask.',
+              'Check the neighbour tables. R3 and R6 should each show 7 neighbours. Work out why.',
+              'Read the topology table and the EIGRP routes, and explain the metrics.',
+              'Ping and trace from R1 to a loopback on R8, then find the routes with more than one equal-cost next hop.',
+              'Break something on purpose: shut down R3\'s link to the 7.0 segment and compare R1\'s metric to 150.10.8.0.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'EIGRP uses a wildcard mask in its network statement, which is the inverse of a subnet mask. A loopback with a /32 mask needs an exact match, while a /24 link needs the host bits left open. A router also forms a separate neighbour for every other router it can reach on each interface, so a shared segment gives a router several neighbours on one port. The best path is the one with the lowest metric, and any other path with the same metric is installed alongside it.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip interface brief: every interface in use should be up/up.',
+              'show ip eigrp neighbors: lists every neighbour with its interface.',
+              'show ip eigrp topology: shows the successors and the metric for each network.',
+              'show ip route eigrp: routes start with D and show [90/metric].',
+              'ping and trace from R1 to 8.8.8.1 through 8.8.8.4.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Links', value: '150.10.1.0 to 150.10.8.0 (/24)' },
+          { label: 'Loopbacks', value: 'N.N.N.1–4/32 on router N' },
+          { label: 'Enable EIGRP', value: 'router eigrp 100' },
+          { label: 'Advertise', value: 'network <ip> <wildcard>' },
+          { label: 'Router ID', value: 'eigrp router-id <ip>' },
+          { label: 'Neighbours', value: 'show ip eigrp neighbors' },
+          { label: 'Topology', value: 'show ip eigrp topology' },
+          { label: 'Metric / AD', value: 'bandwidth + delay / 90' },
+        ],
+      },
+      {
+        slug: 'ospf-lab',
+        title: 'OSPF 1024 Lab',
+        group: 'Routing Labs',
+        description:
+          'Bring up an eight-router multi-area OSPF network with loopbacks, two area border routers, and a controlled election that leaves exactly one DR and one BDR on each of the two shared segments.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Eight routers share a campus network split into four OSPF areas. R3, R4, R5 and R6 form the backbone (area 0) and sit on one shared segment (200.10.7.0/24) as well as being joined by direct links. R1 hangs off R3 in area 10, R2 hangs off R3 in area 20, and R6 shares a second segment (200.10.8.0/24) with R7 and R8 in area 30. R3 and R6 are the area border routers. The six direct links hold only two routers each, so they run as point-to-point and elect nothing. Only the two shared segments elect a DR and a BDR, giving two of each in the whole network. Every device starts in its factory state: interfaces are shut down with no IP addresses and there is no routing protocol. Each router also gets four loopback interfaces to act as test destinations.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Router links (200.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
+              'Shared segment 7.0 (through SW9): R3 .3, R4 .4, R5 .5 and R6 .6.',
+              'Shared segment 8.0 (through SW10): R6 .6, R7 .7 and R8 .8.',
+              'On every link the last octet is the router number, as shown in the diagram.',
+              'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
+              'Areas: 1.0 is area 10, 2.0 is area 20, 3.0 to 7.0 are area 0, and 8.0 is area 30. Each router puts its loopbacks in its own area (R3 and R6 use area 0).',
+              'DR and BDR plan: on 7.0 R4 is the DR and R6 the BDR (R3 and R5 never elected). On 8.0 R6 is the DR and R7 the BDR (R8 never elected).',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Address every Ethernet interface and create the four loopbacks on every router.',
+              'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+              'Enable OSPF process 1 on every router, set the router ID to the first loopback, and advertise each network with a wildcard mask in the correct area.',
+              'On the six two-router links (1.0 to 6.0) set ip ospf network point-to-point on both ends, so no DR or BDR is elected there.',
+              'Check the neighbour tables. R3 and R6 should each show 7 neighbours. Work out why.',
+              'On 7.0 find which neighbours are FULL and which stay in 2WAY, and explain the difference.',
+              'Set ip ospf priority so that on 7.0 R4 is the DR and R6 the BDR, and on 8.0 R6 is the DR and R7 the BDR. R3, R5 and R8 must never be elected (priority 0).',
+              'Read show ip ospf interface on R4, R6, R7 and R8, and match the State, DR and BDR fields to your plan. Confirm the whole network has exactly 2 DRs and 2 BDRs.',
+              'Run show ip ospf on R3 and R6 and confirm they are area border routers. On R1, find the routes marked O IA.',
+              'Ping and trace from R1 to a loopback on R8 (8.8.8.1), and read R1\'s OSPF routes.',
+              'Break something on purpose: shut down R4\'s e0/0 and watch the 7.0 segment elect a new DR.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'OSPF uses a wildcard mask in its network statement, which is the inverse of a subnet mask, and each statement must name the area the interface belongs to. A link such as 200.10.1.0/24 needs the host bits left open (0.0.0.255), and four loopbacks with /32 masks can be matched in one line with a wildcard like 0.0.0.7. A router with interfaces in more than one area is an area border router, and routes it passes between areas appear as O IA in the other area. On Ethernet every link is a broadcast network by default, so even a link with only two routers elects a DR and a BDR. Setting ip ospf network point-to-point removes the election, but it must be set on both ends and only suits links with exactly two routers. On a shared segment the highest priority wins, with the highest router ID as the tie-breaker, and a priority of 0 means the router can never be elected. The election does not preempt, so you may need clear ip ospf process after changing priorities. Routers that are neither DR nor BDR (DROTHER) form a full adjacency only with the DR and BDR, and stay in 2WAY with each other. A router shows one neighbour entry per interface, so a neighbour reachable over two links appears twice.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip interface brief: every interface in use should be up/up.',
+              'show ip ospf neighbor: lists every neighbour with its state and role. Point-to-point links show FULL/  -, and the shared segments show FULL/DR, FULL/BDR or 2WAY/DROTHER.',
+              'show ip ospf interface e0/0: shows the area, network type, state, priority, DR and BDR of that interface.',
+              'show ip ospf: on R3 and R6 it should list more than one area.',
+              'show ip route ospf: routes start with O (same area) or O IA (other area) and show [110/cost].',
+              'ping and trace from R1 to 8.8.8.1 through 8.8.8.4.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Links', value: '200.10.1.0 to 200.10.8.0 (/24)' },
+          { label: 'Loopbacks', value: 'N.N.N.1–4/32 on router N' },
+          { label: 'Areas', value: '10 (R1), 20 (R2), 0 (R3–R6), 30 (R7, R8)' },
+          { label: 'Enable OSPF', value: 'router ospf 1' },
+          { label: 'Advertise', value: 'network <ip> <wildcard> area <n>' },
+          { label: 'Router ID', value: 'router-id <ip>' },
+          { label: 'No election', value: 'ip ospf network point-to-point' },
+          { label: 'Priority', value: 'ip ospf priority <0-255>' },
+          { label: 'Neighbours', value: 'show ip ospf neighbor' },
+          { label: 'Metric / AD', value: 'cost (bandwidth-based) / 110' },
+        ],
+      },
+      {
+        slug: 'access-port-lab',
+        title: 'Access Port Lab (Intra-VLAN)',
+        group: 'Switching Labs',
+        description:
+          'Build a three-switch network with four VLANs using only access ports. No trunks and no router are used, so each VLAN gets its own cable between the switches and only hosts in the same VLAN can communicate.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Three switches (SW1, SW2 and SW3) are stacked in a line, with four hosts on each switch, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). SW1 connects to SW2 and SW2 connects to SW3 with four parallel cables each, and each cable is labelled with the VLAN it must carry (10, 20, 30, 40). The company policy is that trunking is not allowed, so every port on every switch, including the switch-to-switch ports, must be an access port. There is no router, so the departments are completely isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, and the VPCs have no IP addresses.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
+              'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
+              'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
+              'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
+              'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+              'The VPCs use a /24 mask and no default gateway, because there is no router.',
+              'SW1 to SW2 links: VLAN 10 on e1/3–e2/0, VLAN 20 on e1/2–e1/3, VLAN 30 on e1/1–e1/2 and VLAN 40 on e0/1–e0/1.',
+              'SW2 to SW3 links: VLAN 10 on e2/3–e1/3, VLAN 20 on e2/2–e1/2, VLAN 30 on e2/1–e1/1 and VLAN 40 on e0/0–e0/0.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Configure the switch-to-switch ports as access ports too, one VLAN per link, matching the number written on each cable. Do not use trunk mode anywhere.',
+              'Bring all used ports up with no shutdown.',
+              'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
+              'Verify with show vlan brief and show interfaces status that each port belongs to exactly one VLAN.',
+              'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
+              'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
+              'Break something on purpose: shut down the VLAN 20 link between SW1 and SW2 and see which pings stop.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'An access port belongs to exactly one VLAN and sends and receives frames without a VLAN tag, so it can carry only that VLAN. A trunk is what normally lets many VLANs share one cable, but this lab forbids trunks, so the switch-to-switch cables each have to be dedicated to one VLAN. That is why four VLANs need four cables between each pair of switches. VLANs are local to each switch, so VLAN 10 must be created on SW1, SW2 and SW3, and the two ends of every link must be put in the same VLAN or the traffic will not cross. Frames of VLAN 10 from VPC4 reach VPC12 by travelling VLAN 10 access port, VLAN 10 link, SW2, VLAN 10 link, and then the VLAN 10 access port on SW3. Because there is no router, nothing can move traffic from one VLAN to another, so hosts in different VLANs are isolated even though they sit on the same physical switches. With one cable per VLAN there is also no loop, so spanning tree has nothing to block.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their ports, and each port appears under exactly one VLAN.',
+              'show interfaces status: used ports show connected, the correct VLAN number and no trunk.',
+              'show interfaces e0/3 switchport: Administrative Mode and Operational Mode should both be static access.',
+              'show running-config: no port contains switchport mode trunk.',
+              'show ip on each VPC: the address and mask match its VLAN subnet.',
+              'ping: works inside a VLAN across switches and times out between different VLANs.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+          { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Access port', value: 'switchport mode access' },
+          { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+          { label: 'Enable port', value: 'no shutdown' },
+          { label: 'Show VLANs', value: 'show vlan brief' },
+          { label: 'Port status', value: 'show interfaces status' },
+          { label: 'VPC address', value: 'ip <address>/24' },
+          { label: 'Trunks', value: 'none, one access link per VLAN' },
+        ],
+      },
+      {
+  slug: 'trunk-lab',
+  title: 'Manual Trunking Lab',
+  group: 'Switching Labs',
   description:
-    'Bring up a three-router chain from a factory-fresh state, then use static routes to make all six PCs reach each other.',
+    'Build a three-switch network with four VLANs and configure the switch-to-switch links as manual 802.1Q trunks. One cable per link carries every VLAN, and with no router only hosts in the same VLAN can communicate.',
   blocks: [
     { type: 'heading', text: 'Scenario' },
     {
       type: 'paragraph',
       text:
-        'Three branch offices are connected in a line: R1 ↔ R2 ↔ R3. Each office has a switch and two PCs on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. There is no routing protocol, so each router only knows the networks attached to it until you tell it more.'
+        'Three switches (SW1, SW2 and SW3) are connected in a line with a single cable between each pair: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). The hosts must reach the other hosts of their own department on the other switches, so each cable has to carry all four VLANs at once. Both inter-switch ports are configured as trunks by hand, rather than leaving them to dynamic negotiation. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, and the VPCs have no IP addresses.'
     },
 
     { type: 'heading', text: 'Addressing Plan' },
     {
       type: 'bullets',
       items: [
-        'R1–R2 backbone: 192.168.4.0/24 (R1 e0/0 = .1, R2 e0/0 = .2)',
-        'R2–R3 backbone: 192.168.5.0/24 (R2 e0/1 = .2, R3 e0/0 = .3)',
-        'R1 LAN: 192.168.1.0/24 on e0/1, with the router at .100 (VPC7 = .1, VPC8 = .2)',
-        'R2 LAN: 192.168.2.0/24 on e0/2, with the router at .100 (VPC9 = .1, VPC10 = .2)',
-        'R3 LAN: 192.168.3.0/24 on e0/1, with the router at .100 (VPC11 = .1, VPC12 = .2)',
-        'Every PC uses its LAN router (.100) as its default gateway.',
+        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
+        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
+        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
+        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
+        'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+        'The VPCs use a /24 mask and no default gateway, because there is no router.',
+        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+        'Trunk ports: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0.',
       ]
     },
 
@@ -5066,10 +5652,16 @@ export const topics: Topic[] = [
     {
       type: 'bullets',
       items: [
-        'Address every router interface and every PC according to the plan above.',
-        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
-        'Add static routes so every PC can ping every other PC. Watch the Ping matrix turn green.',
-        'Break something on purpose: delete one return route, then compare a ping timeout with a "Destination unreachable" reply.',
+        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+        'Configure the two inter-switch links as trunks on both ends with switchport trunk encapsulation dot1q and switchport mode trunk.',
+        'Limit each trunk to the four VLANs in use with switchport trunk allowed vlan 10,20,30,40.',
+        'Bring all used ports up with no shutdown.',
+        'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
+        'Verify the trunks with show interfaces trunk and the VLAN membership with show vlan brief.',
+        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
+        'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
+        'Break something on purpose: remove VLAN 30 from the SW2 to SW3 trunk and see which pings stop.',
         'Save with copy running-config startup-config, then test with reload.',
       ]
     },
@@ -5078,55 +5670,62 @@ export const topics: Topic[] = [
     {
       type: 'paragraph',
       text:
-        'A router can only forward to networks in its routing table. Count the networks each router is not directly connected to: R1 and R3 are each missing three, and R2 is missing two. A ping needs a working path in both directions, so a missing return route on any router will make it fail even if the outbound path is perfect.'
+        'An access port belongs to one VLAN and sends frames without a tag. A trunk port carries many VLANs over one cable by adding an 802.1Q tag with the VLAN number to every frame, and the switch at the other end reads the tag to put the frame back into the right VLAN. That is why one cable per link is enough here. A trunk is only useful if both ends agree, so both ports must be set to trunk mode and use the same encapsulation. On these switches the encapsulation has to be chosen first, with switchport trunk encapsulation dot1q, or the switchport mode trunk command is rejected. Setting the mode by hand also means the port no longer depends on DTP negotiation. VLANs are still local to each switch, so VLAN 10 must exist on SW1, SW2 and SW3, and a VLAN that is missing from a switch or from the allowed list of a trunk will not cross that link. The native VLAN (VLAN 1 by default) is the one whose frames are sent untagged on a trunk, and it must match at both ends. Because there is no router, nothing moves traffic from one VLAN to another, so hosts in different VLANs stay isolated even though they share the same trunks.'
     },
 
     { type: 'heading', text: 'Verification' },
     {
       type: 'bullets',
       items: [
-        'show ip interface brief: every interface should be up/up.',
-        'show ip route: look for C and L entries (connected) and S entries (static).',
-        'ping from a PC to its own gateway first, then to the next LAN, then to the far end.',
-        'trace from VPC7 to VPC12 to see each hop along the path.',
+        'show interfaces trunk: lists each trunk port with mode on, encapsulation 802.1q, status trunking and native VLAN 1, followed by the allowed and forwarding VLANs.',
+        'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Trunk ports are not listed under any VLAN.',
+        'show interfaces e0/1 switchport: Administrative Mode and Operational Mode are both trunk, and the trunking encapsulation is dot1q.',
+        'show interfaces status: the trunk ports show trunk in the VLAN column.',
+        'show ip on each VPC: the address and mask match its VLAN subnet.',
+        'ping: works inside a VLAN across switches and times out between different VLANs.',
       ]
     },
   ],
   quickReference: [
-    { label: 'R1 LAN', value: '192.168.1.0/24 (GW .100)' },
-    { label: 'R2 LAN', value: '192.168.2.0/24 (GW .100)' },
-    { label: 'R3 LAN', value: '192.168.3.0/24 (GW .100)' },
-    { label: 'R1–R2 Link', value: '192.168.4.0/24 (.1 ↔ .2)' },
-    { label: 'R2–R3 Link', value: '192.168.5.0/24 (.2 ↔ .3)' },
-    { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
-    { label: 'PC address', value: 'ip <addr>/24 <gateway>' },
-    { label: 'Save (router)', value: 'copy running-config startup-config' },
+    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Access port', value: 'switchport mode access' },
+    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+    { label: 'Encapsulation', value: 'switchport trunk encapsulation dot1q' },
+    { label: 'Manual trunk', value: 'switchport mode trunk' },
+    { label: 'Allowed VLANs', value: 'switchport trunk allowed vlan <list>' },
+    { label: 'Show trunks', value: 'show interfaces trunk' },
+    { label: 'Show VLANs', value: 'show vlan brief' },
   ],
 },
 {
-  slug: 'asymmetric-routing-lab-2',
-  title: 'Asymmetric Routing Lab 2',
-  group: 'Routing Labs',
+  slug: 'dtp-trunk-lab',
+  title: 'Manual & DTP Trunking Lab',
+  group: 'Switching Labs',
   description:
-    'Build a four-router ring from a factory-fresh state, then use static routes so a request travels one way around the ring and the reply returns the other way.',
+    'Build a three-switch network with four VLANs where one inter-switch link is a manual 802.1Q trunk and the other is negotiated with DTP. Only hosts in the same VLAN can communicate because there is no router.',
   blocks: [
     { type: 'heading', text: 'Scenario' },
     {
       type: 'paragraph',
       text:
-        'Four sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. There is no routing protocol, so every path through the ring is one you create with static routes.'
+        'Three switches (SW1, SW2 and SW3) are connected in a line with a single cable between each pair: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). Hosts must reach the other hosts of their own department on the other switches, so each cable has to carry all four VLANs. The first link is configured as a trunk by hand on both ends. The second link is left to the Dynamic Trunking Protocol (DTP), where the two ends negotiate and decide to trunk on their own. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, and the VPCs have no IP addresses.'
     },
 
     { type: 'heading', text: 'Addressing Plan' },
     {
       type: 'bullets',
       items: [
-        'Router links use 10.10.10.XX/30: R1–R2 is .0 (R1 .1, R2 .2), R2–R3 is .4 (R2 .5, R3 .6), R3–R4 is .8 (R3 .9, R4 .10) and R4–R1 is .12 (R4 .13, R1 .14).',
-        'R1 LAN: 192.168.10.0/26 on e0/2, with the router at .1 (VPC9 = .10)',
-        'R2 LAN: 192.168.10.64/26 on e0/2, with the router at .65 (VPC10 = .74)',
-        'R3 LAN: 192.168.10.128/26 on e0/2, with the router at .129 (VPC11 = .138)',
-        'R4 LAN: 192.168.10.192/26 on e0/2, with the router at .193 (VPC12 = .202)',
-        'Every PC uses its LAN router as its default gateway.',
+        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
+        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
+        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
+        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
+        'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+        'The VPCs use a /24 mask and no default gateway, because there is no router.',
+        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+        'Manual trunk: SW1 e0/1 to SW2 e0/1, with switchport mode trunk on both ends.',
+        'DTP trunk: SW2 e0/0 (dynamic desirable) to SW3 e0/0 (dynamic auto).',
       ]
     },
 
@@ -5134,12 +5733,17 @@ export const topics: Topic[] = [
     {
       type: 'bullets',
       items: [
-        'Address every router interface and every PC according to the plan above.',
-        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
-        'Add static routes so every PC can ping every other PC.',
-        'Make VPC9 → VPC11 travel R1 → R2 → R3, and the reply VPC11 → VPC9 travel R3 → R4 → R1.',
-        'Run trace in both directions and compare the hops.',
-        'Break something on purpose: delete R4\'s route to 192.168.10.0/26 and see which direction fails.',
+        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+        'Build the SW1 to SW2 trunk manually with switchport trunk encapsulation dot1q and switchport mode trunk on both ends.',
+        'Build the SW2 to SW3 trunk with DTP: set the encapsulation to dot1q on both ends, then use switchport mode dynamic desirable on SW2 and switchport mode dynamic auto on SW3.',
+        'Limit each trunk to the four VLANs in use with switchport trunk allowed vlan 10,20,30,40.',
+        'Bring all used ports up with no shutdown.',
+        'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
+        'Verify with show interfaces trunk and show interfaces e0/0 switchport. Compare the administrative and operational mode on the DTP link.',
+        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
+        'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
+        'Set both ends of the DTP link to dynamic auto and see that it falls back to an access link. Set SW2 back to dynamic desirable and watch the trunk return.',
         'Save with copy running-config startup-config, then test with reload.',
       ]
     },
@@ -5148,58 +5752,62 @@ export const topics: Topic[] = [
     {
       type: 'paragraph',
       text:
-        'Static routes are stateless. A router only decides where to send the next packet, and nothing makes a reply retrace the request. Each router needs a route to the three LANs it does not own, and for each one you choose the next hop. Pick the neighbour on the side of the ring you want the traffic to use. Choosing a different next hop for the same pair of LANs on each end is what makes the path asymmetric.'
+        'A trunk port carries many VLANs over one cable by adding an 802.1Q tag with the VLAN number to every frame, which is why one cable per link is enough. A manual trunk is configured with switchport mode trunk, and the port is a trunk no matter what the neighbour does. With DTP the two ends negotiate. A port in dynamic desirable actively asks its neighbour to become a trunk, and a port in dynamic auto only becomes a trunk if the neighbour asks. So desirable with auto, desirable with desirable, and desirable with a manual trunk all give a trunk, while auto with auto stays an access link because nobody starts the conversation. On these switches the encapsulation has to be chosen with switchport trunk encapsulation dot1q before any trunk mode is accepted, and if it is left at its default, DTP could negotiate ISL instead of 802.1Q, so set it on both ends. DTP also does not work towards a port set to access, so host ports are never turned into trunks by accident. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and a VLAN that is missing from a switch or from the allowed list of a trunk will not cross that link. Because there is no router, hosts in different VLANs stay isolated even though they share the same trunks.'
     },
 
     { type: 'heading', text: 'Verification' },
     {
       type: 'bullets',
       items: [
-        'show ip interface brief: every interface should be up/up.',
-        'show ip route static: each router should list exactly three S routes.',
-        'ping from each PC to its own gateway first, then to the other LANs.',
-        'trace from VPC9 to VPC11 should pass through R2 (10.10.10.2).',
-        'trace from VPC11 to VPC9 should pass through R4 (10.10.10.10) instead.',
+        'show interfaces trunk: lists every trunk port with its mode (on for manual, desirable or auto for DTP), encapsulation 802.1q, status trunking and native VLAN 1, followed by the allowed and forwarding VLANs.',
+        'show interfaces e0/0 switchport: on SW3, Administrative Mode is dynamic auto while Operational Mode is trunk. This difference shows that DTP did the work.',
+        'show interfaces e0/1 switchport: on SW1 and SW2, both Administrative Mode and Operational Mode are trunk.',
+        'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Trunk ports are not listed under any VLAN.',
+        'show ip on each VPC: the address and mask match its VLAN subnet.',
+        'ping: works inside a VLAN across switches and times out between different VLANs.',
       ]
     },
   ],
   quickReference: [
-    { label: 'R1 LAN', value: '192.168.10.0/26 (GW .1)' },
-    { label: 'R2 LAN', value: '192.168.10.64/26 (GW .65)' },
-    { label: 'R3 LAN', value: '192.168.10.128/26 (GW .129)' },
-    { label: 'R4 LAN', value: '192.168.10.192/26 (GW .193)' },
-    { label: 'Router links', value: '10.10.10.0, .4, .8, .12 (/30)' },
-    { label: 'LAN mask', value: '/26 = 255.255.255.192' },
-    { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
-    { label: 'Trace (PC)', value: 'trace <ip>' },
+    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Access port', value: 'switchport mode access' },
+    { label: 'Encapsulation', value: 'switchport trunk encapsulation dot1q' },
+    { label: 'Manual trunk', value: 'switchport mode trunk' },
+    { label: 'DTP active', value: 'switchport mode dynamic desirable' },
+    { label: 'DTP passive', value: 'switchport mode dynamic auto' },
+    { label: 'Show trunks', value: 'show interfaces trunk' },
+    { label: 'Show VLANs', value: 'show vlan brief' },
   ],
 },
 {
-  slug: 'asymmetric-routing-lab-3',
-  title: 'Asymmetric Routing Lab 3',
-  group: 'Routing Labs',
+  slug: 'etherchannel-lab',
+  title: 'EtherChannel Lab',
+  group: 'Switching Labs',
   description:
-    'Extend the four-router ring with two stub routers that use default routes, then steer requests and replies along different paths.',
+    'Bundle four parallel cables between each pair of switches into a single logical port-channel using LACP and PAgP, and carry four VLANs over each bundle with a trunk configured on the port-channel. Only hosts in the same VLAN can communicate.',
   blocks: [
     { type: 'heading', text: 'Scenario' },
     {
       type: 'paragraph',
       text:
-        'Four core routers form a ring (R1 ↔ R2 ↔ R3 ↔ R4 ↔ R1). R5 hangs off R1 and R6 hangs off R3, each with its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. The core routers need specific static routes, while R5 and R6 only have one way out and can use a default route.'
+        'Three switches (SW1, SW2 and SW3) are connected in a line, and each connection uses four parallel cables so that one failed cable does not break the link and the traffic is shared between the cables. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). The four cables between SW1 and SW2 are bundled into Port-channel 1 using LACP, and the four cables between SW2 and SW3 are bundled into Port-channel 2 using PAgP. Each port-channel is a trunk carrying all four VLANs. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, no bundles exist, and the VPCs have no IP addresses.'
     },
 
     { type: 'heading', text: 'Addressing Plan' },
     {
       type: 'bullets',
       items: [
-        'Router links use 10.10.10.XX/30: R1–R2 .0, R2–R3 .4, R3–R4 .8, R4–R1 .12, R1–R5 .16 (R1 .17, R5 .18) and R3–R6 .20 (R3 .21, R6 .22).',
-        'R1 LAN: 192.168.10.0/26 on e0/3, router .1, VPC13 .2',
-        'R2 LAN: 192.168.10.64/26 on e0/2, router .65, VPC14 .66',
-        'R3 LAN: 192.168.10.128/26 on e0/3, router .129, VPC15 .130',
-        'R4 LAN: 192.168.10.192/26 on e0/2, router .193, VPC16 .194',
-        'R5 LAN: 192.168.20.0/26 on e0/1, router .1, VPC17 .2',
-        'R6 LAN: 192.168.20.64/26 on e0/1, router .65, VPC18 .66',
-        'Every PC uses its LAN router as its default gateway.',
+        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
+        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
+        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
+        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
+        'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+        'The VPCs use a /24 mask and no default gateway, because there is no router.',
+        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+        'Port-channel 1 (LACP): SW1 e0/1, e1/1, e1/2, e1/3 to SW2 e0/1, e1/2, e1/3, e2/0. SW1 is active and SW2 is passive.',
+        'Port-channel 2 (PAgP): SW2 e0/0, e2/1, e2/2, e2/3 to SW3 e0/0, e1/1, e1/2, e1/3. SW2 is desirable and SW3 is auto.',
       ]
     },
 
@@ -5207,13 +5815,17 @@ export const topics: Topic[] = [
     {
       type: 'bullets',
       items: [
-        'Address every router interface and every PC according to the plan above.',
-        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
-        'Add specific static routes on R1–R4 so every LAN is reachable.',
-        'Make VPC13 → VPC15 travel R1 → R2 → R3, and the reply travel R3 → R4 → R1.',
-        'Give R5 and R6 a single default route each, and check the "Gateway of last resort" in show ip route.',
-        'Run trace in both directions for VPC13 ↔ VPC15 and VPC17 ↔ VPC15, and compare them with VPC13 ↔ VPC18.',
-        'Break something on purpose: delete R5\'s default route and see which destinations VPC17 can still reach.',
+        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+        'Build Port-channel 1 between SW1 and SW2 with LACP, using channel-group 1 mode active on SW1 and channel-group 1 mode passive on SW2 on every member port.',
+        'Build Port-channel 2 between SW2 and SW3 with PAgP, using channel-group 2 mode desirable on SW2 and channel-group 2 mode auto on SW3 on every member port.',
+        'Configure the trunk only on the port-channel interface: switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan 10,20,30,40. Do not configure any trunk command on the member ports.',
+        'Bring all used ports up with no shutdown.',
+        'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
+        'Verify with show etherchannel summary, show interfaces trunk and show spanning-tree.',
+        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
+        'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
+        'Shut down one member port of a bundle while a ping is running and confirm that the traffic keeps flowing over the remaining links.',
         'Save with copy running-config startup-config, then test with reload.',
       ]
     },
@@ -5222,54 +5834,64 @@ export const topics: Topic[] = [
     {
       type: 'paragraph',
       text:
-        'A default route says "send anything I don\'t know about to this neighbour". That is only safe on a stub router, where there is just one neighbour to choose. R1 and R3 are different: each has two ways to reach the far side of the ring, so they need specific routes to say which one to use. Check each pair of LANs in both directions, because the request and the reply are chosen by different routers.'
+        'Four parallel cables between two switches would normally form loops, and spanning tree would block three of them. An EtherChannel avoids this by joining the cables into one logical interface called a port-channel, so spanning tree sees a single link and no cable is blocked. The traffic is shared across the members by a hash of the addresses in each frame, so one conversation always uses the same cable but different conversations use different cables. A bundle forms only if the members match: the same speed, duplex and VLAN or trunk settings on every member, and compatible modes on the two ends. LACP, the open standard, uses active and passive, where at least one end must be active. PAgP, the Cisco protocol, uses desirable and auto, where at least one end must be desirable. Static EtherChannel uses on at both ends and no protocol. Two passive ends, two auto ends, or mixing LACP with PAgP will never form a bundle. The member ports only need the channel-group command. Everything else, including the trunk, is configured on the port-channel interface, and the switch copies those settings to each member automatically. If you configure trunk commands on the members instead, the settings can differ between members and the bundle will refuse to form. On these switches the encapsulation has to be set with switchport trunk encapsulation dot1q before the mode trunk command is accepted. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and because there is no router, hosts in different VLANs stay isolated.'
     },
 
     { type: 'heading', text: 'Verification' },
     {
       type: 'bullets',
       items: [
-        'show ip interface brief: every interface in use should be up/up.',
-        'show ip route static: R1–R4 should list S routes, and R5 and R6 should show a single S* default.',
-        'ping from each PC to its own gateway first, then to the other LANs.',
-        'trace from VPC13 to VPC15 should pass through R2 (10.10.10.2).',
-        'trace from VPC15 to VPC13 should pass through R4 (10.10.10.10) instead.',
+        'show etherchannel summary: Po1 and Po2 appear with the flags SU (Layer 2, in use), the protocol (LACP or PAgP), and each member port flagged P (bundled in port-channel).',
+        'show interfaces trunk: the trunks are listed as Po1 and Po2, not as individual member ports, with encapsulation 802.1q and all four VLANs allowed.',
+        'show interfaces port-channel 1: shows the state, the combined bandwidth of the bundle, and the members.',
+        'show spanning-tree: each bundle appears as one port (Po1 or Po2) and no member is blocked.',
+        'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Port-channels and members are not listed under any VLAN.',
+        'show ip on each VPC: the address and mask match its VLAN subnet.',
+        'ping: works inside a VLAN across switches and times out between different VLANs, even when one member link is shut down.',
       ]
     },
   ],
   quickReference: [
-    { label: 'Ring LANs', value: '192.168.10.0, .64, .128, .192 (/26)' },
-    { label: 'Stub LANs', value: '192.168.20.0 and .64 (/26)' },
-    { label: 'Router links', value: '10.10.10.0, .4, .8, .12, .16, .20 (/30)' },
-    { label: 'R5 default', value: 'ip route 0.0.0.0 0.0.0.0 10.10.10.17' },
-    { label: 'R6 default', value: 'ip route 0.0.0.0 0.0.0.0 10.10.10.21' },
-    { label: 'LAN mask', value: '/26 = 255.255.255.192' },
-    { label: 'Static route', value: 'ip route <network> <mask> <next-hop>' },
-    { label: 'Trace (PC)', value: 'trace <ip>' },
+    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+    { label: 'LACP', value: 'channel-group <n> mode active | passive' },
+    { label: 'PAgP', value: 'channel-group <n> mode desirable | auto' },
+    { label: 'Static', value: 'channel-group <n> mode on' },
+    { label: 'Port-channel', value: 'interface port-channel <n>' },
+    { label: 'Trunk', value: 'switchport mode trunk (on the port-channel only)' },
+    { label: 'Summary', value: 'show etherchannel summary' },
+    { label: 'Trunks', value: 'show interfaces trunk' },
+    { label: 'Show VLANs', value: 'show vlan brief' },
   ],
 },
 {
-  slug: 'rip-v1-lab',
-  title: 'RIP v1 Lab',
-  group: 'Routing Labs',
+  slug: 'intervlan-lab',
+  title: 'Inter-VLAN Lab',
+  group: 'Switching Labs',
   description:
-    'Build a five-router ring from a factory-fresh state and let RIP version 1 learn every route, with no static routes.',
+    'Connect hosts in four VLANs across three switches using only access ports, and use a router with one interface per VLAN as the gateway so that hosts in different VLANs can communicate.',
   blocks: [
     { type: 'heading', text: 'Scenario' },
     {
       type: 'paragraph',
       text:
-        'Five sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R5 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. Instead of writing static routes, you will turn on RIP so the routers tell each other which networks they can reach.'
+        'Three switches (SW1, SW2 and SW3) are stacked in a line, with four hosts on each switch, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). SW1 connects to SW2 and SW2 connects to SW3 with four parallel cables each, one per VLAN. A router, R16, sits above SW1 and is connected to it with four more cables, again one per VLAN. No trunks are allowed, so every port on every switch is an access port. Each of the four router interfaces sits in one VLAN and acts as the default gateway for it. Unlike a purely intra-VLAN network, the departments must now be able to reach each other through the router. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, the router interfaces are shut down with no addresses, and the VPCs have no IP addresses.'
     },
 
     { type: 'heading', text: 'Addressing Plan' },
     {
       type: 'bullets',
       items: [
-        'Router links: R1–R2 192.168.10.0/24, R2–R3 192.168.20.0/24, R3–R4 192.168.30.0/24, R4–R5 192.168.40.0/24, R5–R1 192.168.50.0/24.',
-        'On each link the addresses match the diagram: R1 uses .1, R2 .2, R3 .3, R4 .4 and R5 .5. R1 uses .1 on both of its links.',
-        'LANs: R1 192.168.1.0/24, R2 192.168.2.0/24, R3 192.168.3.0/24, R4 192.168.4.0/24, R5 192.168.5.0/24, all on e0/2.',
-        'Each router uses .1 on its LAN and each PC uses .10, with the router as its default gateway.',
+        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3. The gateway is 192.168.10.254 on R16 e0/0.',
+        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3. The gateway is 192.168.20.254 on R16 e0/1.',
+        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3. The gateway is 192.168.30.254 on R16 e0/2.',
+        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3. The gateway is 192.168.40.254 on R16 e0/3.',
+        'The last octet of a host follows the switch it is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+        'Every VPC uses a /24 mask and the .254 address of its own VLAN as default gateway.',
+        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+        'SW1 to SW2 links: VLAN 10 on e1/3 to e2/0, VLAN 20 on e1/2 to e1/3, VLAN 30 on e1/1 to e1/2 and VLAN 40 on e0/1 to e0/1.',
+        'SW2 to SW3 links: VLAN 10 on e2/3 to e1/3, VLAN 20 on e2/2 to e1/2, VLAN 30 on e2/1 to e1/1 and VLAN 40 on e0/0 to e0/0.',
+        'SW1 to R16 links: VLAN 10 on e2/0 to e0/0, VLAN 20 on e2/1 to e0/1, VLAN 30 on e2/2 to e0/2 and VLAN 40 on e2/3 to e0/3.',
       ]
     },
 
@@ -5277,13 +5899,16 @@ export const topics: Topic[] = [
     {
       type: 'bullets',
       items: [
-        'Address every router interface and every PC according to the plan above.',
-        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
-        'Enable RIP on every router and advertise each directly connected network. Use no static routes.',
-        'Verify with show ip route rip and show ip protocols. Each router should learn 7 remote networks.',
-        'Make every PC ping every other PC.',
-        'Find the one network on each router that has two equal-cost paths.',
-        'Break something on purpose: shut down the R2–R3 link and watch the routing tables on R1 and R4 change.',
+        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+        'Configure the switch-to-switch links as access ports too, one VLAN per link. Do not use trunk mode anywhere.',
+        'Configure the four SW1 ports that go to R16 as access ports in VLAN 10, 20, 30 and 40.',
+        'Address the four R16 interfaces with the .254 gateway of their VLAN and bring them up with no shutdown.',
+        'Give every VPC an IP address and the default gateway of its VLAN, and confirm it with show ip.',
+        'Verify with show vlan brief on the switches and show ip interface brief and show ip route on R16.',
+        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8. All should succeed.',
+        'Ping between hosts of different VLANs, for example VPC4 to VPC5 and VPC4 to VPC15. All should now succeed. Run trace and read the first hop.',
+        'Shut down R16 e0/1 and see that VLAN 20 still reaches its own hosts but loses all other VLANs. Then restore it.',
         'Save with copy running-config startup-config, then test with reload.',
       ]
     },
@@ -5292,196 +5917,60 @@ export const topics: Topic[] = [
     {
       type: 'paragraph',
       text:
-        'RIP version 1 is classful: it sends no subnet masks, so every network in this lab is a /24 on purpose. A router advertises only the networks you list under router rip, so a missing network statement hides that network from everyone else. The metric is the hop count, and the best route is the one with the fewest routers to cross. Count the hops both ways around the ring for each network and find the one that ties.'
+        'Each VLAN is its own broadcast domain and its own IP subnet, so a host can only talk directly to hosts in its own VLAN. To reach another VLAN it sends the packet to its default gateway, which is why every VPC needs a gateway address in its own subnet. A router connects the subnets together: it receives the packet on the interface of the source VLAN, looks up the destination network in its routing table, and sends it out of the interface of the destination VLAN. A router has no routing protocol to configure here, because all four networks are directly connected and appear in the routing table automatically as soon as the interfaces have an address and are up. On this router, routing is already enabled. An access port belongs to one VLAN only, so the link between a switch and a router interface carries a single VLAN, and each VLAN therefore needs its own cable to the router and its own cable between the switches. That works for four VLANs but it does not scale, since a network with 20 VLANs would need 20 cables and 20 router interfaces. VLANs are local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and both ends of every link must be in the same VLAN.'
     },
 
     { type: 'heading', text: 'Verification' },
     {
       type: 'bullets',
       items: [
-        'show ip interface brief: every interface in use should be up/up.',
-        'show ip route rip: routes start with R and show [120/hops], where 120 is the administrative distance.',
-        'show ip protocols: lists the networks RIP is advertising and the neighbours it has heard from.',
-        'ping from each PC to its own gateway first, then to the other LANs.',
-        'trace from VPC11 to VPC13 to see the hops RIP chose.',
+        'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every switch with the correct ports, and each port appears under exactly one VLAN.',
+        'show interfaces status: all used ports show connected and the right VLAN number, and no port is a trunk.',
+        'show ip interface brief on R16: the four interfaces have their .254 address and show up/up.',
+        'show ip route on R16: four connected (C) networks, 192.168.10.0, 192.168.20.0, 192.168.30.0 and 192.168.40.0, and the matching local (L) host routes.',
+        'show ip on each VPC: the address, mask and gateway match its VLAN.',
+        'ping: works inside a VLAN and now also between different VLANs.',
+        'trace: from VPC4 to a host in another VLAN, the first hop is 192.168.10.254 and the second hop is the destination.',
       ]
     },
   ],
   quickReference: [
-    { label: 'Router links', value: '192.168.10.0, .20.0, .30.0, .40.0, .50.0 (/24)' },
-    { label: 'LANs', value: '192.168.1.0 to 192.168.5.0 (/24)' },
-    { label: 'Enable RIP', value: 'router rip' },
-    { label: 'Advertise', value: 'network <classful network>' },
-    { label: 'RIP routes', value: 'show ip route rip' },
-    { label: 'RIP status', value: 'show ip protocols' },
-    { label: 'Metric / AD', value: 'hop count (max 15) / 120' },
-    { label: 'Trace (PC)', value: 'trace <ip>' },
+    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+    { label: 'Gateways', value: '192.168.X.254 on R16 e0/0 to e0/3' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Access port', value: 'switchport mode access' },
+    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+    { label: 'Router address', value: 'ip address <ip> <mask>' },
+    { label: 'VPC address', value: 'ip <address>/24 <gateway>' },
+    { label: 'Routes', value: 'show ip route' },
+    { label: 'Show VLANs', value: 'show vlan brief' },
   ],
 },
 {
-  slug: 'rip-v2-lab',
-  title: 'RIP v2 Lab',
-  group: 'Routing Labs',
+  slug: 'physical-logical-lab',
+  title: 'Physical Works as Logical',
+  group: 'Switching Labs',
   description:
-    'Build a five-router ring with mixed /30 and /27 subnets and let RIP version 2 learn every route, with no static routes.',
+    'Eight routers connected to a single switch with one cable each are made to behave like the OSPF 1024 multi-area network, using one VLAN per logical link, trunks on the switch and dot1Q sub-interfaces on the routers.',
   blocks: [
     { type: 'heading', text: 'Scenario' },
     {
       type: 'paragraph',
       text:
-        'Five sites form a ring: R1 ↔ R2 ↔ R3 ↔ R4 ↔ R5 ↔ R1. Each site has a switch and one PC on its own LAN. Every device starts in its factory state: router interfaces are shut down with no IP addresses, and the PCs have no IP configuration. The router links are small /30 subnets and the LANs are /27 subnets, so this time the routing protocol has to carry subnet masks.'
+        'Physically, the lab is a star: one switch (SW) and eight routers, each connected to the switch with a single cable from its e0/0. The network design, however, is the OSPF 1024 network with four areas, six two-router links and two shared segments, in which R3 has five links and R6 has four. The routers do not have enough physical interfaces to build that design with real cables, so the switch has to create the missing links virtually. Every logical link (200.10.1.0/24 to 200.10.8.0/24) becomes its own VLAN, the switch ports facing the routers are trunks that carry only the VLANs each router needs, and every router gets one sub-interface per link. When it works, the star behaves exactly like the OSPF 1024 topology. Every device starts in its factory state: interfaces are shut down with no IP addresses, there are no VLANs and no routing protocol. The logical diagram in the lab is a picture of the target and cannot be clicked. Only the physical diagram is configured.'
     },
 
     { type: 'heading', text: 'Addressing Plan' },
     {
       type: 'bullets',
       items: [
-        'Router links (10.10.10.XX/30): R1–R2 .0, R2–R3 .4, R3–R4 .8, R4–R5 .12, R5–R1 .16. Each router takes the addresses shown in the diagram.',
-        'LANs (192.168.10.XX/27): R1 .0, R2 .32, R3 .64, R4 .96, R5 .128, all on e0/2.',
-        'Each router uses the first usable address of its LAN: .1, .33, .65, .97 and .129.',
-        'PCs: VPC11 .10, VPC12 .40, VPC13 .70, VPC14 .100 and VPC15 .140, each with its LAN router as the default gateway.',
-      ]
-    },
-
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Address every router interface and every PC according to the plan above.',
-        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
-        'Enable RIP version 2 on every router and advertise the two classful networks. Use no static routes.',
-        'Turn off automatic summarisation, then verify with show ip route rip and show ip protocols. Each router should learn 7 remote networks.',
-        'Make every PC ping every other PC.',
-        'Find the one router link on each router that has two equal-cost paths.',
-        'Break something on purpose: shut down the R2–R3 link and watch the routing tables on R1 and R4 change.',
-        'Experiment: turn automatic summarisation back on at R3 only and compare what R2 and R4 learn from it.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
-
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'RIP version 1 would not work here, because it sends no masks and could not tell a /30 from a /27. Version 2 includes the mask with every route. RIP also groups subnets by their classful network when it advertises them, which is called automatic summarisation. With two classful networks in play (10.0.0.0 and 192.168.10.0), decide whether you want that behaviour or not, and look for the command that controls it.'
-    },
-
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show ip interface brief: every interface in use should be up/up.',
-        'show ip route rip: routes start with R, show [120/hops] and keep their /30 or /27 mask.',
-        'show ip protocols: shows RIP version 2, automatic summarisation, the networks advertised and the neighbours heard from.',
-        'ping from each PC to its own gateway first, then to the other LANs.',
-        'trace from VPC11 to VPC13 to see the hops RIP chose.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'Router links', value: '10.10.10.0, .4, .8, .12, .16 (/30)' },
-    { label: 'LANs', value: '192.168.10.0, .32, .64, .96, .128 (/27)' },
-    { label: 'Enable RIPv2', value: 'router rip → version 2' },
-    { label: 'Advertise', value: 'network <classful network>' },
-    { label: 'No summary', value: 'no auto-summary' },
-    { label: 'RIP routes', value: 'show ip route rip' },
-    { label: 'Masks', value: '/30 = 255.255.255.252, /27 = 255.255.255.224' },
-    { label: 'Trace (PC)', value: 'trace <ip>' },
-  ],
-},
-{
-  slug: 'eigrp-lab',
-  title: 'EIGRP 100 Lab',
-  group: 'Routing Labs',
-  description:
-    'Bring up an eight-router network with two shared segments and let EIGRP learn every route, including loopbacks and equal-cost paths.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Eight routers share a campus network. R3, R4, R5 and R6 sit on one shared segment (150.10.7.0/24) and are also joined by direct links. R1 and R2 hang off R3, and R6 shares a second segment (150.10.8.0/24) with R7 and R8. Every device starts in its factory state: interfaces are shut down with no IP addresses and there is no routing protocol. Each router also gets four loopback interfaces to act as test destinations.'
-    },
-
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'Router links (150.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
-        'Shared segment 7.0 (through SW9): R3 .3, R4 .4, R5 .5 and R6 .6.',
-        'Shared segment 8.0 (through SW10): R6 .6, R7 .7 and R8 .8.',
-        'On every link the last octet is the router number, as shown in the diagram.',
-        'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
-      ]
-    },
-
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Address every Ethernet interface and create the four loopbacks on every router.',
-        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
-        'Enable EIGRP 100 on every router, set the router ID to the first loopback, and advertise each interface with a wildcard mask.',
-        'Check the neighbour tables. R3 and R6 should each show 7 neighbours. Work out why.',
-        'Read the topology table and the EIGRP routes, and explain the metrics.',
-        'Ping and trace from R1 to a loopback on R8, then find the routes with more than one equal-cost next hop.',
-        'Break something on purpose: shut down R3\'s link to the 7.0 segment and compare R1\'s metric to 150.10.8.0.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
-
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'EIGRP uses a wildcard mask in its network statement, which is the inverse of a subnet mask. A loopback with a /32 mask needs an exact match, while a /24 link needs the host bits left open. A router also forms a separate neighbour for every other router it can reach on each interface, so a shared segment gives a router several neighbours on one port. The best path is the one with the lowest metric, and any other path with the same metric is installed alongside it.'
-    },
-
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show ip interface brief: every interface in use should be up/up.',
-        'show ip eigrp neighbors: lists every neighbour with its interface.',
-        'show ip eigrp topology: shows the successors and the metric for each network.',
-        'show ip route eigrp: routes start with D and show [90/metric].',
-        'ping and trace from R1 to 8.8.8.1 through 8.8.8.4.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'Links', value: '150.10.1.0 to 150.10.8.0 (/24)' },
-    { label: 'Loopbacks', value: 'N.N.N.1–4/32 on router N' },
-    { label: 'Enable EIGRP', value: 'router eigrp 100' },
-    { label: 'Advertise', value: 'network <ip> <wildcard>' },
-    { label: 'Router ID', value: 'eigrp router-id <ip>' },
-    { label: 'Neighbours', value: 'show ip eigrp neighbors' },
-    { label: 'Topology', value: 'show ip eigrp topology' },
-    { label: 'Metric / AD', value: 'bandwidth + delay / 90' },
-  ],
-},
-{
-  slug: 'ospf-lab',
-  title: 'OSPF 1024 Lab',
-  group: 'Routing Labs',
-  description:
-    'Bring up an eight-router multi-area OSPF network with loopbacks, two area border routers, and a controlled election that leaves exactly one DR and one BDR on each of the two shared segments.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Eight routers share a campus network split into four OSPF areas. R3, R4, R5 and R6 form the backbone (area 0) and sit on one shared segment (200.10.7.0/24) as well as being joined by direct links. R1 hangs off R3 in area 10, R2 hangs off R3 in area 20, and R6 shares a second segment (200.10.8.0/24) with R7 and R8 in area 30. R3 and R6 are the area border routers. The six direct links hold only two routers each, so they run as point-to-point and elect nothing. Only the two shared segments elect a DR and a BDR, giving two of each in the whole network. Every device starts in its factory state: interfaces are shut down with no IP addresses and there is no routing protocol. Each router also gets four loopback interfaces to act as test destinations.'
-    },
-
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'Router links (200.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
-        'Shared segment 7.0 (through SW9): R3 .3, R4 .4, R5 .5 and R6 .6.',
-        'Shared segment 8.0 (through SW10): R6 .6, R7 .7 and R8 .8.',
-        'On every link the last octet is the router number, as shown in the diagram.',
+        'Physical cables: SW e0/0 to R1, e0/1 to R2, e0/2 to R3, e0/3 to R4, e1/0 to R5, e1/1 to R6, e1/2 to R7 and e1/3 to R8. Every router uses its e0/0.',
+        'Logical links (200.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
+        'Shared segment 7.0 holds R3 .3, R4 .4, R5 .5 and R6 .6. Shared segment 8.0 holds R6 .6, R7 .7 and R8 .8. On every link the last octet is the router number.',
+        'VLAN numbers: the link 200.10.N.0/24 uses VLAN 100+N, so 1.0 is VLAN 101 and 8.0 is VLAN 108.',
+        'Trunk VLANs per router: R1 101, R2 102, R3 101,102,103,105,107, R4 103,104,107, R5 105,106,107, R6 104,106,107,108, R7 108 and R8 108.',
+        'Sub-interface on router N for link K: e0/0.10K with encapsulation dot1Q 10K. The physical e0/0 itself has no IP address.',
         'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
         'Areas: 1.0 is area 10, 2.0 is area 20, 3.0 to 7.0 are area 0, and 8.0 is area 30. Each router puts its loopbacks in its own area (R3 and R6 use area 0).',
         'DR and BDR plan: on 7.0 R4 is the DR and R6 the BDR (R3 and R5 never elected). On 8.0 R6 is the DR and R7 the BDR (R8 never elected).',
@@ -5492,17 +5981,16 @@ export const topics: Topic[] = [
     {
       type: 'bullets',
       items: [
-        'Address every Ethernet interface and create the four loopbacks on every router.',
-        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+        'Compare the physical and logical diagrams and work out which routers share each logical link.',
+        'Create VLANs 101 to 108 on SW, one for every logical link.',
+        'Configure each switch port facing a router as a trunk with switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan limited to the VLANs of that router.',
+        'On each router bring up e0/0 with no IP address, and create one sub-interface per logical link with encapsulation dot1Q and an IP address.',
+        'Create the four loopbacks on every router.',
+        'Ping the neighbour on every logical link to prove that the VLANs carry the traffic.',
         'Enable OSPF process 1 on every router, set the router ID to the first loopback, and advertise each network with a wildcard mask in the correct area.',
-        'On the six two-router links (1.0 to 6.0) set ip ospf network point-to-point on both ends, so no DR or BDR is elected there.',
-        'Check the neighbour tables. R3 and R6 should each show 7 neighbours. Work out why.',
-        'On 7.0 find which neighbours are FULL and which stay in 2WAY, and explain the difference.',
-        'Set ip ospf priority so that on 7.0 R4 is the DR and R6 the BDR, and on 8.0 R6 is the DR and R7 the BDR. R3, R5 and R8 must never be elected (priority 0).',
-        'Read show ip ospf interface on R4, R6, R7 and R8, and match the State, DR and BDR fields to your plan. Confirm the whole network has exactly 2 DRs and 2 BDRs.',
-        'Run show ip ospf on R3 and R6 and confirm they are area border routers. On R1, find the routes marked O IA.',
-        'Ping and trace from R1 to a loopback on R8 (8.8.8.1), and read R1\'s OSPF routes.',
-        'Break something on purpose: shut down R4\'s e0/0 and watch the 7.0 segment elect a new DR.',
+        'Set ip ospf network point-to-point on both ends of the six two-router links, and use ip ospf priority so that R4 is the DR and R6 the BDR on 7.0, and R6 is the DR and R7 the BDR on 8.0.',
+        'Check show ip ospf neighbor, show ip route ospf on R1 (routes marked O IA) and traceroute from R1 to 8.8.8.1. The result must match the OSPF 1024 lab.',
+        'Break something on purpose: remove VLAN 107 from the switch port of R4 and watch the 7.0 segment elect a new DR.',
         'Save with copy running-config startup-config, then test with reload.',
       ]
     },
@@ -5511,74 +5999,152 @@ export const topics: Topic[] = [
     {
       type: 'paragraph',
       text:
-        'OSPF uses a wildcard mask in its network statement, which is the inverse of a subnet mask, and each statement must name the area the interface belongs to. A link such as 200.10.1.0/24 needs the host bits left open (0.0.0.255), and four loopbacks with /32 masks can be matched in one line with a wildcard like 0.0.0.7. A router with interfaces in more than one area is an area border router, and routes it passes between areas appear as O IA in the other area. On Ethernet every link is a broadcast network by default, so even a link with only two routers elects a DR and a BDR. Setting ip ospf network point-to-point removes the election, but it must be set on both ends and only suits links with exactly two routers. On a shared segment the highest priority wins, with the highest router ID as the tie-breaker, and a priority of 0 means the router can never be elected. The election does not preempt, so you may need clear ip ospf process after changing priorities. Routers that are neither DR nor BDR (DROTHER) form a full adjacency only with the DR and BDR, and stay in 2WAY with each other. A router shows one neighbour entry per interface, so a neighbour reachable over two links appears twice.'
+        'A VLAN behaves like a private cable that exists only inside the switch. A frame that enters in one VLAN can only leave through ports in the same VLAN, so two routers can talk only if they share a VLAN, and a link with two routers is simply a VLAN that only those two routers belong to. A router has only one physical port here, so it must carry several VLANs over it. The switch port facing the router is a trunk, which adds a tag with the VLAN number to every frame, and the router splits the single port into sub-interfaces, each one tied to a VLAN with encapsulation dot1Q followed by the number. The physical e0/0 only has to be up, and the IP addresses go on the sub-interfaces. The trunk should carry only the VLANs the router needs, because a router must not see links it is not part of. On this switch image the encapsulation has to be set with switchport trunk encapsulation dot1q before switchport mode trunk is accepted. After that, OSPF works as in the normal lab. The network statements match the sub-interface addresses, the two-router links need ip ospf network point-to-point on both ends, and the shared VLANs (107 and 108) have more than two routers, so they elect a DR and a BDR, which you control with ip ospf priority. A priority of 0 means the router can never be elected, and the election does not preempt, so clear ip ospf process may be needed after changing priorities.'
     },
 
     { type: 'heading', text: 'Verification' },
     {
       type: 'bullets',
       items: [
-        'show ip interface brief: every interface in use should be up/up.',
-        'show ip ospf neighbor: lists every neighbour with its state and role. Point-to-point links show FULL/  -, and the shared segments show FULL/DR, FULL/BDR or 2WAY/DROTHER.',
-        'show ip ospf interface e0/0: shows the area, network type, state, priority, DR and BDR of that interface.',
-        'show ip ospf: on R3 and R6 it should list more than one area.',
-        'show ip route ospf: routes start with O (same area) or O IA (other area) and show [110/cost].',
-        'ping and trace from R1 to 8.8.8.1 through 8.8.8.4.',
+        'show vlan brief on SW: VLANs 101 to 108 exist. Trunk ports are not listed under a VLAN.',
+        'show interfaces trunk on SW: the eight router ports are trunking with 802.1q, and each one allows only its own VLANs.',
+        'show ip interface brief on a router: e0/0 is up/up with no address, and every sub-interface has its address and is up/up.',
+        'ping: each router reaches its neighbour on every logical link, and does not reach routers that are on other VLANs only.',
+        'show ip ospf neighbor: point-to-point links show FULL/  -, and the shared segments show FULL/DR, FULL/BDR or 2WAY/DROTHER. R3 and R6 show 7 neighbours each.',
+        'show ip ospf interface e0/0.107: shows the area, network type, state, priority, DR and BDR of that sub-interface.',
+        'show ip route ospf on R1: routes from other areas are marked O IA, and traceroute from R1 to 8.8.8.1 follows the logical path.',
       ]
     },
   ],
   quickReference: [
-    { label: 'Links', value: '200.10.1.0 to 200.10.8.0 (/24)' },
-    { label: 'Loopbacks', value: 'N.N.N.1–4/32 on router N' },
-    { label: 'Areas', value: '10 (R1), 20 (R2), 0 (R3–R6), 30 (R7, R8)' },
+    { label: 'Link to VLAN', value: '200.10.N.0/24 uses VLAN 100+N' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Switch trunk', value: 'switchport mode trunk' },
+    { label: 'Allowed VLANs', value: 'switchport trunk allowed vlan <list>' },
+    { label: 'Sub-interface', value: 'interface e0/0.<vlan>' },
+    { label: 'Tag', value: 'encapsulation dot1Q <vlan>' },
     { label: 'Enable OSPF', value: 'router ospf 1' },
     { label: 'Advertise', value: 'network <ip> <wildcard> area <n>' },
-    { label: 'Router ID', value: 'router-id <ip>' },
     { label: 'No election', value: 'ip ospf network point-to-point' },
     { label: 'Priority', value: 'ip ospf priority <0-255>' },
+    { label: 'Show trunks', value: 'show interfaces trunk' },
     { label: 'Neighbours', value: 'show ip ospf neighbor' },
-    { label: 'Metric / AD', value: 'cost (bandwidth-based) / 110' },
   ],
 },
-  //   {
-  // slug: 'mls-eigrp-ospf-lab',
-  // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
-  // group: 'Advanced Switching & Routing',
-  // description: 'Practice configuring four multilayer switches in a square using LACP bundles, trunking, rapid-PVST, SVIs, and running EIGRP and OSPF across diagonals.',
-  // blocks: [
-  //   { type: 'heading', text: 'Topology Overview' },
-  //   {
-  //     type: 'paragraph',
-  //     text: 'You have four multilayer switches (SW1, SW2, SW3, SW4) arranged in a square and connected by four EtherChannel bundles (Po12, Po13, Po24, Po34). Two routing domains run over SVIs: EIGRP between SW1 and SW4 over VLAN 14, and OSPF between SW2 and SW3 over VLAN 23.'
-  //   },
-  //   { type: 'heading', text: 'Objective' },
-  //   {
-  //     type: 'bullets',
-  //     items: [
-  //       'Form LACP bundles using active/passive mode configurations.',
-  //       'Configure dot1q trunking on all port-channels.',
-  //       'Create and propagate VLANs 14 and 23 across transit and destination switches.',
-  //       'Tune Spanning Tree (Rapid-PVST) priorities to control the root bridge and blocked ports.',
-  //       'Configure IP routing, SVI interfaces, loopbacks, and verify EIGRP/OSPF neighbor adjacencies.'
-  //     ]
-  //   }
-  // ],
-  // quickReference: [
-  //   { label: 'SW1/SW4 EIGRP VLAN', value: 'VLAN 14 (10.1.4.0/24)' },
-  //   { label: 'SW2/SW3 OSPF VLAN', value: 'VLAN 23 (10.2.3.0/24)' },
-  //   { label: 'Loopbacks', value: 'SW1: 1.1.1.1, SW2: 2.2.2.2, SW3: 3.3.3.3, SW4: 4.4.4.4' },
-  //   { label: 'STP Priorities', value: 'SW1: 4096, SW2: 8192, SW3: 16384, SW4: 32768' }
-  // ],
-  // diagrams: [
-  //   {
-  //     src: '/diagrams/mls-eigrp-ospf-lab.png', // Make sure to save the image here
-  //     alt: 'Four MLS LACP STP EIGRP OSPF Topology',
-  //     caption: 'Four Multilayer Switches - LACP, STP, EIGRP & OSPF Lab'
-  //   }
-  // ]
-  //   }
+{
+  slug: 'mls-ring-all-vlans',
+  title: 'MLS Ring: STP with All VLANs',
+  group: 'Switching Labs',
+  description:
+    'Four multilayer switches are physically connected in a square. Trunks are configured to allow all VLANs, relying on Spanning Tree Protocol (STP) to block redundant links and prevent Layer 2 loops while routing EIGRP and OSPF.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'Physically, the four multilayer switches form a square. Between neighbors, there is exactly one cable acting as a trunk. Unlike a manually pruned setup, all trunks allow all VLANs. Logically, there are two "diagonal" links: SW1 to SW4 running EIGRP over VLAN 14, and SW3 to SW2 running OSPF over VLAN 23. Because the physical topology is a ring and all VLANs traverse all links, Layer 2 loops would occur. To prevent this, Spanning Tree Protocol (STP) will automatically elect a Root Bridge and block specific redundant ports for VLAN 14 and VLAN 23. The actual path the traffic takes will be dictated by STP rather than manual configuration.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'Physical trunks: Top (SW1 e0/0 ↔ SW2 e0/0), Left (SW1 e0/3 ↔ SW3 e0/2), Right (SW2 e0/3 ↔ SW4 e0/2), Bottom (SW3 e0/1 ↔ SW4 e0/1).',
+        'Logical links: EIGRP-LINK on VLAN 14 (10.14.0.0/24) between SW1 (.1) and SW4 (.4). OSPF-LINK on VLAN 23 (10.23.0.0/24) between SW3 (.3) and SW2 (.2).',
+        'Trunk allowed VLANs: All trunks allow all VLANs (1-4094) by default or by using the allowed vlan all command.',
+        'Layer 3 SVIs: SW1 uses interface vlan 14, SW4 uses interface vlan 14. SW2 uses interface vlan 23, SW3 uses interface vlan 23.',
+        'Loopbacks: Loopback0 on every switch uses N.N.N.N with a 255.255.255.255 mask.',
+        'Routing: EIGRP AS 100 on SW1 and SW4. OSPF Process 1 Area 0 on SW2 and SW3.'
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Enable routing with ip routing and create VLAN 14 and VLAN 23 on all four switches.',
+        'Configure each single physical cable as a trunk with switchport trunk encapsulation dot1q and switchport mode trunk. Do not restrict the allowed VLANs (leave default or set to all).',
+        'Create the Layer 3 SVIs (interface vlan <id>) with IP addresses and no shutdown for the active routing endpoints.',
+        'Create Loopback0 on every switch.',
+        'Run EIGRP 100 on SW1 and SW4. Run OSPF 1 area 0 on SW3 and SW2.',
+        'Check show spanning-tree vlan 14 and show spanning-tree vlan 23 to see which switch becomes the Root Bridge and which ports are put into the Blocking (BLK) state.',
+        'Ping across each logical link: SW1 to 10.14.0.4 and SW3 to 10.23.0.2 to verify STP has unblocked a valid path.',
+        'Break a forwarding link (shutdown) on purpose, and watch STP recalculate, transition ports through listening/learning, and eventually unblock a redundant path to restore routing.',
+        'Save with copy running-config startup-config.'
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'When all VLANs are allowed on all trunks in a ring topology, Spanning Tree Protocol (STP) becomes the sole mechanism preventing broadcast storms. By default, Cisco switches run PVST+ (Per-VLAN Spanning Tree). It will elect a Root Bridge for VLAN 14 and a Root Bridge for VLAN 23 (often the switch with the lowest MAC address if priorities are tied) and block the ports furthest from the root. This means the path your routing protocol traffic takes across the square is entirely dependent on STP states. When you shut down an active trunk, routing will drop temporarily while STP waits for timers (Max Age, Forward Delay) to transition a blocked port back to forwarding.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show interfaces trunk: confirms trunks are active and allowing VLANs 1-4094.',
+        'show spanning-tree vlan 14: identifies the root bridge, root ports, designated ports, and blocked ports for the EIGRP VLAN.',
+        'show ip eigrp neighbors on SW1: shows an adjacency with 10.14.0.4.',
+        'show ip ospf neighbor on SW3: shows 2.2.2.2 in the FULL state.',
+        'show ip route: confirms that SW1 reaches 4.4.4.4 and SW3 reaches 2.2.2.2.'
+      ]
+    }
+  ],
+  quickReference: [
+    { label: 'Enable routing', value: 'ip routing' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Trunk encap', value: 'switchport trunk encapsulation dot1q' },
+    { label: 'Switch trunk', value: 'switchport mode trunk' },
+    { label: 'Allow all VLANs', value: 'switchport trunk allowed vlan all' },
+    { label: 'Check STP', value: 'show spanning-tree vlan <id>' },
+    { label: 'Create SVI', value: 'interface vlan <id>' },
+    { label: 'EIGRP', value: 'router eigrp <as>' },
+    { label: 'OSPF', value: 'router ospf <pid>' },
+    { label: 'Show trunks', value: 'show interfaces trunk' }
   ]
 },
+      //   {
+      // slug: 'mls-eigrp-ospf-lab',
+      // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
+      // group: 'Advanced Switching & Routing',
+      // description: 'Practice configuring four multilayer switches in a square using LACP bundles, trunking, rapid-PVST, SVIs, and running EIGRP and OSPF across diagonals.',
+      // blocks: [
+      //   { type: 'heading', text: 'Topology Overview' },
+      //   {
+      //     type: 'paragraph',
+      //     text: 'You have four multilayer switches (SW1, SW2, SW3, SW4) arranged in a square and connected by four EtherChannel bundles (Po12, Po13, Po24, Po34). Two routing domains run over SVIs: EIGRP between SW1 and SW4 over VLAN 14, and OSPF between SW2 and SW3 over VLAN 23.'
+      //   },
+      //   { type: 'heading', text: 'Objective' },
+      //   {
+      //     type: 'bullets',
+      //     items: [
+      //       'Form LACP bundles using active/passive mode configurations.',
+      //       'Configure dot1q trunking on all port-channels.',
+      //       'Create and propagate VLANs 14 and 23 across transit and destination switches.',
+      //       'Tune Spanning Tree (Rapid-PVST) priorities to control the root bridge and blocked ports.',
+      //       'Configure IP routing, SVI interfaces, loopbacks, and verify EIGRP/OSPF neighbor adjacencies.'
+      //     ]
+      //   }
+      // ],
+      // quickReference: [
+      //   { label: 'SW1/SW4 EIGRP VLAN', value: 'VLAN 14 (10.1.4.0/24)' },
+      //   { label: 'SW2/SW3 OSPF VLAN', value: 'VLAN 23 (10.2.3.0/24)' },
+      //   { label: 'Loopbacks', value: 'SW1: 1.1.1.1, SW2: 2.2.2.2, SW3: 3.3.3.3, SW4: 4.4.4.4' },
+      //   { label: 'STP Priorities', value: 'SW1: 4096, SW2: 8192, SW3: 16384, SW4: 32768' }
+      // ],
+      // diagrams: [
+      //   {
+      //     src: '/diagrams/mls-eigrp-ospf-lab.png', // Make sure to save the image here
+      //     alt: 'Four MLS LACP STP EIGRP OSPF Topology',
+      //     caption: 'Four Multilayer Switches - LACP, STP, EIGRP & OSPF Lab'
+      //   }
+      // ]
+      //   }
+    ]
+  },
 
 ]
 
