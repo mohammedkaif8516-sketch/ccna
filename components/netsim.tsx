@@ -2556,121 +2556,68 @@ export function Cable({
 }
 
 function Term({ id }: { id: string }) {
-  const { store } = useLab(),
-    s = useSyncExternalStore(store.subscribe, store.get),
-    d = s.devs[id];
-  const [val, setVal] = useState(""),
-    [hi, setHi] = useState(-1),
-    box = useRef<HTMLDivElement>(null),
-    inp = useRef<HTMLInputElement>(null);
-  const ses = d?.session,
-    prompt = d ? termPrompt(s, id) : "";
+  const { store } = useLab(), s = useSyncExternalStore(store.subscribe, store.get), d = s.devs[id];
+  const [val, setVal] = useState(""), [hi, setHi] = useState(-1), box = useRef<HTMLDivElement>(null), inp = useRef<HTMLInputElement>(null);
+  
+  // State to track copy feedback
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedSel, setCopiedSel] = useState(false);
 
-  useEffect(() => {
-    const el = box.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [ses?.lines.length, id]);
-  useEffect(() => {
-    inp.current?.focus();
-  }, [id]);
-
+  const ses = d?.session, prompt = d ? termPrompt(s, id) : "";
+  
+  useEffect(() => { const el = box.current; if (el) el.scrollTop = el.scrollHeight; }, [ses?.lines.length, id]);
+  useEffect(() => { inp.current?.focus(); }, [id]);
+  
   if (!d || !ses) return null;
-
-  const push = (...l: string[]) =>
-    store.update(id, (x) => {
-      x.session.lines.push(...l);
-    });
-  const go = (line: string) => {
-    submit(store, id, line);
-    setVal("");
-    setHi(-1);
-  };
-
+  
+  const push = (...l: string[]) => store.update(id, (x) => { x.session.lines.push(...l); });
+  const go = (line: string) => { submit(store, id, line); setVal(""); setHi(-1); };
+  
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const k = e.key,
-      ctrl = e.ctrlKey;
-    if (k === "Enter") {
-      e.preventDefault();
-      go(val);
-    } else if (k === "ArrowUp" || k === "ArrowDown") {
-      e.preventDefault();
-      const H = ses.hist;
-      if (!H.length) return;
-      const n =
-        k === "ArrowUp"
-          ? hi < 0
-            ? H.length - 1
-            : Math.max(0, hi - 1)
-          : hi < 0
-            ? -1
-            : hi + 1;
-      if (n < 0 || n >= H.length) {
-        setHi(-1);
-        setVal("");
-      } else {
-        setHi(n);
-        setVal(H[n]);
-      }
-    } else if (k === "Tab") {
-      e.preventDefault();
-      if (!ses.prompt) {
-        const r = termComplete(store, id, val);
-        if (r) setVal(r);
-      }
-    } else if (k === "?" && !ses.prompt && ses.cli) {
-      e.preventDefault();
-      push(prompt + val + "?", ...termHelp(store, id, val));
-    } else if (ctrl && k === "z") {
-      e.preventDefault();
-      if (
-        !ses.prompt &&
-        (ses.remote ? ses.remote.cli : ses.cli).mode.startsWith("config")
-      )
-        go("end");
-    } else if (ctrl && k === "c") {
+    const k = e.key, ctrl = e.ctrlKey;
+    if (k === "Enter") { e.preventDefault(); go(val); }
+    else if (k === "ArrowUp" || k === "ArrowDown") {
+      e.preventDefault(); const H = ses.hist; if (!H.length) return;
+      const n = k === "ArrowUp" ? (hi < 0 ? H.length - 1 : Math.max(0, hi - 1)) : hi < 0 ? -1 : hi + 1;
+      if (n < 0 || n >= H.length) { setHi(-1); setVal(""); } else { setHi(n); setVal(H[n]); }
+    } else if (k === "Tab") { e.preventDefault(); if (!ses.prompt) { const r = termComplete(store, id, val); if (r) setVal(r); } }
+    else if (k === "?" && !ses.prompt && ses.cli) { e.preventDefault(); push(prompt + val + "?", ...termHelp(store, id, val)); }
+    else if (ctrl && k === "z") { e.preventDefault(); if (!ses.prompt && (ses.remote ? ses.remote.cli : ses.cli).mode.startsWith("config")) go("end"); }
+    else if (ctrl && k === "c") { 
       // If text is selected, let the browser copy it. Otherwise, act as Ctrl+C.
       const sel = window.getSelection()?.toString();
       if (!sel) {
-        e.preventDefault();
-        push(prompt + val + "^C");
-        store.update(id, (x) => {
-          x.session.prompt = undefined;
-        });
-        setVal("");
+        e.preventDefault(); 
+        push(prompt + val + "^C"); 
+        store.update(id, (x) => { x.session.prompt = undefined; }); 
+        setVal(""); 
       }
-    } else if (ctrl && k === "a") {
-      const sel = window.getSelection()?.toString();
-      if (!sel) {
-        e.preventDefault();
-        inp.current?.setSelectionRange(0, 0);
-      }
-    } else if (ctrl && k === "e") {
-      e.preventDefault();
-      inp.current?.setSelectionRange(val.length, val.length);
-    } else if (ctrl && k === "u") {
-      e.preventDefault();
-      setVal("");
-    } else if (ctrl && k === "w") {
-      e.preventDefault();
-      setVal(val.replace(/\S*\s*$/, ""));
-    } else if (ctrl && k === "l") {
-      e.preventDefault();
-      store.update(id, (x) => {
-        x.session.lines = [];
-      });
     }
+    else if (ctrl && k === "a") { 
+      const sel = window.getSelection()?.toString();
+      if (!sel) { e.preventDefault(); inp.current?.setSelectionRange(0, 0); }
+    }
+    else if (ctrl && k === "e") { e.preventDefault(); inp.current?.setSelectionRange(val.length, val.length); }
+    else if (ctrl && k === "u") { e.preventDefault(); setVal(""); }
+    else if (ctrl && k === "w") { e.preventDefault(); setVal(val.replace(/\S*\s*$/, "")); }
+    else if (ctrl && k === "l") { e.preventDefault(); store.update(id, (x) => { x.session.lines = []; }); }
   };
 
   const copyAll = () => {
     navigator.clipboard.writeText(ses.lines.join("\n"));
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 1500);
   };
-
+  
   const copySelection = () => {
     const sel = window.getSelection()?.toString();
-    if (sel) navigator.clipboard.writeText(sel);
+    if (sel) {
+      navigator.clipboard.writeText(sel);
+      setCopiedSel(true);
+      setTimeout(() => setCopiedSel(false), 1500);
+    }
   };
 
-    // If the user has highlighted text, don't steal the focus
   const handleTermClick = () => {
     const sel = window.getSelection()?.toString();
     if (!sel) {
@@ -2688,66 +2635,59 @@ function Term({ id }: { id: string }) {
         if (sel) {
           e.preventDefault();
           navigator.clipboard.writeText(sel);
+          setCopiedSel(true);
+          setTimeout(() => setCopiedSel(false), 1500);
         }
       }}
     >
       {/* Floating toolbar for copying */}
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          right: 0,
-          display: "flex",
-          gap: 8,
-          justifyContent: "flex-end",
-          padding: "4px 0",
-          zIndex: 10,
-        }}
-      >
-        <button
-          onClick={copySelection}
-          style={{
-            background: "var(--ns-chip)",
-            border: "1px solid var(--ns-edge)",
-            borderRadius: 4,
-            padding: "2px 8px",
-            fontSize: 11,
+      <div style={{ position: "sticky", top: 0, right: 0, display: "flex", gap: 8, justifyContent: "flex-end", padding: "4px 0", zIndex: 10 }}>
+        <button 
+          onClick={copySelection} 
+          style={{ 
+            background: copiedSel ? "var(--ns-up)" : "var(--ns-chip)", 
+            color: copiedSel ? "#fff" : "var(--ns-ink)",
+            border: "1px solid var(--ns-edge)", 
+            borderRadius: 4, 
+            padding: "2px 8px", 
+            fontSize: 11, 
             cursor: "pointer",
-            color: "var(--ns-ink)",
+            transition: "all 0.2s"
           }}
         >
-          Copy Selected
+          {copiedSel ? "✓ Copied" : "Copy Selected"}
         </button>
-        <button
-          onClick={copyAll}
-          style={{
-            background: "var(--ns-chip)",
-            border: "1px solid var(--ns-edge)",
-            borderRadius: 4,
-            padding: "2px 8px",
-            fontSize: 11,
+        <button 
+          onClick={copyAll} 
+          style={{ 
+            background: copiedAll ? "var(--ns-up)" : "var(--ns-chip)", 
+            color: copiedAll ? "#fff" : "var(--ns-ink)",
+            border: "1px solid var(--ns-edge)", 
+            borderRadius: 4, 
+            padding: "2px 8px", 
+            fontSize: 11, 
             cursor: "pointer",
-            color: "var(--ns-ink)",
+            transition: "all 0.2s"
           }}
         >
-          Copy All
+          {copiedAll ? "✓ Copied" : "Copy All"}
         </button>
       </div>
 
       <pre className="ns-out">{ses.lines.join("\n")}</pre>
       <label className="ns-in">
         <span className="ns-pr">{prompt}</span>
-        <input
-          ref={inp}
-          value={val}
-          onChange={(e) => setVal(e.target.value)}
-          onKeyDown={onKey}
-          type={ses.prompt?.secret ? "password" : "text"}
-          spellCheck={false}
-          autoCapitalize="off"
-          autoComplete="off"
-          autoCorrect="off"
-          aria-label={`${d.hostname} console input`}
+        <input 
+          ref={inp} 
+          value={val} 
+          onChange={(e) => setVal(e.target.value)} 
+          onKeyDown={onKey} 
+          type={ses.prompt?.secret ? "password" : "text"} 
+          spellCheck={false} 
+          autoCapitalize="off" 
+          autoComplete="off" 
+          autoCorrect="off" 
+          aria-label={`${d.hostname} console input`} 
         />
       </label>
     </div>
