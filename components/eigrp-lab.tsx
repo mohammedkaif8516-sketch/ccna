@@ -317,7 +317,7 @@ export function EigrpLab() {
   <Switch id="SW10" x={1300} y={400} />
 </NetLab>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
           <li>
@@ -350,7 +350,7 @@ export function EigrpLab() {
         </ol>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What EIGRP should have learned</summary>
         <div style={{ marginTop: 8 }}>
           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>
@@ -359,7 +359,7 @@ export function EigrpLab() {
             so every router also learns the 28 loopback routes of the other seven routers.
           </p>
           <div style={{ overflowX: "auto" }}>
-            <table style={{ borderCollapse: "collapse", font: FONT, minWidth: 520 }}>
+            <table style={{ borderCollapse: "collapse", font: FONT, minWidth: 420 }}>
               <thead>
                 <tr style={{ background: "rgba(128,128,128,.12)" }}>
                   <th style={CELL}>Router</th>
@@ -394,7 +394,7 @@ export function EigrpLab() {
         </div>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>
@@ -405,7 +405,7 @@ export function EigrpLab() {
             overflowY: "auto",
             display: "grid",
             gap: 10,
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))",
           }}
         >
           {ANSWER_KEY.map((d) => (

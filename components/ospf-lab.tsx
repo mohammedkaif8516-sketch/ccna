@@ -251,7 +251,7 @@ export function OspfLab() {
         </NetLab>
       </div>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
           <li>
@@ -292,7 +292,7 @@ export function OspfLab() {
         </ol>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What OSPF should have learned</summary>
         <div style={{ marginTop: 8 }}>
           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>
@@ -300,7 +300,7 @@ export function OspfLab() {
             other areas' networks as inter-area routes (<code>O IA</code>). The six two-router links are set to point-to-point, so they elect no DR or BDR and their neighbors show <code>FULL/  -</code>. Only the two shared segments have more than two routers and elect a DR and BDR, so the whole network has exactly 2 DRs and 2 BDRs:
           </p>
           <div style={{ overflowX: "auto" }}>
-            <table style={{ borderCollapse: "collapse", font: FONT, minWidth: 520 }}>
+            <table style={{ borderCollapse: "collapse", font: FONT, minWidth: 420 }}>
               <thead>
                 <tr style={{ background: "rgba(128,128,128,.12)" }}>
                   <th style={CELL}>Segment</th>
@@ -330,7 +330,7 @@ export function OspfLab() {
         </div>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>
@@ -341,7 +341,7 @@ export function OspfLab() {
             overflowY: "auto",
             display: "grid",
             gap: 10,
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))",
           }}
         >
           {ANSWER_KEY.map((d) => (

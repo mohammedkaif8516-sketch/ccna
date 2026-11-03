@@ -341,7 +341,7 @@ export function RipV1Lab() {
 
 
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
           <li>Address every router interface and every PC from the diagram (each router uses .1 on its LAN, the PCs use .10).</li>
@@ -367,7 +367,7 @@ export function RipV1Lab() {
         </ol>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What RIP should have learned</summary>
         <div style={{ marginTop: 8 }}>
           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>
@@ -376,7 +376,7 @@ export function RipV1Lab() {
             in both directions, so it is installed with two next hops:
           </p>
           <div style={{ overflowX: "auto" }}>
-            <table style={{ borderCollapse: "collapse", font: FONT, minWidth: 520 }}>
+            <table style={{ borderCollapse: "collapse", font: FONT, minWidth: 420 }}>
               <thead>
                 <tr style={{ background: "rgba(128,128,128,.12)" }}>
                   <th style={CELL}>Router</th>
@@ -413,7 +413,7 @@ export function RipV1Lab() {
         </div>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>
@@ -424,7 +424,7 @@ export function RipV1Lab() {
             overflowY: "auto",
             display: "grid",
             gap: 10,
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(300px, 100%), 1fr))",
           }}
         >
           {ANSWER_KEY.map((d) => (
