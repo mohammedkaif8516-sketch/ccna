@@ -29,9 +29,9 @@ type Iface = [string, number, number, number?];
 const ROUTERS: Record<string, Iface[]> = {
   R1: [["e0/0", 1, 1]],
   R2: [["e0/0", 2, 2]],
-  R3: [["e0/0", 7, 3, 0], ["e0/1", 3, 3], ["e0/2", 5, 3], ["e0/3", 1, 3], ["e1/0", 2, 3]],
+  R3: [["e0/0", 7, 3], ["e0/1", 3, 3], ["e0/2", 5, 3], ["e0/3", 1, 3], ["e1/0", 2, 3]],
   R4: [["e0/0", 7, 4, 255], ["e0/1", 3, 4], ["e0/2", 4, 4]],
-  R5: [["e0/0", 7, 5, 0], ["e0/1", 5, 5], ["e0/2", 6, 5]],
+  R5: [["e0/0", 7, 5], ["e0/1", 5, 5], ["e0/2", 6, 5]],
   R6: [["e0/0", 7, 6, 100], ["e0/1", 4, 6], ["e0/2", 6, 6], ["e0/3", 8, 6, 255]],
   R7: [["e0/0", 8, 7, 100]],
   R8: [["e0/0", 8, 8, 0]],
@@ -63,7 +63,6 @@ const ANSWER_KEY: KeyDevice[] = Object.entries(ROUTERS).map(([id, ifs]) => {
     lines.push(`interface ${name}`);
     lines.push(` ip address 200.10.${net}.${host} 255.255.255.0`);
     if (prio !== undefined) lines.push(` ip ospf priority ${prio}`);
-    if (net <= 6) lines.push(" ip ospf network point-to-point"); // 1.0–6.0 hold two routers: no DR/BDR
     lines.push(" no shutdown");
   }
   lines.push("router ospf 1");
@@ -271,12 +270,8 @@ export function OspfLab() {
           </li>
           <li>
             Control the election on the two switch segments with <code>ip ospf priority</code> so that{" "}
-            <strong>7.0: R4 = DR, R6 = BDR</strong> and <strong>8.0: R6 = DR, R7 = BDR</strong>. R3, R5 and R8 must never become DR or BDR (priority 0). Use <code>clear ip ospf process</code> if the election already happened (it does not preempt).
-          </li>
-          <li>
-            On the six two-router links (1.0 to 6.0) set <code>ip ospf network point-to-point</code> on{" "}
-            <strong>both</strong> ends, so no DR or BDR is elected there. Only 7.0 and 8.0 should end up with a DR and a
-            BDR (2 DRs and 2 BDRs in total).
+            <strong>7.0: R4 = DR, R6 = BDR</strong> and <strong>8.0: R6 = DR, R7 = BDR</strong>. R8 must never become
+            DR. Use <code>clear ip ospf process</code> if the election already happened (it does not preempt).
           </li>
           <li>
             Confirm with <code>show ip ospf interface e0/0</code> on R4, R6, R7 and R8 (look at State, DR and BDR).
@@ -297,7 +292,8 @@ export function OspfLab() {
         <div style={{ marginTop: 8 }}>
           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>
             R3 and R6 are Area Border Routers: R3 joins areas 10, 20 and 0, and R6 joins areas 0 and 30. R1, R2, R7 and R8 learn
-            other areas' networks as inter-area routes (<code>O IA</code>). The six two-router links are set to point-to-point, so they elect no DR or BDR and their neighbors show <code>FULL/  -</code>. Only the two shared segments have more than two routers and elect a DR and BDR, so the whole network has exactly 2 DRs and 2 BDRs:
+            other areas' networks as inter-area routes (<code>O IA</code>). On Ethernet every link is a broadcast network, so every
+            segment elects a DR and BDR. The two shared segments are the interesting ones, because they have more than two routers:
           </p>
           <div style={{ overflowX: "auto" }}>
             <table style={{ borderCollapse: "collapse", font: FONT, minWidth: 520 }}>
@@ -322,9 +318,9 @@ export function OspfLab() {
             </table>
           </div>
           <p style={{ margin: "12px 0 0", opacity: 0.75 }}>
-            DROTHER routers only form a <code>FULL</code> adjacency with the DR and BDR. So R3 and R5 (priority 0) stay in{" "}
+            DROTHER routers only form a <code>FULL</code> adjacency with the DR and BDR. So R3 and R5 stay in{" "}
             <code>2WAY</code> with each other on 7.0, while both are <code>FULL</code> with R4 and R6. R8 is{" "}
-            <code>2WAY</code> with R7 on 8.0 but <code>FULL</code> with R6 (the DR). Neighbors that sit on two
+            <code>2WAY</code> with R7 on 8.0 but <code>FULL</code> with R6 (the DR). Neighbors that sit on two shared
             links (R3–R4, R3–R5, R4–R6, R5–R6) appear twice in <code>show ip ospf neighbor</code>, once per interface.
           </p>
         </div>
