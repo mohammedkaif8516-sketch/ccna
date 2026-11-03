@@ -271,66 +271,72 @@ const CELL: React.CSSProperties = { padding: "4px 10px", textAlign: "left", vert
 
 export function RipV2Lab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 940 }}>
-      <NetLab title="RIP v2 Lab" width={940} height={720}>
-        <Note x={150} y={30}>10.10.10.XX/30 router links</Note>
-        <Note x={150} y={54}>192.168.10.XX/27 LANs</Note>
-        <Note x={830} y={30} size={22}>RIP v2</Note>
+    <div style={{ display: "grid", gap: 14, maxWidth: 1240 }}>
+  <div style={{ overflowX: "auto" }}>
+    <NetLab title="RIP v2 Lab" width={1230} height={1140}>
+      <Note x={220} y={40}>10.10.10.XX/30 router links</Note>
+      <Note x={220} y={64}>192.168.10.XX/27 LANs</Note>
+      <Note x={1100} y={40} size={22}>RIP v2</Note>
 
-        {/* ring */}
-        <Cable a="R1:e0/0" b="R2:e0/0" aTag=".1" bTag=".2" />
-        <Cable a="R2:e0/1" b="R3:e0/0" aTag=".5" bTag=".6" />
-        <Cable a="R3:e0/1" b="R4:e0/1" aTag=".9" bTag=".10" />
-        <Cable a="R4:e0/0" b="R5:e0/1" aTag=".13" bTag=".14" />
-        <Cable a="R5:e0/0" b="R1:e0/1" aTag=".17" bTag=".18" />
-        {/* router ↔ switch */}
-        <Cable a="R1:e0/2" b="SW6:e0/0" aTag=".1" />
-        <Cable a="R2:e0/2" b="SW7:e0/0" aTag=".33" />
-        <Cable a="R3:e0/2" b="SW8:e0/0" aTag=".65" />
-        <Cable a="R4:e0/2" b="SW10:e0/0" aTag=".97" />
-        <Cable a="R5:e0/2" b="SW9:e0/0" aTag=".129" />
-        {/* switch ↔ PC */}
-        <Cable a="SW6:e0/1" b="VPC11:eth0" bTag=".10" />
-        <Cable a="SW7:e0/1" b="VPC12:eth0" bTag=".40" />
-        <Cable a="SW8:e0/1" b="VPC13:eth0" bTag=".70" />
-        <Cable a="SW10:e0/1" b="VPC14:eth0" bTag=".100" />
-        <Cable a="SW9:e0/1" b="VPC15:eth0" bTag=".140" />
+      {/* ring */}
+      <Cable a="R1:e0/0" b="R2:e0/0" aTag=".1" bTag=".2" />
+      <Cable a="R2:e0/1" b="R3:e0/0" aTag=".5" bTag=".6" />
+      <Cable a="R3:e0/1" b="R4:e0/1" aTag=".9" bTag=".10" />
+      <Cable a="R4:e0/0" b="R5:e0/1" aTag=".13" bTag=".14" />
+      <Cable a="R5:e0/0" b="R1:e0/1" aTag=".17" bTag=".18" />
+      {/* router ↔ switch */}
+      <Cable a="R1:e0/2" b="SW6:e0/0" aTag=".1" />
+      <Cable a="R2:e0/2" b="SW7:e0/0" aTag=".33" />
+      <Cable a="R3:e0/2" b="SW8:e0/0" aTag=".65" />
+      <Cable a="R4:e0/2" b="SW10:e0/0" aTag=".97" />
+      <Cable a="R5:e0/2" b="SW9:e0/0" aTag=".129" />
+      {/* switch ↔ PC */}
+      <Cable a="SW6:e0/1" b="VPC11:eth0" bTag=".10" />
+      <Cable a="SW7:e0/1" b="VPC12:eth0" bTag=".40" />
+      <Cable a="SW8:e0/1" b="VPC13:eth0" bTag=".70" />
+      <Cable a="SW10:e0/1" b="VPC14:eth0" bTag=".100" />
+      <Cable a="SW9:e0/1" b="VPC15:eth0" bTag=".140" />
 
-        {/* subnet labels */}
-        <Note x={355} y={225}>10.10.10.0/30</Note>
-        <Note x={590} y={225}>10.10.10.4/30</Note>
-        <Note x={665} y={385}>10.10.10.8/30</Note>
-        <Note x={470} y={470}>10.10.10.12/30</Note>
-        <Note x={275} y={385}>10.10.10.16/30</Note>
-        <Note x={80} y={345}>192.168.10.0/27</Note>
-        <Note x={600} y={148}>192.168.10.32/27</Note>
-        <Note x={860} y={345}>192.168.10.64/27</Note>
-        <Note x={640} y={690}>192.168.10.96/27</Note>
-        <Note x={300} y={690}>192.168.10.128/27</Note>
+      {/* ring subnets: outside the pentagon */}
+      <Note x={434} y={376}>10.10.10.0/30</Note>
+      <Note x={766} y={376}>10.10.10.4/30</Note>
+      <Note x={897} y={702}>10.10.10.8/30</Note>
+      <Note x={600} y={875}>10.10.10.12/30</Note>
+      <Note x={303} y={702}>10.10.10.16/30</Note>
 
-        {/* routers (pentagon) */}
-        <Router id="R1" x={330} y={300} />
-        <Router id="R2" x={470} y={200} />
-        <Router id="R3" x={610} y={300} />
-        <Router id="R4" x={570} y={430} />
-        <Router id="R5" x={370} y={430} />
+      {/* LAN subnets: under their switch-to-PC cable */}
+      <Note x={194}  y={335}>192.168.10.0/27</Note>
+      <Note x={745}  y={145}>192.168.10.32/27</Note>
+      <Note x={1006} y={335}>192.168.10.64/27</Note>
+      <Note x={907}  y={1082}>192.168.10.96/27</Note>
+      <Note x={293}  y={1082}>192.168.10.128/27</Note>
 
-        {/* LANs */}
-        <Switch id="SW6" x={200} y={300} />
-        <VPC id="VPC11" x={80} y={300} />
+      {/* routers (pentagon) */}
+      <Router id="R1" x={339} y={520} />
+      <Router id="R2" x={600} y={330} />
+      <Router id="R3" x={861} y={520} />
+      <Router id="R4" x={762} y={827} />
+      <Router id="R5" x={438} y={827} />
 
-        <Switch id="SW7" x={470} y={105} />
-        <VPC id="VPC12" x={600} y={105} />
+      {/* LANs */}
+      <Switch id="SW6"   x={339}  y={300} />
+      <VPC    id="VPC11" x={49}   y={300} />
 
-        <Switch id="SW8" x={740} y={300} />
-        <VPC id="VPC13" x={860} y={300} />
+      <Switch id="SW7"   x={600}  y={110} />
+      <VPC    id="VPC12" x={890}  y={110} />
 
-        <Switch id="SW10" x={640} y={545} />
-        <VPC id="VPC14" x={640} y={650} />
+      <Switch id="SW8"   x={861}  y={300} />
+      <VPC    id="VPC13" x={1151} y={300} />
 
-        <Switch id="SW9" x={300} y={545} />
-        <VPC id="VPC15" x={300} y={650} />
-      </NetLab>
+      <Switch id="SW10"  x={762}  y={1047} />
+      <VPC    id="VPC14" x={1052} y={1047} />
+
+      <Switch id="SW9"   x={438}  y={1047} />
+      <VPC    id="VPC15" x={148}  y={1047} />
+    </NetLab>
+  </div>
+
+
 
       <details style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>

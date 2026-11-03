@@ -267,57 +267,55 @@ const PRE: React.CSSProperties = {
 export function EigrpLab() {
   return (
     <div style={{ display: "grid", gap: 14, maxWidth: 940 }}>
-      <NetLab title="EIGRP 100 Lab" width={940} height={560}>
-        <Note x={770} y={30} size={22}>EIGRP 100</Note>
-        <Note x={770} y={56}>R–R: 150.10.XX.0/24</Note>
-        <Note x={770} y={78}>loopbacks N.N.N.1–4/32</Note>
+   <NetLab title="EIGRP 100 Lab" width={1440} height={800}>
+  <Note x={140} y={30} size={22}>EIGRP 100</Note>
+  <Note x={140} y={58}>R–R: 150.10.XX.0/24</Note>
+  <Note x={140} y={80}>loopbacks N.N.N.1–4/32</Note>
 
-        {/* point-to-point links */}
-        <Cable a="R1:e0/0" b="R3:e0/3" aTag=".1" bTag=".3" />
-        <Cable a="R2:e0/0" b="R3:e1/0" aTag=".2" bTag=".3" />
-        <Cable a="R3:e0/1" b="R4:e0/1" aTag=".3" bTag=".4" />
-        <Cable a="R3:e0/2" b="R5:e0/1" aTag=".3" bTag=".5" />
-        <Cable a="R4:e0/2" b="R6:e0/1" aTag=".4" bTag=".6" />
-        <Cable a="R5:e0/2" b="R6:e0/2" aTag=".5" bTag=".6" />
-        {/* shared segment 7.0 (SW9) */}
-        <Cable a="R3:e0/0" b="SW9:e0/3" aTag=".3" />
-        <Cable a="R4:e0/0" b="SW9:e0/0" aTag=".4" />
-        <Cable a="R5:e0/0" b="SW9:e0/1" aTag=".5" />
-        <Cable a="R6:e0/0" b="SW9:e0/2" aTag=".6" />
-        {/* shared segment 8.0 (SW10) */}
-        <Cable a="R6:e0/3" b="SW10:e0/0" aTag=".6" />
-        <Cable a="R7:e0/0" b="SW10:e0/1" aTag=".7" />
-        <Cable a="R8:e0/0" b="SW10:e0/2" aTag=".8" />
+  {/* point-to-point links */}
+  <Cable a="R1:e0/0" b="R3:e0/3" aTag=".1" bTag=".3" />
+  <Cable a="R2:e0/0" b="R3:e1/0" aTag=".2" bTag=".3" />
+  <Cable a="R3:e0/1" b="R4:e0/1" aTag=".3" bTag=".4" />
+  <Cable a="R3:e0/2" b="R5:e0/1" aTag=".3" bTag=".5" />
+  <Cable a="R4:e0/2" b="R6:e0/1" aTag=".4" bTag=".6" />
+  <Cable a="R5:e0/2" b="R6:e0/2" aTag=".5" bTag=".6" />
 
-        {/* subnet labels */}
-        <Note x={150} y={212}>150.10.1.0/24</Note>
-        <Note x={150} y={365}>150.10.2.0/24</Note>
-        <Note x={310} y={200}>150.10.3.0/24</Note>
-        <Note x={310} y={378}>150.10.5.0/24</Note>
-        <Note x={535} y={200}>150.10.4.0/24</Note>
-        <Note x={535} y={378}>150.10.6.0/24</Note>
-        <Note x={480} y={250}>150.10.7.0/24</Note>
-        <Note x={770} y={335}>150.10.8.0/24</Note>
+  {/* shared segment 7.0 (SW9) */}
+  <Cable a="R3:e0/0" b="SW9:e0/3" aTag=".3" />
+  <Cable a="R4:e0/0" b="SW9:e0/0" aTag=".4" />
+  <Cable a="R5:e0/0" b="SW9:e0/1" aTag=".5" />
+  <Cable a="R6:e0/0" b="SW9:e0/2" aTag=".6" />
 
-        {/* routers */}
-        <Router id="R1" x={90} y={170} />
-        <Router id="R2" x={90} y={400} />
-        <Router
-          id="R3"
-          x={250}
-          y={285}
-          ports={["Ethernet0/0", "Ethernet0/1", "Ethernet0/2", "Ethernet0/3", "Ethernet1/0"]}
-        />
-        <Router id="R4" x={410} y={170} />
-        <Router id="R5" x={410} y={400} />
-        <Router id="R6" x={600} y={285} />
-        <Router id="R7" x={870} y={170} />
-        <Router id="R8" x={870} y={400} />
+  {/* shared segment 8.0 (SW10) */}
+  <Cable a="R6:e0/3" b="SW10:e0/0" aTag=".6" />
+  <Cable a="R7:e0/0" b="SW10:e0/1" aTag=".7" />
+  <Cable a="R8:e0/0" b="SW10:e0/2" aTag=".8" />
 
-        {/* switches */}
-        <Switch id="SW9" x={410} y={285} />
-        <Switch id="SW10" x={770} y={285} />
-      </NetLab>
+  {/* subnet labels, each beside its link, never on it */}
+  <Note x={75}   y={285}>150.10.1.0/24</Note>
+  <Note x={75}   y={525}>150.10.2.0/24</Note>
+  <Note x={380}  y={215}>150.10.3.0/24</Note>
+  <Note x={380}  y={585}>150.10.5.0/24</Note>
+  <Note x={930}  y={230}>150.10.4.0/24</Note>
+  <Note x={930}  y={535}>150.10.6.0/24</Note>
+  <Note x={800}  y={345}>150.10.7.0/24</Note>
+  <Note x={1195} y={345}>150.10.8.0/24</Note>
+
+  {/* routers */}
+  <Router id="R1" x={60}   y={140} />
+  <Router id="R2" x={60}   y={660} />
+  <Router id="R3" x={260}  y={400}
+    ports={["Ethernet0/0", "Ethernet0/1", "Ethernet0/2", "Ethernet0/3", "Ethernet1/0"]} />
+  <Router id="R4" x={640}  y={130} />
+  <Router id="R5" x={640}  y={670} />
+  <Router id="R6" x={1010} y={400} />
+  <Router id="R7" x={1300} y={130} />
+  <Router id="R8" x={1300} y={670} />
+
+  {/* switches */}
+  <Switch id="SW9"  x={640}  y={400} />
+  <Switch id="SW10" x={1300} y={400} />
+</NetLab>
 
       <details style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>

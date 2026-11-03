@@ -204,56 +204,56 @@ function DeviceCard({ device }: { device: KeyDevice }) {
 
 export function StaticRoutingLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 940 }}>
-      <NetLab title="Static Routing Lab 1" width={880} height={600}>
-        <Note x={440} y={34} size={22}>
-          192.168.XX.0/24
-        </Note>
+    <div style={{ display: "grid", gap: 14, maxWidth: 1240 }}>
+      <div style={{ overflowX: "auto" }}>
+        <NetLab title="Static Routing Lab 1" width={1200} height={740}>
+          <Note x={600} y={34} size={22}>
+            192.168.XX.0/24
+          </Note>
 
-        {/* backbone */}
-        <Cable a="R1:e0/0" b="R2:e0/0" aTag=".1" bTag=".2" />
-        <Cable a="R2:e0/1" b="R3:e0/0" aTag=".2" bTag=".3" />
-        {/* router ↔ switch */}
-        <Cable a="R1:e0/1" b="SW4:e0/0" aTag=".100" />
-        <Cable a="R2:e0/2" b="SW5:e0/0" aTag=".100" />
-        <Cable a="R3:e0/1" b="SW6:e0/0" aTag=".100" />
-        {/* switch ↔ PCs */}
-        <Cable a="SW4:e0/1" b="VPC7:eth0" bTag=".1" />
-        <Cable a="SW4:e0/2" b="VPC8:eth0" bTag=".2" />
-        <Cable a="SW5:e0/2" b="VPC9:eth0" bTag=".1" />
-        <Cable a="SW5:e0/1" b="VPC10:eth0" bTag=".2" />
-        <Cable a="SW6:e0/1" b="VPC11:eth0" bTag=".1" />
-        <Cable a="SW6:e0/2" b="VPC12:eth0" bTag=".2" />
+          {/* backbone */}
+          <Cable a="R1:e0/0" b="R2:e0/0" aTag=".1" bTag=".2" />
+          <Cable a="R2:e0/1" b="R3:e0/0" aTag=".2" bTag=".3" />
+          {/* router ↔ switch */}
+          <Cable a="R1:e0/1" b="SW4:e0/0" aTag=".100" />
+          <Cable a="R2:e0/2" b="SW5:e0/0" aTag=".100" />
+          <Cable a="R3:e0/1" b="SW6:e0/0" aTag=".100" />
+          {/* switch ↔ PCs */}
+          <Cable a="SW4:e0/1" b="VPC7:eth0" bTag=".1" />
+          <Cable a="SW4:e0/2" b="VPC8:eth0" bTag=".2" />
+          <Cable a="SW5:e0/2" b="VPC9:eth0" bTag=".1" />
+          <Cable a="SW5:e0/1" b="VPC10:eth0" bTag=".2" />
+          <Cable a="SW6:e0/1" b="VPC11:eth0" bTag=".1" />
+          <Cable a="SW6:e0/2" b="VPC12:eth0" bTag=".2" />
 
-        <Note x={295} y={78}>
-          4.0/24
-        </Note>
-        <Note x={585} y={78}>
-          5.0/24
-        </Note>
-        <Note x={150} y={572}>
-          1.0/24
-        </Note>
-        <Note x={440} y={572}>
-          2.0/24
-        </Note>
-        <Note x={730} y={572}>
-          3.0/24
-        </Note>
+          {/* subnet labels: backbone above the cable, LANs under the PCs */}
+          <Note x={400} y={88}>4.0/24</Note>
+          <Note x={800} y={88}>5.0/24</Note>
+          <Note x={200} y={705}>1.0/24</Note>
+          <Note x={600} y={705}>2.0/24</Note>
+          <Note x={1000} y={705}>3.0/24</Note>
 
-        <Router id="R1" x={150} y={130} />
-        <Router id="R2" x={440} y={130} />
-        <Router id="R3" x={730} y={130} />
-        <Switch id="SW4" x={150} y={300} />
-        <Switch id="SW5" x={440} y={300} />
-        <Switch id="SW6" x={730} y={300} />
-        <VPC id="VPC7" x={60} y={470} />
-        <VPC id="VPC8" x={240} y={470} />
-        <VPC id="VPC9" x={350} y={470} />
-        <VPC id="VPC10" x={530} y={470} />
-        <VPC id="VPC11" x={640} y={470} />
-        <VPC id="VPC12" x={820} y={470} />
-      </NetLab>
+          {/* routers */}
+          <Router id="R1" x={200} y={130} />
+          <Router id="R2" x={600} y={130} />
+          <Router id="R3" x={1000} y={130} />
+
+          {/* switches */}
+          <Switch id="SW4" x={200} y={370} />
+          <Switch id="SW5" x={600} y={370} />
+          <Switch id="SW6" x={1000} y={370} />
+
+          {/* PCs: 90px outward from each switch, 230px down */}
+          <VPC id="VPC7" x={90} y={600} />
+          <VPC id="VPC8" x={310} y={600} />
+          <VPC id="VPC9" x={490} y={600} />
+          <VPC id="VPC10" x={710} y={600} />
+          <VPC id="VPC11" x={890} y={600} />
+          <VPC id="VPC12" x={1110} y={600} />
+        </NetLab>
+      </div>
+
+ 
 
       <details style={{ font: "13px/1.5 ui-sans-serif,system-ui,sans-serif" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
