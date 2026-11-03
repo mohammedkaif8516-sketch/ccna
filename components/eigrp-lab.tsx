@@ -266,7 +266,7 @@ const PRE: React.CSSProperties = {
 
 export function EigrpLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 940 }}>
+    <div style={{ display: "grid", gap: 14, maxWidth: 1420, gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
    <NetLab title="EIGRP 100 Lab" width={1440} height={800}>
   <Note x={140} y={30} size={22}>EIGRP 100</Note>
   <Note x={140} y={58}>R–R: 150.10.XX.0/24</Note>
