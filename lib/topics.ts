@@ -5465,13 +5465,13 @@ export const topics: Topic[] = [
   title: 'OSPF 1024 Lab',
   group: 'Routing Labs',
   description:
-    'Bring up an eight-router multi-area OSPF network with two shared segments, loopbacks, two area border routers, and a controlled DR and BDR election.',
+    'Bring up an eight-router multi-area OSPF network with loopbacks, two area border routers, and a controlled election that leaves exactly one DR and one BDR on each of the two shared segments.',
   blocks: [
     { type: 'heading', text: 'Scenario' },
     {
       type: 'paragraph',
       text:
-        'Eight routers share a campus network split into four OSPF areas. R3, R4, R5 and R6 form the backbone (area 0) and sit on one shared segment (200.10.7.0/24) as well as being joined by direct links. R1 hangs off R3 in area 10, R2 hangs off R3 in area 20, and R6 shares a second segment (200.10.8.0/24) with R7 and R8 in area 30. R3 and R6 are the area border routers. Every device starts in its factory state: interfaces are shut down with no IP addresses and there is no routing protocol. Each router also gets four loopback interfaces to act as test destinations.'
+        'Eight routers share a campus network split into four OSPF areas. R3, R4, R5 and R6 form the backbone (area 0) and sit on one shared segment (200.10.7.0/24) as well as being joined by direct links. R1 hangs off R3 in area 10, R2 hangs off R3 in area 20, and R6 shares a second segment (200.10.8.0/24) with R7 and R8 in area 30. R3 and R6 are the area border routers. The six direct links hold only two routers each, so they run as point-to-point and elect nothing. Only the two shared segments elect a DR and a BDR, giving two of each in the whole network. Every device starts in its factory state: interfaces are shut down with no IP addresses and there is no routing protocol. Each router also gets four loopback interfaces to act as test destinations.'
     },
 
     { type: 'heading', text: 'Addressing Plan' },
@@ -5484,6 +5484,7 @@ export const topics: Topic[] = [
         'On every link the last octet is the router number, as shown in the diagram.',
         'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
         'Areas: 1.0 is area 10, 2.0 is area 20, 3.0 to 7.0 are area 0, and 8.0 is area 30. Each router puts its loopbacks in its own area (R3 and R6 use area 0).',
+        'DR and BDR plan: on 7.0 R4 is the DR and R6 the BDR (R3 and R5 never elected). On 8.0 R6 is the DR and R7 the BDR (R8 never elected).',
       ]
     },
 
@@ -5494,10 +5495,11 @@ export const topics: Topic[] = [
         'Address every Ethernet interface and create the four loopbacks on every router.',
         'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
         'Enable OSPF process 1 on every router, set the router ID to the first loopback, and advertise each network with a wildcard mask in the correct area.',
+        'On the six two-router links (1.0 to 6.0) set ip ospf network point-to-point on both ends, so no DR or BDR is elected there.',
         'Check the neighbour tables. R3 and R6 should each show 7 neighbours. Work out why.',
         'On 7.0 find which neighbours are FULL and which stay in 2WAY, and explain the difference.',
-        'Set ip ospf priority so that on 7.0 R4 is the DR and R6 the BDR, and on 8.0 R6 is the DR and R7 the BDR. R8 must never become DR.',
-        'Read show ip ospf interface on R4, R6, R7 and R8, and match the State, DR and BDR fields to your plan.',
+        'Set ip ospf priority so that on 7.0 R4 is the DR and R6 the BDR, and on 8.0 R6 is the DR and R7 the BDR. R3, R5 and R8 must never be elected (priority 0).',
+        'Read show ip ospf interface on R4, R6, R7 and R8, and match the State, DR and BDR fields to your plan. Confirm the whole network has exactly 2 DRs and 2 BDRs.',
         'Run show ip ospf on R3 and R6 and confirm they are area border routers. On R1, find the routes marked O IA.',
         'Ping and trace from R1 to a loopback on R8 (8.8.8.1), and read R1\'s OSPF routes.',
         'Break something on purpose: shut down R4\'s e0/0 and watch the 7.0 segment elect a new DR.',
@@ -5509,7 +5511,7 @@ export const topics: Topic[] = [
     {
       type: 'paragraph',
       text:
-        'OSPF uses a wildcard mask in its network statement, which is the inverse of a subnet mask, and each statement must name the area the interface belongs to. A link such as 200.10.1.0/24 needs the host bits left open (0.0.0.255), and four loopbacks with /32 masks can be matched in one line with a wildcard like 0.0.0.7. A router that has interfaces in more than one area is an area border router, and routes it passes between areas appear as O IA on routers in the other area. On Ethernet every link is a broadcast network, so every segment elects a DR and a BDR. The highest priority wins, with the highest router ID as the tie-breaker, and a priority of 0 means the router can never be elected. The election does not preempt, so you may need clear ip ospf process after changing priorities. Routers that are neither DR nor BDR (DROTHER) form a full adjacency only with the DR and BDR, and stay in 2WAY with each other. A router shows one neighbour entry per interface, so a neighbour reachable over two links appears twice.'
+        'OSPF uses a wildcard mask in its network statement, which is the inverse of a subnet mask, and each statement must name the area the interface belongs to. A link such as 200.10.1.0/24 needs the host bits left open (0.0.0.255), and four loopbacks with /32 masks can be matched in one line with a wildcard like 0.0.0.7. A router with interfaces in more than one area is an area border router, and routes it passes between areas appear as O IA in the other area. On Ethernet every link is a broadcast network by default, so even a link with only two routers elects a DR and a BDR. Setting ip ospf network point-to-point removes the election, but it must be set on both ends and only suits links with exactly two routers. On a shared segment the highest priority wins, with the highest router ID as the tie-breaker, and a priority of 0 means the router can never be elected. The election does not preempt, so you may need clear ip ospf process after changing priorities. Routers that are neither DR nor BDR (DROTHER) form a full adjacency only with the DR and BDR, and stay in 2WAY with each other. A router shows one neighbour entry per interface, so a neighbour reachable over two links appears twice.'
     },
 
     { type: 'heading', text: 'Verification' },
@@ -5517,8 +5519,8 @@ export const topics: Topic[] = [
       type: 'bullets',
       items: [
         'show ip interface brief: every interface in use should be up/up.',
-        'show ip ospf neighbor: lists every neighbour with its state (FULL or 2WAY), its role (DR, BDR or DROTHER) and its interface.',
-        'show ip ospf interface e0/0: shows the area, state, priority, DR and BDR of that segment.',
+        'show ip ospf neighbor: lists every neighbour with its state and role. Point-to-point links show FULL/  -, and the shared segments show FULL/DR, FULL/BDR or 2WAY/DROTHER.',
+        'show ip ospf interface e0/0: shows the area, network type, state, priority, DR and BDR of that interface.',
         'show ip ospf: on R3 and R6 it should list more than one area.',
         'show ip route ospf: routes start with O (same area) or O IA (other area) and show [110/cost].',
         'ping and trace from R1 to 8.8.8.1 through 8.8.8.4.',
@@ -5532,6 +5534,7 @@ export const topics: Topic[] = [
     { label: 'Enable OSPF', value: 'router ospf 1' },
     { label: 'Advertise', value: 'network <ip> <wildcard> area <n>' },
     { label: 'Router ID', value: 'router-id <ip>' },
+    { label: 'No election', value: 'ip ospf network point-to-point' },
     { label: 'Priority', value: 'ip ospf priority <0-255>' },
     { label: 'Neighbours', value: 'show ip ospf neighbor' },
     { label: 'Metric / AD', value: 'cost (bandwidth-based) / 110' },
