@@ -5389,6 +5389,77 @@ export const topics: Topic[] = [
     { label: 'Trace (PC)', value: 'trace <ip>' },
   ],
 },
+{
+  slug: 'eigrp-lab',
+  title: 'EIGRP 100 Lab',
+  group: 'Routing Labs',
+  description:
+    'Bring up an eight-router network with two shared segments and let EIGRP learn every route, including loopbacks and equal-cost paths.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'Eight routers share a campus network. R3, R4, R5 and R6 sit on one shared segment (150.10.7.0/24) and are also joined by direct links. R1 and R2 hang off R3, and R6 shares a second segment (150.10.8.0/24) with R7 and R8. Every device starts in its factory state: interfaces are shut down with no IP addresses and there is no routing protocol. Each router also gets four loopback interfaces to act as test destinations.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'Router links (150.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
+        'Shared segment 7.0 (through SW9): R3 .3, R4 .4, R5 .5 and R6 .6.',
+        'Shared segment 8.0 (through SW10): R6 .6, R7 .7 and R8 .8.',
+        'On every link the last octet is the router number, as shown in the diagram.',
+        'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Address every Ethernet interface and create the four loopbacks on every router.',
+        'Enable the router interfaces and confirm they are up/up with show ip interface brief.',
+        'Enable EIGRP 100 on every router, set the router ID to the first loopback, and advertise each interface with a wildcard mask.',
+        'Check the neighbour tables. R3 and R6 should each show 7 neighbours. Work out why.',
+        'Read the topology table and the EIGRP routes, and explain the metrics.',
+        'Ping and trace from R1 to a loopback on R8, then find the routes with more than one equal-cost next hop.',
+        'Break something on purpose: shut down R3\'s link to the 7.0 segment and compare R1\'s metric to 150.10.8.0.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'EIGRP uses a wildcard mask in its network statement, which is the inverse of a subnet mask. A loopback with a /32 mask needs an exact match, while a /24 link needs the host bits left open. A router also forms a separate neighbour for every other router it can reach on each interface, so a shared segment gives a router several neighbours on one port. The best path is the one with the lowest metric, and any other path with the same metric is installed alongside it.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show ip interface brief: every interface in use should be up/up.',
+        'show ip eigrp neighbors: lists every neighbour with its interface.',
+        'show ip eigrp topology: shows the successors and the metric for each network.',
+        'show ip route eigrp: routes start with D and show [90/metric].',
+        'ping and trace from R1 to 8.8.8.1 through 8.8.8.4.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'Links', value: '150.10.1.0 to 150.10.8.0 (/24)' },
+    { label: 'Loopbacks', value: 'N.N.N.1–4/32 on router N' },
+    { label: 'Enable EIGRP', value: 'router eigrp 100' },
+    { label: 'Advertise', value: 'network <ip> <wildcard>' },
+    { label: 'Router ID', value: 'eigrp router-id <ip>' },
+    { label: 'Neighbours', value: 'show ip eigrp neighbors' },
+    { label: 'Topology', value: 'show ip eigrp topology' },
+    { label: 'Metric / AD', value: 'bandwidth + delay / 90' },
+  ],
+},
   //   {
   // slug: 'mls-eigrp-ospf-lab',
   // title: 'Four MLS: LACP, STP, EIGRP and OSPF',

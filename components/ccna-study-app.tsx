@@ -117,6 +117,8 @@ import MlsEigrpOspfLab from "./MlsEigrpOspfLab";
 import { AsymmetricRoutingLab } from "./assymetric-lab2";
 import { AsymmetricRoutingLab3 } from "./assymetric-lab-3";
 import { RipV1Lab } from "./rip-v1";
+import { RipV2Lab } from "./rip-v2";
+import { EigrpLab } from "./eigrp-lab";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2217,6 +2219,9 @@ export default function CcnaStudyApp() {
                 )}
                 {current.slug === "rip-v2-lab" && (
                   <RipV2Lab />
+                )}
+                {current.slug === "eigrp-lab" && (
+                  <EigrpLab />
                 )}
 
                 <div className="mt-10 flex items-stretch gap-2">

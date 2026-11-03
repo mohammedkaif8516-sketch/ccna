@@ -5,7 +5,7 @@
  *  1. address helpers          5. packet forwarding (route / probe / traceroute)
  *  2. types + per-lab store    6. CLI toolkit (parser, `?`, Tab, prompts, telnet/ssh)
  *  3. topology (links, L2)     7. shared Cisco IOS commands
- *  4. routing table            8. UI: <NetLab>, <Cable>, <DeviceNode>, <Note>, terminal
+ *  4. routing table (+ 4b: RIP / EIGRP / OSPF)   8. UI: <NetLab>, <Cable>, <DeviceNode>, <Note>, terminal
  *
  * Router.tsx / Switch.tsx / VPC.tsx import from here and register their CLI engine.
  */
@@ -63,6 +63,7 @@ export interface Iface {
   ip?: string; mask?: string; shut: boolean; desc?: string;
   mode?: "access" | "trunk" | "auto" | "desirable"; vlan?: number; allowed?: string; native?: number; nonegotiate?: boolean; // switchports
   enc?: number; // router sub-interface dot1q tag
+  bw?: number; delay?: number; ospfCost?: number; ospfPri?: number; // routing metrics: bandwidth in kbit/s, delay in tens of µs
 }
 export interface Route { net: string; mask: string; nh?: string; iface?: string; ad: number }
 export interface Sec {
@@ -74,20 +75,30 @@ export interface Sec {
 export interface Cli { mode: string; ifs?: string[]; line?: string; vlan?: number }
 export interface Prompt { text: string; kind: string; secret?: boolean; data?: any }
 export interface Session { lines: string[]; hist: string[]; cli: Cli; prompt?: Prompt; remote?: { id: string; cli: Cli; ip: string } }
+/** dynamic routing configuration (one process per protocol) */
+export interface RipCfg { version: 1 | 2; networks: string[]; auto: boolean; passive: string[] }
+export interface EigrpCfg { as: number; rid?: string; networks: { net: string; wild: string }[]; passive: string[]; variance: number; maxPaths: number }
+export interface OspfCfg { pid: number; rid?: string; networks: { net: string; wild: string; area: number }[]; passive: string[]; refBw: number }
 export interface Dev {
   id: string; kind: Kind; x: number; y: number; hostname: string;
   ifaces: Record<string, Iface>; routes: Route[]; vlans: Record<number, string>; gw?: string; sec: Sec;
+  rip?: RipCfg; eigrp?: EigrpCfg; ospf?: OspfCfg;
   arp: Record<string, { mac: string; iface: string }>; macTable: { vlan: number; mac: string; port: string }[];
   startup?: string; blank: string; session: Session;
 }
 export interface Link { a: [string, string]; b: [string, string] }
 export interface State { devs: Record<string, Dev>; links: Link[] }
 
-const CFG = ["hostname", "ifaces", "routes", "vlans", "gw", "sec"] as const;
+const CFG = ["hostname", "ifaces", "routes", "vlans", "gw", "sec", "rip", "eigrp", "ospf"] as const;
 const cfgObj = (d: Dev) => Object.fromEntries(CFG.map((k) => [k, (d as any)[k]]));
 const stable = (o: any): string => JSON.stringify(o, (_k, v) => (v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.entries(v).sort(([a], [b]) => (a < b ? -1 : 1))) : v));
 export const snapshot = (d: Dev) => JSON.stringify(cfgObj(d));
-export const restore = (d: Dev, snap: string) => { Object.assign(d, JSON.parse(snap)); };
+/** put a saved config back; keys that were unset when it was saved (a routing process, a gateway) are removed again */
+export const restore = (d: Dev, snap: string) => {
+  const p = JSON.parse(snap);
+  for (const k of CFG) if (!(k in p)) delete (d as any)[k];
+  Object.assign(d, p);
+};
 export const isDirty = (d: Dev) => stable(cfgObj(d)) !== stable(JSON.parse(d.startup ?? d.blank));
 
 export function newDev(kind: Kind, id: string, x: number, y: number, hostname: string, ifaces: Record<string, Iface>, banner: string[]): Dev {
@@ -215,25 +226,320 @@ export function l2domain(s: State, id: string, port: string): EP[] {
 }
 
 /* ════════════════════════ 4. routing table ════════════════════════ */
-export interface RE { t: "C" | "L" | "S"; net: string; len: number; ad: number; iface: string; via?: string; exit?: boolean }
+export interface RE {
+  t: "C" | "L" | "S" | "R" | "D" | "O"; net: string; len: number; ad: number; iface: string; via?: string; exit?: boolean;
+  metric?: number; ia?: boolean; // dynamic routes: protocol metric, and OSPF inter-area flag
+}
 export const bestRoute = (rows: RE[], ip: string) =>
   rows.filter((r) => inNet(ip, r.net, lenMask(r.len))).sort((a, b) => b.len - a.len || a.ad - b.ad)[0];
-/** installed routes only: connected + local + statics whose next hop is resolvable (floating statics appear when primary dies) */
+/** installed routes: connected + local + RIP/EIGRP/OSPF + statics whose next hop is resolvable.
+ *  Lowest administrative distance wins per prefix, so floating statics appear only when the better route dies. */
 export function routeTable(s: State, d: Dev): RE[] {
   const rows: RE[] = [];
   for (const [n, i] of Object.entries(d.ifaces)) {
     if (!i.ip || !i.mask || !ifUp(s, d.id, n)) continue;
     rows.push({ t: "C", net: netOf(i.ip, i.mask), len: maskLen(i.mask), ad: 0, iface: n }, { t: "L", net: i.ip, len: 32, ad: 0, iface: n });
   }
+  for (const r of getDyn(s).routes[d.id] ?? []) {
+    if (rows.some((x) => x.net === r.net && x.len === r.len && x.t === "C")) continue;
+    for (const p of r.paths) rows.push({ t: r.t, net: r.net, len: r.len, ad: r.ad, iface: p.iface, via: p.via, metric: p.metric, ia: r.ia });
+  }
   const sorted = [...d.routes].sort((a, b) => a.ad - b.ad);
   for (let pass = 0; pass < 3; pass++) for (const r of sorted) {
     const len = maskLen(r.mask);
-    if (rows.some((x) => x.net === r.net && x.len === len && (x.t === "S" || x.t === "C"))) continue;
-    if (r.iface) { if (r.iface === "Null0" || ifUp(s, d.id, r.iface)) rows.push({ t: "S", net: r.net, len, ad: r.ad, iface: r.iface, exit: true }); continue; }
-    const h = bestRoute(rows, r.nh!);
-    if (h && h.t !== "L") rows.push({ t: "S", net: r.net, len, ad: r.ad, iface: h.iface, via: r.nh });
+    if (rows.some((x) => x.net === r.net && x.len === len && x.ad <= r.ad)) continue;
+    let row: RE | undefined;
+    if (r.iface) { if (r.iface === "Null0" || ifUp(s, d.id, r.iface)) row = { t: "S", net: r.net, len, ad: r.ad, iface: r.iface, exit: true }; }
+    else { const h = bestRoute(rows, r.nh!); if (h && h.t !== "L") row = { t: "S", net: r.net, len, ad: r.ad, iface: h.iface, via: r.nh }; }
+    if (!row) continue;
+    for (let k = rows.length - 1; k >= 0; k--) if (rows[k].net === r.net && rows[k].len === len && rows[k].ad > r.ad) rows.splice(k, 1);
+    rows.push(row);
   }
   return rows;
+}
+
+/* ════════════════════════ 4b. dynamic routing: RIP / EIGRP / OSPF ════════════════════════
+ * Convergence is instant and derived from the live topology every time, so shutting an interface
+ * or removing a `network` statement changes every router's table immediately (no timers).
+ * Results are cached per State object, so a ping / traceroute / matrix computes them once. */
+export const majorNet = (ip: string) => netOf(ip, lenMask(classLen(ip)));
+export const wildOf = (ip: string) => n2ip((~ip2n(lenMask(classLen(ip)))) >>> 0);
+const wildMatch = (ip: string, net: string, wild: string) => (((ip2n(ip) ^ ip2n(net)) & ~ip2n(wild)) >>> 0) === 0;
+const isLo = (n: string) => n.startsWith("Loopback");
+export const ifBw = (n: string, i: Iface) => i.bw ?? (isLo(n) ? 8000000 : 10000);
+export const ifDelay = (n: string, i: Iface) => i.delay ?? (isLo(n) ? 500 : 100);
+export const ifCost = (d: Dev, n: string, i: Iface) =>
+  i.ospfCost ?? (isLo(n) ? 1 : Math.max(1, Math.floor(((d.ospf?.refBw ?? 100) * 1000) / ifBw(n, i))));
+export const eigrpMetric = (bw: number, dly: number) => 256 * (Math.floor(1e7 / bw) + dly);
+
+export interface DynPath { via: string; iface: string; nbr: string; metric: number }
+export interface DynRoute { t: "R" | "D" | "O"; net: string; len: number; ad: number; metric: number; ia?: boolean; paths: DynPath[] }
+export interface RipEnt { net: string; len: number; m: number; conn?: string; paths: { via: string; iface: string }[] }
+export interface EigrpTopoEnt { via: string; iface: string; fd: number; rd: number; succ: boolean; feasible: boolean }
+export interface EigrpTopo { net: string; len: number; fd: number; conn?: string; ent: EigrpTopoEnt[] }
+export interface OspfNbr { rid: string; pri: number; state: string; role: string; addr: string; iface: string }
+export interface OspfIf { name: string; area: number; cost: number; state: string; full: number; total: number }
+export interface Dyn {
+  routes: Record<string, DynRoute[]>;
+  ripDb: Record<string, RipEnt[]>;
+  eigrpNbrs: Record<string, { ip: string; iface: string; nbr: string }[]>;
+  eigrpTopo: Record<string, EigrpTopo[]>;
+  eigrpRid: Record<string, string>;
+  ospfRid: Record<string, string>;
+  ospfNbrs: Record<string, OspfNbr[]>;
+  ospfIfs: Record<string, OspfIf[]>;
+}
+
+/** routers that share a subnet with (id, ifn), seen through any switches in between */
+function lanNbrs(s: State, id: string, ifn: string): { id: string; port: string; ip: string }[] {
+  const me = s.devs[id].ifaces[ifn];
+  if (!me?.ip || !me.mask) return [];
+  const seen = new Set<string>(), out: { id: string; port: string; ip: string }[] = [];
+  for (const e of l2domain(s, id, ifn)) {
+    const o = s.devs[e.id], oi = o?.ifaces[e.port], k = e.id + "|" + e.port;
+    if (!o || o.kind !== "router" || !oi?.ip || !oi.mask || oi.mask !== me.mask || netOf(oi.ip, oi.mask) !== netOf(me.ip, me.mask) || seen.has(k)) continue;
+    seen.add(k); out.push({ id: e.id, port: e.port, ip: oi.ip });
+  }
+  return out;
+}
+/** router-id when none is configured: highest loopback, else highest active interface address */
+function autoRid(s: State, d: Dev): string {
+  const up = Object.entries(d.ifaces).filter(([n, i]) => i.ip && ifUp(s, d.id, n)).map(([n, i]) => ({ lo: isLo(n), ip: i.ip! }));
+  const top = (a: { ip: string }[]) => a.map((x) => x.ip).sort((x, y) => ip2n(y) - ip2n(x))[0];
+  return top(up.filter((x) => x.lo)) ?? top(up) ?? "0.0.0.0";
+}
+const byNet = (a: { net: string; len: number }, b: { net: string; len: number }) => ip2n(a.net) - ip2n(b.net) || a.len - b.len;
+
+/* ─── RIP: hop count, AD 120, split horizon, v1 classful / v2 with optional auto-summary ─── */
+function ripCompute(s: State, dyn: Dyn) {
+  const rs = Object.values(s.devs).filter((d) => d.kind === "router" && d.rip);
+  if (!rs.length) return;
+  type Ent = RipEnt & { conn?: string };
+  const on = (d: Dev, n: string) => { const i = d.ifaces[n]; return !!i?.ip && !!i.mask && ifUp(s, d.id, n) && d.rip!.networks.includes(majorNet(i.ip)); };
+  const conn = (d: Dev) => {
+    const m = new Map<string, Ent>();
+    for (const [n, i] of Object.entries(d.ifaces)) if (on(d, n)) { const net = netOf(i.ip!, i.mask!), len = maskLen(i.mask!); m.set(`${net}/${len}`, { net, len, m: 0, conn: n, paths: [] }); }
+    return m;
+  };
+  /** what router `n` sends out `port`: split horizon, then classful rules (v1) or auto-summary (v2) */
+  const adv = (n: Dev, port: string, t: Map<string, Ent>) => {
+    const oi = n.ifaces[port], outMajor = majorNet(oi.ip!), outLen = maskLen(oi.mask!), v = n.rip!.version, res = new Map<string, { net: string; len: number; m: number }>();
+    const put = (net: string, len: number, m: number) => { const k = `${net}/${len}`, o = res.get(k); if (!o || m < o.m) res.set(k, { net, len, m }); };
+    for (const e of t.values()) {
+      if (e.paths.some((p) => p.iface === port)) continue;
+      const same = majorNet(e.net) === outMajor;
+      if (v === 1) { if (same) { if (e.len === outLen) put(e.net, e.len, e.m); } else put(majorNet(e.net), classLen(e.net), e.m); }
+      else if (n.rip!.auto && !same) put(majorNet(e.net), classLen(e.net), e.m);
+      else put(e.net, e.len, e.m);
+    }
+    return res;
+  };
+  let tbl: Record<string, Map<string, Ent>> = {};
+  for (const d of rs) tbl[d.id] = conn(d);
+  const sig = (t: Record<string, Map<string, Ent>>) => JSON.stringify(Object.entries(t).map(([id, m]) => [id, [...m].map(([k, e]) => [k, e.m, e.paths.map((p) => p.via + p.iface)])]));
+  for (let pass = 0; pass < 20; pass++) {
+    const next: Record<string, Map<string, Ent>> = {};
+    for (const d of rs) {
+      const m = conn(d), cand = new Map<string, Ent>();
+      for (const [n] of Object.entries(d.ifaces)) {
+        if (!on(d, n) || isLo(n)) continue;
+        for (const nb of lanNbrs(s, d.id, n)) {
+          const nd = s.devs[nb.id];
+          if (!nd.rip || !on(nd, nb.port) || nd.rip.passive.includes(nb.port)) continue; // a passive interface sends no updates
+          for (const a of adv(nd, nb.port, tbl[nb.id]).values()) {
+            const k = `${a.net}/${a.len}`, mm = a.m + 1;
+            if (mm >= 16 || m.has(k)) continue;
+            const o = cand.get(k), p = { via: nb.ip, iface: n };
+            if (!o || mm < o.m) cand.set(k, { net: a.net, len: a.len, m: mm, paths: [p] });
+            else if (mm === o.m && o.paths.length < 4 && !o.paths.some((x) => x.via === p.via && x.iface === p.iface)) o.paths.push(p);
+          }
+        }
+      }
+      for (const [k, e] of cand) m.set(k, e);
+      next[d.id] = m;
+    }
+    const same = sig(next) === sig(tbl);
+    tbl = next;
+    if (same) break;
+  }
+  for (const d of rs) {
+    const all = [...tbl[d.id].values()].sort(byNet);
+    dyn.ripDb[d.id] = all;
+    (dyn.routes[d.id] ??= []).push(...all.filter((e) => !e.conn).map((e) => ({ t: "R" as const, net: e.net, len: e.len, ad: 120, metric: e.m, paths: e.paths.map((p) => ({ ...p, nbr: "", metric: e.m })) })));
+  }
+}
+
+/* ─── EIGRP: metric = 256 × (10^7 / lowest bandwidth + total delay), AD 90, split horizon,
+ *     successors = equal-cost (or within `variance`) paths that satisfy the feasibility condition ─── */
+function eigrpCompute(s: State, dyn: Dyn) {
+  const rs = Object.values(s.devs).filter((d) => d.kind === "router" && d.eigrp);
+  if (!rs.length) return;
+  type V = { bw: number; dly: number };
+  type Cand = { via: string; iface: string; nbr: string; metric: number; rd: number; vec: V };
+  type Ent = { net: string; len: number; vec: V; fd: number; conn?: string; succ: Cand[]; all: Cand[] };
+  const on = (d: Dev, n: string) => { 
+  const i = d.ifaces[n]; 
+  if (!i?.ip || !i.mask || !ifUp(s, d.id, n)) return false;
+  return d.eigrp!.networks.some((x) => 
+    (x.net === "0.0.0.0" && x.wild === "255.255.255.255") || wildMatch(i.ip!, x.net, x.wild)
+  ); 
+};
+  const conn = (d: Dev) => {
+    const m = new Map<string, Ent>();
+    for (const [n, i] of Object.entries(d.ifaces)) if (on(d, n)) {
+      const net = netOf(i.ip!, i.mask!), len = maskLen(i.mask!), vec = { bw: ifBw(n, i), dly: ifDelay(n, i) };
+      m.set(`${net}/${len}`, { net, len, vec, fd: eigrpMetric(vec.bw, vec.dly), conn: n, succ: [], all: [] });
+    }
+    return m;
+  };
+  /** neighbours on interface n: EIGRP routers in the same AS that run EIGRP on the far interface and are not passive */
+  const peers = (d: Dev, n: string) => {
+    if (!on(d, n) || isLo(n) || d.eigrp!.passive.includes(n)) return [];
+    return lanNbrs(s, d.id, n).filter((nb) => { const nd = s.devs[nb.id]; return !!nd.eigrp && nd.eigrp.as === d.eigrp!.as && on(nd, nb.port) && !nd.eigrp.passive.includes(nb.port); });
+  };
+  let tbl: Record<string, Map<string, Ent>> = {};
+  for (const d of rs) tbl[d.id] = conn(d);
+  const sig = (t: Record<string, Map<string, Ent>>) => JSON.stringify(Object.entries(t).map(([id, m]) => [id, [...m].map(([k, e]) => [k, e.fd, e.succ.map((c) => c.via + c.iface)])]));
+  for (let pass = 0; pass < 32; pass++) {
+    const next: Record<string, Map<string, Ent>> = {};
+    for (const d of rs) {
+      const m = conn(d), cands = new Map<string, { net: string; len: number; cs: Cand[] }>();
+      for (const [n, i] of Object.entries(d.ifaces)) for (const nb of peers(d, n)) for (const e of tbl[nb.id].values()) {
+        const k = `${e.net}/${e.len}`;
+        if (m.has(k) || e.succ.some((p) => p.iface === nb.port)) continue; // already connected, or split horizon
+        const vec = { bw: Math.min(e.vec.bw, ifBw(n, i)), dly: e.vec.dly + ifDelay(n, i) };
+        const c: Cand = { via: nb.ip, iface: n, nbr: nb.id, vec, metric: eigrpMetric(vec.bw, vec.dly), rd: e.fd };
+        const o = cands.get(k);
+        if (o) o.cs.push(c); else cands.set(k, { net: e.net, len: e.len, cs: [c] });
+      }
+      const ec = d.eigrp!;
+      for (const [k, { net, len, cs }] of cands) {
+        cs.sort((a, b) => a.metric - b.metric || ip2n(a.via) - ip2n(b.via));
+        const best = cs[0], fd = best.metric;
+        const succ = cs.filter((c) => c === best || (c.rd < fd && c.metric <= fd * ec.variance)).slice(0, ec.maxPaths);
+        m.set(k, { net, len, vec: best.vec, fd, succ, all: cs });
+      }
+      next[d.id] = m;
+    }
+    const same = sig(next) === sig(tbl);
+    tbl = next;
+    if (same) break;
+  }
+  for (const d of rs) {
+    dyn.eigrpRid[d.id] = d.eigrp!.rid ?? autoRid(s, d);
+    dyn.eigrpNbrs[d.id] = Object.keys(d.ifaces).flatMap((n) => peers(d, n).map((p) => ({ ip: p.ip, iface: n, nbr: p.id })));
+    const routes: DynRoute[] = [], topo: EigrpTopo[] = [];
+    for (const e of [...tbl[d.id].values()].sort(byNet)) {
+      if (e.conn) { topo.push({ net: e.net, len: e.len, fd: e.fd, conn: e.conn, ent: [] }); continue; }
+      routes.push({ t: "D", net: e.net, len: e.len, ad: 90, metric: e.fd, paths: e.succ.map((c) => ({ via: c.via, iface: c.iface, nbr: c.nbr, metric: c.metric })) });
+      topo.push({ net: e.net, len: e.len, fd: e.fd, ent: e.all.map((c) => ({ via: c.via, iface: c.iface, fd: c.metric, rd: c.rd, succ: e.succ.includes(c), feasible: c.rd < e.fd })) });
+    }
+    dyn.eigrpTopo[d.id] = topo;
+    (dyn.routes[d.id] ??= []).push(...routes);
+  }
+}
+
+/* ─── OSPF: cost = reference bandwidth / interface bandwidth, AD 110, shortest-path tree per router,
+ *     DR/BDR election per segment, areas matched per interface (inter-area routes are shown as O IA) ─── */
+function ospfCompute(s: State, dyn: Dyn) {
+  const rs = Object.values(s.devs).filter((d) => d.kind === "router" && d.ospf);
+  if (!rs.length) return;
+  const areaOf = (d: Dev, n: string) => {
+    const i = d.ifaces[n];
+    if (!i?.ip || !ifUp(s, d.id, n)) return undefined;
+    return d.ospf!.networks.find((x) => wildMatch(i.ip!, x.net, x.wild))?.area;
+  };
+  const rid: Record<string, string> = {};
+  for (const d of rs) rid[d.id] = dyn.ospfRid[d.id] = d.ospf!.rid ?? autoRid(s, d);
+  /** adjacent routers on interface n: same area, same subnet, and neither side passive */
+  const peers = (d: Dev, n: string) => {
+    const a = areaOf(d, n);
+    if (a === undefined || isLo(n) || d.ospf!.passive.includes(n)) return [];
+    return lanNbrs(s, d.id, n).filter((nb) => { const nd = s.devs[nb.id]; return !!nd.ospf && areaOf(nd, nb.port) === a && !nd.ospf.passive.includes(nb.port); });
+  };
+  type Edge = { to: string; cost: number; iface: string; via: string };
+  const edges: Record<string, Edge[]> = {}, origins = new Map<string, { r: string; area: number; cost: number }[]>();
+  for (const d of rs) {
+    edges[d.id] = [];
+    for (const [n, i] of Object.entries(d.ifaces)) {
+      const a = areaOf(d, n);
+      if (a === undefined) continue;
+      const cost = ifCost(d, n, i), len = isLo(n) ? 32 : maskLen(i.mask!), net = isLo(n) ? i.ip! : netOf(i.ip!, i.mask!), k = `${net}/${len}`;
+      (origins.get(k) ?? origins.set(k, []).get(k)!).push({ r: d.id, area: a, cost });
+      for (const nb of peers(d, n)) edges[d.id].push({ to: nb.id, cost, iface: n, via: nb.ip });
+    }
+  }
+  const spf = (src: string) => {
+    const dist = new Map<string, number>([[src, 0]]), hops = new Map<string, DynPath[]>([[src, []]]), done = new Set<string>();
+    for (;;) {
+      let u: string | undefined, best = Infinity;
+      for (const [k, v] of dist) if (!done.has(k) && v < best) { best = v; u = k; }
+      if (u === undefined) break;
+      done.add(u);
+      for (const e of edges[u] ?? []) {
+        const nd = best + e.cost, cur = dist.get(e.to), h: DynPath[] = u === src ? [{ via: e.via, iface: e.iface, nbr: e.to, metric: 0 }] : hops.get(u)!;
+        if (cur === undefined || nd < cur) { dist.set(e.to, nd); hops.set(e.to, [...h]); }
+        else if (nd === cur) { const o = hops.get(e.to)!; for (const x of h) if (!o.some((y) => y.via === x.via && y.iface === x.iface)) o.push(x); }
+      }
+    }
+    return { dist, hops };
+  };
+  for (const d of rs) {
+    // neighbours, DR/BDR election per segment
+    const nbrs: OspfNbr[] = [], ifs: OspfIf[] = [], pri = (x: Dev, n: string) => x.ifaces[n].ospfPri ?? 1;
+    for (const [n, i] of Object.entries(d.ifaces)) {
+      const a = areaOf(d, n);
+      if (a === undefined) continue;
+      const cost = ifCost(d, n, i);
+      if (isLo(n)) { ifs.push({ name: n, area: a, cost, state: "LOOP", full: 0, total: 0 }); continue; }
+      const ps = peers(d, n), mem = [{ id: d.id, p: pri(d, n), r: rid[d.id] }, ...ps.map((p) => ({ id: p.id, p: pri(s.devs[p.id], p.port), r: rid[p.id] }))];
+      const el = mem.filter((m) => m.p > 0).sort((x, y) => y.p - x.p || ip2n(y.r) - ip2n(x.r)), dr = el[0]?.id, bdr = el[1]?.id;
+      const role = (id: string) => (id === dr ? "DR" : id === bdr ? "BDR" : "DROTHER");
+      let full = 0;
+      for (const p of ps) {
+        const st = role(d.id) !== "DROTHER" || role(p.id) !== "DROTHER" ? "FULL" : "2WAY";
+        if (st === "FULL") full++;
+        nbrs.push({ rid: rid[p.id], pri: pri(s.devs[p.id], p.port), state: st, role: role(p.id), addr: p.ip, iface: n });
+      }
+      const mine = role(d.id);
+      ifs.push({ name: n, area: a, cost, state: mine === "DROTHER" ? "DROTH" : mine, full, total: ps.length });
+    }
+    dyn.ospfNbrs[d.id] = nbrs; dyn.ospfIfs[d.id] = ifs;
+    // routes
+    const { dist, hops } = spf(d.id), mine = new Set(ifs.map((x) => x.area)), out: DynRoute[] = [];
+    for (const [k, orig] of origins) {
+      if (orig.some((o) => o.r === d.id)) continue;
+      let best = Infinity, hs: DynPath[] = [], areas: number[] = [];
+      for (const o of orig) {
+        const dd = dist.get(o.r);
+        if (dd === undefined) continue;
+        const c = dd + o.cost;
+        if (c < best) { best = c; hs = [...hops.get(o.r)!]; areas = [o.area]; }
+        else if (c === best) { for (const x of hops.get(o.r)!) if (!hs.some((y) => y.via === x.via && y.iface === x.iface)) hs.push(x); areas.push(o.area); }
+      }
+      if (best === Infinity) continue;
+      const [net, len] = k.split("/");
+      out.push({ t: "O", net, len: +len, ad: 110, metric: best, ia: !areas.some((a) => mine.has(a)), paths: hs.slice(0, 4).map((h) => ({ ...h, metric: best })) });
+    }
+    (dyn.routes[d.id] ??= []).push(...out);
+  }
+}
+
+function computeDyn(s: State): Dyn {
+  const dyn: Dyn = { routes: {}, ripDb: {}, eigrpNbrs: {}, eigrpTopo: {}, eigrpRid: {}, ospfRid: {}, ospfNbrs: {}, ospfIfs: {} };
+  ripCompute(s, dyn); eigrpCompute(s, dyn); ospfCompute(s, dyn);
+  for (const id in dyn.routes) { // one winner per prefix: lowest administrative distance
+    const best = new Map<string, DynRoute>();
+    for (const r of dyn.routes[id]) { const k = `${r.net}/${r.len}`, o = best.get(k); if (!o || r.ad < o.ad) best.set(k, r); }
+    dyn.routes[id] = [...best.values()];
+  }
+  return dyn;
+}
+const dynMemo = new WeakMap<State, Dyn>();
+export function getDyn(s: State): Dyn {
+  let r = dynMemo.get(s);
+  if (!r) { r = computeDyn(s); dynMemo.set(s, r); }
+  return r;
 }
 
 /* ════════════════════════ 5. forwarding ════════════════════════ */
@@ -272,7 +578,7 @@ export function route(s: State, start: string, dst: string, ttl: number, fx: Fx[
       const r = bestRoute(routeTable(s, d), dst);
       if (!r) return res("noroute");
       if (r.iface === "Null0") return res("null");
-      eg = { iface: r.iface, nh: r.t === "S" && !r.exit ? r.via! : dst }; proxy = !!r.exit;
+      eg = { iface: r.iface, nh: r.via ?? dst }; proxy = !!r.exit;
     } else { eg = hostPick(d, dst); if (!eg) return res("noip"); }
     if (!first) first = { iface: eg.iface, nh: eg.nh, srcIp: d.ifaces[eg.iface]?.ip };
     const hit = arpFind(s, cur, eg.iface, eg.nh, proxy, dst);
@@ -603,7 +909,11 @@ export function iosShared(render: (d: Dev) => string[]) {
   return { priv, user, global, line, ifc, exitH, mem };
 }
 export function iosPrompt(d: Dev, cli: Cli) {
-  const m: Record<string, string> = { user: ">", priv: "#", config: "(config)#", "config-if": cli.ifs && cli.ifs.length > 1 ? "(config-if-range)#" : "(config-if)#", "config-line": "(config-line)#", "config-vlan": "(config-vlan)#" };
+  const m: Record<string, string> = {
+    user: ">", priv: "#", config: "(config)#", "config-if": cli.ifs && cli.ifs.length > 1 ? "(config-if-range)#" : "(config-if)#",
+    "config-line": "(config-line)#", "config-vlan": "(config-vlan)#",
+    "config-router-rip": "(config-router)#", "config-router-eigrp": "(config-router)#", "config-router-ospf": "(config-router)#",
+  };
   return d.hostname + m[cli.mode];
 }
 const USER_BLOCK = /^(show (run|start|hist)|conf|copy|write|erase|reload|disable|clear|terminal)/;
@@ -754,52 +1064,53 @@ export function NetLab({ title, width = 900, height = 560, children }: { title: 
   const [tabs, setTabs] = useState<string[]>([]), [active, setActive] = useState<string>(), [mx, setMx] = useState(false);
   const s = useSyncExternalStore(store.subscribe, store.get);
   // remembers the last "interface ..." / "router ..." line clicked per device
-const lastCtx = useRef<Record<string, string>>({});
+  const lastCtx = useRef<Record<string, string>>({});
 
-useEffect(() => {
-  const onRun = (e: Event) => {
-    const { device, commands, config } = (e as CustomEvent).detail as {
-      device: string; commands: string[]; config: boolean;
-    };
-    const d = store.get().devs[device];
-    if (!d) return;
-    setActive(device); // open that device's tab
+  useEffect(() => {
+    const onRun = (e: Event) => {
+      const { device, commands, config } = (e as CustomEvent).detail as {
+        device: string; commands: string[]; config: boolean;
+      };
+      const d = store.get().devs[device];
+      if (!d) return;
+      setActive(device); // open that device's tab
 
-    const cli = d.session.cli;
-    const mode: string = cli?.mode ?? "";
+      const cli = d.session.cli;
+      const mode: string = cli?.mode ?? "";
 
-    // Enter config mode only if the router isn't there yet.
-    const pre: string[] = [];
-    if (config) {
-      if (mode === "user") pre.push("enable");
-      if (mode === "user" || mode === "priv") pre.push("configure terminal");
-    }
-
-    // A click on an indented line arrives as [parent, child]. Drop the parent
-    // if the device is already inside it.
-    let cmds = commands;
-    const parent = commands[0] ?? "";
-    const isContext = /^(interface|router)\s/.test(parent);
-    if (isContext && commands.length === 2) {
-      const [kw, arg = ""] = parent.split(/\s+/);
-      let already = false;
-      if (kw === "interface" && mode === "config-if") {
-        // "e0/0" vs "Ethernet0/0": same letters at the start, same numbers at the end
-        const cur = (cli?.ifs?.[0] ?? "").toLowerCase();
-        const m = arg.toLowerCase().match(/^([a-z]+)(.*)$/);
-        already = !!m && cur.startsWith(m[1]) && cur.endsWith(m[2]);
-      } else if (kw === "router") {
-        already = mode.includes("router") && lastCtx.current[device] === parent;
+      // Enter config mode only if the router isn't there yet.
+      const pre: string[] = [];
+      if (config) {
+        if (mode === "user") pre.push("enable");
+        if (mode === "user" || mode === "priv") pre.push("configure terminal");
       }
-      if (already) cmds = commands.slice(1);
-    }
-    if (isContext) lastCtx.current[device] = parent;
 
-    [...pre, ...cmds].forEach((line) => submit(store, device, line));
-  };
-  window.addEventListener("netlab:run", onRun);
-  return () => window.removeEventListener("netlab:run", onRun);
-}, [store]);
+      // A click on an indented line arrives as [parent, child]. Drop the parent
+      // if the device is already inside it.
+      let cmds = commands;
+      const parent = commands[0] ?? "";
+      const isContext = /^(interface|router)\s/.test(parent);
+      if (isContext && commands.length === 2) {
+        const [kw, arg = ""] = parent.split(/\s+/);
+        let already = false;
+        if (kw === "interface" && mode === "config-if") {
+          // "e0/0" vs "Ethernet0/0": same letters at the start, same numbers at the end
+          const cur = (cli?.ifs?.[0] ?? "").toLowerCase();
+          const m = arg.toLowerCase().match(/^([a-z]+)(.*)$/);
+          already = !!m && cur.startsWith(m[1]) && cur.endsWith(m[2]);
+        } else if (kw === "router") {
+          already = mode.includes("router") && lastCtx.current[device] === parent;
+        }
+        if (already) cmds = commands.slice(1);
+      }
+      if (isContext) lastCtx.current[device] = parent;
+
+      [...pre, ...cmds].forEach((line) => submit(store, device, line));
+    };
+    window.addEventListener("netlab:run", onRun);
+    return () => window.removeEventListener("netlab:run", onRun);
+  }, [store]);
+
   const open = (id: string) => { setTabs((t) => (t.includes(id) ? t : [...t, id])); setActive(id); };
   const close = (id: string) => { setTabs((t) => t.filter((x) => x !== id)); if (active === id) setActive(tabs.filter((x) => x !== id).pop()); };
   const live = tabs.filter((t) => s.devs[t]);
