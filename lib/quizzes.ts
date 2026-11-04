@@ -7300,6 +7300,278 @@ export const quizzes: Quiz[] = [
   ]
 },
 {
+  id: "dhcp-dynamic-host-configuration-protocol",
+  topicSlug: "switching-vlans-and-trunking",
+  group: "DHCP (Dynamic Host Configuration Protocol)",
+  title: "DHCP (Dynamic Host Configuration Protocol) Quiz",
+  questions: [
+    {
+      id: "q1",
+      prompt: "What is the primary purpose of a DHCP server in a network environment?",
+      options: [
+        "To dynamically assign IP address information to clients",
+        "To translate private IP addresses to public IPs",
+        "To resolve domain hostnames to IP addresses",
+        "To encrypt traffic between a client and a web server"
+      ],
+      answer: 0,
+      explanation: "DHCP helps network administrators dynamically configure IP information on client machines, avoiding the difficulty of manually assigning static IPs to large numbers of devices."
+    },
+    {
+      id: "q2",
+      prompt: "Which UDP ports are used by the DHCP server and the DHCP client?",
+      options: [
+        "Server listens on 68, client listens on 67",
+        "Server listens on 67, client listens on 68",
+        "Server listens on 53, client listens on 68",
+        "Server listens on 67, client listens on 53"
+      ],
+      answer: 1,
+      explanation: "All DHCP messages use UDP, with the server listening on port 67 and the client listening on port 68."
+    },
+    {
+      id: "q3",
+      prompt: "What does the DORA acronym stand for in the DHCP server-client handshake?",
+      options: [
+        "Discover, Observe, Request, Acknowledge",
+        "Discover, Offer, Request, Ack",
+        "Detect, Offer, Route, Ack",
+        "Discover, Offer, Reply, Accept"
+      ],
+      answer: 1,
+      explanation: "The DORA process consists of four steps: Discover (Client), Offer (Server), Request (Client), and Ack (Server)."
+    },
+    {
+      id: "q4",
+      prompt: "In a Windows environment, what happens if no DHCP server is available to provide an IP address?",
+      options: [
+        "The machine uses 0.0.0.0 as its permanent IP address.",
+        "The machine prompts the user to enter a static IP address manually.",
+        "The machine autoconfigures an IP address from the APIPA range 169.254.0.0/16.",
+        "The machine broadcasts an ARP request asking another host to surrender its IP."
+      ],
+      answer: 2,
+      explanation: "Windows machines use Automatic Private IP Address Allocation (APIPA) and assign themselves an IP in the 169.254.0.0/16 range when a DHCP server cannot be reached."
+    },
+    {
+      id: "q5",
+      prompt: "What are the source and destination IP addresses in a DHCP Discover message?",
+      options: [
+        "Src: 0.0.0.0, Dst: 255.255.255.255",
+        "Src: 127.0.0.1, Dst: 255.255.255.255",
+        "Src: 0.0.0.0, Dst: 192.168.1.1",
+        "Src: 169.254.0.1, Dst: 255.255.255.255"
+      ],
+      answer: 0,
+      explanation: "Because the client doesn't have an IP address yet, it uses 0.0.0.0 as the source and broadcasts to 255.255.255.255 to find a server."
+    },
+    {
+      id: "q6",
+      prompt: "In the DHCP Offer message, what information is typically provided to the client?",
+      options: [
+        "Only the available IP address and subnet mask.",
+        "IP address, subnet mask, gateway IP, domain name, DNS server, and lease time.",
+        "IP address, default gateway, and a static MAC address binding.",
+        "Only the DNS server IP address and the company domain name."
+      ],
+      answer: 1,
+      explanation: "The server responds with an offer containing a full suite of network configuration details, including IP, mask, gateway, DNS, domain name, and the lease time."
+    },
+    {
+      id: "q7",
+      prompt: "Which UDP ports are used in the DHCP Request message sent from the client?",
+      options: [
+        "Source UDP 67, Destination UDP 68",
+        "Source UDP 68, Destination UDP 67",
+        "Source UDP 67, Destination UDP 67",
+        "Source UDP 68, Destination UDP 68"
+      ],
+      answer: 1,
+      explanation: "Because it is sent by the client to the server, the source port is 68 (client) and the destination port is 67 (server)."
+    },
+    {
+      id: "q8",
+      prompt: "What is the specific purpose of the DHCP Ack message in the DORA process?",
+      options: [
+        "The client acknowledges it received the DHCP Offer.",
+        "The server acknowledges that the client accepted the offered information.",
+        "The switch acknowledges the new MAC address binding on its port.",
+        "The router acknowledges the new IP route for the client."
+      ],
+      answer: 1,
+      explanation: "The Ack (Acknowledgment) is the final step where the server confirms to the client that it has successfully recorded the lease and the client can begin using the IP."
+    },
+    {
+      id: "q9",
+      prompt: "What is the default DHCP lease period for most vendors?",
+      options: [
+        "24 hours",
+        "7 days",
+        "8 days",
+        "30 days"
+      ],
+      answer: 2,
+      explanation: "In most network vendors, the default lease period given to a client machine is 8 days."
+    },
+    {
+      id: "q10",
+      prompt: "At what point does a DHCP client first attempt to renew its IP lease?",
+      options: [
+        "At 25% of the lease period",
+        "At 50% of the lease period",
+        "At 87.5% of the lease period",
+        "At 100% of the lease period"
+      ],
+      answer: 1,
+      explanation: "The client tries to renew its lease by sending a DHCP Request message to the server when it reaches 50% of the lease period."
+    },
+    {
+      id: "q11",
+      prompt: "If the server does not acknowledge a client's first lease renewal request, when does the client try again?",
+      options: [
+        "At 75% of the lease period",
+        "At 80% of the lease period",
+        "At 87.5% of the lease period",
+        "At 99% of the lease period"
+      ],
+      answer: 2,
+      explanation: "If the 50% renewal attempt is ignored or fails, the client waits and tries again at 87.5% of the lease period."
+    },
+    {
+      id: "q12",
+      prompt: "What happens if a client's lease reaches 100% expiration without being successfully renewed?",
+      options: [
+        "The client keeps the IP address but cannot reach the default gateway.",
+        "The client falls back to its last known good configuration permanently.",
+        "The IP returns to the pool and the client must initiate the DORA process again.",
+        "The client sends a DHCP Offer message to locate a new server."
+      ],
+      answer: 2,
+      explanation: "Once the lease fully expires (100%), the client loses the right to use the IP, which returns to the server's pool. The client must restart the DORA process from the Discover step."
+    },
+    {
+      id: "q13",
+      prompt: "Which Cisco IOS command correctly creates a DHCP pool named VLAN10?",
+      options: [
+        "dhcp pool create VLAN10",
+        "ip dhcp pool VLAN10",
+        "pool dhcp VLAN10",
+        "ip pool dhcp VLAN10"
+      ],
+      answer: 1,
+      explanation: "The command to create a DHCP pool and enter DHCP configuration mode on a Cisco router is `ip dhcp pool <name>`."
+    },
+    {
+      id: "q14",
+      prompt: "Inside a Cisco DHCP pool configuration, how do you specify the default gateway that will be given to clients?",
+      options: [
+        "gateway 192.168.10.100",
+        "default-gateway 192.168.10.100",
+        "ip gateway 192.168.10.100",
+        "default-router 192.168.10.100"
+      ],
+      answer: 3,
+      explanation: "The command `default-router <ip>` is used inside the DHCP pool configuration to tell clients their gateway IP."
+    },
+    {
+      id: "q15",
+      prompt: "How do you configure a lease period of 2 days and 0 hours inside a Cisco DHCP pool?",
+      options: [
+        "lease 2 0",
+        "lease 48 hours",
+        "dhcp lease 2",
+        "ip lease 2 0"
+      ],
+      answer: 0,
+      explanation: "The command is `lease <days> <hours>`, so `lease 2 0` sets the lease period to exactly 2 days."
+    },
+    {
+      id: "q16",
+      prompt: "Which command displays a list of all IP addresses and their corresponding MAC addresses currently assigned by the Cisco DHCP server?",
+      options: [
+        "show ip dhcp pool",
+        "show ip dhcp binding",
+        "show dhcp clients",
+        "show ip dhcp leases"
+      ],
+      answer: 1,
+      explanation: "The `show ip dhcp binding` command verifies the active leases by displaying the IPs mapped to client MAC addresses."
+    },
+    {
+      id: "q17",
+      prompt: "Why would an administrator use the command `clear ip dhcp binding *` on a router?",
+      options: [
+        "To completely delete the DHCP pool configuration from the running-config.",
+        "To reset a single specific IP assignment during a lab exercise.",
+        "To refresh and clear all currently active DHCP bindings.",
+        "To restart the router's DHCP service daemon."
+      ],
+      answer: 2,
+      explanation: "The `clear ip dhcp binding *` command releases all active IP bindings in the router's database, forcing all clients to renew or request new leases."
+    },
+    {
+      id: "q18",
+      prompt: "During the DORA process, which two messages are typically sent as broadcasts by the client?",
+      options: [
+        "Discover and Request",
+        "Offer and Ack",
+        "Discover and Offer",
+        "Request and Ack"
+      ],
+      answer: 0,
+      explanation: "The client broadcasts the initial Discover to find any server, and broadcasts the Request to tell all listening servers which Offer it is accepting."
+    },
+    {
+      id: "q19",
+      prompt: "A PC completes the DORA process and can ping devices on its own subnet, but cannot ping external internet addresses. Which DHCP pool configuration is most likely missing?",
+      options: [
+        "network 192.168.10.0 255.255.255.0",
+        "dns-server 8.8.8.8",
+        "default-router 192.168.10.100",
+        "domain-name mycompany.com"
+      ],
+      answer: 2,
+      explanation: "Without a configured `default-router`, the client won't know how to leave its local subnet to reach external networks."
+    },
+    {
+      id: "q20",
+      prompt: "If a DHCP client and the DHCP server are on completely different subnets, how does the client's broadcast Discover message reach the server?",
+      options: [
+        "The switch converts the broadcast into a multicast frame.",
+        "A router is configured with an 'ip helper-address' to forward the request as a unicast.",
+        "The client sends a unicast Discover directly to the server's IP address.",
+        "The DHCP server listens on all subnets simultaneously by default."
+      ],
+      answer: 1,
+      explanation: "Routers drop broadcasts by default. An 'ip helper-address' (DHCP Relay) must be configured on the router's interface to forward the broadcast as a unicast packet to the remote DHCP server."
+    },
+    {
+      id: "q21",
+      prompt: "In a scenario where a DHCP server cannot satisfy a client's Request (for example, the requested IP is already taken), what message does the server reply with?",
+      options: [
+        "DHCP Decline",
+        "DHCP Release",
+        "DHCP NAK (Negative Acknowledgment)",
+        "DHCP Drop"
+      ],
+      answer: 2,
+      explanation: "A DHCP NAK is sent by the server to tell the client that its request for a specific IP address is denied, forcing the client to restart the Discover process."
+    },
+    {
+      id: "q22",
+      prompt: "To prevent malicious actors from connecting a rogue DHCP server to the network and handing out incorrect gateway addresses, which Layer 2 security feature is commonly implemented on switches?",
+      options: [
+        "Port Security",
+        "DHCP Snooping",
+        "Dynamic ARP Inspection",
+        "IP Source Guard"
+      ],
+      answer: 1,
+      explanation: "DHCP Snooping is a security feature that drops DHCP Offer and Ack messages from untrusted ports, ensuring clients only get IP configurations from authorized servers."
+    }
+  ]
+},
+{
   id: "etherchannel-link-aggregation",
   topicSlug: "switching-vlans-and-trunking",
   group: "EtherChannel (Link Aggregation)",

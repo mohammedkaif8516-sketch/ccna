@@ -5026,6 +5026,217 @@ export const topics: Topic[] = [
           { src: '/diagrams/three-tier-architecture1.png', alt: 'Core, distribution and access layers with edge routers connecting to ISPs', caption: 'Cisco 3-tier: Core, Distribution, Access with edge routers to ISPs' },
         ],
       },
+            {
+        slug: 'dhcp-purpose-and-server-client-architecture',
+        title: 'DHCP Purpose & Server-Client Architecture',
+        group: 'DHCP (Dynamic Host Configuration Protocol)',
+        description: 'DHCP dynamically assigns IP address information to client machines through a server-client handshake called DORA, using UDP ports 67 and 68.',
+        blocks: [
+          { type: 'heading', text: 'Why DHCP is needed' },
+          {
+            type: 'bullets', items: [
+              'In a network environment with a large number of client devices, statically assigning IP address information — device IP, subnet mask, gateway IP, DNS server IP, company domain name — is extremely difficult.',
+              'DHCP helps network engineers/administrators dynamically configure this information on client machines rather than manually configuring each one.',
+            ]
+          },
+          { type: 'heading', text: 'How it works' },
+          {
+            type: 'bullets', items: [
+              'It is a server-client architecture: the client requests the information and the server provides it through a handshake called the DORA process.',
+              'All DHCP messages use the UDP protocol with two port numbers: 67 and 68.',
+              'The server listens on port 67.',
+              'The client listens on port 68.',
+            ]
+          },
+          { type: 'heading', text: 'DORA process' },
+          {
+            type: 'table', headers: ['Step', 'Message', 'Direction'], rows: [
+              ['D', 'Discover', 'Client → Server'],
+              ['O', 'Offer', 'Server → Client'],
+              ['R', 'Request', 'Client → Server'],
+              ['A', 'Ack', 'Server → Client'],
+            ]
+          },
+          { type: 'heading', text: 'DHCP server options' },
+          {
+            type: 'bullets', items: [
+              'In a Windows environment, if there is no DHCP, the Windows machine autoconfigures an IP address from the APIPA range (Automatic Private IP Address Allocation), which is 169.254.0.0/16.',
+              'In a larger environment, a Windows/Linux/cloud server is configured as the DHCP server for the entire company.',
+              'A Layer 3 device — MLS, router, or firewall — can also be configured as the DHCP server.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'UDP ports', value: 'Server listens on 67, client listens on 68' },
+          { label: 'Handshake', value: 'DORA — Discover, Offer, Request, Ack' },
+          { label: 'APIPA range', value: '169.254.0.0/16' },
+          { label: 'Server options', value: 'Windows/Linux/cloud server, or L3 device (MLS/router/firewall)' },
+        ],
+        diagrams: [
+          { src: '/diagrams/dhcp-ports67-68-architecture1_wide.png', alt: 'DHCP server-client architecture with UDP ports 67 and 68', caption: 'DHCP server-client architecture — UDP 67 (server) / 68 (client)' },
+          { src: '/diagrams/dhcp-apipa-fallback1_wide.png', alt: 'Windows machine with no DHCP falling back to APIPA 169.254.0.0/16', caption: 'No DHCP server: Windows autoconfigures from APIPA (169.254.0.0/16)' },
+        ],
+      },
+      {
+        slug: 'dhcp-dora-process-frame-structure',
+        title: 'The DORA Process — Detailed Frame Structure',
+        group: 'DHCP (Dynamic Host Configuration Protocol)',
+        description: 'Each DORA message has a specific frame structure: Discover and Request are broadcast from the client, while Offer and Ack come back from the server.',
+        blocks: [
+          { type: 'heading', text: 'DHCP Discover (1) — Client → Server' },
+          { type: 'paragraph', text: 'When the client boots up it broadcasts a DHCP Discover message searching for a DHCP server. This is broadcast in both L3 and L2.' },
+          {
+            type: 'table', headers: ['Message', 'Src UDP', 'Dst UDP', 'IP Src', 'IP Dst', 'MAC Src', 'MAC Dst'], rows: [
+              ['DHCP Discover (1)', '68', '67', '0.0.0.0', '255.255.255.255', 'aaa', 'FFFF.FFFF.FFFF'],
+            ]
+          },
+          { type: 'heading', text: 'DHCP Offer (2) — Server → Client' },
+          { type: 'paragraph', text: 'If a server exists in the network it responds with an offer containing the IP address information, including:' },
+          {
+            type: 'bullets', items: [
+              'First available IP from the pool',
+              'Subnet mask',
+              'Gateway IP address',
+              'Company domain name',
+              'DNS server IP address',
+              'Lease time',
+            ]
+          },
+          {
+            type: 'table', headers: ['Message', 'Src UDP', 'Dst UDP', 'IP Src', 'IP Dst', 'MAC Src', 'MAC Dst'], rows: [
+              ['DHCP Offer (2)', '67', '68', '192.168.1.100', '255.255.255.255', 'ccc', 'aaa'],
+            ]
+          },
+          { type: 'heading', text: 'DHCP Request (3) — Client → Server' },
+          { type: 'paragraph', text: 'Once the client receives the offer it responds with a Request, requesting to accept the offered information.' },
+          {
+            type: 'table', headers: ['Message', 'Src UDP', 'Dst UDP', 'IP Src', 'IP Dst', 'MAC Src', 'MAC Dst'], rows: [
+              ['DHCP Request (3)', '68', '67', '0.0.0.0', '255.255.255.255', 'aaa', 'ccc'],
+            ]
+          },
+          { type: 'heading', text: 'DHCP Acknowledgment (4) — Server → Client' },
+          { type: 'paragraph', text: 'Finally the server responds with an ACK packet acknowledging the client accepted the offered information.' },
+          {
+            type: 'table', headers: ['Message', 'Src UDP', 'Dst UDP', 'IP Src', 'IP Dst', 'MAC Src', 'MAC Dst'], rows: [
+              ['DHCP Ack (4)', '67', '68', '1.100', '255.255.255.255', 'ccc', 'aaa'],
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Discover', value: 'UDP 68→67, IP 0.0.0.0→255.255.255.255, MAC aaa→FFFF.FFFF.FFFF' },
+          { label: 'Offer', value: 'UDP 67→68, IP 1.100→255.255.255.255, MAC ccc→aaa' },
+          { label: 'Request', value: 'UDP 68→67, IP 0.0.0.0→255.255.255.255, MAC aaa→ccc' },
+          { label: 'Ack', value: 'UDP 67→68, IP 1.100→255.255.255.255, MAC ccc→aaa' },
+          { label: 'Offer contains', value: 'IP, mask, gateway, domain name, DNS, lease time' },
+        ],
+        diagrams: [
+          { src: '/diagrams/dhcp-dora-topology1_wide.png', alt: 'DORA process topology between PC and DHCP server showing Discover, Offer, Request, Ack', caption: 'DORA process — PC ↔ DHCP server' },
+          { src: '/diagrams/dhcp-packet-flow-layers1_wide.png', alt: 'DHCP messages crossing layers with switch MAC learning', caption: 'DHCP messages crossing layers and switch MAC learning' },
+        ],
+      },
+      {
+        slug: 'dhcp-lease-period-mechanics',
+        title: 'DHCP Lease Period Mechanics',
+        group: 'DHCP (Dynamic Host Configuration Protocol)',
+        description: 'The lease period determines how long a client can keep an IP; renewal attempts happen at 50% and 87.5% of the lease, with the IP returning to the pool at 100%.',
+        blocks: [
+          { type: 'heading', text: 'Lease period' },
+          {
+            type: 'bullets', items: [
+              'The DHCP lease period determines how much time a client machine can keep the IP address.',
+              'In most vendors this lease period is 8 days.',
+            ]
+          },
+          { type: 'heading', text: 'Renewal timeline' },
+          {
+            type: 'bullets', items: [
+              'At 50% of the lease period, the client tries to renew the lease by sending a DHCP Request message to the server.',
+              'If the server acknowledges the request, the lease is extended for another 8 days.',
+              'If not acknowledged, the client tries again at 87.5% of the lease period.',
+              'If still not acknowledged and the 100% lease is over, the IP goes back to the pool and the client must initiate the DORA process again.',
+            ]
+          },
+          {
+            type: 'table', headers: ['Lease stage', 'Action'], rows: [
+              ['50%', 'Client sends DHCP Request to renew. If ACKed, lease extends another 8 days.'],
+              ['87.5%', 'Client tries to renew again.'],
+              ['100%', 'IP returns to the pool; client must re-run DORA.'],
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Default lease', value: '8 days (most vendors)' },
+          { label: 'First renewal', value: '50% of lease' },
+          { label: 'Second renewal', value: '87.5% of lease' },
+          { label: 'Lease expiry', value: '100% — IP returns to pool, DORA restarts' },
+        ],
+        diagrams: [
+          { src: '/diagrams/dhcp-lease-timeline1_wide.png', alt: 'DHCP lease timeline showing 50% and 87.5% renewal attempts', caption: 'DHCP lease timeline — 50% / 87.5% / 100%' },
+        ],
+      },
+      {
+        slug: 'dhcp-configuration-on-cisco-router-mls',
+        title: 'DHCP Server Configuration on a Cisco Router / MLS',
+        group: 'DHCP (Dynamic Host Configuration Protocol)',
+        description: 'Configure a DHCP pool with network information, gateway, DNS, domain name, and lease period — then repeat for each network.',
+        blocks: [
+          { type: 'heading', text: 'Configuration steps' },
+          {
+            type: 'bullets', items: [
+              'Step 1: Create a DHCP pool for the network.',
+              'Step 2: Configure network information inside the DHCP pool.',
+              'Step 3: Configure the default router/gateway IP of the network.',
+              'Step 4: Configure the DNS server IP.',
+              'Step 5: Configure the company domain name.',
+              'Step 6: Configure the lease period.',
+              'Step 7: Repeat the same for other networks.',
+            ]
+          },
+          { type: 'heading', text: 'Example configuration' },
+          {
+            type: 'code', language: 'text', code: '(conf)# ip dhcp pool VLAN10\n(conf-dhcp)# network 192.168.10.0 255.255.255.0\n(conf-dhcp)# default-router 192.168.10.100\n(conf-dhcp)# dns-server <dns-ip>\n(conf-dhcp)# domain-name www.BSOFT.com\n(conf-dhcp)# lease 2 0        ! 2 days 0 hours\n(conf-dhcp)# exit'
+          },
+        ],
+        quickReference: [
+          { label: 'Create pool', value: 'ip dhcp pool <name>' },
+          { label: 'Network', value: 'network <nw> <mask>' },
+          { label: 'Gateway', value: 'default-router <ip>' },
+          { label: 'DNS / domain', value: 'dns-server <ip> / domain-name <name>' },
+          { label: 'Lease', value: 'lease <days> <hours>' },
+        ],
+        diagrams: [
+          { src: '/diagrams/dhcp-pool-config-topology1_wide.png', alt: 'Cisco router configured as DHCP server for VLAN10', caption: 'DHCP pool configuration on a Cisco router' },
+        ],
+      },
+      {
+        slug: 'dhcp-verification-and-troubleshooting',
+        title: 'DHCP Verification & Troubleshooting Commands',
+        group: 'DHCP (Dynamic Host Configuration Protocol)',
+        description: 'Verify pools and bindings, filter bindings by IP or MAC, and clear bindings for refresh or reset (lab use only).',
+        blocks: [
+          { type: 'heading', text: 'Verification commands' },
+          {
+            type: 'code', language: 'text', code: '# sh ip dhcp pool\n# sh ip dhcp binding\n# sh ip dhcp binding | include <IP/MAC>'
+          },
+          { type: 'heading', text: 'Clearing bindings' },
+          {
+            type: 'bullets', items: [
+              '# clear ip dhcp binding * — refresh all bindings.',
+              '# clear ip dhcp binding — reset a single binding (only do this in labs).',
+            ]
+          },
+          { type: 'paragraph', text: 'On the EVE platform: ip dhcp.' },
+        ],
+        quickReference: [
+          { label: 'Pools', value: 'sh ip dhcp pool' },
+          { label: 'Bindings', value: 'sh ip dhcp binding' },
+          { label: 'Filter binding', value: 'sh ip dhcp binding | include <IP/MAC>' },
+          { label: 'Refresh all', value: 'clear ip dhcp binding *' },
+        ],
+        diagrams: [
+          { src: '/diagrams/dhcp-verification-commands1_wide.png', alt: 'DHCP verification output showing pools and bindings', caption: 'DHCP verification — pools and bindings' },
+        ],
+      },
     ],
   },
   {
@@ -5943,6 +6154,93 @@ export const topics: Topic[] = [
     { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
     { label: 'Router address', value: 'ip address <ip> <mask>' },
     { label: 'VPC address', value: 'ip <address>/24 <gateway>' },
+    { label: 'Routes', value: 'show ip route' },
+    { label: 'Show VLANs', value: 'show vlan brief' },
+  ],
+},
+{
+  slug: 'router-on-a-stick-lab',
+  title: 'Router-on-a-Stick Lab',
+  group: 'Switching Labs',
+  description:
+    'Connect hosts in four VLANs across three switches using 802.1Q trunks, and use a single router interface split into four sub-interfaces as the gateway so that hosts in different VLANs can communicate.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'Three switches (SW1, SW2 and SW3) are stacked in a line, with four hosts on each switch, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). In the previous inter-VLAN lab every VLAN needed its own cable between the switches and its own cable to the router. Here that is replaced by trunks: SW1 connects to SW2 and SW2 connects to SW3 with a single trunk cable each, and the router R16 connects to SW1 with a single trunk cable as well. The router has only one physical interface in use, e0/0, which is divided into four sub-interfaces, one per VLAN. Each sub-interface is the default gateway of its VLAN. This design is called router on a stick. Host ports stay access ports. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, the router interface is shut down with no addresses, and the VPCs have no IP addresses.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3. The gateway is 192.168.10.254 on R16 e0/0.10.',
+        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3. The gateway is 192.168.20.254 on R16 e0/0.20.',
+        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3. The gateway is 192.168.30.254 on R16 e0/0.30.',
+        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3. The gateway is 192.168.40.254 on R16 e0/0.40.',
+        'The last octet of a host follows the switch it is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+        'Every VPC uses a /24 mask and the .254 address of its own VLAN as default gateway.',
+        'Host ports (access): SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+        'Trunk SW1 to SW2: SW1 e1/3 to SW2 e2/0.',
+        'Trunk SW2 to SW3: SW2 e2/3 to SW3 e1/3.',
+        'Trunk SW1 to R16: SW1 e2/0 to R16 e0/0. All other switch ports stay unused.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+        'Configure the three inter-device links (SW1 to SW2, SW2 to SW3 and SW1 to R16) as trunks with switchport mode trunk. If the switch asks for it, set switchport trunk encapsulation dot1q first.',
+        'Bring up the physical interface R16 e0/0 with no shutdown and do not give it an IP address.',
+        'Create the sub-interfaces e0/0.10, e0/0.20, e0/0.30 and e0/0.40 on R16. Give each one encapsulation dot1Q with its VLAN ID and the .254 gateway address of its VLAN.',
+        'Give every VPC an IP address and the default gateway of its VLAN, and confirm it with show ip.',
+        'Verify with show vlan brief and show interfaces trunk on the switches, and show ip interface brief and show ip route on R16.',
+        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8. All should succeed.',
+        'Ping between hosts of different VLANs, for example VPC4 to VPC5 and VPC4 to VPC15. All should succeed. Run trace and read the first hop.',
+        'Shut down the sub-interface R16 e0/0.20 and see that VLAN 20 still reaches its own hosts but loses all other VLANs. Restore it, then shut down the physical e0/0 and see that no VLAN can reach another VLAN any more. Restore it.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'A trunk carries frames of many VLANs over one cable. To keep them apart the sending switch adds an 802.1Q tag with the VLAN ID to each frame, and the receiving side reads the tag and puts the frame in the right VLAN. Access ports (the host ports) never carry tags. On the router, one physical interface cannot have four IP addresses in four different subnets on separate VLANs, so it is split into logical sub-interfaces. Each sub-interface listens for one tag, which you define with encapsulation dot1Q followed by the VLAN ID, and has its own IP address. The physical interface itself carries no address, it only has to be up. When VPC4 pings VPC5, the packet goes to 192.168.10.254, arrives at R16 tagged with VLAN 10, is routed, and leaves through the same cable tagged with VLAN 20. Because the packet enters and leaves by the same port, this is called router on a stick. The advantage is that you only need one cable and one router port for any number of VLANs. The disadvantage is that all inter-VLAN traffic shares that one link, which is also a single point of failure. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and both ends of every trunk must be trunks with the VLANs allowed.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every switch with only the host ports under them. Trunk ports do not appear in this list.',
+        'show interfaces trunk: the three trunk links show mode on, 802.1q, status trunking, and VLANs 10,20,30,40 allowed and in the forwarding state.',
+        'show ip interface brief on R16: e0/0 has no address but is up/up, and e0/0.10 to e0/0.40 have their .254 address and are up/up.',
+        'show ip route on R16: four connected (C) networks, 192.168.10.0, 192.168.20.0, 192.168.30.0 and 192.168.40.0, each pointing at its own sub-interface, and the matching local (L) routes.',
+        'show ip on each VPC: the address, mask and gateway match its VLAN.',
+        'ping: works inside a VLAN and also between different VLANs.',
+        'trace: from VPC4 to a host in another VLAN, the first hop is 192.168.10.254 and the second hop is the destination.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+    { label: 'Gateways', value: '192.168.X.254 on R16 e0/0.X' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Access port', value: 'switchport mode access' },
+    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+    { label: 'Trunk port', value: 'switchport trunk encapsulation dot1q, then switchport mode trunk' },
+    { label: 'Sub-interface', value: 'interface e0/0.<id>' },
+    { label: 'Tag match', value: 'encapsulation dot1Q <id>' },
+    { label: 'Router address', value: 'ip address <ip> <mask>' },
+    { label: 'VPC address', value: 'ip <address>/24 <gateway>' },
+    { label: 'Show trunks', value: 'show interfaces trunk' },
     { label: 'Routes', value: 'show ip route' },
     { label: 'Show VLANs', value: 'show vlan brief' },
   ],

@@ -443,6 +443,42 @@ export const routingIfX: E[] = [
       }),
     "Reset the OSPF priority",
   ],
+  [
+    "ip ospf hello-interval <seconds>",
+    (c, a) => {
+      const v = int(a[0], 1, 65535);
+      if (v === undefined) return c.bad(3);
+
+      ifEach(c, (i) => {
+        i.ospfHello = v;
+      });
+    },
+    "Set OSPF hello interval in seconds",
+  ],
+  [
+    "no ip ospf hello-interval",
+    (c) =>
+      ifEach(c, (i) => {
+        delete i.ospfHello;
+      }),
+    "Restore the default OSPF hello interval",
+  ],
+  [
+    "ip ospf network point-to-point",
+    (c) =>
+      ifEach(c, (i) => {
+        i.ospfNetwork = "point-to-point";
+      }),
+    "Configure OSPF point-to-point network type",
+  ],
+  [
+    "no ip ospf network",
+    (c) =>
+      ifEach(c, (i) => {
+        delete i.ospfNetwork;
+      }),
+    "Restore the default OSPF network type",
+  ],
 ];
 
 /* ═════════════════════ show commands ═════════════════════ */
@@ -845,6 +881,11 @@ export function renderIfExtra(i: Iface): string[] {
   if (i.delay !== undefined) L.push(` delay ${i.delay}`);
   if (i.ospfCost !== undefined) L.push(` ip ospf cost ${i.ospfCost}`);
   if (i.ospfPri !== undefined) L.push(` ip ospf priority ${i.ospfPri}`);
+  if (i.ospfHello !== undefined)
+    L.push(` ip ospf hello-interval ${i.ospfHello}`);
+
+  if (i.ospfNetwork === "point-to-point")
+    L.push(" ip ospf network point-to-point");
   return L;
 }
 

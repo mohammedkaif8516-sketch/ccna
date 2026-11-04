@@ -126,6 +126,7 @@ import InterVlanLab from "./intervlan-lab";
 import EtherChannelLab from "@/components/etherch-lab";
 import PhysicalLogicalLab from "./phy-log";
 import MlsRingLab from "./mls-ring-lab";
+import RouterOnAStickLab from "./inter-vlan-sticl-subinterface";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -565,16 +566,33 @@ function groupSubtopicsWithQuiz(
       "Layer 3 Services & Inter-VLAN Routing",
       "Trunking Protocols & Operations",
       "EtherChannel (Link Aggregation)",
+      "DHCP (Dynamic Host Configuration Protocol)",
     ];
 
+    const seen = new Set<string>();
+
+    // First pass: emit groups in the preferred order
     for (const groupName of preferredOrder) {
       const items = subtopics.filter((s) => s.group === groupName);
-      if (items.length > 0) {
-        const group: GroupBlock = { name: groupName, items };
-        const q = quizFor(topicSlug, groupName);
-        if (q) group.quiz = q;
-        groups.push(group);
-      }
+      if (items.length === 0) continue;
+      seen.add(groupName);
+      const group: GroupBlock = { name: groupName, items };
+      const q = quizFor(topicSlug, groupName);
+      if (q) group.quiz = q;
+      groups.push(group);
+    }
+
+    // Second pass: catch any group not listed in preferredOrder so nothing
+    // is ever silently dropped from the sidebar
+    for (const s of subtopics) {
+      const name = s.group;
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      const items = subtopics.filter((x) => x.group === name);
+      const group: GroupBlock = { name, items };
+      const q = quizFor(topicSlug, name);
+      if (q) group.quiz = q;
+      groups.push(group);
     }
 
     return groups;
@@ -620,7 +638,6 @@ function groupSubtopicsWithQuiz(
 
   return groups;
 }
-
 function escapeRegExp(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -2254,6 +2271,9 @@ export default function CcnaStudyApp() {
                 )}
                 {current.slug === "mls-ring-all-vlans" && (
                   <MlsRingLab />
+                )}
+                {current.slug === "router-on-a-stick-lab" && (
+                  <RouterOnAStickLab />
                 )}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button

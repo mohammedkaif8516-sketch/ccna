@@ -113,12 +113,14 @@ export interface Iface {
   vlan?: number;
   allowed?: string;
   native?: number;
-  nonegotiate?: boolean; // switchports
-  enc?: number; // router sub-interface dot1q tag
+  nonegotiate?: boolean;
+  enc?: number;
   bw?: number;
   delay?: number;
   ospfCost?: number;
-  ospfPri?: number; // routing metrics: bandwidth in kbit/s, delay in tens of µs
+  ospfPri?: number;
+  ospfHello?: number;
+  ospfNetwork?: "point-to-point";
 }
 export interface Route {
   net: string;
@@ -1037,20 +1039,48 @@ function ospfCompute(s: State, dyn: Dyn) {
     if (!i?.ip || !ifUp(s, d.id, n)) return undefined;
     return d.ospf!.networks.find((x) => wildMatch(i.ip!, x.net, x.wild))?.area;
   };
+    const helloOf = (d: Dev, n: string) =>
+    d.ifaces[n].ospfHello ?? 10;
+
+  const networkOf = (d: Dev, n: string) =>
+    d.ifaces[n].ospfNetwork ?? "broadcast";
   const rid: Record<string, string> = {};
   for (const d of rs)
     rid[d.id] = dyn.ospfRid[d.id] = d.ospf!.rid ?? autoRid(s, d);
   /** adjacent routers on interface n: same area, same subnet, and neither side passive */
-  const peers = (d: Dev, n: string) => {
+    const peers = (d: Dev, n: string) => {
     const a = areaOf(d, n);
-    if (a === undefined || isLo(n) || d.ospf!.passive.includes(n)) return [];
+
+    if (
+      a === undefined ||
+      isLo(n) ||
+      d.ospf!.passive.includes(n)
+    ) {
+      return [];
+    }
+
     return lanNbrs(s, d.id, n).filter((nb) => {
       const nd = s.devs[nb.id];
-      return (
-        !!nd.ospf &&
-        areaOf(nd, nb.port) === a &&
-        !nd.ospf.passive.includes(nb.port)
-      );
+
+      if (
+        !nd.ospf ||
+        areaOf(nd, nb.port) !== a ||
+        nd.ospf.passive.includes(nb.port)
+      ) {
+        return false;
+      }
+
+      // OSPF hello intervals must match.
+      if (helloOf(d, n) !== helloOf(nd, nb.port)) {
+        return false;
+      }
+
+      // OSPF network types must match.
+      if (networkOf(d, n) !== networkOf(nd, nb.port)) {
+        return false;
+      }
+
+      return true;
     });
   };
   type Edge = { to: string; cost: number; iface: string; via: string };
@@ -1121,29 +1151,67 @@ function ospfCompute(s: State, dyn: Dyn) {
         ifs.push({ name: n, area: a, cost, state: "LOOP", full: 0, total: 0 });
         continue;
       }
-      const ps = peers(d, n),
-        mem = [
-          { id: d.id, p: pri(d, n), r: rid[d.id] },
-          ...ps.map((p) => ({
-            id: p.id,
-            p: pri(s.devs[p.id], p.port),
-            r: rid[p.id],
-          })),
-        ];
+            const ps = peers(d, n);
+
+      // Point-to-point networks do not elect DR or BDR.
+      if (networkOf(d, n) === "point-to-point") {
+        for (const p of ps) {
+          nbrs.push({
+            rid: rid[p.id],
+            pri: pri(s.devs[p.id], p.port),
+            state: "FULL",
+            role: "-",
+            addr: p.ip,
+            iface: n,
+          });
+        }
+
+        ifs.push({
+          name: n,
+          area: a,
+          cost,
+          state: "POINTTOPOINT",
+          full: ps.length,
+          total: ps.length,
+        });
+
+        continue;
+      }
+
+      // Broadcast network: elect DR and BDR.
+      const mem = [
+        { id: d.id, p: pri(d, n), r: rid[d.id] },
+        ...ps.map((p) => ({
+          id: p.id,
+          p: pri(s.devs[p.id], p.port),
+          r: rid[p.id],
+        })),
+      ];
+
       const el = mem
-          .filter((m) => m.p > 0)
-          .sort((x, y) => y.p - x.p || ip2n(y.r) - ip2n(x.r)),
-        dr = el[0]?.id,
-        bdr = el[1]?.id;
+        .filter((m) => m.p > 0)
+        .sort(
+          (x, y) =>
+            y.p - x.p || ip2n(y.r) - ip2n(x.r),
+        );
+
+      const dr = el[0]?.id;
+      const bdr = el[1]?.id;
+
       const role = (id: string) =>
         id === dr ? "DR" : id === bdr ? "BDR" : "DROTHER";
+
       let full = 0;
+
       for (const p of ps) {
         const st =
-          role(d.id) !== "DROTHER" || role(p.id) !== "DROTHER"
+          role(d.id) !== "DROTHER" ||
+          role(p.id) !== "DROTHER"
             ? "FULL"
             : "2WAY";
+
         if (st === "FULL") full++;
+
         nbrs.push({
           rid: rid[p.id],
           pri: pri(s.devs[p.id], p.port),
@@ -1153,7 +1221,9 @@ function ospfCompute(s: State, dyn: Dyn) {
           iface: n,
         });
       }
+
       const mine = role(d.id);
+
       ifs.push({
         name: n,
         area: a,

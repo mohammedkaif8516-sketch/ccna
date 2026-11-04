@@ -385,6 +385,12 @@ const globalX: E[] = [
   ["no ip cef", () => {}],
   ["ipv6 <*>", () => {}],
 ];
+const routerModeInterfaceX: E[] = globalX.filter(
+  ([pattern]) =>
+    pattern === "interface <if>" ||
+    pattern === "interface <fam> <num>" ||
+    pattern === "no interface <if>",
+);
 const ifX: E[] = [
   ["ip address <ip> <mask>", setIp, "Set the IP address of an interface"],
   [
@@ -483,11 +489,28 @@ export const routerTables = (m: string): E[] => {
 
     // ---Dynamic Routing Modes ---
     case "config-router-rip":
-      return [...ripX, ...routingGlobalX, ...sh.global];
+      return [
+        ...ripX,
+        ...routerModeInterfaceX,
+        ...routingGlobalX,
+        ...sh.global,
+      ];
+
     case "config-router-eigrp":
-      return [...eigrpX, ...routingGlobalX, ...sh.global];
+      return [
+        ...eigrpX,
+        ...routerModeInterfaceX,
+        ...routingGlobalX,
+        ...sh.global,
+      ];
+
     case "config-router-ospf":
-      return [...ospfX, ...routingGlobalX, ...sh.global];
+      return [
+        ...ospfX,
+        ...routerModeInterfaceX,
+        ...routingGlobalX,
+        ...sh.global,
+      ];
 
     default:
       return [];
