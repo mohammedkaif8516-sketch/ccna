@@ -127,6 +127,7 @@ import EtherChannelLab from "@/components/etherch-lab";
 import PhysicalLogicalLab from "./phy-log";
 import MlsRingLab from "./mls-ring-lab";
 import RouterOnAStickLab from "./inter-vlan-sticl-subinterface";
+import DhcpInterVlanLabs from "./dhcpintervlanlab";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2220,10 +2221,10 @@ export default function CcnaStudyApp() {
                   <TrunkConfigLab />
                 )}
 
-                {/* {current.slug ===
-                  "etherchannel-configuration-manual-lacp-pagp" && (
-                  <EtherChannelLab />
-                )} */}
+                {current.slug ===
+                  "dhcp-intervlan-labs" && (
+                  <DhcpInterVlanLabs />
+                )}
 
                 {current.slug ===
                   "inter-vlan-routing-mls-and-svi" && (

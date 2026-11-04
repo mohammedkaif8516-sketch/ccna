@@ -67,6 +67,8 @@ const TABS = [
   { id: "echcfg", label: "11 · EtherChannel config" },
   { id: "ivr", label: "12 · Inter-VLAN routing" },
   { id: "tier", label: "13 · 3-tier design" },
+  { id: "dhcp", label: "14 · DHCP" },
+  { id: "dhcpcfg", label: "15 · DHCP config" },
   // ▲ ADD NEW TABS ABOVE THIS LINE, for example: { id: "vtp", label: "10 · VTP" },
   { id: "cmds", label: "Commands" },
   { id: "myths", label: "Common mistakes" },
@@ -3176,6 +3178,439 @@ function TierSection() {
     </div>
   );
 }
+/* ───────────────────────── 14 · DHCP ───────────────────────── */
+
+const DHCP_STEPS = [
+  {
+    id: "D",
+    name: "Discover",
+    from: "Client",
+    to: "Server",
+    sport: 68,
+    dport: 67,
+    sip: "0.0.0.0",
+    dip: "255.255.255.255",
+    smac: "aaa",
+    dmac: "FFFF.FFFF.FFFF",
+    c: BLUE,
+    d: "The client has no IP yet, so it broadcasts a Discover in both L3 and L2, looking for a DHCP server.",
+  },
+  {
+    id: "O",
+    name: "Offer",
+    from: "Server",
+    to: "Client",
+    sport: 67,
+    dport: 68,
+    sip: "192.168.1.100",
+    dip: "255.255.255.255",
+    smac: "ccc",
+    dmac: "aaa",
+    c: GREEN,
+    d: "The server answers with the first free IP from the pool, the subnet mask, gateway, domain name, DNS server and lease time.",
+  },
+  {
+    id: "R",
+    name: "Request",
+    from: "Client",
+    to: "Server",
+    sport: 68,
+    dport: 67,
+    sip: "0.0.0.0",
+    dip: "255.255.255.255",
+    smac: "aaa",
+    dmac: "ccc",
+    c: AMBER,
+    d: "The client formally asks to accept the offered information. The client IP is still 0.0.0.0 until the ACK arrives.",
+  },
+  {
+    id: "A",
+    name: "Ack",
+    from: "Server",
+    to: "Client",
+    sport: 67,
+    dport: 68,
+    sip: "192.168.1.100",
+    dip: "255.255.255.255",
+    smac: "ccc",
+    dmac: "aaa",
+    c: PURPLE,
+    d: "The server confirms the lease. Only now does the client start using the assigned IP address.",
+  },
+] as const;
+
+const OFFER_FIELDS = [
+  "First available IP from the pool",
+  "Subnet mask",
+  "Gateway (default-router) IP address",
+  "Company domain name",
+  "DNS server IP address",
+  "Lease time",
+];
+
+const LEASE_POINTS = [
+  {
+    pct: "50%",
+    t: "First renewal attempt",
+    d: "The client sends a unicast DHCP Request to the server that gave the lease. If ACKed, the lease restarts (another 8 days by default).",
+    c: GREEN,
+  },
+  {
+    pct: "87.5%",
+    t: "Second renewal attempt",
+    d: "If the first renewal failed, the client tries again, often broadcasting in case the original server is gone.",
+    c: AMBER,
+  },
+  {
+    pct: "100%",
+    t: "Lease expires",
+    d: "The IP goes back to the pool. The client must drop back to 0.0.0.0 and rerun DORA from the start.",
+    c: RED,
+  },
+];
+
+function DhcpSection() {
+  const [step, setStep] = useState(0);
+  const [lease, setLease] = useState(0);
+  const [play, setPlay] = useState(false);
+  const s = DHCP_STEPS[step];
+
+  useEffect(() => {
+    if (!play) return;
+    if (step >= DHCP_STEPS.length - 1) {
+      setPlay(false);
+      return;
+    }
+    const id = setTimeout(() => setStep((v) => v + 1), 1200);
+    return () => clearTimeout(id);
+  }, [play, step]);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">
+          DHCP hands out IP information automatically
+        </p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          In a large network, statically configuring every device&apos;s IP,
+          mask, gateway, DNS and domain is impractical. DHCP is a server-client
+          protocol that supplies this information through a four-message
+          handshake called the{" "}
+          <span className="font-semibold text-foreground">DORA process</span>.
+          All messages ride on UDP, with the server on port 67 and the client on
+          port 68.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-4">
+          <Mini k="Server port" v="UDP 67" color={BLUE} />
+          <Mini k="Client port" v="UDP 68" color={GREEN} />
+          <Mini k="Handshake" v="Discover · Offer · Request · Ack" />
+          <Mini k="Default lease" v="8 days (most vendors)" />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">The DORA process</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Step through the four messages and watch the fields change. Note how
+          Discover and Request still say 0.0.0.0, because the client has no IP
+          yet.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {DHCP_STEPS.map((x, i) => (
+            <Pick
+              key={x.id}
+              active={step === i}
+              onClick={() => {
+                setStep(i);
+                setPlay(false);
+              }}
+            >
+              {x.id} · {x.name}
+            </Pick>
+          ))}
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button
+            size="sm"
+            onClick={() => {
+              if (step >= DHCP_STEPS.length - 1) setStep(0);
+              setPlay((p) => !p);
+            }}
+          >
+            {play
+              ? "Pause"
+              : step >= DHCP_STEPS.length - 1
+                ? "Replay"
+                : step === 0
+                  ? "Start DORA"
+                  : "Continue"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setPlay(false);
+              setStep(0);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+
+        <div className="relative mx-6 mt-6 h-20">
+          <div className="absolute left-0 right-0 top-6 h-0.5 bg-border" />
+          {["Client", "Switch (L2)", "DHCP server"].map((n, k) => (
+            <div
+              key={n}
+              className="absolute top-0 -translate-x-1/2 whitespace-nowrap rounded-md border bg-background px-2 py-1 text-xs font-bold"
+              style={{ left: `${k * 50}%` }}
+            >
+              {n}
+            </div>
+          ))}
+          <div
+            className="absolute top-[18px] h-3.5 w-3.5 -translate-x-1/2 rounded-full transition-all duration-1000"
+            style={{
+              left: s.from === "Client" ? "0%" : "100%",
+              background: s.c,
+              boxShadow: `0 0 0 4px ${s.c}30`,
+            }}
+          />
+          <span
+            key={`${step}`}
+            className="n10-pop absolute top-11 -translate-x-1/2 whitespace-nowrap rounded border px-2 py-0.5 text-[11px] font-bold"
+            style={{
+              left: "50%",
+              borderColor: s.c,
+              color: s.c,
+              background: `${s.c}12`,
+            }}
+          >
+            {s.name} → {s.to}
+          </span>
+        </div>
+
+        <div key={step} className="n10-fade mt-2 grid gap-2 sm:grid-cols-2">
+          <Mini
+            k="Message"
+            v={`DHCP ${s.name} (${step + 1}) — ${s.from} → ${s.to}`}
+            color={s.c}
+          />
+          <Mini
+            k="UDP ports"
+            v={`Src ${s.sport} → Dst ${s.dport}`}
+          />
+          <Mini k="IP source" v={s.sip} />
+          <Mini k="IP destination" v={s.dip} />
+          <Mini k="MAC source" v={s.smac} />
+          <Mini k="MAC destination" v={s.dmac} />
+        </div>
+        <p
+          key={`d${step}`}
+          className="n10-fade mt-2 text-xs leading-5 text-muted-foreground"
+        >
+          {s.d}
+        </p>
+
+        {step === 1 && (
+          <div className="n10-fade mt-3">
+            <p className="text-xs font-semibold">The Offer carries:</p>
+            <div className="mt-1">
+              <Bullets items={OFFER_FIELDS} />
+            </div>
+          </div>
+        )}
+
+        <div className="mt-3 flex flex-col gap-2">
+          <Tip title="Careful">
+            The Offer is broadcast by default in the notes&apos; example, even
+            though the server knows the client MAC. Many real servers unicast
+            the Offer once the MAC is known. Either way, Discover and Request
+            are always broadcast.
+          </Tip>
+          <Tip title="Fallback">
+            A Windows machine with no DHCP server autoconfigures an APIPA address
+            from 169.254.0.0/16 — that is why two isolated PCs can still ping
+            each other on the same link.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Lease period timeline</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The lease is how long the client may keep the IP. Renewal happens at
+          50% and again at 87.5% of the lease.
+        </p>
+        <div className="mt-3 flex gap-2">
+          {LEASE_POINTS.map((x, i) => (
+            <Pick
+              key={x.pct}
+              active={lease === i}
+              onClick={() => setLease(i)}
+            >
+              {x.pct} · {x.t}
+            </Pick>
+          ))}
+        </div>
+        <div className="mt-4 flex items-stretch gap-px">
+          {LEASE_POINTS.map((x, i) => (
+            <div
+              key={x.pct}
+              className="flex-1 py-3 text-center text-xs font-bold transition-all"
+              style={{
+                background: lease === i ? x.c : `${x.c}20`,
+                color: lease === i ? "#fff" : x.c,
+              }}
+            >
+              {x.pct}
+            </div>
+          ))}
+        </div>
+        <div key={lease} className="n10-fade mt-3">
+          <p className="text-sm font-semibold" style={{ color: LEASE_POINTS[lease].c }}>
+            {LEASE_POINTS[lease].t}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {LEASE_POINTS[lease].d}
+          </p>
+        </div>
+        <div className="mt-3">
+          <Tip title="Rule">
+            Every renewal resets the clock. A device that stays on the network
+            renews at 50% and never reaches 100%, so it keeps the same address
+            indefinitely.
+          </Tip>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 15 · DHCP config ───────────────────────── */
+
+function DhcpCfgSection() {
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">
+          Configure DHCP on a router or MLS
+        </p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          A Layer 3 device — router, multilayer switch or firewall — can act as
+          the DHCP server. In larger networks a dedicated Windows, Linux or cloud
+          server usually plays this role. The configuration is the same idea
+          either way: a pool per subnet, with the network, gateway, DNS, domain
+          and lease settings.
+        </p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Seven-step config</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <Mini k="1 · Create the pool" v="ip dhcp pool <name>" />
+          <Mini k="2 · Network" v="network <nw> <mask>" />
+          <Mini k="3 · Gateway" v="default-router <ip>" />
+          <Mini k="4 · DNS" v="dns-server <ip>" />
+          <Mini k="5 · Domain" v="domain-name <name>" />
+          <Mini k="6 · Lease" v="lease <days> <hours>" />
+          <Mini k="7 · Repeat" v="a second pool for every additional network" />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Example: VLAN 10 pool</p>
+        <div className="mt-3">
+          <Code
+            lines={[
+              "(conf)# ip dhcp pool VLAN10",
+              "(conf-dhcp)# network 192.168.10.0 255.255.255.0",
+              "(conf-dhcp)# default-router 192.168.10.100",
+              "(conf-dhcp)# dns-server 8.8.8.8",
+              "(conf-dhcp)# domain-name www.BSOFT.com",
+              "(conf-dhcp)# lease 2 0        ! 2 days 0 hours",
+              "(conf-dhcp)# exit",
+              "",
+              "! verify",
+              "# show ip dhcp pool",
+              "# show ip dhcp binding",
+              "# show ip dhcp binding | include 192.168.10",
+              "",
+              "! refresh all bindings (lab only)",
+              "# clear ip dhcp binding *",
+            ]}
+          />
+        </div>
+        <div className="mt-3 flex flex-col gap-2">
+          <Tip title="Reading the output">
+            show ip dhcp pool lists the pools and their utilization (how many
+            addresses are leased out of the pool). show ip dhcp binding lists
+            every active lease as MAC ↔ IP ↔ expiry.
+          </Tip>
+          <Tip title="Careful">
+            clear ip dhcp binding * on a production router drops every active
+            lease at once and forces every client to rerun DORA. Use it only in
+            a lab.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Common options and where DHCP fits</p>
+        <div className="mt-3">
+          <SimpleTable
+            head={["Setting", "Command", "Notes"]}
+            rows={[
+              ["Pool name", "ip dhcp pool <name>", "Usually the VLAN name"],
+              ["Network", "network <nw> <mask>", "One pool per subnet"],
+              ["Gateway", "default-router <ip>", "The SVI or router interface IP"],
+              ["DNS", "dns-server <ip> [ip2]", "Up to 8 IPs"],
+              ["Domain", "domain-name <name>", "Appends to unqualified hostnames"],
+              ["Lease", "lease <d> <h> <m>", "Default 1 day on most platforms; 8 days on many vendors"],
+              ["Exclusion", "ip dhcp excluded-address <ip> [end-ip]", "Protects static addresses (gateway, printers, servers)"],
+            ]}
+          />
+        </div>
+        <div className="mt-3">
+          <Tip title="Best practice">
+            Always exclude the gateway and any statically assigned addresses
+            before creating the pool, or DHCP will hand them out and cause
+            conflicts.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Where the DHCP server lives</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Mini
+            k="Dedicated server"
+            v="Windows/Linux/cloud server for the whole company"
+            color={BLUE}
+          />
+          <Mini
+            k="On an L3 device"
+            v="MLS, router or firewall — good for small and branch sites"
+            color={GREEN}
+          />
+          <Mini
+            k="No DHCP server"
+            v="Windows clients fall back to APIPA (169.254.0.0/16)"
+            color={AMBER}
+          />
+        </div>
+        <div className="mt-3">
+          <Tip>
+            A DHCP relay (ip helper-address on the client-facing interface)
+            forwards broadcasts to a DHCP server in another subnet. Needed when
+            the server is not on the same VLAN as the clients.
+          </Tip>
+        </div>
+      </Panel>
+      {/* ▼▼▼ (2/5) ADD NEXT NOTES for this subtopic here, for example DHCP relay or DHCP snooping ▼▼▼ */}
+    </div>
+  );
+}
 
 /* ───────────────────────── 10 · commands cheat sheet ───────────────────────── */
 
@@ -3253,6 +3688,15 @@ const CMD_ROWS: string[][] = [
     "interface vlan 10  +  ip address ...  +  no sh",
   ],
   ["Inter-VLAN", "Verify", "show ip interface brief  |  show ip route"],
+    ["DHCP", "Create a pool", "ip dhcp pool VLAN10"],
+  ["DHCP", "Network + mask", "network 192.168.10.0 255.255.255.0"],
+  ["DHCP", "Gateway", "default-router 192.168.10.100"],
+  ["DHCP", "DNS + domain", "dns-server 8.8.8.8  ·  domain-name www.BSOFT.com"],
+  ["DHCP", "Lease", "lease 2 0        ! 2 days 0 hours"],
+  ["DHCP", "Reserve addresses", "ip dhcp excluded-address 192.168.10.1 192.168.10.99"],
+  ["DHCP", "Verify pools", "show ip dhcp pool"],
+  ["DHCP", "Verify leases", "show ip dhcp binding  |  show ip dhcp binding | include <IP/MAC>"],
+  ["DHCP", "Clear a lease", "clear ip dhcp binding *   (lab only)"],
   // ▲ ADD NEW ROWS ABOVE THIS LINE
 ];
 /* ▼▼▼ (4/5) NOTES DATA: when you add a subtopic, add its name here so the filter pills show it ▼▼▼ */
@@ -3268,6 +3712,7 @@ const GROUPS = [
   "EtherChannel",
   "Inter-VLAN",
   "3-Tier",
+  "DHCP"
 ];
 
 function CmdsSection() {
@@ -3777,6 +4222,58 @@ const QA: QAi[] = [
       "Redundant links, often EtherChannel, at each layer.",
     ],
   },
+    {
+    g: "DHCP",
+    q: "What is DHCP and what does it provide?",
+    a: [
+      "A server-client protocol that dynamically supplies IP address information to client devices.",
+      "It provides the IP address, subnet mask, gateway, DNS server, domain name and lease time — replacing static configuration in large networks.",
+    ],
+  },
+  {
+    g: "DHCP",
+    q: "Walk me through the DORA process.",
+    a: [
+      "Discover: client broadcasts from 0.0.0.0 to 255.255.255.255, src UDP 68, dst UDP 67.",
+      "Offer: server replies with IP information, src UDP 67, dst UDP 68.",
+      "Request: client formally asks to accept, still from 0.0.0.0, UDP 68 to 67.",
+      "Ack: server confirms the lease, UDP 67 to 68. Only now does the client use the IP.",
+    ],
+  },
+  {
+    g: "DHCP",
+    q: "What happens when a lease expires?",
+    a: [
+      "The client tries to renew at 50% and again at 87.5% of the lease. Each ACK resets the clock to a full lease.",
+      "If both fail and the lease reaches 100%, the IP returns to the pool and the client drops to 0.0.0.0 and reruns DORA.",
+    ],
+  },
+  {
+    g: "DHCP",
+    q: "How do you configure DHCP on a Cisco router?",
+    a: [
+      "Create the pool: ip dhcp pool <name>.",
+      "Fill it in: network, default-router, dns-server, domain-name, lease.",
+      "Exclude statically assigned addresses with ip dhcp excluded-address before creating the pool.",
+      "Verify with show ip dhcp pool and show ip dhcp binding.",
+    ],
+  },
+  {
+    g: "DHCP",
+    q: "What is APIPA and when does it appear?",
+    a: [
+      "Automatic Private IP Addressing: 169.254.0.0/16.",
+      "Windows autoconfigures it when no DHCP server is reachable, so the host has no default gateway and cannot reach remote networks.",
+    ],
+  },
+  {
+    g: "DHCP",
+    q: "The client is in VLAN 10 but the DHCP server is in VLAN 20. What do you need?",
+    a: [
+      "A DHCP relay: ip helper-address <server-ip> on the VLAN 10 interface (SVI or subinterface).",
+      "The router/MLS converts the local broadcast to a unicast toward the DHCP server, and forwards the reply back.",
+    ],
+  },
   // ▲ ADD NEW QUESTIONS ABOVE THIS LINE
 ];
 
@@ -3928,6 +4425,8 @@ export function SwitchingVlanExplainer() {
           {tab === "echcfg" && <EchCfgSection />}
           {tab === "ivr" && <IvrSection />}
           {tab === "tier" && <TierSection />}
+          {tab === "dhcp" && <DhcpSection />}
+          {tab === "dhcpcfg" && <DhcpCfgSection />}
           {/* ▼▼▼ (3/5) RENDER: add new sections here, for example {tab === "vtp" && <VtpSection />} ▼▼▼ */}
           {tab === "cmds" && <CmdsSection />}
           {tab === "myths" && <MythsSection />}

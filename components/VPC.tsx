@@ -12,6 +12,7 @@ import {
   isIp, isMask, lenMask, maskLen, netOf, macOf, macColon, probe, traceRoute, snapshot, restore,
 } from "./netsim";
 
+import { dhcpClient, dhcpRelease } from "./Dhcp";
 export function VPCIcon({ size = 56 }: { size?: number }) {
   return (
     <svg width={size} height={size * 0.82} viewBox="0 0 56 46" aria-hidden>
@@ -28,7 +29,7 @@ const COMMANDS: [string, string][] = [
   ["trace", "trace <ip>                trace the path to a host"], ["arp", "arp                       show the ARP cache"],
   ["clear", "clear ip | arp            remove the address / flush ARP"], ["save", "save                      write config to startup (survives load)"],
   ["load", "load                      restore the saved config"], ["set", "set pcname <name>        rename this host"],
-  ["dhcp", "dhcp                      request an address (no DHCP server in this lab)"], ["version", "version                   show version"],
+    ["dhcp", "ip dhcp [-r]              get an address from a DHCP server (-r releases)"], ["version", "version                   show version"],
   ["cls", "cls                       clear the screen"], ["help", "help                      this list"],
 ];
 const vmac = (d: Dev) => "00:50:79:" + macColon(macOf(d.id, "eth0")).slice(9);
@@ -78,8 +79,11 @@ export const vpcEngine: Engine = {
     const [cmd, ...a] = line.trim().split(/\s+/), d = c.dev, i = d.ifaces.eth0, k = cmd.toLowerCase();
     c.words = [cmd]; c.toks = [{ t: cmd, pos: 0 }];
     switch (k) {
-      case "ip": if (a[0]?.toLowerCase() === "dhcp") return c.out("DDORA: no DHCP server responded"); return setIp(c, a);
-      case "dhcp": return c.out("DDORA: no DHCP server responded");
+            case "ip":
+        if (a[0]?.toLowerCase() === "dhcp")
+          return a[1] === "-r" ? dhcpRelease(c) : dhcpClient(c);
+        return setIp(c, a);
+      case "dhcp": return dhcpClient(c);
       case "show":
         if (a[0]?.toLowerCase().startsWith("ip")) return c.out(`NAME        : ${d.hostname}[1]`, `IP/MASK     : ${cidr(d)}`, `GATEWAY     : ${d.gw ?? "0.0.0.0"}`, "DNS         :", `MAC         : ${vmac(d)}`, "LPORT       : 20000", "RHOST:PORT  : 127.0.0.1:30000", "MTU         : 1500");
         if (a[0]?.toLowerCase().startsWith("arp")) return vpcEngine.run(c, "arp");

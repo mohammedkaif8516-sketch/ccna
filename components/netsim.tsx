@@ -129,6 +129,26 @@ export interface Route {
   iface?: string;
   ad: number;
 }
+export interface DhcpPool {
+  net?: string;
+  mask?: string;
+  gw: string[];
+  dns: string[];
+  domain?: string;
+  lease?: { d: number; h: number; m: number } | "infinite";
+}
+export interface DhcpCfg {
+  off?: boolean;
+  pools: Record<string, DhcpPool>;
+  excluded: { from: string; to: string }[];
+}
+export interface DhcpBind {
+  ip: string;
+  mac: string;
+  pool: string;
+  at: number;
+  ms: number;
+}
 export interface Sec {
   enable?: string;
   enableType?: "secret" | "password";
@@ -149,6 +169,7 @@ export interface Cli {
   ifs?: string[];
   line?: string;
   vlan?: number;
+  pool?: string;
 }
 export interface Prompt {
   text: string;
@@ -200,6 +221,8 @@ export interface Dev {
   rip?: RipCfg;
   eigrp?: EigrpCfg;
   ospf?: OspfCfg;
+  dhcp?: DhcpCfg;
+  bindings?: DhcpBind[];
   arp: Record<string, { mac: string; iface: string }>;
   macTable: { vlan: number; mac: string; port: string }[];
   startup?: string;
@@ -226,6 +249,7 @@ const CFG = [
   "rip",
   "eigrp",
   "ospf",
+  "dhcp",
 ] as const;
 const cfgObj = (d: Dev) =>
   Object.fromEntries(CFG.map((k) => [k, (d as any)[k]]));
@@ -1039,8 +1063,7 @@ function ospfCompute(s: State, dyn: Dyn) {
     if (!i?.ip || !ifUp(s, d.id, n)) return undefined;
     return d.ospf!.networks.find((x) => wildMatch(i.ip!, x.net, x.wild))?.area;
   };
-    const helloOf = (d: Dev, n: string) =>
-    d.ifaces[n].ospfHello ?? 10;
+  const helloOf = (d: Dev, n: string) => d.ifaces[n].ospfHello ?? 10;
 
   const networkOf = (d: Dev, n: string) =>
     d.ifaces[n].ospfNetwork ?? "broadcast";
@@ -1048,14 +1071,10 @@ function ospfCompute(s: State, dyn: Dyn) {
   for (const d of rs)
     rid[d.id] = dyn.ospfRid[d.id] = d.ospf!.rid ?? autoRid(s, d);
   /** adjacent routers on interface n: same area, same subnet, and neither side passive */
-    const peers = (d: Dev, n: string) => {
+  const peers = (d: Dev, n: string) => {
     const a = areaOf(d, n);
 
-    if (
-      a === undefined ||
-      isLo(n) ||
-      d.ospf!.passive.includes(n)
-    ) {
+    if (a === undefined || isLo(n) || d.ospf!.passive.includes(n)) {
       return [];
     }
 
@@ -1151,7 +1170,7 @@ function ospfCompute(s: State, dyn: Dyn) {
         ifs.push({ name: n, area: a, cost, state: "LOOP", full: 0, total: 0 });
         continue;
       }
-            const ps = peers(d, n);
+      const ps = peers(d, n);
 
       // Point-to-point networks do not elect DR or BDR.
       if (networkOf(d, n) === "point-to-point") {
@@ -1190,10 +1209,7 @@ function ospfCompute(s: State, dyn: Dyn) {
 
       const el = mem
         .filter((m) => m.p > 0)
-        .sort(
-          (x, y) =>
-            y.p - x.p || ip2n(y.r) - ip2n(x.r),
-        );
+        .sort((x, y) => y.p - x.p || ip2n(y.r) - ip2n(x.r));
 
       const dr = el[0]?.id;
       const bdr = el[1]?.id;
@@ -1205,8 +1221,7 @@ function ospfCompute(s: State, dyn: Dyn) {
 
       for (const p of ps) {
         const st =
-          role(d.id) !== "DROTHER" ||
-          role(p.id) !== "DROTHER"
+          role(d.id) !== "DROTHER" || role(p.id) !== "DROTHER"
             ? "FULL"
             : "2WAY";
 
@@ -1957,6 +1972,7 @@ export function iosAnswer(c: Ctx, p: Prompt, line: string) {
       restore(c.dev, c.dev.startup ?? c.dev.blank);
       c.dev.arp = {};
       c.dev.macTable = [];
+      c.dev.bindings = [];
       c.cli.mode = "user";
       delete c.cli.ifs;
       c.out(
@@ -2375,6 +2391,7 @@ export function iosPrompt(d: Dev, cli: Cli) {
       cli.ifs && cli.ifs.length > 1 ? "(config-if-range)#" : "(config-if)#",
     "config-line": "(config-line)#",
     "config-vlan": "(config-vlan)#",
+    "config-dhcp": "(dhcp-config)#",
     "config-router-rip": "(config-router)#",
     "config-router-eigrp": "(config-router)#",
     "config-router-ospf": "(config-router)#",

@@ -39,6 +39,7 @@ import {
   classLen,
   ip2n,
 } from "./netsim";
+import { dhcpGlobalX, dhcpPoolX, dhcpPrivX, renderDhcp } from "./Dhcp";
 
 import {
   routingGlobalX,
@@ -228,6 +229,7 @@ export function renderRouter(d: Dev): string[] {
     L.push(`username ${u.name} secret 5 ${fakeHash(u.pw)}`);
   if (d.sec.rsa) L.push("ip ssh version 2");
   L.push("!");
+  L.push(...renderDhcp(d));
 
   for (const [n, i] of Object.entries(d.ifaces)) {
     L.push(`interface ${n}`);
@@ -384,6 +386,8 @@ const globalX: E[] = [
   ["ip classless", () => {}],
   ["no ip cef", () => {}],
   ["ipv6 <*>", () => {}],
+  ["ipv6 <*>", () => {}],
+  ...dhcpGlobalX,
 ];
 const routerModeInterfaceX: E[] = globalX.filter(
   ([pattern]) =>
@@ -475,6 +479,7 @@ export const routerTables = (m: string): E[] => {
       return [
         ...priv,
         ...routingPrivX,
+        ...dhcpPrivX,
         ...sh.user.filter((e) => e[0] !== "enable"),
       ];
 
@@ -486,6 +491,9 @@ export const routerTables = (m: string): E[] => {
 
     case "config-line":
       return [...sh.line, ...globalX, ...sh.global];
+
+    case "config-dhcp":
+      return [...dhcpPoolX, ...globalX, ...routingGlobalX, ...sh.global];
 
     // ---Dynamic Routing Modes ---
     case "config-router-rip":

@@ -5131,7 +5131,6 @@ export const topics: Topic[] = [
         ],
         diagrams: [
           { src: '/diagrams/dhcp-dora-topology1_wide.png', alt: 'DORA process topology between PC and DHCP server showing Discover, Offer, Request, Ack', caption: 'DORA process — PC ↔ DHCP server' },
-          { src: '/diagrams/dhcp-packet-flow-layers1_wide.png', alt: 'DHCP messages crossing layers with switch MAC learning', caption: 'DHCP messages crossing layers and switch MAC learning' },
         ],
       },
       {
@@ -5204,9 +5203,7 @@ export const topics: Topic[] = [
           { label: 'DNS / domain', value: 'dns-server <ip> / domain-name <name>' },
           { label: 'Lease', value: 'lease <days> <hours>' },
         ],
-        diagrams: [
-          { src: '/diagrams/dhcp-pool-config-topology1_wide.png', alt: 'Cisco router configured as DHCP server for VLAN10', caption: 'DHCP pool configuration on a Cisco router' },
-        ],
+        
       },
       {
         slug: 'dhcp-verification-and-troubleshooting',
@@ -5233,9 +5230,7 @@ export const topics: Topic[] = [
           { label: 'Filter binding', value: 'sh ip dhcp binding | include <IP/MAC>' },
           { label: 'Refresh all', value: 'clear ip dhcp binding *' },
         ],
-        diagrams: [
-          { src: '/diagrams/dhcp-verification-commands1_wide.png', alt: 'DHCP verification output showing pools and bindings', caption: 'DHCP verification — pools and bindings' },
-        ],
+    
       },
     ],
   },
@@ -6404,6 +6399,102 @@ export const topics: Topic[] = [
     { label: 'Show trunks', value: 'show interfaces trunk' }
   ]
 },
+{
+  slug: 'dhcp-intervlan-labs',
+  title: 'DHCP and Inter-VLAN Labs: Router-on-a-Stick and MLS',
+  group: 'Switching Labs',
+  description:
+    'Two branch offices, each with four VLANs, three devices in a line and LACP EtherChannels between them. BR_BLR uses a router-on-a-stick as gateway and DHCP server, and BR_US uses a multilayer switch with SVIs as gateway and DHCP server. Hosts get their addresses from DHCP.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'A company has two branch offices, BR_BLR and BR_US. Both have the same four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). In each branch, three devices are stacked in a line and every device has four hosts, one per VLAN. Every connection between two switches is four parallel cables bundled into one LACP port-channel, so there is no blocked link and no single cable is a point of failure. The two branches differ in how the VLANs reach each other and where the hosts get their address. In BR_BLR, the router R1 is connected to the top switch SW1 with one trunk cable and uses sub-interfaces, a design called router on a stick. R1 is the default gateway and also the DHCP server. In BR_US, the top device is a multilayer switch, MLS1, which routes between VLANs with SVIs (switch virtual interfaces). MLS1 is the default gateway and the DHCP server, and no separate router is needed. In both branches the hosts do not have static addresses: every VPC gets its address, mask, gateway and DNS server from DHCP with the command ip dhcp. Every device starts in its factory state: no VLANs, all ports in VLAN 1, no addresses and no DHCP pools.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'BR_BLR uses 192.168.XX.0/24 with the gateway .100 in every VLAN: 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24 and 192.168.40.0/24. The gateways are the sub-interfaces R1 e0/0.10, e0/0.20, e0/0.30 and e0/0.40.',
+        'BR_US uses 10.10.XX.0/24 with the gateway .254 in every VLAN: 10.10.10.0/24, 10.10.20.0/24, 10.10.30.0/24 and 10.10.40.0/24. The gateways are the SVIs Vlan10, Vlan20, Vlan30 and Vlan40 on MLS1.',
+        'BR_BLR devices: R1 (router and DHCP server), SW1, SW2 and SW3, and VPC1 to VPC12. BR_US devices: MLS1 (gateway and DHCP server), SW4 and SW5, and VPC13 to VPC24.',
+        'In each branch the hosts of a device are, in VLAN order 10, 20, 30, 40: SW1 VPC1 to VPC4, SW2 VPC5 to VPC8, SW3 VPC9 to VPC12, MLS1 VPC13 to VPC16, SW4 VPC17 to VPC20 and SW5 VPC21 to VPC24.',
+        'BR_BLR host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+        'BR_US host ports: MLS1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW4 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW5 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+        'BR_BLR router link: R1 e0/0 to SW1 e2/0, a single trunk cable.',
+        'BR_BLR Port-channel 1 (LACP): SW1 e1/3, e1/2, e1/1, e0/1 to SW2 e2/0, e1/3, e1/2, e0/1. SW1 is active and SW2 is passive.',
+        'BR_BLR Port-channel 2 (LACP): SW2 e2/3, e2/2, e2/1, e0/0 to SW3 e1/3, e1/2, e1/1, e0/0. SW2 is active and SW3 is passive.',
+        'BR_US Port-channel 1 (LACP): MLS1 e1/3, e1/2, e1/1, e0/1 to SW4 e2/0, e1/3, e1/2, e0/1. MLS1 is active and SW4 is passive.',
+        'BR_US Port-channel 2 (LACP): SW4 e2/3, e2/2, e2/1, e0/0 to SW5 e1/3, e1/2, e1/1, e0/0. SW4 is active and SW5 is passive.',
+        'DHCP settings in both branches: DNS server 8.8.8.8, domain name www.BSOFT.com, lease time 2 days 0 hours. The gateway address is excluded from every pool.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Create VLANs 10, 20, 30 and 40 with names on all three devices of the branch, including MLS1 in BR_US.',
+        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+        'Bundle each switch-to-switch connection into a port-channel with LACP. Use channel-group N mode active on the upper device and channel-group N mode passive on the lower one, on every member port.',
+        'Configure the trunk only on the port-channel interfaces with switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan 10,20,30,40. Do not type trunk commands on the member ports.',
+        'BR_BLR: make SW1 e2/0 a trunk. On R1 bring up the physical e0/0 without an IP address, then create the sub-interfaces e0/0.10 to e0/0.40 with encapsulation dot1Q and the .100 gateway address of each VLAN.',
+        'BR_US: on MLS1 enable ip routing, then create the SVIs interface vlan 10 to interface vlan 40 with the .254 gateway address of each VLAN and no shutdown.',
+        'Configure the DHCP server (R1 in BR_BLR, MLS1 in BR_US). First exclude the gateway address of each VLAN with ip dhcp excluded-address.',
+        'For every VLAN create a pool: ip dhcp pool VLANx, then network, default-router, dns-server, domain-name and lease 2 0.',
+        'On every VPC type ip dhcp and confirm with show ip that it received an address of its own VLAN and the correct gateway.',
+        'Verify with show etherchannel summary and show interfaces trunk on the switches, and show ip dhcp binding, show ip dhcp pool and show ip route on the DHCP server.',
+        'Ping between hosts of the same VLAN on different devices, then between hosts of different VLANs. All should succeed. Run trace and read the first hop.',
+        'Shut down one member port of a bundle and keep a ping running: the bundle stays up on three links. Then shut down the gateway of one VLAN (R1 e0/0.20 or MLS1 interface vlan 20), see that the VLAN loses its gateway and its DHCP, and restore it.',
+        'Save with copy running-config startup-config, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'DHCP lets a host ask for its network settings instead of having them typed in. The process has four steps: the host broadcasts a Discover, the server offers an address, the host requests it, and the server confirms. Because the first message is a broadcast, it only reaches devices in the same VLAN. In both branches the DHCP server is also the gateway of every VLAN, so it has an interface in each VLAN and receives the broadcast directly, and there is no need for ip helper-address. The server decides which pool to use by looking at the interface where the request arrived: the pool whose network matches that interface address answers. On R1 that interface is a sub-interface, which receives tagged frames over the single trunk. On MLS1 it is the SVI of the VLAN. An SVI is only up when its VLAN exists and at least one port of that VLAN is up, which the trunk port-channel guarantees. The gateway address is excluded from the pools, otherwise the server could hand it to a host. A DHCP pool needs five things: a network, a default router, a DNS server, a domain name and a lease time. The pool must be built for every VLAN, because every VLAN is a different subnet. Router on a stick needs only one cable and one router port for any number of VLANs, but all routed traffic shares that one link. An MLS routes between SVIs inside the switch, so it avoids that bottleneck. Between the switches, an EtherChannel merges four cables into one logical link, so spanning tree does not block any of them and the traffic is shared. Both sides must use the same protocol: LACP uses active and passive, and at least one side must be active. The trunk is configured on the port-channel interface and the member ports inherit it. On this switch image the command switchport trunk encapsulation dot1q must be typed before switchport mode trunk. Every VLAN must exist on every device of the branch, because VLANs are local to each switch.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every device with only the host ports under them. Port-channel members do not appear because they are trunks.',
+        'show etherchannel summary: Po1 and Po2 have the flags SU, the protocol is LACP, and all four member ports of each bundle are flagged P (bundled).',
+        'show interfaces trunk: only Po1 and Po2 (and SW1 e2/0 in BR_BLR) are listed as trunks, with VLANs 10,20,30,40 allowed and forwarding.',
+        'BR_BLR, show ip interface brief on R1: e0/0 has no address but is up/up, and e0/0.10 to e0/0.40 have their .100 address and are up/up.',
+        'BR_US, show ip interface brief on MLS1: Vlan10 to Vlan40 have their .254 address and are up/up.',
+        'show ip route on the gateway: four connected (C) networks and the matching local (L) routes.',
+        'show ip dhcp pool: four pools, VLAN10 to VLAN40, with the correct network and a growing number of leased addresses.',
+        'show ip dhcp binding: one lease per VPC, in the subnet of its VLAN, and never the gateway address.',
+        'show ip on each VPC: address, mask, gateway and DNS server come from DHCP and match its VLAN.',
+        'ping and trace: replies inside a VLAN and between VLANs. From a host in another VLAN, the first hop is the gateway (.100 in BR_BLR, .254 in BR_US) and the second hop is the destination.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'BR_BLR', value: '192.168.XX.0/24, gateway .100, router-on-a-stick, R1 is DHCP server' },
+    { label: 'BR_US', value: '10.10.XX.0/24, gateway .254, MLS1 with SVIs is DHCP server' },
+    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Access port', value: 'switchport mode access, switchport access vlan <id>' },
+    { label: 'LACP member', value: 'channel-group <n> mode active | passive' },
+    { label: 'Trunk on port-channel', value: 'interface port-channel <n>, switchport trunk encapsulation dot1q, switchport mode trunk' },
+    { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
+    { label: 'SVI', value: 'ip routing, then interface vlan <id>, ip address <ip> <mask>, no shutdown' },
+    { label: 'Exclude address', value: 'ip dhcp excluded-address <ip>' },
+    { label: 'DHCP pool', value: 'ip dhcp pool <name>, network <net> <mask>, default-router <ip>' },
+    { label: 'Pool options', value: 'dns-server <ip>, domain-name <name>, lease <days> <hours>' },
+    { label: 'VPC DHCP', value: 'ip dhcp' },
+    { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
+    { label: 'Check bundle', value: 'show etherchannel summary, show interfaces trunk' },
+    { label: 'Routes', value: 'show ip route' },
+  ],
+}
       //   {
       // slug: 'mls-eigrp-ospf-lab',
       // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
