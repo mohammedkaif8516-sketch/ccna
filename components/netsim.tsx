@@ -194,6 +194,7 @@ export interface Dev {
   vlans: Record<number, string>;
   gw?: string;
   sec: Sec;
+  l3?: boolean;
   rip?: RipCfg;
   eigrp?: EigrpCfg;
   ospf?: OspfCfg;
@@ -219,6 +220,7 @@ const CFG = [
   "vlans",
   "gw",
   "sec",
+  "l3",
   "rip",
   "eigrp",
   "ospf",
@@ -283,6 +285,9 @@ export function preconfigure(d: Dev, init?: (d: Dev) => void) {
   }
   return d;
 }
+
+export const isL3 = (d: Dev) =>
+  d.kind === "router" || (d.kind === "switch" && !!d.l3);
 
 export type Fx = (st: Store) => void;
 export type Store = ReturnType<typeof createStore>;
@@ -368,7 +373,7 @@ export function ensureIf(d: Dev, tok: string): string | undefined {
     num = m[2],
     sub = m[3];
   if (
-    d.kind === "router" &&
+    (d.kind === "router" || d.kind === "switch") &&
     fam.length >= 2 &&
     "loopback".startsWith(fam) &&
     !sub
@@ -723,7 +728,7 @@ function lanNbrs(
       k = e.id + "|" + e.port;
     if (
       !o ||
-      o.kind !== "router" ||
+      !isL3(o) ||
       !oi?.ip ||
       !oi.mask ||
       oi.mask !== me.mask ||
@@ -752,7 +757,7 @@ const byNet = (
 
 /* ─── RIP: hop count, AD 120, split horizon, v1 classful / v2 with optional auto-summary ─── */
 function ripCompute(s: State, dyn: Dyn) {
-  const rs = Object.values(s.devs).filter((d) => d.kind === "router" && d.rip);
+  const rs = Object.values(s.devs).filter((d) => isL3(d) && d.rip);
   if (!rs.length) return;
   type Ent = RipEnt & { conn?: string };
   const on = (d: Dev, n: string) => {
@@ -864,9 +869,7 @@ function ripCompute(s: State, dyn: Dyn) {
 /* ─── EIGRP: metric = 256 × (10^7 / lowest bandwidth + total delay), AD 90, split horizon,
  *     successors = equal-cost (or within `variance`) paths that satisfy the feasibility condition ─── */
 function eigrpCompute(s: State, dyn: Dyn) {
-  const rs = Object.values(s.devs).filter(
-    (d) => d.kind === "router" && d.eigrp,
-  );
+  const rs = Object.values(s.devs).filter((d) => isL3(d) && d.eigrp);
   if (!rs.length) return;
   type V = { bw: number; dly: number };
   type Cand = {
@@ -1027,7 +1030,7 @@ function eigrpCompute(s: State, dyn: Dyn) {
 /* ─── OSPF: cost = reference bandwidth / interface bandwidth, AD 110, shortest-path tree per router,
  *     DR/BDR election per segment, areas matched per interface (inter-area routes are shown as O IA) ─── */
 function ospfCompute(s: State, dyn: Dyn) {
-  const rs = Object.values(s.devs).filter((d) => d.kind === "router" && d.ospf);
+  const rs = Object.values(s.devs).filter((d) => isL3(d) && d.ospf);
   if (!rs.length) return;
   const areaOf = (d: Dev, n: string) => {
     const i = d.ifaces[n];
@@ -1274,7 +1277,7 @@ function arpFind(
     hit = eps.find((e) => {
       // proxy-ARP for statics that point at an exit interface
       const r = s.devs[e.id];
-      if (r.kind !== "router" || e.id === id) return false;
+      if (!isL3(r) || e.id === id) return false;
       const b = bestRoute(routeTable(s, r), dst);
       return !!b && b.iface !== e.port && b.iface !== "Null0";
     });
@@ -1320,7 +1323,7 @@ export function route(
     if (owns(s, d, dst)) return res("ok");
     let eg: { iface: string; nh: string } | undefined,
       proxy = false;
-    if (d.kind === "router") {
+    if (isL3(d)) {
       if (cur !== start) {
         t--;
         routers++;
@@ -1375,7 +1378,7 @@ export interface Probe {
 /** one ICMP echo, round trip. A missing return route => timeout (exactly like real life). */
 export function probe(s: State, src: string, dst: string, fx: Fx[]): Probe {
   const sd = s.devs[src],
-    f = route(s, src, dst, sd.kind === "router" ? 255 : 64, fx);
+    f = route(s, src, dst, isL3(sd) ? 255 : 64, fx);
   const srcIp = f.first?.srcIp,
     hops = f.hops.length - 1,
     ms = Math.round((0.35 + hops * 0.92) * 1000) / 1000,
@@ -1384,11 +1387,11 @@ export function probe(s: State, src: string, dst: string, fx: Fx[]): Probe {
     if (hops === 0)
       return {
         kind: "reply",
-        ttl: sd.kind === "router" ? 255 : 64,
+        ttl: isL3(sd) ? 255 : 64,
         ms: 0.05,
         srcIp: dst,
       };
-    const init = s.devs[f.at].kind === "router" ? 255 : 64;
+    const init = isL3(s.devs[f.at]) ? 255 : 64;
     const b = route(s, f.at, srcIp!, init, fx);
     return b.status === "ok"
       ? { kind: "reply", ttl: init - b.routers, ms, srcIp, firstNh }
@@ -2406,14 +2409,14 @@ export const Note = ({
 export function Cable({
   a,
   b,
-    aTag,
+  aTag,
   bTag,
   offset = 0,
 }: {
   a: string;
   b: string;
   aTag?: string;
-   bTag?: string;
+  bTag?: string;
   offset?: number;
 }) {
   const { store, w, h } = useLab(),
@@ -2429,9 +2432,9 @@ export function Cable({
   const L = Math.hypot(B.x - A.x, B.y - A.y) || 1,
     ux = (B.x - A.x) / L,
     uy = (B.y - A.y) / L;
-// sideways shift for parallel cables (positive = right when A is above B)
-const sx = uy * offset,
-  sy = -ux * offset;
+  // sideways shift for parallel cables (positive = right when A is above B)
+  const sx = uy * offset,
+    sy = -ux * offset;
   const st = (d: Dev, raw: string) => {
     const p = findIf(d, raw);
     return !p
@@ -2462,8 +2465,9 @@ const sx = uy * offset,
     key: string,
   ) => {
     const wdt = raw.length * 6.6 + 24;
-    const x = d.x + ux2 * 62 + sx - (ux2 < -0.3 ? wdt : ux2 > 0.3 ? 0 : wdt / 2);
-const y = d.y + uy2 * 62 + sy - 9 + (Math.abs(uy2) > 0.7 ? uy2 * 6 : 0);
+    const x =
+      d.x + ux2 * 62 + sx - (ux2 < -0.3 ? wdt : ux2 > 0.3 ? 0 : wdt / 2);
+    const y = d.y + uy2 * 62 + sy - 9 + (Math.abs(uy2) > 0.7 ? uy2 * 6 : 0);
     const dot =
       state === "up"
         ? "var(--ns-up)"
@@ -2545,12 +2549,12 @@ const y = d.y + uy2 * 62 + sy - 9 + (Math.abs(uy2) > 0.7 ? uy2 * 6 : 0);
       aria-hidden
     >
       <polyline
-points={`${A.x},${A.y} ${A.x + ux * 68 + sx},${A.y + uy * 68 + sy} ${B.x - ux * 68 + sx},${B.y - uy * 68 + sy} ${B.x},${B.y}`}
-fill="none"
-stroke={col}
-strokeWidth={2.2}
-strokeDasharray={live ? undefined : "6 5"}
-/>
+        points={`${A.x},${A.y} ${A.x + ux * 68 + sx},${A.y + uy * 68 + sy} ${B.x - ux * 68 + sx},${B.y - uy * 68 + sy} ${B.x},${B.y}`}
+        fill="none"
+        stroke={col}
+        strokeWidth={2.2}
+        strokeDasharray={live ? undefined : "6 5"}
+      />
       {pill(A, ap, ux, uy, sa, "pa")}
       {pill(B, bp, -ux, -uy, sb, "pb")}
       {tag(A, ap, aTag, ux, uy, "ta")}
@@ -2560,51 +2564,114 @@ strokeDasharray={live ? undefined : "6 5"}
 }
 
 function Term({ id }: { id: string }) {
-  const { store } = useLab(), s = useSyncExternalStore(store.subscribe, store.get), d = s.devs[id];
-  const [val, setVal] = useState(""), [hi, setHi] = useState(-1), box = useRef<HTMLDivElement>(null), inp = useRef<HTMLInputElement>(null);
-  
+  const { store } = useLab(),
+    s = useSyncExternalStore(store.subscribe, store.get),
+    d = s.devs[id];
+  const [val, setVal] = useState(""),
+    [hi, setHi] = useState(-1),
+    box = useRef<HTMLDivElement>(null),
+    inp = useRef<HTMLInputElement>(null);
+
   // State to track copy feedback
   const [copiedAll, setCopiedAll] = useState(false);
   const [copiedSel, setCopiedSel] = useState(false);
 
-  const ses = d?.session, prompt = d ? termPrompt(s, id) : "";
-  
-  useEffect(() => { const el = box.current; if (el) el.scrollTop = el.scrollHeight; }, [ses?.lines.length, id]);
-  useEffect(() => { inp.current?.focus(); }, [id]);
-  
+  const ses = d?.session,
+    prompt = d ? termPrompt(s, id) : "";
+
+  useEffect(() => {
+    const el = box.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [ses?.lines.length, id]);
+  useEffect(() => {
+    inp.current?.focus();
+  }, [id]);
+
   if (!d || !ses) return null;
-  
-  const push = (...l: string[]) => store.update(id, (x) => { x.session.lines.push(...l); });
-  const go = (line: string) => { submit(store, id, line); setVal(""); setHi(-1); };
-  
+
+  const push = (...l: string[]) =>
+    store.update(id, (x) => {
+      x.session.lines.push(...l);
+    });
+  const go = (line: string) => {
+    submit(store, id, line);
+    setVal("");
+    setHi(-1);
+  };
+
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const k = e.key, ctrl = e.ctrlKey;
-    if (k === "Enter") { e.preventDefault(); go(val); }
-    else if (k === "ArrowUp" || k === "ArrowDown") {
-      e.preventDefault(); const H = ses.hist; if (!H.length) return;
-      const n = k === "ArrowUp" ? (hi < 0 ? H.length - 1 : Math.max(0, hi - 1)) : hi < 0 ? -1 : hi + 1;
-      if (n < 0 || n >= H.length) { setHi(-1); setVal(""); } else { setHi(n); setVal(H[n]); }
-    } else if (k === "Tab") { e.preventDefault(); if (!ses.prompt) { const r = termComplete(store, id, val); if (r) setVal(r); } }
-    else if (k === "?" && !ses.prompt && ses.cli) { e.preventDefault(); push(prompt + val + "?", ...termHelp(store, id, val)); }
-    else if (ctrl && k === "z") { e.preventDefault(); if (!ses.prompt && (ses.remote ? ses.remote.cli : ses.cli).mode.startsWith("config")) go("end"); }
-    else if (ctrl && k === "c") { 
+    const k = e.key,
+      ctrl = e.ctrlKey;
+    if (k === "Enter") {
+      e.preventDefault();
+      go(val);
+    } else if (k === "ArrowUp" || k === "ArrowDown") {
+      e.preventDefault();
+      const H = ses.hist;
+      if (!H.length) return;
+      const n =
+        k === "ArrowUp"
+          ? hi < 0
+            ? H.length - 1
+            : Math.max(0, hi - 1)
+          : hi < 0
+            ? -1
+            : hi + 1;
+      if (n < 0 || n >= H.length) {
+        setHi(-1);
+        setVal("");
+      } else {
+        setHi(n);
+        setVal(H[n]);
+      }
+    } else if (k === "Tab") {
+      e.preventDefault();
+      if (!ses.prompt) {
+        const r = termComplete(store, id, val);
+        if (r) setVal(r);
+      }
+    } else if (k === "?" && !ses.prompt && ses.cli) {
+      e.preventDefault();
+      push(prompt + val + "?", ...termHelp(store, id, val));
+    } else if (ctrl && k === "z") {
+      e.preventDefault();
+      if (
+        !ses.prompt &&
+        (ses.remote ? ses.remote.cli : ses.cli).mode.startsWith("config")
+      )
+        go("end");
+    } else if (ctrl && k === "c") {
       // If text is selected, let the browser copy it. Otherwise, act as Ctrl+C.
       const sel = window.getSelection()?.toString();
       if (!sel) {
-        e.preventDefault(); 
-        push(prompt + val + "^C"); 
-        store.update(id, (x) => { x.session.prompt = undefined; }); 
-        setVal(""); 
+        e.preventDefault();
+        push(prompt + val + "^C");
+        store.update(id, (x) => {
+          x.session.prompt = undefined;
+        });
+        setVal("");
       }
-    }
-    else if (ctrl && k === "a") { 
+    } else if (ctrl && k === "a") {
       const sel = window.getSelection()?.toString();
-      if (!sel) { e.preventDefault(); inp.current?.setSelectionRange(0, 0); }
+      if (!sel) {
+        e.preventDefault();
+        inp.current?.setSelectionRange(0, 0);
+      }
+    } else if (ctrl && k === "e") {
+      e.preventDefault();
+      inp.current?.setSelectionRange(val.length, val.length);
+    } else if (ctrl && k === "u") {
+      e.preventDefault();
+      setVal("");
+    } else if (ctrl && k === "w") {
+      e.preventDefault();
+      setVal(val.replace(/\S*\s*$/, ""));
+    } else if (ctrl && k === "l") {
+      e.preventDefault();
+      store.update(id, (x) => {
+        x.session.lines = [];
+      });
     }
-    else if (ctrl && k === "e") { e.preventDefault(); inp.current?.setSelectionRange(val.length, val.length); }
-    else if (ctrl && k === "u") { e.preventDefault(); setVal(""); }
-    else if (ctrl && k === "w") { e.preventDefault(); setVal(val.replace(/\S*\s*$/, "")); }
-    else if (ctrl && k === "l") { e.preventDefault(); store.update(id, (x) => { x.session.lines = []; }); }
   };
 
   const copyAll = () => {
@@ -2612,7 +2679,7 @@ function Term({ id }: { id: string }) {
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 1500);
   };
-  
+
   const copySelection = () => {
     const sel = window.getSelection()?.toString();
     if (sel) {
@@ -2630,9 +2697,9 @@ function Term({ id }: { id: string }) {
   };
 
   return (
-    <div 
-      className="ns-tbody" 
-      ref={box} 
+    <div
+      className="ns-tbody"
+      ref={box}
       onClick={handleTermClick}
       onContextMenu={(e) => {
         const sel = window.getSelection()?.toString();
@@ -2645,33 +2712,44 @@ function Term({ id }: { id: string }) {
       }}
     >
       {/* Floating toolbar for copying */}
-      <div style={{ position: "sticky", top: 0, right: 0, display: "flex", gap: 8, justifyContent: "flex-end", padding: "4px 0", zIndex: 10 }}>
-        <button 
-          onClick={copySelection} 
-          style={{ 
-            background: copiedSel ? "var(--ns-up)" : "var(--ns-chip)", 
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          right: 0,
+          display: "flex",
+          gap: 8,
+          justifyContent: "flex-end",
+          padding: "4px 0",
+          zIndex: 10,
+        }}
+      >
+        <button
+          onClick={copySelection}
+          style={{
+            background: copiedSel ? "var(--ns-up)" : "var(--ns-chip)",
             color: copiedSel ? "#fff" : "var(--ns-ink)",
-            border: "1px solid var(--ns-edge)", 
-            borderRadius: 4, 
-            padding: "2px 8px", 
-            fontSize: 11, 
+            border: "1px solid var(--ns-edge)",
+            borderRadius: 4,
+            padding: "2px 8px",
+            fontSize: 11,
             cursor: "pointer",
-            transition: "all 0.2s"
+            transition: "all 0.2s",
           }}
         >
           {copiedSel ? "✓ Copied" : "Copy Selected"}
         </button>
-        <button 
-          onClick={copyAll} 
-          style={{ 
-            background: copiedAll ? "var(--ns-up)" : "var(--ns-chip)", 
+        <button
+          onClick={copyAll}
+          style={{
+            background: copiedAll ? "var(--ns-up)" : "var(--ns-chip)",
             color: copiedAll ? "#fff" : "var(--ns-ink)",
-            border: "1px solid var(--ns-edge)", 
-            borderRadius: 4, 
-            padding: "2px 8px", 
-            fontSize: 11, 
+            border: "1px solid var(--ns-edge)",
+            borderRadius: 4,
+            padding: "2px 8px",
+            fontSize: 11,
             cursor: "pointer",
-            transition: "all 0.2s"
+            transition: "all 0.2s",
           }}
         >
           {copiedAll ? "✓ Copied" : "Copy All"}
@@ -2681,17 +2759,17 @@ function Term({ id }: { id: string }) {
       <pre className="ns-out">{ses.lines.join("\n")}</pre>
       <label className="ns-in">
         <span className="ns-pr">{prompt}</span>
-        <input 
-          ref={inp} 
-          value={val} 
-          onChange={(e) => setVal(e.target.value)} 
-          onKeyDown={onKey} 
-          type={ses.prompt?.secret ? "password" : "text"} 
-          spellCheck={false} 
-          autoCapitalize="off" 
-          autoComplete="off" 
-          autoCorrect="off" 
-          aria-label={`${d.hostname} console input`} 
+        <input
+          ref={inp}
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          onKeyDown={onKey}
+          type={ses.prompt?.secret ? "password" : "text"}
+          spellCheck={false}
+          autoCapitalize="off"
+          autoComplete="off"
+          autoCorrect="off"
+          aria-label={`${d.hostname} console input`}
         />
       </label>
     </div>

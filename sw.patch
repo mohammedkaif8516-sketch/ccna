@@ -1,0 +1,33 @@
+diff --git a/components/Switch.tsx b/components/Switch.tsx
+index a9217c4..a00af89 100644
+--- a/components/Switch.tsx
++++ b/components/Switch.tsx
+@@ -12,8 +12,9 @@
+ import {
+   type Dev, type Iface, type E, type Ctx, type H, DeviceNode, newDev, preconfigure, registerEngine, useRegister,
+   iosShared, iosEngine, userFilter, ensureIf, findIf, ifUp, operMode, parseVlans, rangeStr, vlanAllowed, isIp, isMask, maskLen,
+-  macOf, shortIf, fakeHash,
++  macOf, shortIf, fakeHash, peerOf, ip2n, isL3,
+ } from "./netsim";
++import { ipRoute, noRoute, showRoute, showRouteArg } from "./Router";
+ 
+ export function SwitchIcon({ size = 64 }: { size?: number }) {
+   return (
+diff --git a/components/netsim.tsx b/components/netsim.tsx
+index 26efd2c..a372fa1 100644
+--- a/components/netsim.tsx
++++ b/components/netsim.tsx
+@@ -1387,11 +1387,11 @@ export function probe(s: State, src: string, dst: string, fx: Fx[]): Probe {
+     if (hops === 0)
+       return {
+         kind: "reply",
+-        ttl: sd.kind === "router" ? 255 : 64,
++        ttl: isL3(sd) ? 255 : 64,
+         ms: 0.05,
+         srcIp: dst,
+       };
+-    const init = s.devs[f.at].kind === "router" ? 255 : 64;
++    const init = isL3(s.devs[f.at]) ? 255 : 64;
+     const b = route(s, f.at, srcIp!, init, fx);
+     return b.status === "ok"
+       ? { kind: "reply", ttl: init - b.routers, ms, srcIp, firstNh }

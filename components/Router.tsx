@@ -77,7 +77,7 @@ const NAT = (ip: string) => classLen(ip);
 const cisIpErr = (c: Ctx, i: number, msg?: string) =>
   msg ? c.out(msg) : c.bad(i);
 
-function showRoute(c: Ctx, filter?: string) {
+export function showRoute(c: Ctx, filter?: string) {
   const d = c.dev,
     rows = routeTable(c.view(), d).filter(
       (r) =>
@@ -180,7 +180,7 @@ const showIf = (c: Ctx, name?: string) => {
     );
   }
 };
-const showRouteArg: H = (c, a) => {
+export const showRouteArg: H = (c, a) => {
   const x = a[0].toLowerCase();
   if (isIp(a[0])) {
     const r = routeTable(c.view(), c.dev)
@@ -296,7 +296,7 @@ const setIp: H = (c, a) => {
     i.mask = mask;
   });
 };
-const ipRoute = (c: Ctx, a: string[]) => {
+export const ipRoute = (c: Ctx, a: string[]) => {
   const [net, mask, nh, adS] = a,
     ad = adS === undefined ? 1 : +adS;
   if (!isIp(net)) return c.bad(2);
@@ -318,7 +318,7 @@ const ipRoute = (c: Ctx, a: string[]) => {
     ifn ? { net, mask, iface: ifn, ad } : { net, mask, nh, ad },
   );
 };
-const noRoute = (c: Ctx, a: string[]) => {
+export const noRoute = (c: Ctx, a: string[]) => {
   const [net, mask, nh] = a,
     n0 = c.dev.routes.length,
     ifn = nh && (/^nu(l(l)?)?0$/i.test(nh) ? "Null0" : findIf(c.dev, nh));

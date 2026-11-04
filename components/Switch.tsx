@@ -12,8 +12,9 @@
 import {
   type Dev, type Iface, type E, type Ctx, type H, DeviceNode, newDev, preconfigure, registerEngine, useRegister,
   iosShared, iosEngine, userFilter, ensureIf, findIf, ifUp, operMode, parseVlans, rangeStr, vlanAllowed, isIp, isMask, maskLen,
-  macOf, shortIf, fakeHash,
+  macOf, shortIf, fakeHash, peerOf, ip2n, isL3,
 } from "./netsim";
+import { ipRoute, noRoute, showRoute, showRouteArg } from "./Router";
 
 export function SwitchIcon({ size = 64 }: { size?: number }) {
   return (
@@ -26,7 +27,8 @@ export function SwitchIcon({ size = 64 }: { size?: number }) {
   );
 }
 
-const physical = (d: Dev) => Object.keys(d.ifaces).filter((n) => !n.startsWith("Vlan"));
+const physical = (d: Dev) =>
+  Object.keys(d.ifaces).filter((n) => !n.startsWith("Vlan") && !n.startsWith("Loopback"));
 
 /* ───────────── running-config ───────────── */
 export function renderSwitch(d: Dev): string[] {
@@ -35,12 +37,14 @@ export function renderSwitch(d: Dev): string[] {
   if (!d.sec.lookup) L.push("no ip domain-lookup");
   if (d.sec.domain) L.push(`ip domain-name ${d.sec.domain}`);
   for (const u of d.sec.users) L.push(`username ${u.name} secret 5 ${fakeHash(u.pw)}`);
-  L.push("!", "spanning-tree mode rapid-pvst", "!");
+    L.push("!", "spanning-tree mode rapid-pvst", "!");
+  if (d.l3) L.push("ip routing", "!");
   for (const [v, n] of Object.entries(d.vlans)) if (+v !== 1) L.push(`vlan ${v}`, ` name ${n}`, "!");
   for (const [n, i] of Object.entries(d.ifaces)) {
     L.push(`interface ${n}`);
     if (i.desc) L.push(` description ${i.desc}`);
-    if (n.startsWith("Vlan")) L.push(i.ip ? ` ip address ${i.ip} ${i.mask}` : " no ip address");
+        if (n.startsWith("Vlan") || n.startsWith("Loopback"))
+      L.push(i.ip ? ` ip address ${i.ip} ${i.mask}` : " no ip address");
     else {
       if (i.mode === "trunk") L.push(" switchport trunk encapsulation dot1q");
       if (i.native && i.native !== 1) L.push(` switchport trunk native vlan ${i.native}`);
@@ -53,6 +57,9 @@ export function renderSwitch(d: Dev): string[] {
     if (i.shut) L.push(" shutdown");
     L.push("!");
   }
+    for (const r of d.routes)
+    L.push(`ip route ${r.net} ${r.mask} ${r.iface ?? r.nh}${r.ad !== 1 ? " " + r.ad : ""}`);
+  if (d.routes.length) L.push("!");
   if (d.gw) L.push(`ip default-gateway ${d.gw}`, "!");
   if (d.sec.banner) L.push(`banner motd ^C${d.sec.banner}^C`, "!");
   const s = d.sec;
@@ -111,7 +118,13 @@ const showBrief: H = (c) => {
 
 /* ───────────── config commands ───────────── */
 const each = (c: Ctx, fn: (i: Iface, n: string) => void) => c.cli.ifs!.forEach((n) => fn(c.dev.ifaces[n], n));
-const needL2 = (c: Ctx) => { if (c.cli.ifs!.some((n) => n.startsWith("Vlan"))) { c.out("% Invalid input detected at '^' marker (not a switchport)."); return true; } return false; };
+const needL2 = (c: Ctx) => {
+  if (c.cli.ifs!.some((n) => n.startsWith("Vlan") || n.startsWith("Loopback"))) {
+    c.out("% Invalid input detected at '^' marker (not a switchport).");
+    return true;
+  }
+  return false;
+};
 const ensureVlan = (c: Ctx, v: number) => { if (!c.dev.vlans[v]) { c.dev.vlans[v] = `VLAN${String(v).padStart(4, "0")}`; return true; } return false; };
 
 function ranger(c: Ctx, spec: string): string[] | undefined {
@@ -132,7 +145,17 @@ const globalX: E[] = [
   ["interface <if>", (c, a) => { const n = ensureIf(c.dev, a[0]); if (!n) return c.bad(1); c.cli.mode = "config-if"; c.cli.ifs = [n]; }, "Select an interface to configure"],
   ["interface <fam> <num>", (c, a) => { const n = ensureIf(c.dev, a[0] + a[1]); if (!n) return c.bad(1); c.cli.mode = "config-if"; c.cli.ifs = [n]; }, "e.g. interface vlan 10"],
   ["interface range <*>", (c, a) => { const r = ranger(c, a[0].replace(/^range\s*/i, "")); if (!r) return c.bad(2); c.cli.mode = "config-if"; c.cli.ifs = r; }, "Configure several interfaces at once (e0/1 - 3)"],
-  ["no interface <if>", (c, a) => { const n = findIf(c.dev, a[0]); if (n?.startsWith("Vlan")) delete c.dev.ifaces[n]; else c.out("% Only SVIs can be deleted"); }],
+    ["no interface <if>", (c, a) => {
+    const n = findIf(c.dev, a[0]);
+    if (n && /^(Vlan|Loopback)/.test(n)) delete c.dev.ifaces[n];
+    else c.out("% Only SVIs and loopbacks can be deleted");
+  }],
+  ["ip routing", (c) => { c.dev.l3 = true; }, "Enable IP routing (L3 switch)"],
+  ["no ip routing", (c) => { c.dev.l3 = false; }, "Disable IP routing"],
+  ["ip route <net> <mask> <nh>", ipRoute, "Establish static routes"],
+  ["ip route <net> <mask> <nh> <ad>", ipRoute, "…with administrative distance"],
+  ["no ip route <net> <mask>", noRoute],
+  ["no ip route <net> <mask> <nh>", noRoute],
   ["vlan <id>", (c, a) => {
     const v = +a[0]; if (!(v >= 1 && v <= 4094)) return c.bad(1);
     ensureVlan(c, v); c.cli.mode = "config-vlan"; c.cli.vlan = v;
@@ -173,13 +196,88 @@ const ifX: E[] = [
       else i.allowed = rangeStr(parseVlans(w.join("")));
     });
   }, "Allowed VLANs: 10,20 | add | remove | except | all | none"],
-  ["ip address <ip> <mask>", (c, a) => {
-    if (!c.cli.ifs![0].startsWith("Vlan")) return c.out("% Invalid input: this is a Layer-2 port (use an SVI: interface vlan 1)");
-    if (!isIp(a[0])) return c.bad(2); if (!isMask(a[1])) return c.bad(3);
-    c.dev.ifaces[c.cli.ifs![0]].ip = a[0]; c.dev.ifaces[c.cli.ifs![0]].mask = a[1];
-  }, "Management IP address on an SVI"],
+    ["ip address <ip> <mask>", (c, a) => {
+    const n0 = c.cli.ifs![0];
+    if (!n0.startsWith("Vlan") && !n0.startsWith("Loopback"))
+      return c.out("% Invalid input: this is a Layer-2 port (use an SVI: interface vlan 1)");
+    if (!isIp(a[0])) return c.bad(2);
+    if (!isMask(a[1])) return c.bad(3);
+    c.dev.ifaces[n0].ip = a[0];
+    c.dev.ifaces[n0].mask = a[1];
+  }, "IP address on an SVI / loopback"],
   ["no ip address", (c) => each(c, (i) => { i.ip = i.mask = undefined; })],
 ];
+
+const showSwitchportAll: H = (c) => {
+  physical(c.dev).forEach((n) => { showSwitchport(c, [n]); c.out(""); });
+};
+
+/* ── spanning-tree: lowest bridge-id wins, cost 100/link, per VLAN ── */
+type Nb = { port: string; peer?: string; ok: boolean };
+const carries = (s: State, id: string, port: string, v: number) => {
+  const i = s.devs[id].ifaces[port];
+  if (!i || !ifUp(s, id, port)) return false;
+  return operMode(s, id, port) === "trunk" ? vlanAllowed(i.allowed, v) : (i.vlan ?? 1) === v;
+};
+const stpNbrs = (s: State, id: string, v: number): Nb[] =>
+  Object.keys(s.devs[id].ifaces)
+    .filter((n) => !n.startsWith("Vlan") && !n.startsWith("Loopback") && carries(s, id, n, v))
+    .map((n): Nb => {
+      const pe = peerOf(s, id, n), pd = pe && s.devs[pe.id];
+      if (!pe || !pd || pd.kind !== "switch") return { port: n, ok: true };
+      return { port: n, peer: pe.id, ok: !!pd.vlans[v] && carries(s, pe.id, pe.port, v) };
+    });
+
+const showStp: H = (c) => {
+  const s = c.view(), me = c.dev.id, phys = physical(c.dev), L: string[] = [];
+  const bid = (id: string, v: number) => ({ pri: 32768 + v, mac: macOf(id, "bridge") });
+  const lt = (a: ReturnType<typeof bid>, b: ReturnType<typeof bid>) =>
+    a.pri !== b.pri ? a.pri < b.pri : a.mac < b.mac;
+  const bfs = (from: string, v: number) => {
+    const dist = new Map<string, number>([[from, 0]]), q = [from];
+    while (q.length) {
+      const u = q.shift()!;
+      for (const n of stpNbrs(s, u, v))
+        if (n.peer && n.ok && !dist.has(n.peer)) { dist.set(n.peer, dist.get(u)! + 1); q.push(n.peer); }
+    }
+    return dist;
+  };
+  for (const v of Object.keys(c.dev.vlans).map(Number).sort((a, b) => a - b)) {
+    const mine = stpNbrs(s, me, v);
+    if (!mine.length) continue;
+    let root = me;
+    for (const id of bfs(me, v).keys()) if (lt(bid(id, v), bid(root, v))) root = id;
+    const dist = bfs(root, v), myD = dist.get(me) ?? 0;
+    const rp = root === me ? undefined : mine
+      .filter((n) => n.peer && n.ok && (dist.get(n.peer) ?? Infinity) < myD)
+      .sort((a, b) => dist.get(a.peer!)! - dist.get(b.peer!)! || (a.port < b.port ? -1 : 1))[0];
+    const rb = bid(root, v), mb = bid(me, v);
+    L.push(
+      `VLAN${String(v).padStart(4, "0")}`,
+      "  Spanning tree enabled protocol rstp",
+      `  Root ID    Priority    ${rb.pri}`,
+      `             Address     ${rb.mac}`,
+      ...(root === me
+        ? ["             This bridge is the root"]
+        : [`             Cost        ${myD * 100}`,
+           `             Port        ${rp ? phys.indexOf(rp.port) + 1 : 0} (${rp?.port ?? "?"})`]),
+      `  Bridge ID  Priority    ${mb.pri}  (priority 32768 sys-id-ext ${v})`,
+      `             Address     ${mb.mac}`,
+      "",
+      "Interface           Role Sts Cost      Prio.Nbr Type",
+      "------------------- ---- --- --------- -------- --------",
+    );
+    for (const n of mine) {
+      const [role, sts] =
+        rp && n.port === rp.port ? ["Root", "FWD"]
+        : n.peer && n.ok && (dist.get(n.peer) ?? Infinity) <= myD ? ["Altn", "BLK"]
+        : ["Desg", "FWD"];
+      L.push(`${shortIf(n.port).padEnd(20)}${role.padEnd(5)}${sts.padEnd(4)}${"100".padEnd(10)}${("128." + (phys.indexOf(n.port) + 1)).padEnd(9)}P2p`);
+    }
+    L.push("");
+  }
+  c.out(...(L.length ? L : ["No spanning tree instance exists."]));
+};
 
 const sh = iosShared(renderSwitch);
 const privX: E[] = [
@@ -189,8 +287,11 @@ const privX: E[] = [
   ["clear mac address-table dynamic", (c) => { c.dev.macTable = []; }, "Flush the dynamic entries"],
   ["show interfaces trunk", showTrunk, "Interface trunk information"], ["show interfaces status", showStatus, "Line status of interfaces"],
   ["show interfaces <if> switchport", (c, a) => showSwitchport(c, [a[0]]), "Switchport settings"],
-  ["show ip interface brief", showBrief, "Brief IP status"],
-  ["show spanning-tree", (c) => c.out("(spanning-tree is not simulated in this lab — no loops in the topology)")],
+    ["show ip interface brief", showBrief, "Brief IP status"],
+  ["show interfaces switchport", showSwitchportAll, "Switchport settings (all ports)"],
+  ["show spanning-tree", showStp, "Spanning tree topology"],
+  ["show ip route", (c) => showRoute(c), "IP routing table"],
+  ["show ip route <x>", showRouteArg, "Filter: static | connected | address"],
 ];
 const priv = [...sh.priv, ...privX];
 export const switchTables = (m: string): E[] => {
