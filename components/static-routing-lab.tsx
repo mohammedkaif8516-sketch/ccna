@@ -192,7 +192,6 @@ function DeviceCard({ device }: { device: KeyDevice }) {
               : "bg-sky-600 hover:bg-sky-500"
           }`}
         >
-          {ran ? <Check className="size-3" /> : <Zap className="size-3" />}
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
