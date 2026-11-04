@@ -171,7 +171,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           alignItems: "center",
           gap: 8,
           padding: "6px 10px",
-          background: ran ? "rgba(34,197,94,.18)" : "rgba(128,128,128,.12)",
+          background: "rgba(128,128,128,.12)",
           font: "600 12px ui-sans-serif,system-ui",
         }}
       >

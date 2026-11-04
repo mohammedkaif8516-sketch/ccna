@@ -220,6 +220,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
 }
 
 function DeviceCard({ device }: { device: KeyDevice }) {
+  const [ran, setRan] = useState(false);
   return (
     <div style={{ border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
       <div
@@ -234,17 +235,25 @@ function DeviceCard({ device }: { device: KeyDevice }) {
         }}
       >
         {device.id}
+        
         <button
-          onClick={() =>
+          type="button"
+          onClick={() => {
             runOnDevice(
               device.id,
               device.lines.map((l) => l.cmd.trim()),
-              device.kind !== "pc",
-            )
-          }
-          className="ml-auto inline-flex items-center gap-1 rounded-md bg-sky-600 px-2 py-0.5 text-[11px] text-white hover:bg-sky-500"
+              device.kind !== "pc"
+            );
+            setRan(true);
+            setTimeout(() => setRan(false), 2500);
+          }}
+          className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
+            ran
+              ? "bg-green-600 hover:bg-green-500"
+              : "bg-sky-600 hover:bg-sky-500"
+          }`}
         >
-          <Zap className="size-3" /> Run all
+          {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
       <div style={{ padding: 6, font: MONO, overflowX: "auto" }}>
