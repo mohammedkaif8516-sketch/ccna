@@ -156,6 +156,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
 }
 
 function DeviceCard({ device }: { device: KeyDevice }) {
+  const [ran, setRan] = useState(false);
   return (
     <div
       style={{
@@ -170,22 +171,29 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           alignItems: "center",
           gap: 8,
           padding: "6px 10px",
-          background: "rgba(128,128,128,.12)",
+          background: ran ? "rgba(34,197,94,.18)" : "rgba(128,128,128,.12)",
           font: "600 12px ui-sans-serif,system-ui",
         }}
       >
         {device.id}
         <button
-          onClick={() =>
+          onClick={() => {
             runOnDevice(
               device.id,
               device.lines.map((l) => l.trim()),
               device.kind === "router",
-            )
-          }
-          className="ml-auto inline-flex items-center gap-1 rounded-md bg-sky-600 px-2 py-0.5 text-[11px] text-white hover:bg-sky-500"
+            );
+            setRan(true);
+            setTimeout(() => setRan(false), 2500);
+          }}
+          className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
+            ran
+              ? "bg-green-600 hover:bg-green-500"
+              : "bg-sky-600 hover:bg-sky-500"
+          }`}
         >
-          <Zap className="size-3" /> Run all
+          {ran ? <Check className="size-3" /> : <Zap className="size-3" />}
+          {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
       <div
@@ -308,47 +316,81 @@ export function StaticRoutingLab() {
         </NetLab>
       </div>
       <details style={{ font: FONT }}>
-  <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
-  <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
-    <li>
-      Address every router interface and every PC from the diagram. The backbone uses the router number as the
-      host part (R2 is <code>.2</code>), each router takes <code>.100</code> on its LAN, and the PCs use{" "}
-      <code>.1</code> and <code>.2</code> with the router as their gateway.
-    </li>
-    <li>Bring the interfaces up and confirm with <code>show ip interface brief</code>.</li>
-    <li>
-      Add static routes so every PC can ping every other PC. R1 and R3 each need 3 routes and R2 needs 2. Work out
-      why before you type them, and check them with <code>show ip route static</code>.
-    </li>
-    <li>Make every PC ping every other PC (watch the <em>Ping matrix</em> turn green).</li>
-    <li>
-      Run <code>trace</code> from VPC7 to VPC12, then from VPC12 to VPC7, and compare the two paths.
-    </li>
-    <li>
-      Break something on purpose: delete R2's route to <code>192.168.3.0/24</code> and see which direction fails
-      even though the request still arrives.
-    </li>
-    <li>Save with <code>copy running-config startup-config</code> and test <code>reload</code>.</li>
-  </ol>
-</details>
+        <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+          Objectives
+        </summary>
+        <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
+          <li>
+            Address every router interface and every PC from the diagram. The
+            backbone uses the router number as the host part (R2 is{" "}
+            <code>.2</code>), each router takes <code>.100</code> on its LAN,
+            and the PCs use <code>.1</code> and <code>.2</code> with the router
+            as their gateway.
+          </li>
+          <li>
+            Bring the interfaces up and confirm with{" "}
+            <code>show ip interface brief</code>.
+          </li>
+          <li>
+            Add static routes so every PC can ping every other PC. R1 and R3
+            each need 3 routes and R2 needs 2. Work out why before you type
+            them, and check them with <code>show ip route static</code>.
+          </li>
+          <li>
+            Make every PC ping every other PC (watch the <em>Ping matrix</em>{" "}
+            turn green).
+          </li>
+          <li>
+            Run <code>trace</code> from VPC7 to VPC12, then from VPC12 to VPC7,
+            and compare the two paths.
+          </li>
+          <li>
+            Break something on purpose: delete R2's route to{" "}
+            <code>192.168.3.0/24</code> and see which direction fails even
+            though the request still arrives.
+          </li>
+          <li>
+            Save with <code>copy running-config startup-config</code> and test{" "}
+            <code>reload</code>.
+          </li>
+        </ol>
+      </details>
 
-<details style={{ font: FONT }}>
-  <summary style={{ cursor: "pointer", fontWeight: 600 }}>What static routing should look like</summary>
-  <div style={{ marginTop: 8 }}>
-    <PathRow label="VPC7 → VPC12" color={SKY} hops={["VPC7", "R1", "R2", "R3", "VPC12"]} />
-    <PathRow label="VPC12 → VPC7" color={AMBER} hops={["VPC12", "R3", "R2", "R1", "VPC7"]} />
-    <PathRow label="VPC7 → VPC8" color={GREEN} hops={["VPC7", "SW4", "VPC8"]} />
-    <p style={{ margin: "8px 0 0", opacity: 0.75 }}>
-      Static routes are stateless, so each router decides only where to send the next packet, and the reply needs
-      its own routes on the way back. Here there is only one path through the line, so both directions use the same
-      routers. The green row never leaves the LAN: both PCs are in the same subnet, so the switch delivers the
-      frame and no router is involved. The two <code>trace</code> outputs show the difference: the first should
-      list R1's <code>192.168.1.100</code>, R2's <code>192.168.4.2</code> and R3's <code>192.168.5.3</code>, and
-      the second should list R3's <code>192.168.3.100</code>, R2's <code>192.168.5.2</code> and R1's{" "}
-      <code>192.168.4.1</code>.
-    </p>
-  </div>
-</details>
+      <details style={{ font: FONT }}>
+        <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+          What static routing should look like
+        </summary>
+        <div style={{ marginTop: 8 }}>
+          <PathRow
+            label="VPC7 → VPC12"
+            color={SKY}
+            hops={["VPC7", "R1", "R2", "R3", "VPC12"]}
+          />
+          <PathRow
+            label="VPC12 → VPC7"
+            color={AMBER}
+            hops={["VPC12", "R3", "R2", "R1", "VPC7"]}
+          />
+          <PathRow
+            label="VPC7 → VPC8"
+            color={GREEN}
+            hops={["VPC7", "SW4", "VPC8"]}
+          />
+          <p style={{ margin: "8px 0 0", opacity: 0.75 }}>
+            Static routes are stateless, so each router decides only where to
+            send the next packet, and the reply needs its own routes on the way
+            back. Here there is only one path through the line, so both
+            directions use the same routers. The green row never leaves the LAN:
+            both PCs are in the same subnet, so the switch delivers the frame
+            and no router is involved. The two <code>trace</code> outputs show
+            the difference: the first should list R1's{" "}
+            <code>192.168.1.100</code>, R2's <code>192.168.4.2</code> and R3's{" "}
+            <code>192.168.5.3</code>, and the second should list R3's{" "}
+            <code>192.168.3.100</code>, R2's <code>192.168.5.2</code> and R1's{" "}
+            <code>192.168.4.1</code>.
+          </p>
+        </div>
+      </details>
 
       <details style={{ font: "13px/1.5 ui-sans-serif,system-ui,sans-serif" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
