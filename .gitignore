@@ -14,3 +14,5 @@ node_modules
 .next/
 .DS_Store
 update-devicecards.js
+
+components/INTEGRATION.md
