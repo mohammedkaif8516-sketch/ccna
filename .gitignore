@@ -16,3 +16,4 @@ node_modules
 update-devicecards.js
 
 components/INTEGRATION.md
+extract-dev.js
