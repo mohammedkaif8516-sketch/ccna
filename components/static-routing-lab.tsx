@@ -157,10 +157,11 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
 
 function DeviceCard({ device }: { device: KeyDevice }) {
   const [ran, setRan] = useState(false);
+  const [open, setOpen] = useState(false); // collapsed by default
   return (
     <div
       style={{
-        border: "1px solid rgba(128,128,128,.25)",
+        alignSelf: "start", border: "1px solid rgba(128,128,128,.25)",
         borderRadius: 10,
         overflow: "hidden",
       }}
@@ -175,7 +176,12 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           font: "600 12px ui-sans-serif,system-ui",
         }}
       >
-        {device.id}
+        <span
+          onClick={() => setOpen((o) => !o)}
+          style={{ flex: 1, cursor: "pointer", userSelect: "none" }}
+        >
+          {open ? "▾" : "▸"} {device.id}
+        </span>
         <button
           onClick={() => {
             runOnDevice(
@@ -197,7 +203,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
       </div>
       <div
         style={{
-          padding: 6,
+          padding: 6, display: open ? "block" : "none",
           font: "12px/1.5 ui-monospace,Menlo,Consolas,monospace",
         }}
       >
@@ -403,6 +409,7 @@ export function StaticRoutingLab() {
             display: "grid",
             gap: 10,
             gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            alignItems: "start",
           }}
         >
           {ANSWER_KEY.map((d) => (

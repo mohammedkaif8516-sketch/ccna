@@ -188,9 +188,10 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
 
 function DeviceCard({ device }: { device: KeyDevice }) {
   const [ran, setRan] = useState(false);
+  const [open, setOpen] = useState(false); // collapsed by default
 
   return (
-    <div style={{ border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
+    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
       <div
         style={{
           display: "flex",
@@ -201,7 +202,12 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           font: "600 12px ui-sans-serif,system-ui",
         }}
       >
-        {device.id}
+        <span
+          onClick={() => setOpen((o) => !o)}
+          style={{ flex: 1, cursor: "pointer", userSelect: "none" }}
+        >
+          {open ? "▾" : "▸"} {device.id}
+        </span>
         
         <button
           type="button"
@@ -223,7 +229,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
-      <div style={{ padding: 6, font: "12px/1.5 ui-monospace,Menlo,Consolas,monospace" }}>
+      <div style={{ padding: 6, display: open ? "block" : "none", font: "12px/1.5 ui-monospace,Menlo,Consolas,monospace" }}>
         {device.lines.map((_, i) => (
           <KeyLine key={i} device={device} index={i} />
         ))}
@@ -364,6 +370,7 @@ export function AsymmetricRoutingLab() {
             display: "grid",
             gap: 10,
             gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            alignItems: "start",
           }}
         >
           {ANSWER_KEY.map((d) => (

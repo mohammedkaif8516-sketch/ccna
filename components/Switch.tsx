@@ -40,6 +40,7 @@ import {
   peerOf,
   ip2n,
   isL3,
+  bundleState,
 } from "./netsim";
 import {
   ipRoute,
@@ -59,6 +60,7 @@ import {
   renderIfExtra,
   renderRouting,
 } from "./Routing";
+import { echIfX, echPrivX, ifEch } from "./EtherChannel";
 import { vtpGlobalX, vtpPrivX, renderVtp, vtpBlocked } from "./Vtp";
 export function SwitchIcon({ size = 64 }: { size?: number }) {
   return (
@@ -117,13 +119,21 @@ export function renderSwitch(d: Dev): string[] {
   for (const [n, i] of Object.entries(d.ifaces)) {
     L.push(`interface ${n}`);
     if (i.desc) L.push(` description ${i.desc}`);
+
     if (n.startsWith("Vlan") || n.startsWith("Loopback") || (i as any).routed) {
       if ((i as any).routed) L.push(" no switchport");
       L.push(i.ip ? ` ip address ${i.ip} ${i.mask}` : " no ip address");
       i.helper?.forEach((h) => L.push(` ip helper-address ${h}`));
       L.push(...renderIfExtra(i)); // Shows OSPF interface config
     } else {
-      if (i.mode === "trunk") L.push(" switchport trunk encapsulation dot1q");
+      // If it's a port-channel, print the channel-group logic
+      if (!n.startsWith("Port-channel")) L.push(...ifEch(i));
+
+      // Print trunk mode if it's a trunk OR if it's a port-channel that is a trunk
+      // Print trunk mode if it's a trunk
+      if (i.mode === "trunk") {
+        L.push(" switchport trunk encapsulation dot1q");
+      }
       if (i.native && i.native !== 1)
         L.push(` switchport trunk native vlan ${i.native}`);
       if (i.allowed && i.allowed !== "all")
@@ -213,30 +223,41 @@ const showMac: H = (c, a) => {
 };
 const showTrunk: H = (c) => {
   const v = c.view(),
-    tr = physical(c.dev).filter(
-      (n) => ifUp(v, c.dev.id, n) && operMode(v, c.dev.id, n) === "trunk",
+    tr = Object.keys(c.dev.ifaces).filter(
+      (n) =>
+        !n.startsWith("Vlan") &&
+        !n.startsWith("Loopback") &&
+        ifUp(v, c.dev.id, n) &&
+        operMode(v, c.dev.id, n) === "trunk" &&
+        (!c.dev.ifaces[n].cg || n.startsWith("Port-channel")),
     );
   if (!tr.length) return;
   const act = Object.keys(c.dev.vlans).map(Number);
   const L = [
     "Port        Mode             Encapsulation  Status        Native vlan",
   ];
+  
   tr.forEach((n) => {
     const i = c.dev.ifaces[n];
     L.push(
       `${shortIf(n).padEnd(12)}${(i.mode === "trunk" ? "on" : (i.mode ?? "auto")).padEnd(17)}${"802.1q".padEnd(15)}${"trunking".padEnd(14)}${i.native ?? 1}`,
     );
   });
+  
   L.push("", "Port        Vlans allowed on trunk");
-  tr.forEach((n) =>
-    L.push(`${shortIf(n).padEnd(12)}${c.dev.ifaces[n].allowed ?? "1-4094"}`),
-  );
+  tr.forEach((n) => {
+    const al = c.dev.ifaces[n].allowed;
+    const str = (!al || al === "all") ? "1-4094" : al;
+    L.push(`${shortIf(n).padEnd(12)}${str}`);
+  });
+  
   L.push("", "Port        Vlans allowed and active in management domain");
-  tr.forEach((n) =>
-    L.push(
-      `${shortIf(n).padEnd(12)}${rangeStr(act.filter((x) => vlanAllowed(c.dev.ifaces[n].allowed, x)))}`,
-    ),
-  );
+  tr.forEach((n) => {
+    const al = c.dev.ifaces[n].allowed;
+    const str = (!al || al === "all") ? rangeStr(act) : rangeStr(act.filter((x) => vlanAllowed(al, x)));
+    L.push(`${shortIf(n).padEnd(12)}${str}`);
+  });
+  
   c.out(...L);
 };
 const showStatus: H = (c) => {
@@ -288,7 +309,13 @@ const showBrief: H = (c) => {
 
 /* ───────────── config commands ───────────── */
 const each = (c: Ctx, fn: (i: Iface, n: string) => void) =>
-  c.cli.ifs!.forEach((n) => fn(c.dev.ifaces[n], n));
+  c.cli.ifs!.forEach((n) => {
+    fn(c.dev.ifaces[n], n);
+    // a Port-channel's switchport settings are pushed down to every member port
+    if (n.startsWith("Port-channel"))
+      for (const [m, mi] of Object.entries(c.dev.ifaces))
+        if (mi.cg === +n.slice(12)) fn(mi, m);
+  });
 const needL2 = (c: Ctx) => {
   if (
     c.cli.ifs!.some((n) => n.startsWith("Vlan") || n.startsWith("Loopback"))
@@ -454,28 +481,6 @@ const vlanX: E[] = [
 ];
 const ifX: E[] = [
   ["switchport", () => {}, "Set switching mode characteristics"],
-  [
-    "channel-group <id> mode <mode>",
-    (c, a) => {
-      const id = +a[0];
-      const mode = a[1].toLowerCase();
-      if (!["active", "passive", "desirable", "auto", "on"].includes(mode))
-        return c.bad(3);
-      if (needL2(c)) return;
-
-      each(c, (i) => {
-        i.channelGroup = id;
-        i.channelMode = mode as any;
-      });
-
-      const poName = `Port-channel${id}`;
-      if (!c.dev.ifaces[poName]) {
-        c.dev.ifaces[poName] = { shut: false };
-        c.out(`Creating a port-channel interface ${poName}`);
-      }
-    },
-    "Configure EtherChannel (LACP/PAgP)",
-  ],
   [
     "no switchport",
     (c) => {
@@ -780,6 +785,7 @@ const privX: E[] = [
   ["show vlan", showVlan, "VTP VLAN status"],
   ["show vlan brief", showVlan, "VTP all VLAN status in brief"],
   ["show mac address-table", showMac, "MAC forwarding table"],
+  ["show mac address-table", showMac, "MAC forwarding table"],
   ["show mac address-table vlan <id>", showMac],
   ["show mac-address-table", showMac, "MAC forwarding table"],
   [
@@ -808,7 +814,7 @@ const privX: E[] = [
   ...dhcpPrivX,
   ...vtpPrivX,
 ];
-const priv = [...sh.priv, ...privX];
+const priv = [...sh.priv, ...privX, ...echPrivX];
 export const switchTables = (m: string): E[] => {
   switch (m) {
     case "user":
@@ -822,7 +828,7 @@ export const switchTables = (m: string): E[] => {
     case "config":
       return [...globalX, ...sh.global];
     case "config-if":
-      return [...ifX, ...routingIfX, ...sh.ifc, ...globalX, ...sh.global];
+      return [...ifX, ...echIfX, ...routingIfX, ...sh.ifc, ...globalX, ...sh.global];
     case "config-line":
       return [...sh.line, ...globalX, ...sh.global];
     case "config-vlan":

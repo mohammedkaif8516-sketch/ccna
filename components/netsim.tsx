@@ -78,10 +78,8 @@ const hash32 = (s: string) => {
   return h >>> 0;
 };
 export const macOf = (id: string, port: string) => {
-  const h = hash32(id + "|" + port)
-    .toString(16)
-    .padStart(8, "0");
-  return `aabb.cc${h.slice(0, 2)}.${h.slice(2, 6)}`;
+  const h = hash32(id + "|" + port).toString(16).padStart(8, "0");
+  return `${port === "eth0" ? "0050.79" : "aabb.cc"}${h.slice(0, 2)}.${h.slice(2, 6)}`;
 };
 export const macColon = (m: string) =>
   m.replace(/\./g, "").replace(/(..)(?=.)/g, "$1:");
@@ -95,7 +93,9 @@ export const shortIf = (n: string) =>
     .replace(/^Ethernet/, "Et")
     .replace(/^GigabitEthernet/, "Gi")
     .replace(/^FastEthernet/, "Fa")
-    .replace(/^Loopback/, "Lo");
+    .replace(/^Loopback/, "Lo")
+    .replace(/^Port-channel/, "Po")
+    .replace(/^Tunnel/, "Tu");
 export function stamp() {
   const d = new Date(),
     p = (n: number, l = 2) => String(n).padStart(l, "0");
@@ -124,6 +124,14 @@ export interface Iface {
   ospfHello?: number;
   ospfNetwork?: "point-to-point";
   helper?: string[];
+    nat?: "inside" | "outside";
+  aclIn?: string; aclOut?: string;
+  cg?: number; cgMode?: "active" | "passive" | "desirable" | "auto" | "on";
+  fhrp?: { proto: "hsrp" | "vrrp"; group: number; vip?: string; pri: number; preempt: boolean };
+  ps?: { max: number; violation: "shutdown" | "restrict" | "protect"; sticky: boolean; macs: string[]; learned: string[] };
+  snoopTrust?: boolean;
+  tun?: { src?: string; dst?: string; mode: "gre" | "ipsec"; prof?: string };
+  cmap?: string;
 }
 export interface Route {
   net: string;
@@ -175,12 +183,35 @@ export interface Sec {
   banner?: string;
   lookup: boolean;
 }
+export interface AclRule { seq: number; text: string }
+export interface Acl { kind: "std" | "ext"; named: boolean; rules: AclRule[] }
+export interface NatRule { kind: "static" | "list"; local?: string; global?: string; acl?: string; pool?: string; ifn?: string; overload?: boolean }
+export interface NatCfg { pools: Record<string, { start: string; end: string; mask: string }>; rules: NatRule[] }
+export interface Xlat { kind: "static" | "dynamic" | "pat"; local: string; global: string; id?: number; dst?: string; proto?: string }
+export interface CryptoCfg {
+  policies: { n: number; enc: string; hash: string; auth: string; group: number }[];
+  keys: { peer: string; key: string }[];
+  ts: Record<string, string>;
+  maps: { name: string; seq: number; peer?: string; ts?: string; acl?: string }[];
+  profiles: Record<string, { ts?: string }>;
+}
+export interface Rt {
+  fhrp?: Record<string, "init" | "listen" | "standby" | "active">;
+  errdis?: string[];
+  secMacs?: Record<string, string[]>;
+  psViol?: Record<string, number>;
+  snoopB?: { mac: string; ip: string; vlan: number; port: string; at: number; ms: number }[];
+  xlat?: Xlat[];
+  aclHits?: Record<string, Record<number, number>>;
+  ipsec?: Record<string, { enc: number; dec: number }>;
+}
 export interface Cli {
   mode: string;
   ifs?: string[];
   line?: string;
   vlan?: number;
   pool?: string;
+    ctx?: string;
 }
 export interface Prompt {
   text: string;
@@ -240,6 +271,11 @@ export interface Dev {
   startup?: string;
   blank: string;
   session: Session;
+    acls?: Record<string, Acl>; 
+  nat?: NatCfg; 
+  snoop?: { on: boolean; vlans: string }; 
+  crypto?: CryptoCfg; 
+  rt?: Rt;
 }
 export interface Link {
   a: [string, string];
@@ -263,6 +299,7 @@ const CFG = [
   "ospf",
   "dhcp",
   "vtp",
+  "acls", "nat", "snoop", "crypto" 
 ] as const;
 const cfgObj = (d: Dev) =>
   Object.fromEntries(CFG.map((k) => [k, (d as any)[k]]));
@@ -392,8 +429,8 @@ export const afterSubmit: Array<(st: Store) => void> = [];
 export const runAfter = (st: Store) => afterSubmit.forEach((f) => f(st));
 /* ════════════════════════ 3. topology ════════════════════════ */
 const base = (n: string) => n.split(".")[0];
-const famOf = (n: string) => /^[A-Za-z]+/.exec(n)![0].toLowerCase();
-const numOf = (n: string) => n.replace(/^[A-Za-z]+/, "");
+const famOf = (n: string) => /^[A-Za-z-]+/.exec(n)![0].toLowerCase();   
+const numOf = (n: string) => n.replace(/^[A-Za-z-]+/, "");              
 const IFRE = /^([a-z-]+)\s*(\d[\d/]*)(?:\.(\d+))?$/i;
 
 /** "e0/0", "eth0/0", "Ethernet0/0.10" -> canonical existing interface name */
@@ -433,6 +470,14 @@ export function ensureIf(d: Dev, tok: string): string | undefined {
     d.ifaces["Vlan" + num] = { shut: false };
     return "Vlan" + num;
   }
+    if (d.kind === "switch" && fam.length >= 2 && "port-channel".startsWith(fam) && !sub && !num.includes("/")) {
+    d.ifaces["Port-channel" + num] = { shut: false };
+    return "Port-channel" + num;
+  }
+  if (d.kind === "router" && fam.length >= 2 && "tunnel".startsWith(fam) && !sub && !num.includes("/")) {
+    d.ifaces["Tunnel" + num] = { shut: false, tun: { mode: "gre" } };
+    return "Tunnel" + num;
+  }
     if (d.kind === "router" && sub) {
     const p = findIf(d, m[1] + num);
     if (p && !p.includes(".")) {
@@ -460,17 +505,72 @@ export function peerOf(s: State, id: string, port: string) {
     }
 }
 /** interface is administratively up AND (for physical ports) the cable's other end is up too */
+const lacp = (m?: string) => m === "active" || m === "passive";
+const pagp = (m?: string) => m === "desirable" || m === "auto";
+function chanOk(a?: string, b?: string) {
+  if (!a || !b) return false;
+  if (a === "on" || b === "on") return a === b;
+  if (lacp(a) && lacp(b)) return a === "active" || b === "active";
+  if (pagp(a) && pagp(b)) return a === "desirable" || b === "desirable";
+  return false;
+}
+
+/** P = bundled, s = suspended (link down), I = stand-alone (works as a normal port) */
+export function bundleState(s: State, id: string, name: string): "P" | "s" | "I" {
+  const i = s.devs[id].ifaces[name];
+  const pe = peerOf(s, id, name);
+  if (!pe) return "I";
+  const pi = s.devs[pe.id].ifaces[pe.port];
+  
+  // If the peer isn't configured for a channel-group, this port is stand-alone
+  if (pi.cg === undefined) return "I";
+
+  // Check if the modes are compatible
+  if (chanOk(i.cgMode, pi.cgMode)) return "P";
+  
+  // If the modes are incompatible, it's suspended
+  return "s";
+}
+
+function reach(s: State, d: Dev, ip: string): boolean {
+  const conn = (x: string) =>
+    Object.entries(d.ifaces).some(([n, i]) => i.ip && i.mask && !n.startsWith("Tunnel") && ifUp(s, d.id, n) && inNet(x, netOf(i.ip, i.mask), i.mask));
+  return (
+    conn(ip) ||
+    d.routes.some(
+      (r) =>
+        inNet(ip, r.net, r.mask) &&
+        (r.iface ? r.iface !== "Null0" && !r.iface.startsWith("Tunnel") && ifUp(s, d.id, r.iface) : !!r.nh && conn(r.nh)),
+    )
+  );
+}
+
+function tunnelUp(s: State, d: Dev, i: Iface): boolean {
+  const t = i.tun;
+  if (!t?.src || !t.dst) return false;
+  const sIf = isIp(t.src) ? undefined : findIf(d, t.src),
+    srcOk = sIf
+      ? ifUp(s, d.id, sIf) && !!d.ifaces[sIf].ip
+      : Object.entries(d.ifaces).some(([n, x]) => x.ip === t.src && !n.startsWith("Tunnel") && ifUp(s, d.id, n));
+  return srcOk && reach(s, d, t.dst);
+}
+
 export function ifUp(s: State, id: string, name: string): boolean {
   const d = s.devs[id],
     i = d?.ifaces[name];
-  if (!i || i.shut) return false;
+  if (!i || i.shut || d.rt?.errdis?.includes(name)) return false;
   if (name.startsWith("Loopback")) return true;
   if (name.startsWith("Vlan")) return !!d.vlans[+name.slice(4)];
+  if (name.startsWith("Port-channel"))
+    return Object.entries(d.ifaces).some(([n, m]) => m.cg === +name.slice(12) && bundleState(s, id, n) === "P" && ifUp(s, id, n));
+  if (name.startsWith("Tunnel")) return tunnelUp(s, d, i);
   const b = d.ifaces[base(name)];
   if (!b || b.shut) return false;
   const pe = peerOf(s, id, base(name));
   if (!pe) return false;
-  return !s.devs[pe.id].ifaces[pe.port].shut;
+  const pi = s.devs[pe.id];
+  if (pi.ifaces[pe.port].shut || pi.rt?.errdis?.includes(pe.port)) return false;
+  return !(b.cg !== undefined && bundleState(s, id, base(name)) === "s");
 }
 /** DTP outcome for a switchport */
 export function operMode(
@@ -483,22 +583,25 @@ export function operMode(
   if (m === "access" || m === "trunk") return m;
 
   // 1. If this port is part of a Port-channel, inherit the mode from the Port-channel interface
-  if (i.channelGroup) {
-    const po = s.devs[id].ifaces[`Port-channel${i.channelGroup}`];
+  if (i.cg) {
+    const po = s.devs[id].ifaces[`Port-channel${i.cg}`];
     if (po?.mode === "trunk" || po?.mode === "access") return po.mode;
+  }
+
+  // 2. Port-channel interfaces themselves are trunks if their mode is trunk
+  if (port.startsWith("Port-channel")) {
+    return i.mode === "trunk" ? "trunk" : "access";
   }
 
   const pe = peerOf(s, id, port),
     pd = pe && s.devs[pe.id];
   
-  // 2. If the peer is a router, the switch port must be a trunk to carry VLAN tags
   if (!pd) return "access";
   if (pd.kind !== "switch") return "trunk"; 
 
-  // 3. If the peer is a switch, check if the peer's port is part of a Port-channel
   const pi = pd.ifaces[pe!.port];
-  if (pi.channelGroup) {
-    const peerPo = pd.ifaces[`Port-channel${pi.channelGroup}`];
+  if (pi.cg) {
+    const peerPo = pd.ifaces[`Port-channel${pi.cg}`];
     if (peerPo?.mode === "trunk" || peerPo?.mode === "access") return peerPo.mode;
   }
 
@@ -1489,7 +1592,7 @@ export function route(
   return res("ttl");
 }
 export interface Probe {
-  kind: "reply" | "local" | "timeout" | "net" | "host";
+  kind: "reply" | "local" | "timeout" | "net" | "host" | "admin";
   why?: string;
   from?: string;
   ttl?: number;
@@ -1498,8 +1601,7 @@ export interface Probe {
   firstNh?: string;
 }
 /** one ICMP echo, round trip. A missing return route => timeout (exactly like real life). */
-export function probe(s: State, src: string, dst: string, fx: Fx[]): Probe {
-  const sd = s.devs[src],
+export function probe(s: State, src: string, dst: string, fx: Fx[], _ext?: any): Probe {  const sd = s.devs[src],
     f = route(s, src, dst, isL3(sd) ? 255 : 64, fx);
   const srcIp = f.first?.srcIp,
     hops = f.hops.length - 1,
@@ -1804,7 +1906,7 @@ function openRemote(
   const s = c.view(),
     msgs: string[] = [`Trying ${req.ip} ... `],
     f: Fx[] = [];
-  const p = probe(s, fromId, req.ip, f),
+    const p = probe(s, fromId, req.ip, f, { proto: "tcp", dport: req.via === "ssh" ? 22 : 23 }),
     tr = route(s, fromId, req.ip, 64, []);
   if (p.kind !== "reply")
     return {
@@ -1863,6 +1965,7 @@ export function toggle(c: Ctx, names: string[], shut: boolean) {
   for (const n of names) {
     const i = c.dev.ifaces[n];
     if (i.shut === shut) continue;
+        if (c.dev.rt?.errdis) c.dev.rt.errdis = c.dev.rt.errdis.filter((x) => x !== n);
     const before = ifUp(c.view(), c.dev.id, n);
     i.shut = shut;
     const after = ifUp(c.view(), c.dev.id, n);
@@ -1894,7 +1997,7 @@ export function ciscoPing(c: Ctx, ip: string) {
   let ch: string;
   if (p.kind === "reply")
     ch = (p.firstNh && !c.dev.arp[p.firstNh] ? "." : "!") + "!".repeat(n - 1);
-  else if (p.kind === "net" || p.kind === "host") ch = "U.U.U";
+    else if (p.kind === "net" || p.kind === "host" || p.kind === "admin") ch = "U.U.U";
   else ch = ".".repeat(n);
   const ok = [...ch].filter((x) => x === "!").length,
     ms = Math.max(1, Math.round(p.ms));
@@ -2011,6 +2114,7 @@ export function iosAnswer(c: Ctx, p: Prompt, line: string) {
       c.dev.arp = {};
       c.dev.macTable = [];
       c.dev.bindings = [];
+       c.dev.rt = undefined;
       c.cli.mode = "user";
       delete c.cli.ifs;
       c.out(
@@ -2442,15 +2546,20 @@ export function iosShared(render: (d: Dev) => string[]) {
   return { priv, user, global, line, ifc, exitH, mem };
 }
 export function iosPrompt(d: Dev, cli: Cli) {
-  const m: Record<string, string> = {
+    const m: Record<string, string> = {
     user: ">",
     priv: "#",
     config: "(config)#",
-    "config-if":
-      cli.ifs && cli.ifs.length > 1 ? "(config-if-range)#" : "(config-if)#",
+    "config-if": cli.ifs && cli.ifs.length > 1 ? "(config-if-range)#" : "(config-if)#",
     "config-line": "(config-line)#",
     "config-vlan": "(config-vlan)#",
     "config-dhcp": "(dhcp-config)#",
+    "config-std-nacl": "(config-std-nacl)#", 
+    "config-ext-nacl": "(config-ext-nacl)#",
+    "config-isakmp": "(config-isakmp)#", 
+    "config-crypto-trans": "(cfg-crypto-trans)#",
+    "config-crypto-map": "(config-crypto-map)#", 
+    "config-ipsec-profile": "(ipsec-profile)#",
     "config-router-rip": "(config-router)#",
     "config-router-eigrp": "(config-router)#",
     "config-router-ospf": "(config-router)#",

@@ -371,14 +371,9 @@ function KeyLine({
 
 function DeviceCard({ device }: { device: KeyDevice }) {
   const [ran, setRan] = useState(false);
+  const [open, setOpen] = useState(false); // collapsed by default
   return (
-    <div
-      style={{
-        border: "1px solid rgba(128,128,128,.25)",
-        borderRadius: 10,
-        overflow: "hidden",
-      }}
-    >
+    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
       <div
         style={{
           display: "flex",
@@ -390,7 +385,12 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           font: "600 12px ui-sans-serif,system-ui",
         }}
       >
-        {device.id}
+        <span
+          onClick={() => setOpen((o) => !o)}
+          style={{ flex: 1, cursor: "pointer", userSelect: "none" }}
+        >
+          {open ? "▾" : "▸"} {device.id}
+        </span>
 
         
         <button
@@ -416,7 +416,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
 
       <div
         style={{
-          padding: 6,
+          padding: 6, display: open ? "block" : "none",
           font: MONO,
           overflowX: "auto",
         }}
@@ -597,6 +597,7 @@ export function MlsRingLab() {
         gap: 14,
         maxWidth: 1000,
         gridTemplateColumns: "minmax(0, 1fr)",
+        alignItems: "start",
         width: "100%",
       }}
     >
