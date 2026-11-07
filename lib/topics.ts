@@ -6659,7 +6659,103 @@ export const topics: Topic[] = [
           { label: 'Check bundle', value: 'show etherchannel summary, show interfaces trunk' },
           { label: 'Routes', value: 'show ip route' },
         ],
-      }
+      },
+      {
+  slug: 'dhcp-relay-ospf-lab',
+  title: 'DHCP Relay Lab: Two Branches, an OSPF Core and One DHCP Server',
+  group: 'Switching Labs',
+  description:
+    'Connect two branches, BR_BLR (router-on-a-stick) and BR_US (multilayer switch with SVIs), through an OSPF core, and serve all hosts from one central DHCP server with ip helper-address on every gateway.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'The two branches from the previous lab are now connected to each other. BR_BLR uses 192.168.XX.0/24 with the gateway .100, and its gateway is the router RBLR, which is connected to SW1 with one trunk and uses sub-interfaces (router on a stick). BR_US uses 10.10.XX.0/24 with the gateway .254, and its gateway is the multilayer switch MLS1 with SVIs. In each branch, three devices sit in a line (SW1, SW2 and SW3 in BR_BLR, MLS1, SW4 and SW5 in BR_US), every device has four hosts, one per VLAN (10 HR, 20 IT, 30 Marketing, 40 Management), and each connection between two switches is four cables bundled into an LACP port-channel. Between the branches there is a routed core with three routers, R1, R2 and R3, connected as a triangle. RBLR connects to R1, and MLS1 connects to R3. All core links use 200.10.XX.0/24 and run OSPF process 200 in area 0. DHCP is no longer configured on the gateways. Instead, R2 is the central DHCP server for both branches, reachable on its loopback address 2.2.2.1, and every gateway interface forwards DHCP requests to it with ip helper-address. Every device starts in its factory state.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'Loopback 0 (/32): R1 1.1.1.1, R2 2.2.2.1, R3 3.3.3.1, RBLR 4.4.4.1 and MLS1 5.5.5.1. The loopback of R2, 2.2.2.1, is the DHCP server address used in every ip helper-address.',
+        'Link 1, 200.10.1.0/24: RBLR e0/1 is .1 and R1 e0/0 is .2.',
+        'Link 2, 200.10.2.0/24: R1 e0/1 is .1 and R2 e0/0 is .2.',
+        'Link 3, 200.10.3.0/24: R1 e0/2 is .1 and R3 e0/0 is .2.',
+        'Link 4, 200.10.4.0/24: R2 e0/1 is .1 and R3 e0/1 is .2.',
+        'Link 5, 200.10.5.0/24: R3 e0/2 is .1 and MLS1 e2/0 is .2. On MLS1 this is a routed port (no switchport).',
+        'BR_BLR VLANs: 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24 and 192.168.40.0/24, all with the gateway .100 on RBLR e0/0.10 to e0/0.40. Hosts: VPC1 to VPC4 on SW1, VPC5 to VPC8 on SW2 and VPC9 to VPC12 on SW3, in VLAN order 10, 20, 30, 40.',
+        'BR_US VLANs: 10.10.10.0/24, 10.10.20.0/24, 10.10.30.0/24 and 10.10.40.0/24, all with the gateway .254 on MLS1 Vlan10 to Vlan40. Hosts: VPC13 to VPC16 on MLS1, VPC17 to VPC20 on SW4 and VPC21 to VPC24 on SW5, in VLAN order 10, 20, 30, 40.',
+        'BR_BLR host ports: SW1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW2 e0/2, e0/3, e1/0, e1/1. SW3 e0/1, e0/2, e0/3, e1/0.',
+        'BR_US host ports: MLS1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW4 e0/2, e0/3, e1/0, e1/1. SW5 e0/1, e0/2, e0/3, e1/0.',
+        'BR_BLR bundles (LACP): Po1 SW1 (active) e1/3, e1/2, e1/1, e0/1 to SW2 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW2 (active) e2/3, e2/2, e2/1, e0/0 to SW3 (passive) e1/3, e1/2, e1/1, e0/0. SW1 e2/0 is the single trunk to RBLR e0/0.',
+        'BR_US bundles (LACP): Po1 MLS1 (active) e1/3, e1/2, e1/1, e0/1 to SW4 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW4 (active) e2/3, e2/2, e2/1, e0/0 to SW5 (passive) e1/3, e1/2, e1/1, e0/0.',
+        'DHCP on R2: DNS server 8.8.8.8, domain name www.BSOFT.com, lease 2 days 0 hours. Eight pools, named BR_BLR_VLAN10 to BR_BLR_VLAN40 and BR_US_VLAN10 to BR_US_VLAN40. The eight gateway addresses are excluded.',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Create VLANs 10, 20, 30 and 40 with names on all six switches: SW1, SW2, SW3, MLS1, SW4 and SW5.',
+        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+        'Bundle each switch-to-switch connection with LACP (active on the upper device, passive on the lower one) and configure the trunk only on the port-channel interface. Make SW1 e2/0 a trunk to RBLR.',
+        'Configure a loopback 0 on every Layer 3 device and address the five core links. On MLS1 make the port to R3 a routed port with no switchport.',
+        'Configure OSPF process 200 in area 0 on RBLR, R1, R2, R3 and MLS1. Advertise 200.10.0.0 0.0.255.255, the loopback, and on the gateways the VLAN subnets (192.168.0.0 on RBLR and 10.10.0.0 on MLS1).',
+        'Verify with show ip ospf neighbor and show ip route ospf, and ping 2.2.2.1 from RBLR and from MLS1 before configuring DHCP.',
+        'On RBLR create the sub-interfaces e0/0.10 to e0/0.40 (encapsulation dot1Q, gateway .100). On MLS1 enable ip routing and create the SVIs (gateway .254). On every sub-interface and SVI add ip helper-address 2.2.2.1.',
+        'Configure R2 as DHCP server for both branches: exclude the eight gateway addresses and create eight pools, each with network, default-router, dns-server, domain-name and lease 2 0.',
+        'On all 24 VPCs type ip dhcp and confirm with show ip that the address, gateway and DNS server are correct.',
+        'Verify on R2 with show ip dhcp binding and show ip dhcp pool, and on a gateway with show run interface e0/0.10 or show run interface vlan 10.',
+        'Ping and trace across the core, for example VPC1 to VPC13 and VPC2 to VPC24, and read every hop.',
+        'Shut down R1 e0/1 and see that OSPF reroutes through R3 and the DHCP server stays reachable. Restore it. Then remove ip helper-address from RBLR e0/0.20 and see that VLAN 20 hosts of BR_BLR can no longer get an address while the other VLANs still can. Restore it.',
+        'Save with copy running-config startup-config on every device, then test with reload.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'A DHCP client does not know any address yet, so it sends its Discover as a broadcast to 255.255.255.255 from 0.0.0.0, using UDP port 68 to port 67. A broadcast stays inside its own VLAN and routers do not forward it. In the previous lab the DHCP server was the gateway, so it received the broadcast directly. Here the server R2 is in another network, possibly in another branch, so the broadcast would never reach it. The solution is the DHCP relay agent, which Cisco calls ip helper-address. You configure it on the gateway interface of every VLAN, which is the sub-interface on a router on a stick or the SVI on a multilayer switch, and the address you give is the real DHCP server. The gateway then takes the broadcast and sends it as a unicast to the server, using the gateway interface address as the source. The server compares that source address with its pools and uses the pool whose network contains it, which is why one server can serve many VLANs and many branches. Inside the pool, default-router is the gateway of that network, so the client learns where to send its traffic. The reply is a unicast back to the gateway, which delivers it to the client. For this to work, three things must be true: the gateway must reach 2.2.2.1, R2 must be able to route back to the gateway networks, and the helper address must be configured on every VLAN gateway. OSPF takes care of the first two: all core links, the loopbacks and the VLAN subnets are advertised in area 0. Using a loopback as the DHCP server address is better than a physical interface address, because it stays reachable as long as any path to R2 exists, and the triangle R1, R2, R3 gives two paths. Remember that the helper address is set on the gateways, not on the server, and that the gateways no longer need any pool. The gateway addresses must still be excluded on the server, otherwise it could lease them to a host.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show vlan brief and show etherchannel summary on the switches: all VLANs exist, Po1 and Po2 have the flags SU, and the four members of each bundle are flagged P.',
+        'show ip ospf neighbor: RBLR has 1 neighbor, R1 has 3, R2 has 2, R3 has 3 and MLS1 has 1, all in state FULL.',
+        'show ip route ospf on R2: routes to 192.168.10.0 to 192.168.40.0 and to 10.10.10.0 to 10.10.40.0, as well as to the loopbacks 1.1.1.1, 3.3.3.1, 4.4.4.1 and 5.5.5.1.',
+        'ping 2.2.2.1 from RBLR and MLS1: replies. This is the DHCP server address that the relay uses.',
+        'show run interface e0/0.10 on RBLR and show run interface vlan 10 on MLS1: the gateway address and ip helper-address 2.2.2.1 are present.',
+        'show ip dhcp pool on R2: eight pools with the correct networks and a growing number of leased addresses.',
+        'show ip dhcp binding on R2: 24 leases, 12 in 192.168.X.0 and 12 in 10.10.X.0, and never a gateway address. RBLR and MLS1 show no leases because they only relay.',
+        'show ip on each VPC: address, mask, gateway (.100 or .254) and DNS server match its VLAN and branch.',
+        'ping and trace across the core: replies between branches. From VPC1 to VPC13 the first hop is 192.168.10.100 and the last router is 10.10.10.254.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'BR_BLR', value: '192.168.XX.0/24, gateway .100, RBLR router on a stick' },
+    { label: 'BR_US', value: '10.10.XX.0/24, gateway .254, MLS1 with SVIs' },
+    { label: 'Core', value: 'OSPF 200, area 0, links 200.10.XX.0/24' },
+    { label: 'DHCP server', value: 'R2, loopback 2.2.2.1, 8 pools' },
+    { label: 'Loopback', value: 'interface loopback 0, ip address <ip> 255.255.255.255' },
+    { label: 'Routed port', value: 'no switchport, then ip address <ip> <mask>' },
+    { label: 'OSPF', value: 'router ospf 200, network <net> <wildcard> area 0' },
+    { label: 'Relay agent', value: 'ip helper-address 2.2.2.1 (on the gateway interface)' },
+    { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
+    { label: 'SVI', value: 'ip routing, interface vlan <id>, ip address <ip> <mask>' },
+    { label: 'Exclude address', value: 'ip dhcp excluded-address <ip>' },
+    { label: 'DHCP pool', value: 'ip dhcp pool <name>, network, default-router, dns-server, domain-name, lease' },
+    { label: 'LACP member', value: 'channel-group <n> mode active | passive' },
+    { label: 'VPC DHCP', value: 'ip dhcp (release with ip dhcp -r)' },
+    { label: 'Check OSPF', value: 'show ip ospf neighbor, show ip route ospf' },
+    { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
+  ],
+},
       //   {
       // slug: 'mls-eigrp-ospf-lab',
       // title: 'Four MLS: LACP, STP, EIGRP and OSPF',

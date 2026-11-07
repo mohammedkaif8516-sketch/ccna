@@ -111,6 +111,8 @@ export interface Iface {
   desc?: string;
   mode?: "access" | "trunk" | "auto" | "desirable";
   vlan?: number;
+  channelGroup?: number;
+  channelMode?: "active" | "passive" | "desirable" | "auto" | "on";
   allowed?: string;
   native?: number;
   nonegotiate?: boolean;
@@ -121,6 +123,7 @@ export interface Iface {
   ospfPri?: number;
   ospfHello?: number;
   ospfNetwork?: "point-to-point";
+  helper?: string[];
 }
 export interface Route {
   net: string;
@@ -148,6 +151,14 @@ export interface DhcpBind {
   pool: string;
   at: number;
   ms: number;
+}
+export interface VtpCfg {
+  mode: "server" | "client" | "transparent" | "off";
+  domain?: string;
+  pw?: string;
+  version: 1 | 2 | 3;
+  rev: number;
+  sig?: string;
 }
 export interface Sec {
   enable?: string;
@@ -223,6 +234,7 @@ export interface Dev {
   ospf?: OspfCfg;
   dhcp?: DhcpCfg;
   bindings?: DhcpBind[];
+  vtp?: VtpCfg;
   arp: Record<string, { mac: string; iface: string }>;
   macTable: { vlan: number; mac: string; port: string }[];
   startup?: string;
@@ -250,6 +262,7 @@ const CFG = [
   "eigrp",
   "ospf",
   "dhcp",
+  "vtp",
 ] as const;
 const cfgObj = (d: Dev) =>
   Object.fromEntries(CFG.map((k) => [k, (d as any)[k]]));
@@ -374,6 +387,9 @@ export function createStore() {
 }
 export const applyFx = (st: Store, fx: Fx[]) => fx.forEach((f) => f(st));
 
+/* Vtp.tsx pushes a hook here so it runs after every command / link change */
+export const afterSubmit: Array<(st: Store) => void> = [];
+export const runAfter = (st: Store) => afterSubmit.forEach((f) => f(st));
 /* ════════════════════════ 3. topology ════════════════════════ */
 const base = (n: string) => n.split(".")[0];
 const famOf = (n: string) => /^[A-Za-z]+/.exec(n)![0].toLowerCase();
@@ -417,12 +433,16 @@ export function ensureIf(d: Dev, tok: string): string | undefined {
     d.ifaces["Vlan" + num] = { shut: false };
     return "Vlan" + num;
   }
-  if (d.kind === "router" && sub) {
+    if (d.kind === "router" && sub) {
     const p = findIf(d, m[1] + num);
     if (p && !p.includes(".")) {
       d.ifaces[`${p}.${sub}`] = { shut: false };
       return `${p}.${sub}`;
     }
+  }
+  if (d.kind === "switch" && fam.length >= 2 && "port-channel".startsWith(fam) && !sub) {
+    d.ifaces["Port-channel" + num] = { shut: false };
+    return "Port-channel" + num;
   }
 }
 export function peerOf(s: State, id: string, port: string) {
@@ -1757,6 +1777,7 @@ export function submit(store: Store, id: string, line: string) {
     if (c.flags.cls) se.lines = [];
   });
   applyFx(store, fx);
+  runAfter(store);
 }
 function openRemote(
   c: Ctx,
@@ -2124,6 +2145,27 @@ export function iosShared(render: (d: Dev) => string[]) {
           "[87654321 bytes used, 46463279 available, 134217600 total]",
         ),
       "Flash filesystem (IOS image)",
+    ],
+    [
+      "show running-config interface <if>",
+      (c, a) => {
+        const n = findIf(c.dev, a[0]);
+        if (!n) return c.bad(3);
+        const L = render(c.dev),
+          i = L.indexOf(`interface ${n}`),
+          blk: string[] = [];
+        for (let k = i + 1; k < L.length && L[k] !== "!"; k++) blk.push(L[k]);
+        c.out(
+          "Building configuration...",
+          "",
+          `Current configuration : ${blk.join("\n").length} bytes`,
+          "!",
+          `interface ${n}`,
+          ...blk,
+          "end",
+        );
+      },
+      "Show one interface's configuration",
     ],
   ];
   const user: E[] = [
@@ -2510,6 +2552,7 @@ export function Cable({
     s = useSyncExternalStore(store.subscribe, store.get);
   useEffect(() => {
     store.link(a, b);
+    runAfter(store);
   }, [a, b, store]);
   const [ai, ap] = a.split(":"),
     [bi, bp] = b.split(":"),
@@ -3046,6 +3089,7 @@ export function NetLab({
             className="ns-btn"
             onClick={() => {
               store.reset();
+              runAfter(store);
             }}
           >
             Reset lab

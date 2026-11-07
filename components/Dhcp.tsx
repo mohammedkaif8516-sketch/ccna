@@ -22,6 +22,10 @@ import {
   type DhcpPool,
   type DhcpBind,
   l2domain,
+  ifUp,
+  isL3,
+  probe,
+  route,
   isIp,
   isMask,
   netOf,
@@ -64,7 +68,20 @@ function freeAddr(d: Dev, p: DhcpPool, mac: string, now: number) {
     if (!isExcluded(d, ip) && !used.has(ip)) return ip;
   }
 }
-const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MON = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 const fmtTime = (ms: number) => {
   const t = new Date(ms),
     p = (n: number) => String(n).padStart(2, "0");
@@ -84,6 +101,47 @@ export interface DhcpLease {
   server: string;
   serverId: string;
 }
+/** pick a pool by `matchIp` (the interface the request arrived on, or the relay's giaddr) and lease an address */
+function serve(
+  sd: Dev,
+  matchIp: string,
+  serverIp: string,
+  mac: string,
+  now: number,
+  fx: Fx[],
+): DhcpLease | undefined {
+  const g = sd.dhcp;
+  if (!g || g.off) return;
+  const entry = Object.entries(g.pools).find(
+    ([, p]) => p.net && p.mask && netOf(matchIp, p.mask) === p.net,
+  );
+  if (!entry) return;
+  const [name, p] = entry,
+    prev = activeBindings(sd, now).find(
+      (b) => b.mac === mac && b.pool === name,
+    ),
+    ip = prev?.ip ?? freeAddr(sd, p, mac, now);
+  if (!ip) return; // pool exhausted
+  const bind: DhcpBind = { ip, mac, pool: name, at: now, ms: leaseMs(p.lease) };
+  fx.push((st) =>
+    st.update(sd.id, (x) => {
+      x.bindings = [
+        ...(x.bindings ?? []).filter((b) => b.mac !== mac && b.ip !== ip),
+        bind,
+      ];
+    }),
+  );
+  return {
+    ip,
+    mask: p.mask!,
+    gw: p.gw[0],
+    dns: p.dns,
+    domain: p.domain,
+    server: serverIp,
+    serverId: sd.id,
+  };
+}
+
 export function dhcpDiscover(
   s: State,
   clientDev: string,
@@ -91,39 +149,44 @@ export function dhcpDiscover(
   fx: Fx[],
 ): DhcpLease | undefined {
   const mac = macOf(clientDev, ifn),
-    now = Date.now();
-  for (const e of l2domain(s, clientDev, ifn)) {
+    now = Date.now(),
+    eps = l2domain(s, clientDev, ifn);
+
+  // 1) a DHCP server directly on the client's segment
+  for (const e of eps) {
     const sd = s.devs[e.id],
       si = sd?.ifaces[e.port];
-    if (e.id === clientDev || !sd?.dhcp || sd.dhcp.off || !si?.ip || !si.mask)
+    if (e.id === clientDev || !sd?.dhcp || !si?.ip) continue;
+    const r = serve(sd, si.ip, si.ip, mac, now, fx);
+    if (r) return r;
+  }
+
+  // 2) a relay agent: an L3 interface on the segment with `ip helper-address`
+  for (const e of eps) {
+    const rd = s.devs[e.id],
+      ri = rd?.ifaces[e.port];
+    if (e.id === clientDev || !rd || !isL3(rd) || !ri?.ip || !ri.helper?.length)
       continue;
-    // the pool is chosen by the subnet of the interface the DISCOVER arrived on
-    const entry = Object.entries(sd.dhcp.pools).find(
-      ([, p]) => p.net && p.mask && netOf(si.ip!, p.mask) === p.net,
-    );
-    if (!entry) continue;
-    const [name, p] = entry,
-      prev = activeBindings(sd, now).find((b) => b.mac === mac && b.pool === name),
-      ip = prev?.ip ?? freeAddr(sd, p, mac, now);
-    if (!ip) continue; // pool exhausted
-    const bind: DhcpBind = { ip, mac, pool: name, at: now, ms: leaseMs(p.lease) };
-    fx.push((st) =>
-      st.update(e.id, (x) => {
-        x.bindings = [
-          ...(x.bindings ?? []).filter((b) => b.mac !== mac && b.ip !== ip),
-          bind,
-        ];
-      }),
-    );
-    return {
-      ip,
-      mask: p.mask!,
-      gw: p.gw[0],
-      dns: p.dns,
-      domain: p.domain,
-      server: si.ip,
-      serverId: e.id,
-    };
+    for (const h of ri.helper) {
+      const sd = Object.values(s.devs).find(
+        (d) =>
+          d.dhcp &&
+          Object.entries(d.ifaces).some(
+            ([n, i]) => i.ip === h && ifUp(s, d.id, n),
+          ),
+      );
+      if (!sd || sd.id === rd.id) continue;
+      const tmp: Fx[] = [];
+      // relay <-> server must work both ways
+      if (probe(s, rd.id, h, tmp).kind !== "reply") continue;
+      // the server needs a route back to giaddr (the relay's interface address) — the classic lab failure
+      if (route(s, sd.id, ri.ip, 64, []).status !== "ok") continue;
+      const r = serve(sd, ri.ip, h, mac, now, tmp);
+      if (r) {
+        fx.push(...tmp);
+        return r;
+      }
+    }
   }
 }
 
@@ -195,7 +258,11 @@ export const dhcpGlobalX: E[] = [
     },
     "Delete a DHCP pool",
   ],
-  ["ip dhcp excluded-address <a>", exclude, "Prevent DHCP from assigning certain addresses"],
+  [
+    "ip dhcp excluded-address <a>",
+    exclude,
+    "Prevent DHCP from assigning certain addresses",
+  ],
   ["ip dhcp excluded-address <a> <b>", exclude, "…an address range"],
   ["no ip dhcp excluded-address <a>", unexclude],
   ["no ip dhcp excluded-address <a> <b>", unexclude],
@@ -278,11 +345,36 @@ export const dhcpPoolX: E[] = [
     }),
     "Lease: <days> [hours] [minutes] | infinite",
   ],
-  ["no network", withPool((p) => { p.net = p.mask = undefined; })],
-  ["no default-router", withPool((p) => { p.gw = []; })],
-  ["no dns-server", withPool((p) => { p.dns = []; })],
-  ["no domain-name", withPool((p) => { p.domain = undefined; })],
-  ["no lease", withPool((p) => { p.lease = undefined; })],
+  [
+    "no network",
+    withPool((p) => {
+      p.net = p.mask = undefined;
+    }),
+  ],
+  [
+    "no default-router",
+    withPool((p) => {
+      p.gw = [];
+    }),
+  ],
+  [
+    "no dns-server",
+    withPool((p) => {
+      p.dns = [];
+    }),
+  ],
+  [
+    "no domain-name",
+    withPool((p) => {
+      p.domain = undefined;
+    }),
+  ],
+  [
+    "no lease",
+    withPool((p) => {
+      p.lease = undefined;
+    }),
+  ],
 ];
 
 /* ───────────── show / clear ───────────── */
@@ -360,7 +452,11 @@ export const dhcpPrivX: E[] = [
   ["show ip dhcp pool <name>", showPool],
   ["show ip dhcp binding", showBind, "Active leases (MAC ↔ IP ↔ expiry)"],
   ["show ip dhcp binding <*>", showBind, "<ip> or | include <ip|mac>"],
-  ["clear ip dhcp binding <x>", clearBind, "Clear one binding (<ip>) or all (*)"],
+  [
+    "clear ip dhcp binding <x>",
+    clearBind,
+    "Clear one binding (<ip>) or all (*)",
+  ],
 ];
 
 /* ───────────── running-config ───────────── */
@@ -370,7 +466,9 @@ export function renderDhcp(d: Dev): string[] {
   const L: string[] = [];
   if (g.off) L.push("no service dhcp", "!");
   for (const e of g.excluded)
-    L.push(`ip dhcp excluded-address ${e.from}${e.to !== e.from ? " " + e.to : ""}`);
+    L.push(
+      `ip dhcp excluded-address ${e.from}${e.to !== e.from ? " " + e.to : ""}`,
+    );
   if (g.excluded.length) L.push("!");
   for (const [n, p] of Object.entries(g.pools)) {
     L.push(`ip dhcp pool ${n}`);

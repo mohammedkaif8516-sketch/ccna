@@ -236,6 +236,7 @@ export function renderRouter(d: Dev): string[] {
     if (i.desc) L.push(` description ${i.desc}`);
     if (i.enc) L.push(` encapsulation dot1q ${i.enc}`);
     L.push(i.ip ? ` ip address ${i.ip} ${i.mask}` : " no ip address");
+    i.helper?.forEach((h) => L.push(` ip helper-address ${h}`));
     L.push(...renderIfExtra(i));
     if (i.shut) L.push(" shutdown");
     L.push("!");
@@ -358,7 +359,7 @@ const privX: E[] = [
     "Routing protocol info",
   ],
 ];
-const globalX: E[] = [
+export const globalX: E[] = [
   ["interface <if>", enter, "Select an interface to configure"],
   [
     "interface <fam> <num>",
@@ -386,7 +387,6 @@ const globalX: E[] = [
   ["ip classless", () => {}],
   ["no ip cef", () => {}],
   ["ipv6 <*>", () => {}],
-  ["ipv6 <*>", () => {}],
   ...dhcpGlobalX,
 ];
 const routerModeInterfaceX: E[] = globalX.filter(
@@ -404,6 +404,31 @@ const ifX: E[] = [
         i.ip = i.mask = undefined;
       }),
     "Remove the IP address",
+  ],
+  [
+    "ip helper-address <ip>",
+    (c, a) => {
+      if (!isIp(a[0])) return c.bad(2);
+      ifEach(c, (i) => {
+        i.helper = [...new Set([...(i.helper ?? []), a[0]])];
+      });
+    },
+    "DHCP relay: forward client broadcasts to this server",
+  ],
+  [
+    "no ip helper-address",
+    (c) =>
+      ifEach(c, (i) => {
+        i.helper = undefined;
+      }),
+  ],
+  [
+    "no ip helper-address <ip>",
+    (c, a) =>
+      ifEach(c, (i) => {
+        const h = (i.helper ?? []).filter((x) => x !== a[0]);
+        i.helper = h.length ? h : undefined;
+      }),
   ],
   [
     "encapsulation dot1q <vlan>",
@@ -512,11 +537,12 @@ export const routerTables = (m: string): E[] => {
         ...sh.global,
       ];
 
-    case "config-router-ospf":
+        case "config-router-ospf":
       return [
         ...ospfX,
         ...routerModeInterfaceX,
         ...routingGlobalX,
+        ...dhcpGlobalX,
         ...sh.global,
       ];
 

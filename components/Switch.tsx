@@ -41,9 +41,25 @@ import {
   ip2n,
   isL3,
 } from "./netsim";
-import { ipRoute, noRoute, showRoute, showRouteArg } from "./Router";
+import {
+  ipRoute,
+  noRoute,
+  showRoute,
+  showRouteArg,
+  globalX as routerGlobalX,
+} from "./Router";
 import { dhcpGlobalX, dhcpPoolX, dhcpPrivX, renderDhcp } from "./Dhcp";
-
+import {
+  routingGlobalX,
+  routingPrivX,
+  routingIfX,
+  ripX,
+  eigrpX,
+  ospfX,
+  renderIfExtra,
+  renderRouting,
+} from "./Routing";
+import { vtpGlobalX, vtpPrivX, renderVtp, vtpBlocked } from "./Vtp";
 export function SwitchIcon({ size = 64 }: { size?: number }) {
   return (
     <svg width={size} height={size * 0.62} viewBox="0 0 64 40" aria-hidden>
@@ -65,7 +81,10 @@ export function SwitchIcon({ size = 64 }: { size?: number }) {
 
 const physical = (d: Dev) =>
   Object.keys(d.ifaces).filter(
-    (n) => !n.startsWith("Vlan") && !n.startsWith("Loopback"),
+    (n) =>
+      !n.startsWith("Vlan") &&
+      !n.startsWith("Loopback") &&
+      !n.startsWith("Port-channel"),
   );
 
 /* ───────────── running-config ───────────── */
@@ -91,16 +110,19 @@ export function renderSwitch(d: Dev): string[] {
     L.push(`username ${u.name} secret 5 ${fakeHash(u.pw)}`);
   L.push("!", "spanning-tree mode rapid-pvst", "!");
   if (d.l3) L.push("ip routing", "!");
-  if (d.l3) L.push("ip routing", "!");
+  L.push(...renderVtp(d));
   for (const [v, n] of Object.entries(d.vlans))
     if (+v !== 1) L.push(`vlan ${v}`, ` name ${n}`, "!");
   L.push(...renderDhcp(d));
   for (const [n, i] of Object.entries(d.ifaces)) {
     L.push(`interface ${n}`);
     if (i.desc) L.push(` description ${i.desc}`);
-    if (n.startsWith("Vlan") || n.startsWith("Loopback"))
+    if (n.startsWith("Vlan") || n.startsWith("Loopback") || (i as any).routed) {
+      if ((i as any).routed) L.push(" no switchport");
       L.push(i.ip ? ` ip address ${i.ip} ${i.mask}` : " no ip address");
-    else {
+      i.helper?.forEach((h) => L.push(` ip helper-address ${h}`));
+      L.push(...renderIfExtra(i)); // Shows OSPF interface config
+    } else {
       if (i.mode === "trunk") L.push(" switchport trunk encapsulation dot1q");
       if (i.native && i.native !== 1)
         L.push(` switchport trunk native vlan ${i.native}`);
@@ -121,6 +143,7 @@ export function renderSwitch(d: Dev): string[] {
       `ip route ${r.net} ${r.mask} ${r.iface ?? r.nh}${r.ad !== 1 ? " " + r.ad : ""}`,
     );
   if (d.routes.length) L.push("!");
+  L.push(...renderRouting(d)); // Shows "router ospf", "network", etc.
   if (d.gw) L.push(`ip default-gateway ${d.gw}`, "!");
   if (d.sec.banner) L.push(`banner motd ^C${d.sec.banner}^C`, "!");
   const s = d.sec;
@@ -375,6 +398,7 @@ const globalX: E[] = [
     (c, a) => {
       const v = +a[0];
       if (!(v >= 1 && v <= 4094)) return c.bad(1);
+      if (!c.dev.vlans[v] && vtpBlocked(c)) return;
       ensureVlan(c, v);
       c.cli.mode = "config-vlan";
       c.cli.vlan = v;
@@ -387,6 +411,7 @@ const globalX: E[] = [
       const v = +a[0];
       if (v === 1 || (v >= 1002 && v <= 1005))
         return c.out("%Default VLAN 1 may not be deleted.");
+      if (vtpBlocked(c)) return;
       delete c.dev.vlans[v];
     },
     "Delete a VLAN",
@@ -406,9 +431,10 @@ const globalX: E[] = [
     },
   ],
   ["spanning-tree <*>", () => {}],
-  ["vtp <*>", () => {}],
-  ["no vtp <*>", () => {}],
+  ...vtpGlobalX, // if you added VTP
   ...dhcpGlobalX,
+  ...routerGlobalX, // Brings in "router ospf",
+  ...routingGlobalX, // Brings in OSPF/EIGRP global
 ];
 const vlanX: E[] = [
   [
@@ -428,6 +454,42 @@ const vlanX: E[] = [
 ];
 const ifX: E[] = [
   ["switchport", () => {}, "Set switching mode characteristics"],
+  [
+    "channel-group <id> mode <mode>",
+    (c, a) => {
+      const id = +a[0];
+      const mode = a[1].toLowerCase();
+      if (!["active", "passive", "desirable", "auto", "on"].includes(mode))
+        return c.bad(3);
+      if (needL2(c)) return;
+
+      each(c, (i) => {
+        i.channelGroup = id;
+        i.channelMode = mode as any;
+      });
+
+      const poName = `Port-channel${id}`;
+      if (!c.dev.ifaces[poName]) {
+        c.dev.ifaces[poName] = { shut: false };
+        c.out(`Creating a port-channel interface ${poName}`);
+      }
+    },
+    "Configure EtherChannel (LACP/PAgP)",
+  ],
+  [
+    "no switchport",
+    (c) => {
+      if (needL2(c)) return;
+      each(c, (i) => {
+        // Set a flag to indicate this is a routed port
+        (i as any).routed = true;
+        // Clear layer 2 configs
+        i.vlan = undefined;
+        i.mode = undefined;
+      });
+    },
+    "Make the port a Layer-3 routed port",
+  ],
   [
     "switchport mode access",
     (c) =>
@@ -486,6 +548,7 @@ const ifX: E[] = [
       const v = +a[0];
       if (!(v >= 1 && v <= 4094)) return c.bad(3);
       if (needL2(c)) return;
+      if (!c.dev.vlans[v] && vtpBlocked(c)) return;
       if (ensureVlan(c, v))
         c.out(`% Access VLAN does not exist. Creating vlan ${v}`);
       each(c, (i) => {
@@ -544,14 +607,19 @@ const ifX: E[] = [
     "ip address <ip> <mask>",
     (c, a) => {
       const n0 = c.cli.ifs![0];
-      if (!n0.startsWith("Vlan") && !n0.startsWith("Loopback"))
+      const i0 = c.dev.ifaces[n0];
+      if (
+        !n0.startsWith("Vlan") &&
+        !n0.startsWith("Loopback") &&
+        !(i0 as any).routed
+      )
         return c.out(
-          "% Invalid input: this is a Layer-2 port (use an SVI: interface vlan 1)",
+          "% Invalid input: this is a Layer-2 port (use an SVI: interface vlan 1 or 'no switchport')",
         );
       if (!isIp(a[0])) return c.bad(2);
       if (!isMask(a[1])) return c.bad(3);
-      c.dev.ifaces[n0].ip = a[0];
-      c.dev.ifaces[n0].mask = a[1];
+      i0.ip = a[0];
+      i0.mask = a[1];
     },
     "IP address on an SVI / loopback",
   ],
@@ -560,6 +628,33 @@ const ifX: E[] = [
     (c) =>
       each(c, (i) => {
         i.ip = i.mask = undefined;
+      }),
+  ],
+  [
+    "ip helper-address <ip>",
+    (c, a) => {
+      if (!isIp(a[0])) return c.bad(2);
+      if (!c.cli.ifs!.every((n) => n.startsWith("Vlan")))
+        return c.out("% DHCP relay works on SVIs only (interface vlan N)");
+      each(c, (i) => {
+        i.helper = [...new Set([...(i.helper ?? []), a[0]])];
+      });
+    },
+    "DHCP relay: forward client broadcasts to this server",
+  ],
+  [
+    "no ip helper-address",
+    (c) =>
+      each(c, (i) => {
+        i.helper = undefined;
+      }),
+  ],
+  [
+    "no ip helper-address <ip>",
+    (c, a) =>
+      each(c, (i) => {
+        const h = (i.helper ?? []).filter((x) => x !== a[0]);
+        i.helper = h.length ? h : undefined;
       }),
   ],
 ];
@@ -711,6 +806,7 @@ const privX: E[] = [
   ["show ip route", (c) => showRoute(c), "IP routing table"],
   ["show ip route <x>", showRouteArg, "Filter: static | connected | address"],
   ...dhcpPrivX,
+  ...vtpPrivX,
 ];
 const priv = [...sh.priv, ...privX];
 export const switchTables = (m: string): E[] => {
@@ -718,17 +814,27 @@ export const switchTables = (m: string): E[] => {
     case "user":
       return [...userFilter(priv), ...sh.user];
     case "priv":
-      return [...priv, ...sh.user.filter((e) => e[0] !== "enable")];
+      return [
+        ...priv,
+        ...routingPrivX,
+        ...sh.user.filter((e) => e[0] !== "enable"),
+      ];
     case "config":
       return [...globalX, ...sh.global];
     case "config-if":
-      return [...ifX, ...sh.ifc, ...globalX, ...sh.global];
+      return [...ifX, ...routingIfX, ...sh.ifc, ...globalX, ...sh.global];
     case "config-line":
       return [...sh.line, ...globalX, ...sh.global];
     case "config-vlan":
       return [...vlanX, ...globalX, ...sh.global];
     case "config-dhcp":
       return [...dhcpPoolX, ...globalX, ...sh.global];
+    case "config-router-rip":
+      return [...ripX, ...routingGlobalX, ...globalX, ...sh.global];
+    case "config-router-eigrp":
+      return [...eigrpX, ...routingGlobalX, ...globalX, ...sh.global];
+    case "config-router-ospf":
+      return [...ospfX, ...routingGlobalX, ...globalX, ...sh.global];
     default:
       return [];
   }

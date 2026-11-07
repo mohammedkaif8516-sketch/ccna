@@ -128,6 +128,7 @@ import PhysicalLogicalLab from "./phy-log";
 import MlsRingLab from "./mls-ring-lab";
 import RouterOnAStickLab from "./inter-vlan-sticl-subinterface";
 import DhcpInterVlanLabs from "./dhcpintervlanlab";
+import DhcpRelayOspfLab from "./dhcpospflab";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2275,6 +2276,9 @@ export default function CcnaStudyApp() {
                 )}
                 {current.slug === "router-on-a-stick-lab" && (
                   <RouterOnAStickLab />
+                )}
+                {current.slug === "dhcp-relay-ospf-lab" && (
+                  <DhcpRelayOspfLab />
                 )}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
