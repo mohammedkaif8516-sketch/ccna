@@ -1170,16 +1170,89 @@ function GlobalSearch({
   );
 }
 
+function StatusDot({ done, active }: { done: boolean; active?: boolean }) {
+  return done ? (
+    <span className="mt-[3px] grid size-3.5 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+      <Check className="size-2.5" strokeWidth={3} />
+    </span>
+  ) : (
+    <span
+      className={`mt-[3px] size-3.5 shrink-0 rounded-full border-[1.5px] transition-colors ${
+        active ? "border-primary" : "border-muted-foreground/30"
+      }`}
+    />
+  );
+}
+
+const ROW =
+  "flex w-full items-start gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-xs leading-5 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring";
+const rowTone = (active: boolean) =>
+  active
+    ? "bg-primary/10 font-medium text-primary"
+    : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground";
+
+/* ───────────────────────── Dashboard ───────────────────────── */
+
+function Dashboard({
+  visitHistory,
+  onSelectVisit,
+  onClearHistory,
+}: {
+  visitHistory: VisitEntry[];
+  onSelectVisit: (entry: VisitEntry) => void;
+  onClearHistory: () => void;
+}) {
+  if (visitHistory.length === 0) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] w-full items-center justify-center bg-background px-6">
+        <div className="flex max-w-md flex-col items-center text-center">
+          <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent-soft)] text-primary ring-1 ring-primary/15">
+            <Network className="size-8" strokeWidth={1.5} />
+          </span>
+          <h1 className="mt-7 text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+            Pick a topic to begin
+          </h1>
+          <p className="mt-3 text-pretty text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+            Choose anything from the curriculum and it opens here. The pages you
+            visit are collected on this screen, so you can jump back in later.
+          </p>
+          <p className="mt-6 hidden items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs text-muted-foreground lg:inline-flex">
+            <ArrowLeft className="size-3.5 text-primary" />
+            The curriculum is in the sidebar
+          </p>
+          <p className="mt-6 inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs text-muted-foreground lg:hidden">
+            Open the menu to see the curriculum
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass-canvas min-h-full w-full px-4 py-10 sm:px-6 lg:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-2xl">
+        <VisitTree
+          entries={visitHistory}
+          onSelect={onSelectVisit}
+          onClear={onClearHistory}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── Sidebar ───────────────────────── */
+
 function Sidebar({
   selected,
   selectedQuizId,
   selectedSummary,
-  selectedTopicOnly,
+  selectedTopic,
   onSelect,
+  onSelectTopic,
   onSelectQuiz,
   onSelectSummary,
   onSelectExtra,
-  onSelectTopic,
   selectedExtra,
   openedExtras,
   completed,
@@ -1188,13 +1261,15 @@ function Sidebar({
 }: {
   selected?: string;
   selectedQuizId?: string;
+  /** Slug of the topic whose Summary page is open */
   selectedSummary?: string;
-  selectedTopicOnly?: string;
+  /** Slug of the topic whose landing page is open */
+  selectedTopic?: string;
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
+  onSelectTopic?: (topic: Topic) => void;
   onSelectQuiz: (quizId: string) => void;
   onSelectSummary: (topicSlug: string) => void;
   onSelectExtra: (topic: Topic, subtopic: Subtopic) => void;
-  onSelectTopic: (topic: Topic) => void;
   selectedExtra?: string;
   openedExtras: Set<string>;
   completed: Set<string>;
@@ -1205,14 +1280,14 @@ function Sidebar({
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const topicWithActive = useMemo(() => {
+    if (selectedTopic) return selectedTopic;
     if (selectedSummary) return selectedSummary;
-    if (selectedTopicOnly) return selectedTopicOnly;
     if (!selected) return null;
     for (const topic of topics) {
       if (topic.subtopics.some((s) => s.slug === selected)) return topic.slug;
     }
     return null;
-  }, [selected, selectedSummary, selectedTopicOnly]);
+  }, [selected, selectedSummary, selectedTopic]);
 
   const [openTopics, setOpenTopics] = useState<string[]>(() =>
     topics.map((t) => t.slug),
@@ -1225,15 +1300,14 @@ function Sidebar({
     );
   }, [topicWithActive]);
 
-  const activeKey =
-    selected ?? selectedQuizId ?? selectedSummary ?? selectedTopicOnly;
+  const activeKey = selected ?? selectedQuizId ?? selectedSummary;
 
   // Sort topics so the LABS topic is always last
   const sortedTopics = useMemo(() => {
     return [...topics].sort((a, b) => {
       if (a.slug === "labs") return 1;
       if (b.slug === "labs") return -1;
-      return 0; // Keep original order for everything else
+      return 0;
     });
   }, []);
 
@@ -1263,9 +1337,7 @@ function Sidebar({
         });
         return;
       }
-      if (attempts < 10) {
-        raf = requestAnimationFrame(tryScroll);
-      }
+      if (attempts < 10) raf = requestAnimationFrame(tryScroll);
     };
 
     raf = requestAnimationFrame(tryScroll);
@@ -1281,15 +1353,11 @@ function Sidebar({
       }
     >
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-5">
-        <p className="px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+        <h2 className="px-3 pb-4 text-sm font-semibold tracking-tight">
           Curriculum
-        </p>
-        <Accordion
-          type="multiple"
-          value={openTopics}
-          onValueChange={setOpenTopics}
-          className="w-full"
-        >
+        </h2>
+
+        <div className="space-y-1">
           {sortedTopics.map((topic) => {
             const Icon = iconMap[topic.icon as keyof typeof iconMap] ?? Network;
             const doneCount = topic.subtopics.filter((s) =>
@@ -1301,54 +1369,74 @@ function Sidebar({
             const hasSummary =
               !!topic.summary && !!SUMMARY_VIEWS[topic.summary];
             const isSummaryActive = selectedSummary === topic.slug;
+            const isTopicActive = selectedTopic === topic.slug;
+            const open = openTopics.includes(topic.slug);
+            const toggle = () =>
+              setOpenTopics((prev) =>
+                prev.includes(topic.slug)
+                  ? prev.filter((s) => s !== topic.slug)
+                  : [...prev, topic.slug],
+              );
+
             return (
-              <div key={topic.slug} className="relative pl-2">
-                <div className="absolute left-0 top-0 h-full w-1 overflow-hidden rounded-full bg-muted">
+              <div key={topic.slug} className="relative pl-2.5">
+                {/* progress rail */}
+                <div className="absolute bottom-1 left-0 top-1 w-1 overflow-hidden rounded-full bg-muted">
                   <div
-                    className={`w-full transition-all duration-300 ${
+                    className={`w-full rounded-full transition-all duration-500 ${
                       topicPercent === 100 ? "bg-primary" : "bg-primary/60"
                     }`}
                     style={{ height: `${topicPercent}%` }}
                   />
                 </div>
-                <AccordionItem value={topic.slug} className="border-b-0">
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => onSelectTopic(topic)}
-                      className={`flex min-w-0 flex-1 items-center gap-2.5 rounded-md px-3 py-2.5 text-left text-xs font-medium transition-colors hover:bg-[var(--accent-soft)] ${
-                        selectedTopicOnly === topic.slug ? "text-primary" : ""
+
+                {/* topic header: title navigates, chevron expands */}
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onSelectTopic ? onSelectTopic(topic) : toggle()
+                    }
+                    aria-current={isTopicActive ? "page" : undefined}
+                    className={`flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+                      isTopicActive
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-[var(--accent-soft)]"
+                    }`}
+                  >
+                    <Icon
+                      className={`size-4 shrink-0 ${isTopicActive ? "text-primary" : "text-muted-foreground"}`}
+                    />
+                    <span className="flex-1 truncate">{topic.title}</span>
+                    <span className="shrink-0 text-[10px] font-normal tabular-nums text-muted-foreground">
+                      {doneCount}/{totalCount}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`${open ? "Collapse" : "Expand"} ${topic.title}`}
+                    aria-expanded={open}
+                    onClick={toggle}
+                    className="grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground outline-none transition-colors hover:bg-[var(--accent-soft)] hover:text-foreground focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    <ChevronRight
+                      className={`size-3.5 transition-transform duration-200 motion-reduce:transition-none ${
+                        open ? "rotate-90" : ""
                       }`}
-                    >
-                      <Icon className="size-4 shrink-0 text-muted-foreground" />
-                      <span className="flex-1 truncate">{topic.title}</span>
-                      <span className="shrink-0 text-[10px] font-normal tabular-nums text-muted-foreground">
-                        {doneCount}/{totalCount}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={
-                        openTopics.includes(topic.slug) ? "Collapse" : "Expand"
-                      }
-                      onClick={() =>
-                        setOpenTopics((prev) =>
-                          prev.includes(topic.slug)
-                            ? prev.filter((s) => s !== topic.slug)
-                            : [...prev, topic.slug],
-                        )
-                      }
-                      className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-[var(--accent-soft)]"
-                    >
-                      <ChevronRight
-                        className={`size-3.5 transition-transform ${
-                          openTopics.includes(topic.slug) ? "rotate-90" : ""
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  <AccordionContent className="pb-1 pt-0">
-                    <div className="ml-5 border-l pl-3">
+                    />
+                  </button>
+                </div>
+
+                {/* collapsible body (grid-rows trick = smooth height, no JS measuring) */}
+                <div
+                  className={`grid transition-[grid-template-rows,visibility] duration-200 motion-reduce:transition-none ${
+                    open
+                      ? "visible grid-rows-[1fr]"
+                      : "invisible grid-rows-[0fr]"
+                  }`}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <div className="ml-5 mt-0.5 border-l pb-2 pl-2">
                       {groupSubtopicsWithQuiz(topic.subtopics, topic.slug).map(
                         (group, gi) => {
                           const groupDone = group.items.filter((s) =>
@@ -1366,9 +1454,9 @@ function Sidebar({
                               className={group.name && gi > 0 ? "mt-3" : ""}
                             >
                               {group.name && (
-                                <p className="flex items-center justify-between px-3 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
+                                <p className="flex items-center justify-between px-2.5 pb-1 pt-1 text-[11px] font-medium text-muted-foreground">
                                   <span>{group.name}</span>
-                                  <span className="font-normal tabular-nums">
+                                  <span className="font-normal tabular-nums text-muted-foreground/70">
                                     {groupDone}/{group.items.length}
                                   </span>
                                 </p>
@@ -1385,37 +1473,23 @@ function Sidebar({
 
                                 return (
                                   <div key={`${subtopic.slug}-${index}`}>
-                                    <div className="flex items-center gap-1">
-                                      <button
-                                        ref={
-                                          selected === subtopic.slug
-                                            ? activeRef
-                                            : null
-                                        }
-                                        onClick={() =>
-                                          onSelect(topic, subtopic)
-                                        }
-                                        className={`flex flex-1 items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
-                                          isActive
-                                            ? "bg-primary/10 font-medium text-primary"
-                                            : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground"
-                                        }`}
-                                      >
-                                        <ChevronRight
-                                          className={`mt-0.5 size-3 shrink-0 ${
-                                            isActive
-                                              ? "text-primary"
-                                              : "opacity-50"
-                                          }`}
-                                        />
-                                        <span className="flex-1">
-                                          {subtopic.title}
-                                        </span>
-                                      </button>
-                                      {isDone && (
-                                        <Check className="mr-1 size-3 shrink-0 text-primary" />
-                                      )}
-                                    </div>
+                                    <button
+                                      ref={
+                                        selected === subtopic.slug
+                                          ? activeRef
+                                          : null
+                                      }
+                                      onClick={() => onSelect(topic, subtopic)}
+                                      className={`${ROW} ${rowTone(isActive)}`}
+                                    >
+                                      <StatusDot
+                                        done={isDone}
+                                        active={isActive}
+                                      />
+                                      <span className="flex-1">
+                                        {subtopic.title}
+                                      </span>
+                                    </button>
 
                                     {/* Only exists while the Extra page is open */}
                                     {openedExtras.has(subtopic.slug) && (
@@ -1423,19 +1497,9 @@ function Sidebar({
                                         onClick={() =>
                                           onSelectExtra(topic, subtopic)
                                         }
-                                        className={`mt-0.5 flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
-                                          isExtraActive
-                                            ? "bg-primary/10 font-medium text-primary"
-                                            : "text-muted-foreground hover:bg-[var(--accent-soft)] hover:text-foreground"
-                                        }`}
+                                        className={`${ROW} ml-5 w-[calc(100%-1.25rem)] ${rowTone(isExtraActive)}`}
                                       >
-                                        <span
-                                          className={`mt-px flex size-3 shrink-0 items-center justify-center text-[10px] font-bold leading-none ${
-                                            isExtraActive
-                                              ? "text-primary"
-                                              : "opacity-60"
-                                          }`}
-                                        >
+                                        <span className="mt-[3px] grid size-3.5 shrink-0 place-items-center rounded bg-primary/15 text-[9px] font-bold leading-none text-primary">
                                           E
                                         </span>
                                         <span className="flex-1">
@@ -1451,17 +1515,23 @@ function Sidebar({
                                 <button
                                   ref={isQuizActive ? activeRef : null}
                                   onClick={() => onSelectQuiz(group.quiz!.id)}
-                                  className={`mt-1 flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+                                  className={`${ROW} mt-1 items-center ${
                                     isQuizActive
                                       ? "bg-primary/10 font-medium text-primary"
                                       : "text-foreground/80 hover:bg-[var(--accent-soft)]"
                                   }`}
                                 >
-                                  <ListChecks className="mt-0.5 size-3 shrink-0 text-primary" />
+                                  <ListChecks className="size-3.5 shrink-0 text-primary" />
                                   <span className="flex-1 font-medium">
                                     Quiz
                                   </span>
-                                  <span className="mt-px shrink-0 text-[10px] tabular-nums text-muted-foreground">
+                                  <span
+                                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] tabular-nums ${
+                                      score
+                                        ? "bg-primary/10 text-primary"
+                                        : "bg-muted text-muted-foreground"
+                                    }`}
+                                  >
                                     {score
                                       ? `${score.best}/${score.total}`
                                       : "Not taken"}
@@ -1477,28 +1547,27 @@ function Sidebar({
                         <button
                           ref={isSummaryActive ? activeRef : null}
                           onClick={() => onSelectSummary(topic.slug)}
-                          className={`mt-1 flex w-full items-start gap-2 rounded-md px-3 py-2 text-left text-xs leading-4 outline-none transition-colors focus-visible:ring-1 focus-visible:ring-ring ${
+                          className={`${ROW} mt-1 items-center ${
                             isSummaryActive
                               ? "bg-primary/10 font-medium text-primary"
                               : "text-foreground/80 hover:bg-[var(--accent-soft)]"
                           }`}
                         >
-                          <BookOpen className="mt-0.5 size-3 shrink-0 text-primary" />
+                          <BookOpen className="size-3.5 shrink-0 text-primary" />
                           <span className="flex-1 font-medium">Summary</span>
                         </button>
                       )}
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
+                  </div>
+                </div>
               </div>
             );
           })}
-        </Accordion>
+        </div>
       </div>
     </aside>
   );
 }
-
 type DiagramSlotProps = {
   diagram: {
     src: string;
@@ -1754,47 +1823,6 @@ function SubnetCalculator() {
         )}
       </CardContent>
     </Card>
-  );
-}
-
-function Dashboard({
-  visitHistory,
-  onSelectVisit,
-  onClearHistory,
-}: {
-  visitHistory: VisitEntry[];
-  onSelectVisit: (entry: VisitEntry) => void;
-  onClearHistory: () => void;
-}) {
-  if (visitHistory.length === 0) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] w-full flex-col items-center justify-center bg-background px-6">
-        <div className="flex flex-col items-center text-center max-w-md">
-          <div className="mb-8 text-primary animate-pulse">
-            <ArrowLeft className="size-20" strokeWidth={1.5} />
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Start from the sidebar
-          </h1>
-          <p className="mt-4 text-base leading-7 text-muted-foreground">
-            Pick any topic on the left to open it here. Your study session will
-            load in this space.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="glass-canvas min-h-full w-full px-4 py-10 sm:px-6 lg:px-10">
-      <div className="relative z-10 mx-auto w-full max-w-2xl">
-        <VisitTree
-          entries={visitHistory}
-          onSelect={onSelectVisit}
-          onClear={onClearHistory}
-        />
-      </div>
-    </div>
   );
 }
 

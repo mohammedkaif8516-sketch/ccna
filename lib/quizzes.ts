@@ -7568,6 +7568,399 @@ export const quizzes: Quiz[] = [
       ],
       answer: 1,
       explanation: "DHCP Snooping is a security feature that drops DHCP Offer and Ack messages from untrusted ports, ensuring clients only get IP configurations from authorized servers."
+    },
+    
+    {
+      id: "q23",
+      prompt: "What is the primary reason an IP Helper Address (DHCP Relay) is required when a DHCP server is placed in a different network than the clients?",
+      options: [
+        "Clients do not know the subnet mask of their own network.",
+        "Routers block broadcast traffic by default, preventing the Discover message from reaching the server.",
+        "DHCP servers only respond to unicast messages by default.",
+        "The DHCP protocol requires a relay agent to encrypt the payload."
+      ],
+      answer: 1,
+      explanation: "DHCP clients broadcast their Discover messages. Because routers do not forward broadcasts, the request will never reach a remote DHCP server without a relay agent."
+    },
+    {
+      id: "q24",
+      prompt: "What is the Cisco-specific term for a DHCP Relay Agent?",
+      options: [
+        "IP Helper Address",
+        "DHCP Forwarder",
+        "Broadcast Unicast Translator (BUT)",
+        "IP DHCP Relay"
+      ],
+      answer: 0,
+      explanation: "In Cisco IOS, the feature used to configure a DHCP Relay Agent is called the IP Helper Address."
+    },
+    {
+      id: "q25",
+      prompt: "Where must the `ip helper-address` command be configured on a Cisco multilayer switch or router?",
+      options: [
+        "On the physical interface connected to the DHCP server.",
+        "On the global configuration mode of the DHCP server.",
+        "On the Gateway (GW) interface of the client's network, such as an SVI or subinterface.",
+        "On the client's access port interface."
+      ],
+      answer: 2,
+      explanation: "The helper address must be applied to the interface that acts as the default gateway for the broadcasting clients (e.g., the SVI or subinterface)."
+    },
+    {
+      id: "q26",
+      prompt: "How does the IP Helper Address modify the DHCP Discover packet before sending it to the remote server?",
+      options: [
+        "It changes the destination MAC address to the client's MAC address.",
+        "It encapsulates the broadcast inside a TCP segment.",
+        "It converts the broadcast message into a unicast communication directed at the server.",
+        "It changes the UDP destination port from 67 to 80."
+      ],
+      answer: 2,
+      explanation: "The IP Helper converts the local L2/L3 broadcast packet into a unicast packet routed directly to the original DHCP server's IP address."
+    },
+    {
+      id: "q27",
+      prompt: "When the router forwards the relayed DHCP Discover to the remote server, what does it use as the source IP address in the packet?",
+      options: [
+        "0.0.0.0",
+        "255.255.255.255",
+        "The DHCP server's IP address",
+        "The Gateway interface's IP address"
+      ],
+      answer: 3,
+      explanation: "The router places the IP address of the interface that received the broadcast (the client's gateway) into the source IP field of the unicast packet. (e.g., changing 0.0.0.0 to the GW IP)."
+    },
+    {
+      id: "q28",
+      prompt: "You are configuring a Router on a Stick (RoaS) environment. The client VLAN is 10 and the remote DHCP server is 4.4.4.1. Which set of commands correctly applies the helper address?",
+      options: [
+        "interface f0/0.10 \\n ip helper-address 4.4.4.1",
+        "interface f0/0 \\n ip dhcp relay 4.4.4.1",
+        "ip dhcp pool VLAN10 \\n helper-address 4.4.4.1",
+        "interface vlan 10 \\n ip forward-protocol 4.4.4.1"
+      ],
+      answer: 0,
+      explanation: "In a RoaS setup, the gateway for VLAN 10 is the subinterface (f0/0.10). The command `ip helper-address 4.4.4.1` must be applied directly to this subinterface."
+    },
+    {
+      id: "q29",
+      prompt: "How does the remote DHCP server know which specific IP pool to select a lease from when it receives a relayed DHCP Discover?",
+      options: [
+        "It assigns an IP based on the client's MAC address.",
+        "It looks at the source IP address (the gateway IP) of the relayed unicast packet.",
+        "The router adds a VLAN tag to the DHCP payload.",
+        "The server sends a ping broadcast to see which subnets are empty."
+      ],
+      answer: 1,
+      explanation: "The DHCP server checks the source IP address of the incoming unicast packet (which is the client's default gateway) and matches it to a DHCP pool containing that network."
+    },
+    {
+      id: "q30",
+      prompt: "Which command is the most direct way to verify if an IP helper address has been applied to an SVI for VLAN 10?",
+      options: [
+        "show ip dhcp binding",
+        "show ip dhcp pool",
+        "show run interface vlan 10",
+        "show ip route"
+      ],
+      answer: 2,
+      explanation: "The `show run interface vlan 10` command displays the running configuration for that specific SVI, allowing you to see if the `ip helper-address` command is present."
+    },
+    {
+      id: "q31",
+      prompt: "In addition to DHCP (UDP ports 67 and 68), which of the following broadcast types does the Cisco `ip helper-address` command forward by default?",
+      options: [
+        "TFTP and DNS broadcasts",
+        "ARP requests and replies",
+        "OSPF and EIGRP multicast hellos",
+        "ICMP echo requests"
+      ],
+      answer: 0,
+      explanation: "By default, the `ip helper-address` command forwards 8 specific UDP broadcast ports, including DHCP/BOOTP (67/68), TFTP (69), DNS (53), Time (37), TACACS (49), and NetBIOS (137/138)."
+    },
+    {
+      id: "q32",
+      prompt: "You configured an `ip helper-address` on the gateway, and you can ping the remote DHCP server from the router. However, clients are still not receiving IP addresses. What is a common real-world routing issue that causes this failure?",
+      options: [
+        "The DHCP server is running out of MAC addresses.",
+        "The clients are sending unicast Discover messages.",
+        "The DHCP server lacks a return route back to the client's subnet (the gateway's IP).",
+        "The router requires an ACL to permit UDP port 80."
+      ],
+      answer: 2,
+      explanation: "Even if the router can reach the server, the remote DHCP server must have a routing table entry (or default route) pointing back to the client's subnet so it can successfully return the DHCP Offer."
+    }
+  ]
+},
+{
+  id: "vtp-vlan-trunking-protocol",
+  topicSlug: "switching-vlans-and-trunking",
+  group: "VTP (VLAN Trunking Protocol)",
+  title: "VTP (VLAN Trunking Protocol) Quiz",
+  questions: [
+    {
+      id: "q1",
+      prompt: "What is the primary purpose of the VLAN Trunking Protocol (VTP)?",
+      options: [
+        "To encrypt VLAN traffic over trunk links.",
+        "To automatically negotiate trunking encapsulation.",
+        "To simplify VLAN database management across a network.",
+        "To prevent Layer 2 switching loops in redundant topologies."
+      ],
+      answer: 2,
+      explanation: "VTP allows network administrators to manage and maintain a consistent VLAN database centrally, avoiding the difficult task of configuring VLANs manually on every single switch."
+    },
+    {
+      id: "q2",
+      prompt: "Who developed the VLAN Trunking Protocol (VTP)?",
+      options: [
+        "IEEE",
+        "IETF",
+        "Cisco",
+        "Juniper"
+      ],
+      answer: 2,
+      explanation: "VTP is a Cisco-proprietary technology and is only supported on Cisco networking equipment."
+    },
+    {
+      id: "q3",
+      prompt: "What type of architecture does VTP use to distribute VLAN information?",
+      options: [
+        "Peer-to-Peer",
+        "Server-Client",
+        "Hub-and-Spoke",
+        "Ring-and-Token"
+      ],
+      answer: 1,
+      explanation: "VTP uses a Server-Client architecture, where one or more switches are configured as VTP servers and the remaining switches act as VTP clients."
+    },
+    {
+      id: "q4",
+      prompt: "In a VTP Server-Client architecture, where must an administrator make changes to the VLAN database?",
+      options: [
+        "On any switch in the network.",
+        "Only on the VTP Client switches.",
+        "Only on the VTP Server switches.",
+        "Only on the designated Root Bridge."
+      ],
+      answer: 2,
+      explanation: "VLAN database changes (creating, modifying, or deleting VLANs) are made exclusively on the VTP server switches, which then push those changes out to the clients."
+    },
+    {
+      id: "q5",
+      prompt: "How does a VTP server share the updated VLAN database with other switches in the network?",
+      options: [
+        "By periodically sending a VTP advertisement.",
+        "By sending an ARP broadcast to all access ports.",
+        "By querying a centralized DNS server.",
+        "By uploading a text file to a TFTP server."
+      ],
+      answer: 0,
+      explanation: "The server periodically shares the new, updated VLAN database via a VTP advertisement to the other switches in the topology."
+    },
+    {
+      id: "q6",
+      prompt: "What action does a VTP client take when it receives a new VTP advertisement?",
+      options: [
+        "It stores it in a temporary buffer and asks the administrator to approve it.",
+        "It accepts and stores it as its current VLAN database, then shares it with other clients.",
+        "It ignores the advertisement unless its own database is completely empty.",
+        "It forwards it to other clients but keeps its own local database unchanged."
+      ],
+      answer: 1,
+      explanation: "When a client switch receives the new VLAN database, it automatically accepts and stores it as its own, and then forwards the advertisement to other clients."
+    },
+    {
+      id: "q7",
+      prompt: "Which type of physical connection is required between switches for VTP advertisements to be exchanged successfully?",
+      options: [
+        "Active access interfaces",
+        "Active trunk interfaces",
+        "Active routed interfaces",
+        "Active management interfaces"
+      ],
+      answer: 1,
+      explanation: "For VTP to function, trunk interfaces must be up and running between the switches."
+    },
+    {
+      id: "q8",
+      prompt: "Which VLAN is responsible for carrying VTP advertisements across a trunk link?",
+      options: [
+        "VLAN 1 only",
+        "The highest numbered VLAN",
+        "The lowest numbered VLAN",
+        "The native VLAN"
+      ],
+      answer: 3,
+      explanation: "VTP advertisements pass through the trunk port via the native VLAN."
+    },
+    {
+      id: "q9",
+      prompt: "What happens if the native VLAN is removed or not allowed on a trunk interface connecting two VTP switches?",
+      options: [
+        "Switches will not receive VTP advertisements.",
+        "VTP will automatically fall back to using VLAN 1.",
+        "VTP advertisements will be sent as standard untagged broadcast traffic.",
+        "The trunk will automatically shut down due to a VTP violation."
+      ],
+      answer: 0,
+      explanation: "Because VTP advertisements ride on the native VLAN, if the native VLAN is not allowed or configured on the trunk, VTP updates will be blocked."
+    },
+    {
+      id: "q10",
+      prompt: "Can VTP advertisements be transmitted out of standard switch access ports?",
+      options: [
+        "Yes, if the access port belongs to VLAN 1.",
+        "Yes, to any device listening on the network.",
+        "No, VTP advertisements only pass through trunk ports.",
+        "No, they only pass through loopback interfaces."
+      ],
+      answer: 2,
+      explanation: "VTP advertisements do not pass through access ports; they exclusively pass through trunk interfaces."
+    },
+    {
+      id: "q11",
+      prompt: "Which of the following statements about VTP domains is true?",
+      options: [
+        "A switch can be part of multiple VTP domains simultaneously.",
+        "The domain name is case-insensitive.",
+        "A switch can only be part of a single VTP domain.",
+        "The domain name must match the switch's hostname."
+      ],
+      answer: 2,
+      explanation: "Every switch must be part of the same VTP domain to sync, and a switch can only belong to one single VTP domain at a time."
+    },
+    {
+      id: "q12",
+      prompt: "A network administrator configures one switch with the VTP domain 'CCNA' and another with 'ccna'. Will VTP synchronize the VLAN database between them?",
+      options: [
+        "Yes, because domain names are not case-sensitive.",
+        "Yes, because the letters are identical regardless of case.",
+        "No, because a switch can only belong to domains with numbers.",
+        "No, because the VTP domain name is case-sensitive."
+      ],
+      answer: 3,
+      explanation: "The VTP domain name is strictly case-sensitive, meaning 'CCNA' and 'ccna' are treated as two entirely different domains."
+    },
+    {
+      id: "q13",
+      prompt: "Which hashing algorithm does VTP use to authenticate its advertisements when a password is configured?",
+      options: [
+        "SHA-256",
+        "MD5",
+        "AES-128",
+        "RSA"
+      ],
+      answer: 1,
+      explanation: "VTP passwords use the MD5 (Message-Digest 5) hashing algorithm to authenticate VTP advertisements."
+    },
+    {
+      id: "q14",
+      prompt: "When configuring a VTP password across multiple switches, which rule must be followed?",
+      options: [
+        "The password must be exactly 8 characters long.",
+        "The password must match exactly on all switches and is case-sensitive.",
+        "The password must be updated every 30 days.",
+        "The password is only required on the VTP server."
+      ],
+      answer: 1,
+      explanation: "For authentication to succeed, the password must be identical on all switches and, like the domain name, is case-sensitive."
+    },
+    {
+      id: "q15",
+      prompt: "How many versions of the VLAN Trunking Protocol (VTP) currently exist?",
+      options: [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      answer: 2,
+      explanation: "There are 3 versions of VTP: V1, V2, and V3."
+    },
+    {
+      id: "q16",
+      prompt: "Which VTP version is considered the default version on Cisco switches?",
+      options: [
+        "VTP V1",
+        "VTP V2",
+        "VTP V3",
+        "VTP V4"
+      ],
+      answer: 1,
+      explanation: "VTP V2 is the default version running on Cisco switches."
+    },
+    {
+      id: "q17",
+      prompt: "An engineer is attempting to mix switches running VTP Version 1, Version 2, and Version 3 in the same topology. What is the expected behavior?",
+      options: [
+        "The switches will automatically negotiate down to VTP V1.",
+        "The switches will synchronize seamlessly because all versions are backwards compatible.",
+        "The switches will not synchronize because VTP versions are not compatible.",
+        "Only VTP V2 and V3 will synchronize; V1 will be ignored."
+      ],
+      answer: 2,
+      explanation: "The switches in the topology must run the exact same VTP version because the different versions are not compatible with one another."
+    },
+    {
+      id: "q18",
+      prompt: "A network administrator types the command to create VLAN 50 on a switch, but receives an error stating the device is in VTP Client mode. Why does this happen?",
+      options: [
+        "Client switches require an MD5 password to create VLANs locally.",
+        "Client switches cannot modify the VLAN database; changes must be made on the VTP Server.",
+        "Client switches can only delete VLANs, not create new ones.",
+        "Client switches must first be upgraded to VTP Version 3."
+      ],
+      answer: 1,
+      explanation: "In a Server-Client VTP architecture, clients receive and accept the database but cannot natively create, modify, or delete VLANs themselves."
+    },
+    {
+      id: "q19",
+      prompt: "Which of the following combinations must perfectly match between two switches for VTP to successfully synchronize the VLAN database?",
+      options: [
+        "VTP domain, VTP password, and VTP version.",
+        "VTP domain, VTP revision number, and Native VLAN.",
+        "VTP password, VTP version, and switch hostname.",
+        "VTP domain, spanning-tree mode, and trunk encapsulation."
+      ],
+      answer: 0,
+      explanation: "To participate in the same VTP synchronization process, switches require the exact same VTP domain name, VTP password, and VTP version."
+    },
+    {
+      id: "q20",
+      prompt: "Which of the following best describes 'VTP Transparent Mode'?",
+      options: [
+        "A mode where the switch acts as a backup VTP Server if the primary fails.",
+        "A mode where the switch maintains its own independent VLAN database and forwards VTP advertisements without syncing its own.",
+        "A mode where the switch completely ignores and drops all VTP advertisements.",
+        "A mode where the switch forces all other switches to erase their VLAN databases."
+      ],
+      answer: 1,
+      explanation: "Transparent mode switches do not synchronize their database with VTP Servers, but they do forward VTP advertisements to other switches to keep the VTP domain functioning."
+    },
+    {
+      id: "q21",
+      prompt: "What specific metric does a VTP switch check inside a VTP advertisement to determine if it should overwrite its current VLAN database?",
+      options: [
+        "The MD5 Hash Length",
+        "The VTP Priority Value",
+        "The Configuration Revision Number",
+        "The MAC Address of the VTP Server"
+      ],
+      answer: 2,
+      explanation: "The Configuration Revision Number increments with every change. Switches always adopt the VLAN database with the highest revision number, assuming it is the most recent update."
+    },
+    {
+      id: "q22",
+      prompt: "A technician accidentally connects an old lab switch configured as a VTP Client to the production network. Why might this accidentally wipe the production VLAN database?",
+      options: [
+        "Because VTP Clients always overwrite VTP Servers by default.",
+        "Because the lab switch might have a higher VTP Configuration Revision Number than the production server.",
+        "Because the lab switch will flood the network with BPDU frames.",
+        "Because VTP V1 always overrides VTP V2 and V3 databases."
+      ],
+      answer: 1,
+      explanation: "If a new switch (even in Client mode) has the same domain and password but a higher Configuration Revision Number, the other switches (including Servers) will believe its database is newer and overwrite their own."
     }
   ]
 },
