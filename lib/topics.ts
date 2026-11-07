@@ -5026,7 +5026,7 @@ export const topics: Topic[] = [
           { src: '/diagrams/three-tier-architecture1.png', alt: 'Core, distribution and access layers with edge routers connecting to ISPs', caption: 'Cisco 3-tier: Core, Distribution, Access with edge routers to ISPs' },
         ],
       },
-            {
+      {
         slug: 'dhcp-purpose-and-server-client-architecture',
         title: 'DHCP Purpose & Server-Client Architecture',
         group: 'DHCP (Dynamic Host Configuration Protocol)',
@@ -5203,7 +5203,7 @@ export const topics: Topic[] = [
           { label: 'DNS / domain', value: 'dns-server <ip> / domain-name <name>' },
           { label: 'Lease', value: 'lease <days> <hours>' },
         ],
-        
+
       },
       {
         slug: 'dhcp-verification-and-troubleshooting',
@@ -5230,7 +5230,172 @@ export const topics: Topic[] = [
           { label: 'Filter binding', value: 'sh ip dhcp binding | include <IP/MAC>' },
           { label: 'Refresh all', value: 'clear ip dhcp binding *' },
         ],
-    
+
+      },
+      {
+        slug: 'dhcp-ip-helper-address-relay',
+        title: 'DHCP IP Helper Address (Relay Agent)',
+        group: 'DHCP (Dynamic Host Configuration Protocol)',
+        description: 'A DHCP client broadcasts a Discover to find a server. If the server is in a different network, the gateway interface uses an IP helper-address to convert that broadcast into a unicast directed at the server.',
+        blocks: [
+          { type: 'heading', text: 'The problem' },
+          {
+            type: 'bullets', items: [
+              'DHCP clients broadcast their messages (DHCP Discover) inside the local network when searching for a DHCP server.',
+              'If the DHCP server is located inside the same network, it will receive this broadcast message and respond back with an offer.',
+              'In normal situations, the DHCP server is a Windows/Linux server located in another network (either in the same location or a different location).',
+              'Because routers block broadcasts by default, the Discover will never reach that remote server.',
+            ]
+          },
+          { type: 'heading', text: 'The solution: IP Helper Address' },
+          {
+            type: 'bullets', items: [
+              'Also called DHCP Relay Agent (IP Helper Address is the Cisco term).',
+              'Configure the helper address on the Gateway (GW) interface of the network (the SVI or subinterface).',
+              'The helper address is the original DHCP server IP address.',
+              'It redirects the traffic to the original server as a unicast communication.',
+              'Inside the DHCP pool on the server, the GW IP address (default-router) is configured to redirect the traffic back to the correct network.',
+            ]
+          },
+          { type: 'heading', text: 'Packet flow' },
+          {
+            type: 'code', language: 'text', code: 'Client -> GW (Broadcast)\n| DHCP Discover | 68 | 67 | 0.0.0.0 | 255.255.255.255 |\n\nGW -> DHCP Server (Unicast)\n| DHCP Server | 68 | 67 | 10.100 | 4.4.4.1 |'
+          },
+          { type: 'heading', text: 'Configuration' },
+          { type: 'paragraph', text: 'If you use Router on a Stick (sub-interface):' },
+          {
+            type: 'code', language: 'text', code: '# interface f0/0.10\n# description GW-VLAN10\n# encap dot1q 10\n# ip address 192.168.10.100 255.255.255.0\n# ip helper-address 4.4.4.1\n# no sh\n# exit'
+          },
+          { type: 'paragraph', text: 'If you use an SVI on a multilayer switch:' },
+          {
+            type: 'code', language: 'text', code: '# interface vlan 10\n# description GW-VLAN10\n# ip address 192.168.10.100 255.255.255.0\n# ip helper-address 4.4.4.1\n# no sh\n# exit'
+          },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets', items: [
+              'All DHCP verification commands apply (show ip dhcp pool, show ip dhcp binding).',
+              '# show run interface f0/0.10',
+              '# ping 4.4.4.1',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Other name', value: 'DHCP Relay Agent' },
+          { label: 'Where configured', value: 'GW interface (SVI or subinterface)' },
+          { label: 'Command', value: 'ip helper-address <server-ip>' },
+          { label: 'Effect', value: 'Converts client broadcast to server unicast' },
+          { label: 'Verify', value: 'show run interface <intf>' },
+        ],
+        diagrams: [
+          { src: '/diagrams/dhcp-relay-topology1_wide.png', alt: 'DHCP Relay Topology showing Broadcast from Client to R1, and Unicast from R1 to R4 (DHCP Server at 4.4.4.1), routing via OSPF 200', caption: 'DHCP Relay — broadcast to GW, unicast to remote server' },
+        ],
+      },
+      {
+        slug: 'vtp-vlan-trunking-protocol-architecture',
+        title: 'VTP Architecture (Server-Client VLAN Database Syncing)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'VTP is a Cisco-proprietary protocol that simplifies VLAN database management by using a server-client architecture to periodically share VLAN updates across switches.',
+        blocks: [
+          { type: 'heading', text: 'Why VTP is needed' },
+          {
+            type: 'bullets', items: [
+              'Maintaining a consistent VLAN database can be a very difficult task in a larger switching environment.',
+              'VTP enables us to simplify this task.',
+            ]
+          },
+          { type: 'heading', text: 'How it works' },
+          {
+            type: 'bullets', items: [
+              'It is a Server-Client architecture where one or more switches are configured as servers and the remaining switches are configured as clients.',
+              'VLAN database changes are made on the server switches.',
+              'The server shares the new updated VLAN database as a VTP advertisement periodically to the other client switches in the topology.',
+              'When a client switch receives the new VLAN database, it accepts and stores it, making it their current VLAN database.',
+              'The client will then share its new database with other clients.',
+              'VTP is a Cisco-proprietary technology.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Owner', value: 'Cisco proprietary' },
+          { label: 'Model', value: 'Server-Client' },
+          { label: 'Function', value: 'Central VLAN DB management' },
+          { label: 'Updates', value: 'Periodic VTP advertisements' },
+        ],
+      },
+      {
+        slug: 'vtp-operational-conditions',
+        title: 'VTP Operational Conditions (Trunk & Native VLAN)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'For VTP to function, switches must be connected by active trunk interfaces, and the native VLAN carrying VTP advertisements must be allowed and configured on those trunks.',
+        blocks: [
+          { type: 'heading', text: '(i) Trunk interfaces' },
+          {
+            type: 'bullets', items: [
+              'Trunk interfaces must be up and running between the switches.',
+              'VTP advertisements pass through the trunk port via the native VLAN (not through access ports).',
+            ]
+          },
+          { type: 'heading', text: '(ii) Native VLAN' },
+          {
+            type: 'bullets', items: [
+              'VTP advertisements pass through the native VLAN.',
+              'If the native VLAN is not allowed or configured on the trunk, switches will not receive VTP advertisements.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Interface', value: 'Trunk must be up' },
+          { label: 'Transport', value: 'VTP advertisements ride the native VLAN' },
+          { label: 'Blocked if', value: 'Native VLAN is not allowed on the trunk' },
+        ],
+      },
+      {
+        slug: 'vtp-authentication-and-versions',
+        title: 'VTP Authentication & Versions',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'VTP requires switches to share the same domain, password, and version. Domains and passwords are case-sensitive, and passwords are transmitted using MD5 hashing.',
+        blocks: [
+          { type: 'heading', text: '(iii) Same VTP Domain' },
+          {
+            type: 'bullets', items: [
+              'Every switch must be part of the same VTP domain.',
+              'The domain name must be the same on all switches.',
+              'A switch can only be part of a single domain.',
+              'Domain name is case-sensitive.',
+            ]
+          },
+          { type: 'heading', text: 'Same VTP password' },
+          {
+            type: 'bullets', items: [
+              'Passwords can use the MD5 (Message-Digest 5) hashing algorithm to authenticate VTP advertisements.',
+              'The password must be the same on all switches and is case-sensitive.',
+            ]
+          },
+          {
+            type: 'code', language: 'text', code: 'SW1 & SW2\nDomain: CCNA + MD5 => Hash value -> Attached with VTP-Advertisement\nPassword: CCNA123\n\nSW1 -- VTP Advertisement with hash value --> SW2\nSW1 <-- VTP Advertisement with hash value -- SW2'
+          },
+          { type: 'heading', text: '(iv) Same VTP Version' },
+          {
+            type: 'bullets', items: [
+              'The switches in the topology should run the same VTP version.',
+              'There are 3 versions:',
+            ]
+          },
+          {
+            type: 'table', headers: ['Version', 'Notes'], rows: [
+              ['VTP V1', 'Old version'],
+              ['VTP V2', 'Default version'],
+              ['VTP V3', 'New version'],
+            ]
+          },
+          { type: 'paragraph', text: 'Versions are not compatible.' },
+        ],
+        quickReference: [
+          { label: 'Domain', value: 'Must match, case-sensitive' },
+          { label: 'Password', value: 'Must match, MD5 hashed' },
+          { label: 'Versions', value: 'V1 (old), V2 (default), V3 (new)' },
+          { label: 'Compatibility', value: 'Versions are not compatible' },
+        ],
       },
     ],
   },
@@ -5826,675 +5991,675 @@ export const topics: Topic[] = [
         ],
       },
       {
-  slug: 'trunk-lab',
-  title: 'Manual Trunking Lab',
-  group: 'Switching Labs',
-  description:
-    'Build a three-switch network with four VLANs and configure the switch-to-switch links as manual 802.1Q trunks. One cable per link carries every VLAN, and with no router only hosts in the same VLAN can communicate.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Three switches (SW1, SW2 and SW3) are connected in a line with a single cable between each pair: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). The hosts must reach the other hosts of their own department on the other switches, so each cable has to carry all four VLANs at once. Both inter-switch ports are configured as trunks by hand, rather than leaving them to dynamic negotiation. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, and the VPCs have no IP addresses.'
-    },
+        slug: 'trunk-lab',
+        title: 'Manual Trunking Lab',
+        group: 'Switching Labs',
+        description:
+          'Build a three-switch network with four VLANs and configure the switch-to-switch links as manual 802.1Q trunks. One cable per link carries every VLAN, and with no router only hosts in the same VLAN can communicate.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Three switches (SW1, SW2 and SW3) are connected in a line with a single cable between each pair: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). The hosts must reach the other hosts of their own department on the other switches, so each cable has to carry all four VLANs at once. Both inter-switch ports are configured as trunks by hand, rather than leaving them to dynamic negotiation. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, and the VPCs have no IP addresses.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
-        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
-        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
-        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
-        'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
-        'The VPCs use a /24 mask and no default gateway, because there is no router.',
-        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
-        'Trunk ports: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0.',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
+              'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
+              'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
+              'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
+              'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+              'The VPCs use a /24 mask and no default gateway, because there is no router.',
+              'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+              'Trunk ports: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0.',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
-        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
-        'Configure the two inter-switch links as trunks on both ends with switchport trunk encapsulation dot1q and switchport mode trunk.',
-        'Limit each trunk to the four VLANs in use with switchport trunk allowed vlan 10,20,30,40.',
-        'Bring all used ports up with no shutdown.',
-        'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
-        'Verify the trunks with show interfaces trunk and the VLAN membership with show vlan brief.',
-        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
-        'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
-        'Break something on purpose: remove VLAN 30 from the SW2 to SW3 trunk and see which pings stop.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Configure the two inter-switch links as trunks on both ends with switchport trunk encapsulation dot1q and switchport mode trunk.',
+              'Limit each trunk to the four VLANs in use with switchport trunk allowed vlan 10,20,30,40.',
+              'Bring all used ports up with no shutdown.',
+              'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
+              'Verify the trunks with show interfaces trunk and the VLAN membership with show vlan brief.',
+              'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
+              'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
+              'Break something on purpose: remove VLAN 30 from the SW2 to SW3 trunk and see which pings stop.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'An access port belongs to one VLAN and sends frames without a tag. A trunk port carries many VLANs over one cable by adding an 802.1Q tag with the VLAN number to every frame, and the switch at the other end reads the tag to put the frame back into the right VLAN. That is why one cable per link is enough here. A trunk is only useful if both ends agree, so both ports must be set to trunk mode and use the same encapsulation. On these switches the encapsulation has to be chosen first, with switchport trunk encapsulation dot1q, or the switchport mode trunk command is rejected. Setting the mode by hand also means the port no longer depends on DTP negotiation. VLANs are still local to each switch, so VLAN 10 must exist on SW1, SW2 and SW3, and a VLAN that is missing from a switch or from the allowed list of a trunk will not cross that link. The native VLAN (VLAN 1 by default) is the one whose frames are sent untagged on a trunk, and it must match at both ends. Because there is no router, nothing moves traffic from one VLAN to another, so hosts in different VLANs stay isolated even though they share the same trunks.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'An access port belongs to one VLAN and sends frames without a tag. A trunk port carries many VLANs over one cable by adding an 802.1Q tag with the VLAN number to every frame, and the switch at the other end reads the tag to put the frame back into the right VLAN. That is why one cable per link is enough here. A trunk is only useful if both ends agree, so both ports must be set to trunk mode and use the same encapsulation. On these switches the encapsulation has to be chosen first, with switchport trunk encapsulation dot1q, or the switchport mode trunk command is rejected. Setting the mode by hand also means the port no longer depends on DTP negotiation. VLANs are still local to each switch, so VLAN 10 must exist on SW1, SW2 and SW3, and a VLAN that is missing from a switch or from the allowed list of a trunk will not cross that link. The native VLAN (VLAN 1 by default) is the one whose frames are sent untagged on a trunk, and it must match at both ends. Because there is no router, nothing moves traffic from one VLAN to another, so hosts in different VLANs stay isolated even though they share the same trunks.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show interfaces trunk: lists each trunk port with mode on, encapsulation 802.1q, status trunking and native VLAN 1, followed by the allowed and forwarding VLANs.',
-        'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Trunk ports are not listed under any VLAN.',
-        'show interfaces e0/1 switchport: Administrative Mode and Operational Mode are both trunk, and the trunking encapsulation is dot1q.',
-        'show interfaces status: the trunk ports show trunk in the VLAN column.',
-        'show ip on each VPC: the address and mask match its VLAN subnet.',
-        'ping: works inside a VLAN across switches and times out between different VLANs.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
-    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Access port', value: 'switchport mode access' },
-    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
-    { label: 'Encapsulation', value: 'switchport trunk encapsulation dot1q' },
-    { label: 'Manual trunk', value: 'switchport mode trunk' },
-    { label: 'Allowed VLANs', value: 'switchport trunk allowed vlan <list>' },
-    { label: 'Show trunks', value: 'show interfaces trunk' },
-    { label: 'Show VLANs', value: 'show vlan brief' },
-  ],
-},
-{
-  slug: 'dtp-trunk-lab',
-  title: 'Manual & DTP Trunking Lab',
-  group: 'Switching Labs',
-  description:
-    'Build a three-switch network with four VLANs where one inter-switch link is a manual 802.1Q trunk and the other is negotiated with DTP. Only hosts in the same VLAN can communicate because there is no router.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Three switches (SW1, SW2 and SW3) are connected in a line with a single cable between each pair: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). Hosts must reach the other hosts of their own department on the other switches, so each cable has to carry all four VLANs. The first link is configured as a trunk by hand on both ends. The second link is left to the Dynamic Trunking Protocol (DTP), where the two ends negotiate and decide to trunk on their own. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, and the VPCs have no IP addresses.'
-    },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show interfaces trunk: lists each trunk port with mode on, encapsulation 802.1q, status trunking and native VLAN 1, followed by the allowed and forwarding VLANs.',
+              'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Trunk ports are not listed under any VLAN.',
+              'show interfaces e0/1 switchport: Administrative Mode and Operational Mode are both trunk, and the trunking encapsulation is dot1q.',
+              'show interfaces status: the trunk ports show trunk in the VLAN column.',
+              'show ip on each VPC: the address and mask match its VLAN subnet.',
+              'ping: works inside a VLAN across switches and times out between different VLANs.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+          { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Access port', value: 'switchport mode access' },
+          { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+          { label: 'Encapsulation', value: 'switchport trunk encapsulation dot1q' },
+          { label: 'Manual trunk', value: 'switchport mode trunk' },
+          { label: 'Allowed VLANs', value: 'switchport trunk allowed vlan <list>' },
+          { label: 'Show trunks', value: 'show interfaces trunk' },
+          { label: 'Show VLANs', value: 'show vlan brief' },
+        ],
+      },
+      {
+        slug: 'dtp-trunk-lab',
+        title: 'Manual & DTP Trunking Lab',
+        group: 'Switching Labs',
+        description:
+          'Build a three-switch network with four VLANs where one inter-switch link is a manual 802.1Q trunk and the other is negotiated with DTP. Only hosts in the same VLAN can communicate because there is no router.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Three switches (SW1, SW2 and SW3) are connected in a line with a single cable between each pair: SW1 e0/1 to SW2 e0/1, and SW2 e0/0 to SW3 e0/0. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). Hosts must reach the other hosts of their own department on the other switches, so each cable has to carry all four VLANs. The first link is configured as a trunk by hand on both ends. The second link is left to the Dynamic Trunking Protocol (DTP), where the two ends negotiate and decide to trunk on their own. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, and the VPCs have no IP addresses.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
-        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
-        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
-        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
-        'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
-        'The VPCs use a /24 mask and no default gateway, because there is no router.',
-        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
-        'Manual trunk: SW1 e0/1 to SW2 e0/1, with switchport mode trunk on both ends.',
-        'DTP trunk: SW2 e0/0 (dynamic desirable) to SW3 e0/0 (dynamic auto).',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
+              'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
+              'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
+              'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
+              'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+              'The VPCs use a /24 mask and no default gateway, because there is no router.',
+              'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+              'Manual trunk: SW1 e0/1 to SW2 e0/1, with switchport mode trunk on both ends.',
+              'DTP trunk: SW2 e0/0 (dynamic desirable) to SW3 e0/0 (dynamic auto).',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
-        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
-        'Build the SW1 to SW2 trunk manually with switchport trunk encapsulation dot1q and switchport mode trunk on both ends.',
-        'Build the SW2 to SW3 trunk with DTP: set the encapsulation to dot1q on both ends, then use switchport mode dynamic desirable on SW2 and switchport mode dynamic auto on SW3.',
-        'Limit each trunk to the four VLANs in use with switchport trunk allowed vlan 10,20,30,40.',
-        'Bring all used ports up with no shutdown.',
-        'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
-        'Verify with show interfaces trunk and show interfaces e0/0 switchport. Compare the administrative and operational mode on the DTP link.',
-        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
-        'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
-        'Set both ends of the DTP link to dynamic auto and see that it falls back to an access link. Set SW2 back to dynamic desirable and watch the trunk return.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Build the SW1 to SW2 trunk manually with switchport trunk encapsulation dot1q and switchport mode trunk on both ends.',
+              'Build the SW2 to SW3 trunk with DTP: set the encapsulation to dot1q on both ends, then use switchport mode dynamic desirable on SW2 and switchport mode dynamic auto on SW3.',
+              'Limit each trunk to the four VLANs in use with switchport trunk allowed vlan 10,20,30,40.',
+              'Bring all used ports up with no shutdown.',
+              'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
+              'Verify with show interfaces trunk and show interfaces e0/0 switchport. Compare the administrative and operational mode on the DTP link.',
+              'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
+              'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
+              'Set both ends of the DTP link to dynamic auto and see that it falls back to an access link. Set SW2 back to dynamic desirable and watch the trunk return.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'A trunk port carries many VLANs over one cable by adding an 802.1Q tag with the VLAN number to every frame, which is why one cable per link is enough. A manual trunk is configured with switchport mode trunk, and the port is a trunk no matter what the neighbour does. With DTP the two ends negotiate. A port in dynamic desirable actively asks its neighbour to become a trunk, and a port in dynamic auto only becomes a trunk if the neighbour asks. So desirable with auto, desirable with desirable, and desirable with a manual trunk all give a trunk, while auto with auto stays an access link because nobody starts the conversation. On these switches the encapsulation has to be chosen with switchport trunk encapsulation dot1q before any trunk mode is accepted, and if it is left at its default, DTP could negotiate ISL instead of 802.1Q, so set it on both ends. DTP also does not work towards a port set to access, so host ports are never turned into trunks by accident. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and a VLAN that is missing from a switch or from the allowed list of a trunk will not cross that link. Because there is no router, hosts in different VLANs stay isolated even though they share the same trunks.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'A trunk port carries many VLANs over one cable by adding an 802.1Q tag with the VLAN number to every frame, which is why one cable per link is enough. A manual trunk is configured with switchport mode trunk, and the port is a trunk no matter what the neighbour does. With DTP the two ends negotiate. A port in dynamic desirable actively asks its neighbour to become a trunk, and a port in dynamic auto only becomes a trunk if the neighbour asks. So desirable with auto, desirable with desirable, and desirable with a manual trunk all give a trunk, while auto with auto stays an access link because nobody starts the conversation. On these switches the encapsulation has to be chosen with switchport trunk encapsulation dot1q before any trunk mode is accepted, and if it is left at its default, DTP could negotiate ISL instead of 802.1Q, so set it on both ends. DTP also does not work towards a port set to access, so host ports are never turned into trunks by accident. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and a VLAN that is missing from a switch or from the allowed list of a trunk will not cross that link. Because there is no router, hosts in different VLANs stay isolated even though they share the same trunks.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show interfaces trunk: lists every trunk port with its mode (on for manual, desirable or auto for DTP), encapsulation 802.1q, status trunking and native VLAN 1, followed by the allowed and forwarding VLANs.',
-        'show interfaces e0/0 switchport: on SW3, Administrative Mode is dynamic auto while Operational Mode is trunk. This difference shows that DTP did the work.',
-        'show interfaces e0/1 switchport: on SW1 and SW2, both Administrative Mode and Operational Mode are trunk.',
-        'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Trunk ports are not listed under any VLAN.',
-        'show ip on each VPC: the address and mask match its VLAN subnet.',
-        'ping: works inside a VLAN across switches and times out between different VLANs.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
-    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Access port', value: 'switchport mode access' },
-    { label: 'Encapsulation', value: 'switchport trunk encapsulation dot1q' },
-    { label: 'Manual trunk', value: 'switchport mode trunk' },
-    { label: 'DTP active', value: 'switchport mode dynamic desirable' },
-    { label: 'DTP passive', value: 'switchport mode dynamic auto' },
-    { label: 'Show trunks', value: 'show interfaces trunk' },
-    { label: 'Show VLANs', value: 'show vlan brief' },
-  ],
-},
-{
-  slug: 'etherchannel-lab',
-  title: 'EtherChannel Lab',
-  group: 'Switching Labs',
-  description:
-    'Bundle four parallel cables between each pair of switches into a single logical port-channel using LACP and PAgP, and carry four VLANs over each bundle with a trunk configured on the port-channel. Only hosts in the same VLAN can communicate.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Three switches (SW1, SW2 and SW3) are connected in a line, and each connection uses four parallel cables so that one failed cable does not break the link and the traffic is shared between the cables. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). The four cables between SW1 and SW2 are bundled into Port-channel 1 using LACP, and the four cables between SW2 and SW3 are bundled into Port-channel 2 using PAgP. Each port-channel is a trunk carrying all four VLANs. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, no bundles exist, and the VPCs have no IP addresses.'
-    },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show interfaces trunk: lists every trunk port with its mode (on for manual, desirable or auto for DTP), encapsulation 802.1q, status trunking and native VLAN 1, followed by the allowed and forwarding VLANs.',
+              'show interfaces e0/0 switchport: on SW3, Administrative Mode is dynamic auto while Operational Mode is trunk. This difference shows that DTP did the work.',
+              'show interfaces e0/1 switchport: on SW1 and SW2, both Administrative Mode and Operational Mode are trunk.',
+              'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Trunk ports are not listed under any VLAN.',
+              'show ip on each VPC: the address and mask match its VLAN subnet.',
+              'ping: works inside a VLAN across switches and times out between different VLANs.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+          { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Access port', value: 'switchport mode access' },
+          { label: 'Encapsulation', value: 'switchport trunk encapsulation dot1q' },
+          { label: 'Manual trunk', value: 'switchport mode trunk' },
+          { label: 'DTP active', value: 'switchport mode dynamic desirable' },
+          { label: 'DTP passive', value: 'switchport mode dynamic auto' },
+          { label: 'Show trunks', value: 'show interfaces trunk' },
+          { label: 'Show VLANs', value: 'show vlan brief' },
+        ],
+      },
+      {
+        slug: 'etherchannel-lab',
+        title: 'EtherChannel Lab',
+        group: 'Switching Labs',
+        description:
+          'Bundle four parallel cables between each pair of switches into a single logical port-channel using LACP and PAgP, and carry four VLANs over each bundle with a trunk configured on the port-channel. Only hosts in the same VLAN can communicate.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Three switches (SW1, SW2 and SW3) are connected in a line, and each connection uses four parallel cables so that one failed cable does not break the link and the traffic is shared between the cables. Each switch has four hosts, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). The four cables between SW1 and SW2 are bundled into Port-channel 1 using LACP, and the four cables between SW2 and SW3 are bundled into Port-channel 2 using PAgP. Each port-channel is a trunk carrying all four VLANs. There is no router, so the departments stay isolated from each other and only same-VLAN (intra-VLAN) communication is expected. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, no bundles exist, and the VPCs have no IP addresses.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
-        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
-        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
-        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
-        'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
-        'The VPCs use a /24 mask and no default gateway, because there is no router.',
-        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
-        'Port-channel 1 (LACP): SW1 e0/1, e1/1, e1/2, e1/3 to SW2 e0/1, e1/2, e1/3, e2/0. SW1 is active and SW2 is passive.',
-        'Port-channel 2 (PAgP): SW2 e0/0, e2/1, e2/2, e2/3 to SW3 e0/0, e1/1, e1/2, e1/3. SW2 is desirable and SW3 is auto.',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3.',
+              'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3.',
+              'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3.',
+              'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3.',
+              'The last octet follows the switch the host is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+              'The VPCs use a /24 mask and no default gateway, because there is no router.',
+              'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+              'Port-channel 1 (LACP): SW1 e0/1, e1/1, e1/2, e1/3 to SW2 e0/1, e1/2, e1/3, e2/0. SW1 is active and SW2 is passive.',
+              'Port-channel 2 (PAgP): SW2 e0/0, e2/1, e2/2, e2/3 to SW3 e0/0, e1/1, e1/2, e1/3. SW2 is desirable and SW3 is auto.',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
-        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
-        'Build Port-channel 1 between SW1 and SW2 with LACP, using channel-group 1 mode active on SW1 and channel-group 1 mode passive on SW2 on every member port.',
-        'Build Port-channel 2 between SW2 and SW3 with PAgP, using channel-group 2 mode desirable on SW2 and channel-group 2 mode auto on SW3 on every member port.',
-        'Configure the trunk only on the port-channel interface: switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan 10,20,30,40. Do not configure any trunk command on the member ports.',
-        'Bring all used ports up with no shutdown.',
-        'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
-        'Verify with show etherchannel summary, show interfaces trunk and show spanning-tree.',
-        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
-        'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
-        'Shut down one member port of a bundle while a ping is running and confirm that the traffic keeps flowing over the remaining links.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Build Port-channel 1 between SW1 and SW2 with LACP, using channel-group 1 mode active on SW1 and channel-group 1 mode passive on SW2 on every member port.',
+              'Build Port-channel 2 between SW2 and SW3 with PAgP, using channel-group 2 mode desirable on SW2 and channel-group 2 mode auto on SW3 on every member port.',
+              'Configure the trunk only on the port-channel interface: switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan 10,20,30,40. Do not configure any trunk command on the member ports.',
+              'Bring all used ports up with no shutdown.',
+              'Give every VPC an IP address from its VLAN subnet and confirm it with show ip.',
+              'Verify with show etherchannel summary, show interfaces trunk and show spanning-tree.',
+              'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8 and VPC12. All should succeed.',
+              'Ping between hosts of different VLANs, for example VPC4 to VPC5. All should fail. Explain why.',
+              'Shut down one member port of a bundle while a ping is running and confirm that the traffic keeps flowing over the remaining links.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'Four parallel cables between two switches would normally form loops, and spanning tree would block three of them. An EtherChannel avoids this by joining the cables into one logical interface called a port-channel, so spanning tree sees a single link and no cable is blocked. The traffic is shared across the members by a hash of the addresses in each frame, so one conversation always uses the same cable but different conversations use different cables. A bundle forms only if the members match: the same speed, duplex and VLAN or trunk settings on every member, and compatible modes on the two ends. LACP, the open standard, uses active and passive, where at least one end must be active. PAgP, the Cisco protocol, uses desirable and auto, where at least one end must be desirable. Static EtherChannel uses on at both ends and no protocol. Two passive ends, two auto ends, or mixing LACP with PAgP will never form a bundle. The member ports only need the channel-group command. Everything else, including the trunk, is configured on the port-channel interface, and the switch copies those settings to each member automatically. If you configure trunk commands on the members instead, the settings can differ between members and the bundle will refuse to form. On these switches the encapsulation has to be set with switchport trunk encapsulation dot1q before the mode trunk command is accepted. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and because there is no router, hosts in different VLANs stay isolated.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'Four parallel cables between two switches would normally form loops, and spanning tree would block three of them. An EtherChannel avoids this by joining the cables into one logical interface called a port-channel, so spanning tree sees a single link and no cable is blocked. The traffic is shared across the members by a hash of the addresses in each frame, so one conversation always uses the same cable but different conversations use different cables. A bundle forms only if the members match: the same speed, duplex and VLAN or trunk settings on every member, and compatible modes on the two ends. LACP, the open standard, uses active and passive, where at least one end must be active. PAgP, the Cisco protocol, uses desirable and auto, where at least one end must be desirable. Static EtherChannel uses on at both ends and no protocol. Two passive ends, two auto ends, or mixing LACP with PAgP will never form a bundle. The member ports only need the channel-group command. Everything else, including the trunk, is configured on the port-channel interface, and the switch copies those settings to each member automatically. If you configure trunk commands on the members instead, the settings can differ between members and the bundle will refuse to form. On these switches the encapsulation has to be set with switchport trunk encapsulation dot1q before the mode trunk command is accepted. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and because there is no router, hosts in different VLANs stay isolated.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show etherchannel summary: Po1 and Po2 appear with the flags SU (Layer 2, in use), the protocol (LACP or PAgP), and each member port flagged P (bundled in port-channel).',
-        'show interfaces trunk: the trunks are listed as Po1 and Po2, not as individual member ports, with encapsulation 802.1q and all four VLANs allowed.',
-        'show interfaces port-channel 1: shows the state, the combined bandwidth of the bundle, and the members.',
-        'show spanning-tree: each bundle appears as one port (Po1 or Po2) and no member is blocked.',
-        'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Port-channels and members are not listed under any VLAN.',
-        'show ip on each VPC: the address and mask match its VLAN subnet.',
-        'ping: works inside a VLAN across switches and times out between different VLANs, even when one member link is shut down.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
-    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
-    { label: 'LACP', value: 'channel-group <n> mode active | passive' },
-    { label: 'PAgP', value: 'channel-group <n> mode desirable | auto' },
-    { label: 'Static', value: 'channel-group <n> mode on' },
-    { label: 'Port-channel', value: 'interface port-channel <n>' },
-    { label: 'Trunk', value: 'switchport mode trunk (on the port-channel only)' },
-    { label: 'Summary', value: 'show etherchannel summary' },
-    { label: 'Trunks', value: 'show interfaces trunk' },
-    { label: 'Show VLANs', value: 'show vlan brief' },
-  ],
-},
-{
-  slug: 'intervlan-lab',
-  title: 'Inter-VLAN Lab',
-  group: 'Switching Labs',
-  description:
-    'Connect hosts in four VLANs across three switches using only access ports, and use a router with one interface per VLAN as the gateway so that hosts in different VLANs can communicate.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Three switches (SW1, SW2 and SW3) are stacked in a line, with four hosts on each switch, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). SW1 connects to SW2 and SW2 connects to SW3 with four parallel cables each, one per VLAN. A router, R16, sits above SW1 and is connected to it with four more cables, again one per VLAN. No trunks are allowed, so every port on every switch is an access port. Each of the four router interfaces sits in one VLAN and acts as the default gateway for it. Unlike a purely intra-VLAN network, the departments must now be able to reach each other through the router. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, the router interfaces are shut down with no addresses, and the VPCs have no IP addresses.'
-    },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show etherchannel summary: Po1 and Po2 appear with the flags SU (Layer 2, in use), the protocol (LACP or PAgP), and each member port flagged P (bundled in port-channel).',
+              'show interfaces trunk: the trunks are listed as Po1 and Po2, not as individual member ports, with encapsulation 802.1q and all four VLANs allowed.',
+              'show interfaces port-channel 1: shows the state, the combined bandwidth of the bundle, and the members.',
+              'show spanning-tree: each bundle appears as one port (Po1 or Po2) and no member is blocked.',
+              'show vlan brief: VLANs 10, 20, 30 and 40 are listed with their host ports. Port-channels and members are not listed under any VLAN.',
+              'show ip on each VPC: the address and mask match its VLAN subnet.',
+              'ping: works inside a VLAN across switches and times out between different VLANs, even when one member link is shut down.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+          { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+          { label: 'LACP', value: 'channel-group <n> mode active | passive' },
+          { label: 'PAgP', value: 'channel-group <n> mode desirable | auto' },
+          { label: 'Static', value: 'channel-group <n> mode on' },
+          { label: 'Port-channel', value: 'interface port-channel <n>' },
+          { label: 'Trunk', value: 'switchport mode trunk (on the port-channel only)' },
+          { label: 'Summary', value: 'show etherchannel summary' },
+          { label: 'Trunks', value: 'show interfaces trunk' },
+          { label: 'Show VLANs', value: 'show vlan brief' },
+        ],
+      },
+      {
+        slug: 'intervlan-lab',
+        title: 'Inter-VLAN Lab',
+        group: 'Switching Labs',
+        description:
+          'Connect hosts in four VLANs across three switches using only access ports, and use a router with one interface per VLAN as the gateway so that hosts in different VLANs can communicate.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Three switches (SW1, SW2 and SW3) are stacked in a line, with four hosts on each switch, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). SW1 connects to SW2 and SW2 connects to SW3 with four parallel cables each, one per VLAN. A router, R16, sits above SW1 and is connected to it with four more cables, again one per VLAN. No trunks are allowed, so every port on every switch is an access port. Each of the four router interfaces sits in one VLAN and acts as the default gateway for it. Unlike a purely intra-VLAN network, the departments must now be able to reach each other through the router. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, the router interfaces are shut down with no addresses, and the VPCs have no IP addresses.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3. The gateway is 192.168.10.254 on R16 e0/0.',
-        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3. The gateway is 192.168.20.254 on R16 e0/1.',
-        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3. The gateway is 192.168.30.254 on R16 e0/2.',
-        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3. The gateway is 192.168.40.254 on R16 e0/3.',
-        'The last octet of a host follows the switch it is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
-        'Every VPC uses a /24 mask and the .254 address of its own VLAN as default gateway.',
-        'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
-        'SW1 to SW2 links: VLAN 10 on e1/3 to e2/0, VLAN 20 on e1/2 to e1/3, VLAN 30 on e1/1 to e1/2 and VLAN 40 on e0/1 to e0/1.',
-        'SW2 to SW3 links: VLAN 10 on e2/3 to e1/3, VLAN 20 on e2/2 to e1/2, VLAN 30 on e2/1 to e1/1 and VLAN 40 on e0/0 to e0/0.',
-        'SW1 to R16 links: VLAN 10 on e2/0 to e0/0, VLAN 20 on e2/1 to e0/1, VLAN 30 on e2/2 to e0/2 and VLAN 40 on e2/3 to e0/3.',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3. The gateway is 192.168.10.254 on R16 e0/0.',
+              'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3. The gateway is 192.168.20.254 on R16 e0/1.',
+              'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3. The gateway is 192.168.30.254 on R16 e0/2.',
+              'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3. The gateway is 192.168.40.254 on R16 e0/3.',
+              'The last octet of a host follows the switch it is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+              'Every VPC uses a /24 mask and the .254 address of its own VLAN as default gateway.',
+              'Host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+              'SW1 to SW2 links: VLAN 10 on e1/3 to e2/0, VLAN 20 on e1/2 to e1/3, VLAN 30 on e1/1 to e1/2 and VLAN 40 on e0/1 to e0/1.',
+              'SW2 to SW3 links: VLAN 10 on e2/3 to e1/3, VLAN 20 on e2/2 to e1/2, VLAN 30 on e2/1 to e1/1 and VLAN 40 on e0/0 to e0/0.',
+              'SW1 to R16 links: VLAN 10 on e2/0 to e0/0, VLAN 20 on e2/1 to e0/1, VLAN 30 on e2/2 to e0/2 and VLAN 40 on e2/3 to e0/3.',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
-        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
-        'Configure the switch-to-switch links as access ports too, one VLAN per link. Do not use trunk mode anywhere.',
-        'Configure the four SW1 ports that go to R16 as access ports in VLAN 10, 20, 30 and 40.',
-        'Address the four R16 interfaces with the .254 gateway of their VLAN and bring them up with no shutdown.',
-        'Give every VPC an IP address and the default gateway of its VLAN, and confirm it with show ip.',
-        'Verify with show vlan brief on the switches and show ip interface brief and show ip route on R16.',
-        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8. All should succeed.',
-        'Ping between hosts of different VLANs, for example VPC4 to VPC5 and VPC4 to VPC15. All should now succeed. Run trace and read the first hop.',
-        'Shut down R16 e0/1 and see that VLAN 20 still reaches its own hosts but loses all other VLANs. Then restore it.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Configure the switch-to-switch links as access ports too, one VLAN per link. Do not use trunk mode anywhere.',
+              'Configure the four SW1 ports that go to R16 as access ports in VLAN 10, 20, 30 and 40.',
+              'Address the four R16 interfaces with the .254 gateway of their VLAN and bring them up with no shutdown.',
+              'Give every VPC an IP address and the default gateway of its VLAN, and confirm it with show ip.',
+              'Verify with show vlan brief on the switches and show ip interface brief and show ip route on R16.',
+              'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8. All should succeed.',
+              'Ping between hosts of different VLANs, for example VPC4 to VPC5 and VPC4 to VPC15. All should now succeed. Run trace and read the first hop.',
+              'Shut down R16 e0/1 and see that VLAN 20 still reaches its own hosts but loses all other VLANs. Then restore it.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'Each VLAN is its own broadcast domain and its own IP subnet, so a host can only talk directly to hosts in its own VLAN. To reach another VLAN it sends the packet to its default gateway, which is why every VPC needs a gateway address in its own subnet. A router connects the subnets together: it receives the packet on the interface of the source VLAN, looks up the destination network in its routing table, and sends it out of the interface of the destination VLAN. A router has no routing protocol to configure here, because all four networks are directly connected and appear in the routing table automatically as soon as the interfaces have an address and are up. On this router, routing is already enabled. An access port belongs to one VLAN only, so the link between a switch and a router interface carries a single VLAN, and each VLAN therefore needs its own cable to the router and its own cable between the switches. That works for four VLANs but it does not scale, since a network with 20 VLANs would need 20 cables and 20 router interfaces. VLANs are local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and both ends of every link must be in the same VLAN.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'Each VLAN is its own broadcast domain and its own IP subnet, so a host can only talk directly to hosts in its own VLAN. To reach another VLAN it sends the packet to its default gateway, which is why every VPC needs a gateway address in its own subnet. A router connects the subnets together: it receives the packet on the interface of the source VLAN, looks up the destination network in its routing table, and sends it out of the interface of the destination VLAN. A router has no routing protocol to configure here, because all four networks are directly connected and appear in the routing table automatically as soon as the interfaces have an address and are up. On this router, routing is already enabled. An access port belongs to one VLAN only, so the link between a switch and a router interface carries a single VLAN, and each VLAN therefore needs its own cable to the router and its own cable between the switches. That works for four VLANs but it does not scale, since a network with 20 VLANs would need 20 cables and 20 router interfaces. VLANs are local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and both ends of every link must be in the same VLAN.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every switch with the correct ports, and each port appears under exactly one VLAN.',
-        'show interfaces status: all used ports show connected and the right VLAN number, and no port is a trunk.',
-        'show ip interface brief on R16: the four interfaces have their .254 address and show up/up.',
-        'show ip route on R16: four connected (C) networks, 192.168.10.0, 192.168.20.0, 192.168.30.0 and 192.168.40.0, and the matching local (L) host routes.',
-        'show ip on each VPC: the address, mask and gateway match its VLAN.',
-        'ping: works inside a VLAN and now also between different VLANs.',
-        'trace: from VPC4 to a host in another VLAN, the first hop is 192.168.10.254 and the second hop is the destination.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
-    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
-    { label: 'Gateways', value: '192.168.X.254 on R16 e0/0 to e0/3' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Access port', value: 'switchport mode access' },
-    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
-    { label: 'Router address', value: 'ip address <ip> <mask>' },
-    { label: 'VPC address', value: 'ip <address>/24 <gateway>' },
-    { label: 'Routes', value: 'show ip route' },
-    { label: 'Show VLANs', value: 'show vlan brief' },
-  ],
-},
-{
-  slug: 'router-on-a-stick-lab',
-  title: 'Router-on-a-Stick Lab',
-  group: 'Switching Labs',
-  description:
-    'Connect hosts in four VLANs across three switches using 802.1Q trunks, and use a single router interface split into four sub-interfaces as the gateway so that hosts in different VLANs can communicate.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Three switches (SW1, SW2 and SW3) are stacked in a line, with four hosts on each switch, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). In the previous inter-VLAN lab every VLAN needed its own cable between the switches and its own cable to the router. Here that is replaced by trunks: SW1 connects to SW2 and SW2 connects to SW3 with a single trunk cable each, and the router R16 connects to SW1 with a single trunk cable as well. The router has only one physical interface in use, e0/0, which is divided into four sub-interfaces, one per VLAN. Each sub-interface is the default gateway of its VLAN. This design is called router on a stick. Host ports stay access ports. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, the router interface is shut down with no addresses, and the VPCs have no IP addresses.'
-    },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every switch with the correct ports, and each port appears under exactly one VLAN.',
+              'show interfaces status: all used ports show connected and the right VLAN number, and no port is a trunk.',
+              'show ip interface brief on R16: the four interfaces have their .254 address and show up/up.',
+              'show ip route on R16: four connected (C) networks, 192.168.10.0, 192.168.20.0, 192.168.30.0 and 192.168.40.0, and the matching local (L) host routes.',
+              'show ip on each VPC: the address, mask and gateway match its VLAN.',
+              'ping: works inside a VLAN and now also between different VLANs.',
+              'trace: from VPC4 to a host in another VLAN, the first hop is 192.168.10.254 and the second hop is the destination.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+          { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+          { label: 'Gateways', value: '192.168.X.254 on R16 e0/0 to e0/3' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Access port', value: 'switchport mode access' },
+          { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+          { label: 'Router address', value: 'ip address <ip> <mask>' },
+          { label: 'VPC address', value: 'ip <address>/24 <gateway>' },
+          { label: 'Routes', value: 'show ip route' },
+          { label: 'Show VLANs', value: 'show vlan brief' },
+        ],
+      },
+      {
+        slug: 'router-on-a-stick-lab',
+        title: 'Router-on-a-Stick Lab',
+        group: 'Switching Labs',
+        description:
+          'Connect hosts in four VLANs across three switches using 802.1Q trunks, and use a single router interface split into four sub-interfaces as the gateway so that hosts in different VLANs can communicate.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Three switches (SW1, SW2 and SW3) are stacked in a line, with four hosts on each switch, one in each of four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). In the previous inter-VLAN lab every VLAN needed its own cable between the switches and its own cable to the router. Here that is replaced by trunks: SW1 connects to SW2 and SW2 connects to SW3 with a single trunk cable each, and the router R16 connects to SW1 with a single trunk cable as well. The router has only one physical interface in use, e0/0, which is divided into four sub-interfaces, one per VLAN. Each sub-interface is the default gateway of its VLAN. This design is called router on a stick. Host ports stay access ports. Every device starts in its factory state: no VLANs have been created, all ports sit in VLAN 1, the router interface is shut down with no addresses, and the VPCs have no IP addresses.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3. The gateway is 192.168.10.254 on R16 e0/0.10.',
-        'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3. The gateway is 192.168.20.254 on R16 e0/0.20.',
-        'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3. The gateway is 192.168.30.254 on R16 e0/0.30.',
-        'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3. The gateway is 192.168.40.254 on R16 e0/0.40.',
-        'The last octet of a host follows the switch it is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
-        'Every VPC uses a /24 mask and the .254 address of its own VLAN as default gateway.',
-        'Host ports (access): SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
-        'Trunk SW1 to SW2: SW1 e1/3 to SW2 e2/0.',
-        'Trunk SW2 to SW3: SW2 e2/3 to SW3 e1/3.',
-        'Trunk SW1 to R16: SW1 e2/0 to R16 e0/0. All other switch ports stay unused.',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'VLAN 10 (HR) uses 192.168.10.0/24: VPC4 .1, VPC8 .2 and VPC12 .3. The gateway is 192.168.10.254 on R16 e0/0.10.',
+              'VLAN 20 (IT) uses 192.168.20.0/24: VPC5 .1, VPC9 .2 and VPC14 .3. The gateway is 192.168.20.254 on R16 e0/0.20.',
+              'VLAN 30 (Marketing) uses 192.168.30.0/24: VPC6 .1, VPC10 .2 and VPC13 .3. The gateway is 192.168.30.254 on R16 e0/0.30.',
+              'VLAN 40 (Management) uses 192.168.40.0/24: VPC7 .1, VPC11 .2 and VPC15 .3. The gateway is 192.168.40.254 on R16 e0/0.40.',
+              'The last octet of a host follows the switch it is on: .1 on SW1, .2 on SW2 and .3 on SW3.',
+              'Every VPC uses a /24 mask and the .254 address of its own VLAN as default gateway.',
+              'Host ports (access): SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+              'Trunk SW1 to SW2: SW1 e1/3 to SW2 e2/0.',
+              'Trunk SW2 to SW3: SW2 e2/3 to SW3 e1/3.',
+              'Trunk SW1 to R16: SW1 e2/0 to R16 e0/0. All other switch ports stay unused.',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
-        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
-        'Configure the three inter-device links (SW1 to SW2, SW2 to SW3 and SW1 to R16) as trunks with switchport mode trunk. If the switch asks for it, set switchport trunk encapsulation dot1q first.',
-        'Bring up the physical interface R16 e0/0 with no shutdown and do not give it an IP address.',
-        'Create the sub-interfaces e0/0.10, e0/0.20, e0/0.30 and e0/0.40 on R16. Give each one encapsulation dot1Q with its VLAN ID and the .254 gateway address of its VLAN.',
-        'Give every VPC an IP address and the default gateway of its VLAN, and confirm it with show ip.',
-        'Verify with show vlan brief and show interfaces trunk on the switches, and show ip interface brief and show ip route on R16.',
-        'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8. All should succeed.',
-        'Ping between hosts of different VLANs, for example VPC4 to VPC5 and VPC4 to VPC15. All should succeed. Run trace and read the first hop.',
-        'Shut down the sub-interface R16 e0/0.20 and see that VLAN 20 still reaches its own hosts but loses all other VLANs. Restore it, then shut down the physical e0/0 and see that no VLAN can reach another VLAN any more. Restore it.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all three switches.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Configure the three inter-device links (SW1 to SW2, SW2 to SW3 and SW1 to R16) as trunks with switchport mode trunk. If the switch asks for it, set switchport trunk encapsulation dot1q first.',
+              'Bring up the physical interface R16 e0/0 with no shutdown and do not give it an IP address.',
+              'Create the sub-interfaces e0/0.10, e0/0.20, e0/0.30 and e0/0.40 on R16. Give each one encapsulation dot1Q with its VLAN ID and the .254 gateway address of its VLAN.',
+              'Give every VPC an IP address and the default gateway of its VLAN, and confirm it with show ip.',
+              'Verify with show vlan brief and show interfaces trunk on the switches, and show ip interface brief and show ip route on R16.',
+              'Ping between hosts of the same VLAN on different switches, for example VPC4 to VPC8. All should succeed.',
+              'Ping between hosts of different VLANs, for example VPC4 to VPC5 and VPC4 to VPC15. All should succeed. Run trace and read the first hop.',
+              'Shut down the sub-interface R16 e0/0.20 and see that VLAN 20 still reaches its own hosts but loses all other VLANs. Restore it, then shut down the physical e0/0 and see that no VLAN can reach another VLAN any more. Restore it.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'A trunk carries frames of many VLANs over one cable. To keep them apart the sending switch adds an 802.1Q tag with the VLAN ID to each frame, and the receiving side reads the tag and puts the frame in the right VLAN. Access ports (the host ports) never carry tags. On the router, one physical interface cannot have four IP addresses in four different subnets on separate VLANs, so it is split into logical sub-interfaces. Each sub-interface listens for one tag, which you define with encapsulation dot1Q followed by the VLAN ID, and has its own IP address. The physical interface itself carries no address, it only has to be up. When VPC4 pings VPC5, the packet goes to 192.168.10.254, arrives at R16 tagged with VLAN 10, is routed, and leaves through the same cable tagged with VLAN 20. Because the packet enters and leaves by the same port, this is called router on a stick. The advantage is that you only need one cable and one router port for any number of VLANs. The disadvantage is that all inter-VLAN traffic shares that one link, which is also a single point of failure. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and both ends of every trunk must be trunks with the VLANs allowed.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'A trunk carries frames of many VLANs over one cable. To keep them apart the sending switch adds an 802.1Q tag with the VLAN ID to each frame, and the receiving side reads the tag and puts the frame in the right VLAN. Access ports (the host ports) never carry tags. On the router, one physical interface cannot have four IP addresses in four different subnets on separate VLANs, so it is split into logical sub-interfaces. Each sub-interface listens for one tag, which you define with encapsulation dot1Q followed by the VLAN ID, and has its own IP address. The physical interface itself carries no address, it only has to be up. When VPC4 pings VPC5, the packet goes to 192.168.10.254, arrives at R16 tagged with VLAN 10, is routed, and leaves through the same cable tagged with VLAN 20. Because the packet enters and leaves by the same port, this is called router on a stick. The advantage is that you only need one cable and one router port for any number of VLANs. The disadvantage is that all inter-VLAN traffic shares that one link, which is also a single point of failure. VLANs are still local to each switch, so every VLAN must exist on SW1, SW2 and SW3, and both ends of every trunk must be trunks with the VLANs allowed.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every switch with only the host ports under them. Trunk ports do not appear in this list.',
-        'show interfaces trunk: the three trunk links show mode on, 802.1q, status trunking, and VLANs 10,20,30,40 allowed and in the forwarding state.',
-        'show ip interface brief on R16: e0/0 has no address but is up/up, and e0/0.10 to e0/0.40 have their .254 address and are up/up.',
-        'show ip route on R16: four connected (C) networks, 192.168.10.0, 192.168.20.0, 192.168.30.0 and 192.168.40.0, each pointing at its own sub-interface, and the matching local (L) routes.',
-        'show ip on each VPC: the address, mask and gateway match its VLAN.',
-        'ping: works inside a VLAN and also between different VLANs.',
-        'trace: from VPC4 to a host in another VLAN, the first hop is 192.168.10.254 and the second hop is the destination.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
-    { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
-    { label: 'Gateways', value: '192.168.X.254 on R16 e0/0.X' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Access port', value: 'switchport mode access' },
-    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
-    { label: 'Trunk port', value: 'switchport trunk encapsulation dot1q, then switchport mode trunk' },
-    { label: 'Sub-interface', value: 'interface e0/0.<id>' },
-    { label: 'Tag match', value: 'encapsulation dot1Q <id>' },
-    { label: 'Router address', value: 'ip address <ip> <mask>' },
-    { label: 'VPC address', value: 'ip <address>/24 <gateway>' },
-    { label: 'Show trunks', value: 'show interfaces trunk' },
-    { label: 'Routes', value: 'show ip route' },
-    { label: 'Show VLANs', value: 'show vlan brief' },
-  ],
-},
-{
-  slug: 'physical-logical-lab',
-  title: 'Physical Works as Logical',
-  group: 'Switching Labs',
-  description:
-    'Eight routers connected to a single switch with one cable each are made to behave like the OSPF 1024 multi-area network, using one VLAN per logical link, trunks on the switch and dot1Q sub-interfaces on the routers.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Physically, the lab is a star: one switch (SW) and eight routers, each connected to the switch with a single cable from its e0/0. The network design, however, is the OSPF 1024 network with four areas, six two-router links and two shared segments, in which R3 has five links and R6 has four. The routers do not have enough physical interfaces to build that design with real cables, so the switch has to create the missing links virtually. Every logical link (200.10.1.0/24 to 200.10.8.0/24) becomes its own VLAN, the switch ports facing the routers are trunks that carry only the VLANs each router needs, and every router gets one sub-interface per link. When it works, the star behaves exactly like the OSPF 1024 topology. Every device starts in its factory state: interfaces are shut down with no IP addresses, there are no VLANs and no routing protocol. The logical diagram in the lab is a picture of the target and cannot be clicked. Only the physical diagram is configured.'
-    },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every switch with only the host ports under them. Trunk ports do not appear in this list.',
+              'show interfaces trunk: the three trunk links show mode on, 802.1q, status trunking, and VLANs 10,20,30,40 allowed and in the forwarding state.',
+              'show ip interface brief on R16: e0/0 has no address but is up/up, and e0/0.10 to e0/0.40 have their .254 address and are up/up.',
+              'show ip route on R16: four connected (C) networks, 192.168.10.0, 192.168.20.0, 192.168.30.0 and 192.168.40.0, each pointing at its own sub-interface, and the matching local (L) routes.',
+              'show ip on each VPC: the address, mask and gateway match its VLAN.',
+              'ping: works inside a VLAN and also between different VLANs.',
+              'trace: from VPC4 to a host in another VLAN, the first hop is 192.168.10.254 and the second hop is the destination.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+          { label: 'Subnets', value: '192.168.10.0 to 192.168.40.0 (/24)' },
+          { label: 'Gateways', value: '192.168.X.254 on R16 e0/0.X' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Access port', value: 'switchport mode access' },
+          { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+          { label: 'Trunk port', value: 'switchport trunk encapsulation dot1q, then switchport mode trunk' },
+          { label: 'Sub-interface', value: 'interface e0/0.<id>' },
+          { label: 'Tag match', value: 'encapsulation dot1Q <id>' },
+          { label: 'Router address', value: 'ip address <ip> <mask>' },
+          { label: 'VPC address', value: 'ip <address>/24 <gateway>' },
+          { label: 'Show trunks', value: 'show interfaces trunk' },
+          { label: 'Routes', value: 'show ip route' },
+          { label: 'Show VLANs', value: 'show vlan brief' },
+        ],
+      },
+      {
+        slug: 'physical-logical-lab',
+        title: 'Physical Works as Logical',
+        group: 'Switching Labs',
+        description:
+          'Eight routers connected to a single switch with one cable each are made to behave like the OSPF 1024 multi-area network, using one VLAN per logical link, trunks on the switch and dot1Q sub-interfaces on the routers.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Physically, the lab is a star: one switch (SW) and eight routers, each connected to the switch with a single cable from its e0/0. The network design, however, is the OSPF 1024 network with four areas, six two-router links and two shared segments, in which R3 has five links and R6 has four. The routers do not have enough physical interfaces to build that design with real cables, so the switch has to create the missing links virtually. Every logical link (200.10.1.0/24 to 200.10.8.0/24) becomes its own VLAN, the switch ports facing the routers are trunks that carry only the VLANs each router needs, and every router gets one sub-interface per link. When it works, the star behaves exactly like the OSPF 1024 topology. Every device starts in its factory state: interfaces are shut down with no IP addresses, there are no VLANs and no routing protocol. The logical diagram in the lab is a picture of the target and cannot be clicked. Only the physical diagram is configured.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'Physical cables: SW e0/0 to R1, e0/1 to R2, e0/2 to R3, e0/3 to R4, e1/0 to R5, e1/1 to R6, e1/2 to R7 and e1/3 to R8. Every router uses its e0/0.',
-        'Logical links (200.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
-        'Shared segment 7.0 holds R3 .3, R4 .4, R5 .5 and R6 .6. Shared segment 8.0 holds R6 .6, R7 .7 and R8 .8. On every link the last octet is the router number.',
-        'VLAN numbers: the link 200.10.N.0/24 uses VLAN 100+N, so 1.0 is VLAN 101 and 8.0 is VLAN 108.',
-        'Trunk VLANs per router: R1 101, R2 102, R3 101,102,103,105,107, R4 103,104,107, R5 105,106,107, R6 104,106,107,108, R7 108 and R8 108.',
-        'Sub-interface on router N for link K: e0/0.10K with encapsulation dot1Q 10K. The physical e0/0 itself has no IP address.',
-        'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
-        'Areas: 1.0 is area 10, 2.0 is area 20, 3.0 to 7.0 are area 0, and 8.0 is area 30. Each router puts its loopbacks in its own area (R3 and R6 use area 0).',
-        'DR and BDR plan: on 7.0 R4 is the DR and R6 the BDR (R3 and R5 never elected). On 8.0 R6 is the DR and R7 the BDR (R8 never elected).',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Physical cables: SW e0/0 to R1, e0/1 to R2, e0/2 to R3, e0/3 to R4, e1/0 to R5, e1/1 to R6, e1/2 to R7 and e1/3 to R8. Every router uses its e0/0.',
+              'Logical links (200.10.XX.0/24): R1–R3 is 1.0, R2–R3 is 2.0, R3–R4 is 3.0, R4–R6 is 4.0, R3–R5 is 5.0 and R5–R6 is 6.0.',
+              'Shared segment 7.0 holds R3 .3, R4 .4, R5 .5 and R6 .6. Shared segment 8.0 holds R6 .6, R7 .7 and R8 .8. On every link the last octet is the router number.',
+              'VLAN numbers: the link 200.10.N.0/24 uses VLAN 100+N, so 1.0 is VLAN 101 and 8.0 is VLAN 108.',
+              'Trunk VLANs per router: R1 101, R2 102, R3 101,102,103,105,107, R4 103,104,107, R5 105,106,107, R6 104,106,107,108, R7 108 and R8 108.',
+              'Sub-interface on router N for link K: e0/0.10K with encapsulation dot1Q 10K. The physical e0/0 itself has no IP address.',
+              'Loopback0 to Loopback3 on router N use N.N.N.1 to N.N.N.4 with a 255.255.255.255 mask.',
+              'Areas: 1.0 is area 10, 2.0 is area 20, 3.0 to 7.0 are area 0, and 8.0 is area 30. Each router puts its loopbacks in its own area (R3 and R6 use area 0).',
+              'DR and BDR plan: on 7.0 R4 is the DR and R6 the BDR (R3 and R5 never elected). On 8.0 R6 is the DR and R7 the BDR (R8 never elected).',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Compare the physical and logical diagrams and work out which routers share each logical link.',
-        'Create VLANs 101 to 108 on SW, one for every logical link.',
-        'Configure each switch port facing a router as a trunk with switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan limited to the VLANs of that router.',
-        'On each router bring up e0/0 with no IP address, and create one sub-interface per logical link with encapsulation dot1Q and an IP address.',
-        'Create the four loopbacks on every router.',
-        'Ping the neighbour on every logical link to prove that the VLANs carry the traffic.',
-        'Enable OSPF process 1 on every router, set the router ID to the first loopback, and advertise each network with a wildcard mask in the correct area.',
-        'Set ip ospf network point-to-point on both ends of the six two-router links, and use ip ospf priority so that R4 is the DR and R6 the BDR on 7.0, and R6 is the DR and R7 the BDR on 8.0.',
-        'Check show ip ospf neighbor, show ip route ospf on R1 (routes marked O IA) and traceroute from R1 to 8.8.8.1. The result must match the OSPF 1024 lab.',
-        'Break something on purpose: remove VLAN 107 from the switch port of R4 and watch the 7.0 segment elect a new DR.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Compare the physical and logical diagrams and work out which routers share each logical link.',
+              'Create VLANs 101 to 108 on SW, one for every logical link.',
+              'Configure each switch port facing a router as a trunk with switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan limited to the VLANs of that router.',
+              'On each router bring up e0/0 with no IP address, and create one sub-interface per logical link with encapsulation dot1Q and an IP address.',
+              'Create the four loopbacks on every router.',
+              'Ping the neighbour on every logical link to prove that the VLANs carry the traffic.',
+              'Enable OSPF process 1 on every router, set the router ID to the first loopback, and advertise each network with a wildcard mask in the correct area.',
+              'Set ip ospf network point-to-point on both ends of the six two-router links, and use ip ospf priority so that R4 is the DR and R6 the BDR on 7.0, and R6 is the DR and R7 the BDR on 8.0.',
+              'Check show ip ospf neighbor, show ip route ospf on R1 (routes marked O IA) and traceroute from R1 to 8.8.8.1. The result must match the OSPF 1024 lab.',
+              'Break something on purpose: remove VLAN 107 from the switch port of R4 and watch the 7.0 segment elect a new DR.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'A VLAN behaves like a private cable that exists only inside the switch. A frame that enters in one VLAN can only leave through ports in the same VLAN, so two routers can talk only if they share a VLAN, and a link with two routers is simply a VLAN that only those two routers belong to. A router has only one physical port here, so it must carry several VLANs over it. The switch port facing the router is a trunk, which adds a tag with the VLAN number to every frame, and the router splits the single port into sub-interfaces, each one tied to a VLAN with encapsulation dot1Q followed by the number. The physical e0/0 only has to be up, and the IP addresses go on the sub-interfaces. The trunk should carry only the VLANs the router needs, because a router must not see links it is not part of. On this switch image the encapsulation has to be set with switchport trunk encapsulation dot1q before switchport mode trunk is accepted. After that, OSPF works as in the normal lab. The network statements match the sub-interface addresses, the two-router links need ip ospf network point-to-point on both ends, and the shared VLANs (107 and 108) have more than two routers, so they elect a DR and a BDR, which you control with ip ospf priority. A priority of 0 means the router can never be elected, and the election does not preempt, so clear ip ospf process may be needed after changing priorities.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'A VLAN behaves like a private cable that exists only inside the switch. A frame that enters in one VLAN can only leave through ports in the same VLAN, so two routers can talk only if they share a VLAN, and a link with two routers is simply a VLAN that only those two routers belong to. A router has only one physical port here, so it must carry several VLANs over it. The switch port facing the router is a trunk, which adds a tag with the VLAN number to every frame, and the router splits the single port into sub-interfaces, each one tied to a VLAN with encapsulation dot1Q followed by the number. The physical e0/0 only has to be up, and the IP addresses go on the sub-interfaces. The trunk should carry only the VLANs the router needs, because a router must not see links it is not part of. On this switch image the encapsulation has to be set with switchport trunk encapsulation dot1q before switchport mode trunk is accepted. After that, OSPF works as in the normal lab. The network statements match the sub-interface addresses, the two-router links need ip ospf network point-to-point on both ends, and the shared VLANs (107 and 108) have more than two routers, so they elect a DR and a BDR, which you control with ip ospf priority. A priority of 0 means the router can never be elected, and the election does not preempt, so clear ip ospf process may be needed after changing priorities.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show vlan brief on SW: VLANs 101 to 108 exist. Trunk ports are not listed under a VLAN.',
-        'show interfaces trunk on SW: the eight router ports are trunking with 802.1q, and each one allows only its own VLANs.',
-        'show ip interface brief on a router: e0/0 is up/up with no address, and every sub-interface has its address and is up/up.',
-        'ping: each router reaches its neighbour on every logical link, and does not reach routers that are on other VLANs only.',
-        'show ip ospf neighbor: point-to-point links show FULL/  -, and the shared segments show FULL/DR, FULL/BDR or 2WAY/DROTHER. R3 and R6 show 7 neighbours each.',
-        'show ip ospf interface e0/0.107: shows the area, network type, state, priority, DR and BDR of that sub-interface.',
-        'show ip route ospf on R1: routes from other areas are marked O IA, and traceroute from R1 to 8.8.8.1 follows the logical path.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'Link to VLAN', value: '200.10.N.0/24 uses VLAN 100+N' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Switch trunk', value: 'switchport mode trunk' },
-    { label: 'Allowed VLANs', value: 'switchport trunk allowed vlan <list>' },
-    { label: 'Sub-interface', value: 'interface e0/0.<vlan>' },
-    { label: 'Tag', value: 'encapsulation dot1Q <vlan>' },
-    { label: 'Enable OSPF', value: 'router ospf 1' },
-    { label: 'Advertise', value: 'network <ip> <wildcard> area <n>' },
-    { label: 'No election', value: 'ip ospf network point-to-point' },
-    { label: 'Priority', value: 'ip ospf priority <0-255>' },
-    { label: 'Show trunks', value: 'show interfaces trunk' },
-    { label: 'Neighbours', value: 'show ip ospf neighbor' },
-  ],
-},
-{
-  slug: 'mls-ring-all-vlans',
-  title: 'MLS Ring: STP with All VLANs',
-  group: 'Switching Labs',
-  description:
-    'Four multilayer switches are physically connected in a square. Trunks are configured to allow all VLANs, relying on Spanning Tree Protocol (STP) to block redundant links and prevent Layer 2 loops while routing EIGRP and OSPF.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'Physically, the four multilayer switches form a square. Between neighbors, there is exactly one cable acting as a trunk. Unlike a manually pruned setup, all trunks allow all VLANs. Logically, there are two "diagonal" links: SW1 to SW4 running EIGRP over VLAN 14, and SW3 to SW2 running OSPF over VLAN 23. Because the physical topology is a ring and all VLANs traverse all links, Layer 2 loops would occur. To prevent this, Spanning Tree Protocol (STP) will automatically elect a Root Bridge and block specific redundant ports for VLAN 14 and VLAN 23. The actual path the traffic takes will be dictated by STP rather than manual configuration.'
-    },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief on SW: VLANs 101 to 108 exist. Trunk ports are not listed under a VLAN.',
+              'show interfaces trunk on SW: the eight router ports are trunking with 802.1q, and each one allows only its own VLANs.',
+              'show ip interface brief on a router: e0/0 is up/up with no address, and every sub-interface has its address and is up/up.',
+              'ping: each router reaches its neighbour on every logical link, and does not reach routers that are on other VLANs only.',
+              'show ip ospf neighbor: point-to-point links show FULL/  -, and the shared segments show FULL/DR, FULL/BDR or 2WAY/DROTHER. R3 and R6 show 7 neighbours each.',
+              'show ip ospf interface e0/0.107: shows the area, network type, state, priority, DR and BDR of that sub-interface.',
+              'show ip route ospf on R1: routes from other areas are marked O IA, and traceroute from R1 to 8.8.8.1 follows the logical path.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Link to VLAN', value: '200.10.N.0/24 uses VLAN 100+N' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Switch trunk', value: 'switchport mode trunk' },
+          { label: 'Allowed VLANs', value: 'switchport trunk allowed vlan <list>' },
+          { label: 'Sub-interface', value: 'interface e0/0.<vlan>' },
+          { label: 'Tag', value: 'encapsulation dot1Q <vlan>' },
+          { label: 'Enable OSPF', value: 'router ospf 1' },
+          { label: 'Advertise', value: 'network <ip> <wildcard> area <n>' },
+          { label: 'No election', value: 'ip ospf network point-to-point' },
+          { label: 'Priority', value: 'ip ospf priority <0-255>' },
+          { label: 'Show trunks', value: 'show interfaces trunk' },
+          { label: 'Neighbours', value: 'show ip ospf neighbor' },
+        ],
+      },
+      {
+        slug: 'mls-ring-all-vlans',
+        title: 'MLS Ring: STP with All VLANs',
+        group: 'Switching Labs',
+        description:
+          'Four multilayer switches are physically connected in a square. Trunks are configured to allow all VLANs, relying on Spanning Tree Protocol (STP) to block redundant links and prevent Layer 2 loops while routing EIGRP and OSPF.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Physically, the four multilayer switches form a square. Between neighbors, there is exactly one cable acting as a trunk. Unlike a manually pruned setup, all trunks allow all VLANs. Logically, there are two "diagonal" links: SW1 to SW4 running EIGRP over VLAN 14, and SW3 to SW2 running OSPF over VLAN 23. Because the physical topology is a ring and all VLANs traverse all links, Layer 2 loops would occur. To prevent this, Spanning Tree Protocol (STP) will automatically elect a Root Bridge and block specific redundant ports for VLAN 14 and VLAN 23. The actual path the traffic takes will be dictated by STP rather than manual configuration.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'Physical trunks: Top (SW1 e0/0 ↔ SW2 e0/0), Left (SW1 e0/3 ↔ SW3 e0/2), Right (SW2 e0/3 ↔ SW4 e0/2), Bottom (SW3 e0/1 ↔ SW4 e0/1).',
-        'Logical links: EIGRP-LINK on VLAN 14 (10.14.0.0/24) between SW1 (.1) and SW4 (.4). OSPF-LINK on VLAN 23 (10.23.0.0/24) between SW3 (.3) and SW2 (.2).',
-        'Trunk allowed VLANs: All trunks allow all VLANs (1-4094) by default or by using the allowed vlan all command.',
-        'Layer 3 SVIs: SW1 uses interface vlan 14, SW4 uses interface vlan 14. SW2 uses interface vlan 23, SW3 uses interface vlan 23.',
-        'Loopbacks: Loopback0 on every switch uses N.N.N.N with a 255.255.255.255 mask.',
-        'Routing: EIGRP AS 100 on SW1 and SW4. OSPF Process 1 Area 0 on SW2 and SW3.'
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Physical trunks: Top (SW1 e0/0 ↔ SW2 e0/0), Left (SW1 e0/3 ↔ SW3 e0/2), Right (SW2 e0/3 ↔ SW4 e0/2), Bottom (SW3 e0/1 ↔ SW4 e0/1).',
+              'Logical links: EIGRP-LINK on VLAN 14 (10.14.0.0/24) between SW1 (.1) and SW4 (.4). OSPF-LINK on VLAN 23 (10.23.0.0/24) between SW3 (.3) and SW2 (.2).',
+              'Trunk allowed VLANs: All trunks allow all VLANs (1-4094) by default or by using the allowed vlan all command.',
+              'Layer 3 SVIs: SW1 uses interface vlan 14, SW4 uses interface vlan 14. SW2 uses interface vlan 23, SW3 uses interface vlan 23.',
+              'Loopbacks: Loopback0 on every switch uses N.N.N.N with a 255.255.255.255 mask.',
+              'Routing: EIGRP AS 100 on SW1 and SW4. OSPF Process 1 Area 0 on SW2 and SW3.'
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Enable routing with ip routing and create VLAN 14 and VLAN 23 on all four switches.',
-        'Configure each single physical cable as a trunk with switchport trunk encapsulation dot1q and switchport mode trunk. Do not restrict the allowed VLANs (leave default or set to all).',
-        'Create the Layer 3 SVIs (interface vlan <id>) with IP addresses and no shutdown for the active routing endpoints.',
-        'Create Loopback0 on every switch.',
-        'Run EIGRP 100 on SW1 and SW4. Run OSPF 1 area 0 on SW3 and SW2.',
-        'Check show spanning-tree vlan 14 and show spanning-tree vlan 23 to see which switch becomes the Root Bridge and which ports are put into the Blocking (BLK) state.',
-        'Ping across each logical link: SW1 to 10.14.0.4 and SW3 to 10.23.0.2 to verify STP has unblocked a valid path.',
-        'Break a forwarding link (shutdown) on purpose, and watch STP recalculate, transition ports through listening/learning, and eventually unblock a redundant path to restore routing.',
-        'Save with copy running-config startup-config.'
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Enable routing with ip routing and create VLAN 14 and VLAN 23 on all four switches.',
+              'Configure each single physical cable as a trunk with switchport trunk encapsulation dot1q and switchport mode trunk. Do not restrict the allowed VLANs (leave default or set to all).',
+              'Create the Layer 3 SVIs (interface vlan <id>) with IP addresses and no shutdown for the active routing endpoints.',
+              'Create Loopback0 on every switch.',
+              'Run EIGRP 100 on SW1 and SW4. Run OSPF 1 area 0 on SW3 and SW2.',
+              'Check show spanning-tree vlan 14 and show spanning-tree vlan 23 to see which switch becomes the Root Bridge and which ports are put into the Blocking (BLK) state.',
+              'Ping across each logical link: SW1 to 10.14.0.4 and SW3 to 10.23.0.2 to verify STP has unblocked a valid path.',
+              'Break a forwarding link (shutdown) on purpose, and watch STP recalculate, transition ports through listening/learning, and eventually unblock a redundant path to restore routing.',
+              'Save with copy running-config startup-config.'
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'When all VLANs are allowed on all trunks in a ring topology, Spanning Tree Protocol (STP) becomes the sole mechanism preventing broadcast storms. By default, Cisco switches run PVST+ (Per-VLAN Spanning Tree). It will elect a Root Bridge for VLAN 14 and a Root Bridge for VLAN 23 (often the switch with the lowest MAC address if priorities are tied) and block the ports furthest from the root. This means the path your routing protocol traffic takes across the square is entirely dependent on STP states. When you shut down an active trunk, routing will drop temporarily while STP waits for timers (Max Age, Forward Delay) to transition a blocked port back to forwarding.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'When all VLANs are allowed on all trunks in a ring topology, Spanning Tree Protocol (STP) becomes the sole mechanism preventing broadcast storms. By default, Cisco switches run PVST+ (Per-VLAN Spanning Tree). It will elect a Root Bridge for VLAN 14 and a Root Bridge for VLAN 23 (often the switch with the lowest MAC address if priorities are tied) and block the ports furthest from the root. This means the path your routing protocol traffic takes across the square is entirely dependent on STP states. When you shut down an active trunk, routing will drop temporarily while STP waits for timers (Max Age, Forward Delay) to transition a blocked port back to forwarding.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show interfaces trunk: confirms trunks are active and allowing VLANs 1-4094.',
-        'show spanning-tree vlan 14: identifies the root bridge, root ports, designated ports, and blocked ports for the EIGRP VLAN.',
-        'show ip eigrp neighbors on SW1: shows an adjacency with 10.14.0.4.',
-        'show ip ospf neighbor on SW3: shows 2.2.2.2 in the FULL state.',
-        'show ip route: confirms that SW1 reaches 4.4.4.4 and SW3 reaches 2.2.2.2.'
-      ]
-    }
-  ],
-  quickReference: [
-    { label: 'Enable routing', value: 'ip routing' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Trunk encap', value: 'switchport trunk encapsulation dot1q' },
-    { label: 'Switch trunk', value: 'switchport mode trunk' },
-    { label: 'Allow all VLANs', value: 'switchport trunk allowed vlan all' },
-    { label: 'Check STP', value: 'show spanning-tree vlan <id>' },
-    { label: 'Create SVI', value: 'interface vlan <id>' },
-    { label: 'EIGRP', value: 'router eigrp <as>' },
-    { label: 'OSPF', value: 'router ospf <pid>' },
-    { label: 'Show trunks', value: 'show interfaces trunk' }
-  ]
-},
-{
-  slug: 'dhcp-intervlan-labs',
-  title: 'DHCP and Inter-VLAN Labs: Router-on-a-Stick and MLS',
-  group: 'Switching Labs',
-  description:
-    'Two branch offices, each with four VLANs, three devices in a line and LACP EtherChannels between them. BR_BLR uses a router-on-a-stick as gateway and DHCP server, and BR_US uses a multilayer switch with SVIs as gateway and DHCP server. Hosts get their addresses from DHCP.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'A company has two branch offices, BR_BLR and BR_US. Both have the same four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). In each branch, three devices are stacked in a line and every device has four hosts, one per VLAN. Every connection between two switches is four parallel cables bundled into one LACP port-channel, so there is no blocked link and no single cable is a point of failure. The two branches differ in how the VLANs reach each other and where the hosts get their address. In BR_BLR, the router R1 is connected to the top switch SW1 with one trunk cable and uses sub-interfaces, a design called router on a stick. R1 is the default gateway and also the DHCP server. In BR_US, the top device is a multilayer switch, MLS1, which routes between VLANs with SVIs (switch virtual interfaces). MLS1 is the default gateway and the DHCP server, and no separate router is needed. In both branches the hosts do not have static addresses: every VPC gets its address, mask, gateway and DNS server from DHCP with the command ip dhcp. Every device starts in its factory state: no VLANs, all ports in VLAN 1, no addresses and no DHCP pools.'
-    },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show interfaces trunk: confirms trunks are active and allowing VLANs 1-4094.',
+              'show spanning-tree vlan 14: identifies the root bridge, root ports, designated ports, and blocked ports for the EIGRP VLAN.',
+              'show ip eigrp neighbors on SW1: shows an adjacency with 10.14.0.4.',
+              'show ip ospf neighbor on SW3: shows 2.2.2.2 in the FULL state.',
+              'show ip route: confirms that SW1 reaches 4.4.4.4 and SW3 reaches 2.2.2.2.'
+            ]
+          }
+        ],
+        quickReference: [
+          { label: 'Enable routing', value: 'ip routing' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Trunk encap', value: 'switchport trunk encapsulation dot1q' },
+          { label: 'Switch trunk', value: 'switchport mode trunk' },
+          { label: 'Allow all VLANs', value: 'switchport trunk allowed vlan all' },
+          { label: 'Check STP', value: 'show spanning-tree vlan <id>' },
+          { label: 'Create SVI', value: 'interface vlan <id>' },
+          { label: 'EIGRP', value: 'router eigrp <as>' },
+          { label: 'OSPF', value: 'router ospf <pid>' },
+          { label: 'Show trunks', value: 'show interfaces trunk' }
+        ]
+      },
+      {
+        slug: 'dhcp-intervlan-labs',
+        title: 'DHCP and Inter-VLAN Labs: Router-on-a-Stick and MLS',
+        group: 'Switching Labs',
+        description:
+          'Two branch offices, each with four VLANs, three devices in a line and LACP EtherChannels between them. BR_BLR uses a router-on-a-stick as gateway and DHCP server, and BR_US uses a multilayer switch with SVIs as gateway and DHCP server. Hosts get their addresses from DHCP.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'A company has two branch offices, BR_BLR and BR_US. Both have the same four departments: HR (VLAN 10), IT (VLAN 20), Marketing (VLAN 30) and Management (VLAN 40). In each branch, three devices are stacked in a line and every device has four hosts, one per VLAN. Every connection between two switches is four parallel cables bundled into one LACP port-channel, so there is no blocked link and no single cable is a point of failure. The two branches differ in how the VLANs reach each other and where the hosts get their address. In BR_BLR, the router R1 is connected to the top switch SW1 with one trunk cable and uses sub-interfaces, a design called router on a stick. R1 is the default gateway and also the DHCP server. In BR_US, the top device is a multilayer switch, MLS1, which routes between VLANs with SVIs (switch virtual interfaces). MLS1 is the default gateway and the DHCP server, and no separate router is needed. In both branches the hosts do not have static addresses: every VPC gets its address, mask, gateway and DNS server from DHCP with the command ip dhcp. Every device starts in its factory state: no VLANs, all ports in VLAN 1, no addresses and no DHCP pools.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'BR_BLR uses 192.168.XX.0/24 with the gateway .100 in every VLAN: 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24 and 192.168.40.0/24. The gateways are the sub-interfaces R1 e0/0.10, e0/0.20, e0/0.30 and e0/0.40.',
-        'BR_US uses 10.10.XX.0/24 with the gateway .254 in every VLAN: 10.10.10.0/24, 10.10.20.0/24, 10.10.30.0/24 and 10.10.40.0/24. The gateways are the SVIs Vlan10, Vlan20, Vlan30 and Vlan40 on MLS1.',
-        'BR_BLR devices: R1 (router and DHCP server), SW1, SW2 and SW3, and VPC1 to VPC12. BR_US devices: MLS1 (gateway and DHCP server), SW4 and SW5, and VPC13 to VPC24.',
-        'In each branch the hosts of a device are, in VLAN order 10, 20, 30, 40: SW1 VPC1 to VPC4, SW2 VPC5 to VPC8, SW3 VPC9 to VPC12, MLS1 VPC13 to VPC16, SW4 VPC17 to VPC20 and SW5 VPC21 to VPC24.',
-        'BR_BLR host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
-        'BR_US host ports: MLS1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW4 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW5 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
-        'BR_BLR router link: R1 e0/0 to SW1 e2/0, a single trunk cable.',
-        'BR_BLR Port-channel 1 (LACP): SW1 e1/3, e1/2, e1/1, e0/1 to SW2 e2/0, e1/3, e1/2, e0/1. SW1 is active and SW2 is passive.',
-        'BR_BLR Port-channel 2 (LACP): SW2 e2/3, e2/2, e2/1, e0/0 to SW3 e1/3, e1/2, e1/1, e0/0. SW2 is active and SW3 is passive.',
-        'BR_US Port-channel 1 (LACP): MLS1 e1/3, e1/2, e1/1, e0/1 to SW4 e2/0, e1/3, e1/2, e0/1. MLS1 is active and SW4 is passive.',
-        'BR_US Port-channel 2 (LACP): SW4 e2/3, e2/2, e2/1, e0/0 to SW5 e1/3, e1/2, e1/1, e0/0. SW4 is active and SW5 is passive.',
-        'DHCP settings in both branches: DNS server 8.8.8.8, domain name www.BSOFT.com, lease time 2 days 0 hours. The gateway address is excluded from every pool.',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'BR_BLR uses 192.168.XX.0/24 with the gateway .100 in every VLAN: 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24 and 192.168.40.0/24. The gateways are the sub-interfaces R1 e0/0.10, e0/0.20, e0/0.30 and e0/0.40.',
+              'BR_US uses 10.10.XX.0/24 with the gateway .254 in every VLAN: 10.10.10.0/24, 10.10.20.0/24, 10.10.30.0/24 and 10.10.40.0/24. The gateways are the SVIs Vlan10, Vlan20, Vlan30 and Vlan40 on MLS1.',
+              'BR_BLR devices: R1 (router and DHCP server), SW1, SW2 and SW3, and VPC1 to VPC12. BR_US devices: MLS1 (gateway and DHCP server), SW4 and SW5, and VPC13 to VPC24.',
+              'In each branch the hosts of a device are, in VLAN order 10, 20, 30, 40: SW1 VPC1 to VPC4, SW2 VPC5 to VPC8, SW3 VPC9 to VPC12, MLS1 VPC13 to VPC16, SW4 VPC17 to VPC20 and SW5 VPC21 to VPC24.',
+              'BR_BLR host ports: SW1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW2 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW3 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+              'BR_US host ports: MLS1 e0/3 VLAN 10, e1/0 VLAN 20, e0/0 VLAN 30, e0/2 VLAN 40. SW4 e0/2 VLAN 10, e0/3 VLAN 20, e1/0 VLAN 30, e1/1 VLAN 40. SW5 e0/1 VLAN 10, e0/2 VLAN 20, e0/3 VLAN 30, e1/0 VLAN 40.',
+              'BR_BLR router link: R1 e0/0 to SW1 e2/0, a single trunk cable.',
+              'BR_BLR Port-channel 1 (LACP): SW1 e1/3, e1/2, e1/1, e0/1 to SW2 e2/0, e1/3, e1/2, e0/1. SW1 is active and SW2 is passive.',
+              'BR_BLR Port-channel 2 (LACP): SW2 e2/3, e2/2, e2/1, e0/0 to SW3 e1/3, e1/2, e1/1, e0/0. SW2 is active and SW3 is passive.',
+              'BR_US Port-channel 1 (LACP): MLS1 e1/3, e1/2, e1/1, e0/1 to SW4 e2/0, e1/3, e1/2, e0/1. MLS1 is active and SW4 is passive.',
+              'BR_US Port-channel 2 (LACP): SW4 e2/3, e2/2, e2/1, e0/0 to SW5 e1/3, e1/2, e1/1, e0/0. SW4 is active and SW5 is passive.',
+              'DHCP settings in both branches: DNS server 8.8.8.8, domain name www.BSOFT.com, lease time 2 days 0 hours. The gateway address is excluded from every pool.',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Create VLANs 10, 20, 30 and 40 with names on all three devices of the branch, including MLS1 in BR_US.',
-        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
-        'Bundle each switch-to-switch connection into a port-channel with LACP. Use channel-group N mode active on the upper device and channel-group N mode passive on the lower one, on every member port.',
-        'Configure the trunk only on the port-channel interfaces with switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan 10,20,30,40. Do not type trunk commands on the member ports.',
-        'BR_BLR: make SW1 e2/0 a trunk. On R1 bring up the physical e0/0 without an IP address, then create the sub-interfaces e0/0.10 to e0/0.40 with encapsulation dot1Q and the .100 gateway address of each VLAN.',
-        'BR_US: on MLS1 enable ip routing, then create the SVIs interface vlan 10 to interface vlan 40 with the .254 gateway address of each VLAN and no shutdown.',
-        'Configure the DHCP server (R1 in BR_BLR, MLS1 in BR_US). First exclude the gateway address of each VLAN with ip dhcp excluded-address.',
-        'For every VLAN create a pool: ip dhcp pool VLANx, then network, default-router, dns-server, domain-name and lease 2 0.',
-        'On every VPC type ip dhcp and confirm with show ip that it received an address of its own VLAN and the correct gateway.',
-        'Verify with show etherchannel summary and show interfaces trunk on the switches, and show ip dhcp binding, show ip dhcp pool and show ip route on the DHCP server.',
-        'Ping between hosts of the same VLAN on different devices, then between hosts of different VLANs. All should succeed. Run trace and read the first hop.',
-        'Shut down one member port of a bundle and keep a ping running: the bundle stays up on three links. Then shut down the gateway of one VLAN (R1 e0/0.20 or MLS1 interface vlan 20), see that the VLAN loses its gateway and its DHCP, and restore it.',
-        'Save with copy running-config startup-config, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all three devices of the branch, including MLS1 in BR_US.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Bundle each switch-to-switch connection into a port-channel with LACP. Use channel-group N mode active on the upper device and channel-group N mode passive on the lower one, on every member port.',
+              'Configure the trunk only on the port-channel interfaces with switchport trunk encapsulation dot1q, switchport mode trunk and switchport trunk allowed vlan 10,20,30,40. Do not type trunk commands on the member ports.',
+              'BR_BLR: make SW1 e2/0 a trunk. On R1 bring up the physical e0/0 without an IP address, then create the sub-interfaces e0/0.10 to e0/0.40 with encapsulation dot1Q and the .100 gateway address of each VLAN.',
+              'BR_US: on MLS1 enable ip routing, then create the SVIs interface vlan 10 to interface vlan 40 with the .254 gateway address of each VLAN and no shutdown.',
+              'Configure the DHCP server (R1 in BR_BLR, MLS1 in BR_US). First exclude the gateway address of each VLAN with ip dhcp excluded-address.',
+              'For every VLAN create a pool: ip dhcp pool VLANx, then network, default-router, dns-server, domain-name and lease 2 0.',
+              'On every VPC type ip dhcp and confirm with show ip that it received an address of its own VLAN and the correct gateway.',
+              'Verify with show etherchannel summary and show interfaces trunk on the switches, and show ip dhcp binding, show ip dhcp pool and show ip route on the DHCP server.',
+              'Ping between hosts of the same VLAN on different devices, then between hosts of different VLANs. All should succeed. Run trace and read the first hop.',
+              'Shut down one member port of a bundle and keep a ping running: the bundle stays up on three links. Then shut down the gateway of one VLAN (R1 e0/0.20 or MLS1 interface vlan 20), see that the VLAN loses its gateway and its DHCP, and restore it.',
+              'Save with copy running-config startup-config, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'DHCP lets a host ask for its network settings instead of having them typed in. The process has four steps: the host broadcasts a Discover, the server offers an address, the host requests it, and the server confirms. Because the first message is a broadcast, it only reaches devices in the same VLAN. In both branches the DHCP server is also the gateway of every VLAN, so it has an interface in each VLAN and receives the broadcast directly, and there is no need for ip helper-address. The server decides which pool to use by looking at the interface where the request arrived: the pool whose network matches that interface address answers. On R1 that interface is a sub-interface, which receives tagged frames over the single trunk. On MLS1 it is the SVI of the VLAN. An SVI is only up when its VLAN exists and at least one port of that VLAN is up, which the trunk port-channel guarantees. The gateway address is excluded from the pools, otherwise the server could hand it to a host. A DHCP pool needs five things: a network, a default router, a DNS server, a domain name and a lease time. The pool must be built for every VLAN, because every VLAN is a different subnet. Router on a stick needs only one cable and one router port for any number of VLANs, but all routed traffic shares that one link. An MLS routes between SVIs inside the switch, so it avoids that bottleneck. Between the switches, an EtherChannel merges four cables into one logical link, so spanning tree does not block any of them and the traffic is shared. Both sides must use the same protocol: LACP uses active and passive, and at least one side must be active. The trunk is configured on the port-channel interface and the member ports inherit it. On this switch image the command switchport trunk encapsulation dot1q must be typed before switchport mode trunk. Every VLAN must exist on every device of the branch, because VLANs are local to each switch.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'DHCP lets a host ask for its network settings instead of having them typed in. The process has four steps: the host broadcasts a Discover, the server offers an address, the host requests it, and the server confirms. Because the first message is a broadcast, it only reaches devices in the same VLAN. In both branches the DHCP server is also the gateway of every VLAN, so it has an interface in each VLAN and receives the broadcast directly, and there is no need for ip helper-address. The server decides which pool to use by looking at the interface where the request arrived: the pool whose network matches that interface address answers. On R1 that interface is a sub-interface, which receives tagged frames over the single trunk. On MLS1 it is the SVI of the VLAN. An SVI is only up when its VLAN exists and at least one port of that VLAN is up, which the trunk port-channel guarantees. The gateway address is excluded from the pools, otherwise the server could hand it to a host. A DHCP pool needs five things: a network, a default router, a DNS server, a domain name and a lease time. The pool must be built for every VLAN, because every VLAN is a different subnet. Router on a stick needs only one cable and one router port for any number of VLANs, but all routed traffic shares that one link. An MLS routes between SVIs inside the switch, so it avoids that bottleneck. Between the switches, an EtherChannel merges four cables into one logical link, so spanning tree does not block any of them and the traffic is shared. Both sides must use the same protocol: LACP uses active and passive, and at least one side must be active. The trunk is configured on the port-channel interface and the member ports inherit it. On this switch image the command switchport trunk encapsulation dot1q must be typed before switchport mode trunk. Every VLAN must exist on every device of the branch, because VLANs are local to each switch.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every device with only the host ports under them. Port-channel members do not appear because they are trunks.',
-        'show etherchannel summary: Po1 and Po2 have the flags SU, the protocol is LACP, and all four member ports of each bundle are flagged P (bundled).',
-        'show interfaces trunk: only Po1 and Po2 (and SW1 e2/0 in BR_BLR) are listed as trunks, with VLANs 10,20,30,40 allowed and forwarding.',
-        'BR_BLR, show ip interface brief on R1: e0/0 has no address but is up/up, and e0/0.10 to e0/0.40 have their .100 address and are up/up.',
-        'BR_US, show ip interface brief on MLS1: Vlan10 to Vlan40 have their .254 address and are up/up.',
-        'show ip route on the gateway: four connected (C) networks and the matching local (L) routes.',
-        'show ip dhcp pool: four pools, VLAN10 to VLAN40, with the correct network and a growing number of leased addresses.',
-        'show ip dhcp binding: one lease per VPC, in the subnet of its VLAN, and never the gateway address.',
-        'show ip on each VPC: address, mask, gateway and DNS server come from DHCP and match its VLAN.',
-        'ping and trace: replies inside a VLAN and between VLANs. From a host in another VLAN, the first hop is the gateway (.100 in BR_BLR, .254 in BR_US) and the second hop is the destination.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'BR_BLR', value: '192.168.XX.0/24, gateway .100, router-on-a-stick, R1 is DHCP server' },
-    { label: 'BR_US', value: '10.10.XX.0/24, gateway .254, MLS1 with SVIs is DHCP server' },
-    { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Access port', value: 'switchport mode access, switchport access vlan <id>' },
-    { label: 'LACP member', value: 'channel-group <n> mode active | passive' },
-    { label: 'Trunk on port-channel', value: 'interface port-channel <n>, switchport trunk encapsulation dot1q, switchport mode trunk' },
-    { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
-    { label: 'SVI', value: 'ip routing, then interface vlan <id>, ip address <ip> <mask>, no shutdown' },
-    { label: 'Exclude address', value: 'ip dhcp excluded-address <ip>' },
-    { label: 'DHCP pool', value: 'ip dhcp pool <name>, network <net> <mask>, default-router <ip>' },
-    { label: 'Pool options', value: 'dns-server <ip>, domain-name <name>, lease <days> <hours>' },
-    { label: 'VPC DHCP', value: 'ip dhcp' },
-    { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
-    { label: 'Check bundle', value: 'show etherchannel summary, show interfaces trunk' },
-    { label: 'Routes', value: 'show ip route' },
-  ],
-}
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief: VLANs 10, 20, 30 and 40 are listed on every device with only the host ports under them. Port-channel members do not appear because they are trunks.',
+              'show etherchannel summary: Po1 and Po2 have the flags SU, the protocol is LACP, and all four member ports of each bundle are flagged P (bundled).',
+              'show interfaces trunk: only Po1 and Po2 (and SW1 e2/0 in BR_BLR) are listed as trunks, with VLANs 10,20,30,40 allowed and forwarding.',
+              'BR_BLR, show ip interface brief on R1: e0/0 has no address but is up/up, and e0/0.10 to e0/0.40 have their .100 address and are up/up.',
+              'BR_US, show ip interface brief on MLS1: Vlan10 to Vlan40 have their .254 address and are up/up.',
+              'show ip route on the gateway: four connected (C) networks and the matching local (L) routes.',
+              'show ip dhcp pool: four pools, VLAN10 to VLAN40, with the correct network and a growing number of leased addresses.',
+              'show ip dhcp binding: one lease per VPC, in the subnet of its VLAN, and never the gateway address.',
+              'show ip on each VPC: address, mask, gateway and DNS server come from DHCP and match its VLAN.',
+              'ping and trace: replies inside a VLAN and between VLANs. From a host in another VLAN, the first hop is the gateway (.100 in BR_BLR, .254 in BR_US) and the second hop is the destination.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'BR_BLR', value: '192.168.XX.0/24, gateway .100, router-on-a-stick, R1 is DHCP server' },
+          { label: 'BR_US', value: '10.10.XX.0/24, gateway .254, MLS1 with SVIs is DHCP server' },
+          { label: 'VLANs', value: '10 HR, 20 IT, 30 Marketing, 40 Management' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Access port', value: 'switchport mode access, switchport access vlan <id>' },
+          { label: 'LACP member', value: 'channel-group <n> mode active | passive' },
+          { label: 'Trunk on port-channel', value: 'interface port-channel <n>, switchport trunk encapsulation dot1q, switchport mode trunk' },
+          { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
+          { label: 'SVI', value: 'ip routing, then interface vlan <id>, ip address <ip> <mask>, no shutdown' },
+          { label: 'Exclude address', value: 'ip dhcp excluded-address <ip>' },
+          { label: 'DHCP pool', value: 'ip dhcp pool <name>, network <net> <mask>, default-router <ip>' },
+          { label: 'Pool options', value: 'dns-server <ip>, domain-name <name>, lease <days> <hours>' },
+          { label: 'VPC DHCP', value: 'ip dhcp' },
+          { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
+          { label: 'Check bundle', value: 'show etherchannel summary, show interfaces trunk' },
+          { label: 'Routes', value: 'show ip route' },
+        ],
+      }
       //   {
       // slug: 'mls-eigrp-ospf-lab',
       // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
