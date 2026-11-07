@@ -483,7 +483,10 @@ export function operMode(
   if (m === "access" || m === "trunk") return m;
   const pe = peerOf(s, id, port),
     pd = pe && s.devs[pe.id];
-  if (!pd || pd.kind !== "switch") return "access";
+  
+  // If the peer is a router, the switch port must be a trunk to carry VLAN tags
+  if (!pd) return "access";
+  if (pd.kind !== "switch") return "trunk"; 
   const pi = pd.ifaces[pe!.port],
     pm = pi.mode ?? "auto";
   if (i.nonegotiate || (pm === "trunk" && pi.nonegotiate)) return "access";
