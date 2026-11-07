@@ -639,7 +639,8 @@ export function l2domain(s: State, id: string, port: string): EP[] {
   const q: Q[] = [],
     out: EP[] = [],
     seen = new Set<string>();
-  if (d.kind === "switch") {
+  const isRouted = (x: Dev, p: string) => !!(x.ifaces[p] as { routed?: boolean } | undefined)?.routed;
+  if (d.kind === "switch" && !isRouted(d, port)) {
     const m = /^Vlan(\d+)$/.exec(port);
     if (!m) return [];
     q.push({ dev: id, vlan: +m[1], path: [] });
@@ -651,6 +652,12 @@ export function l2domain(s: State, id: string, port: string): EP[] {
   while (q.length) {
     const it = q.shift()!,
       dd = s.devs[it.dev];
+    // L3 switch port with "no switchport": behaves like a router interface (an endpoint, not a bridge port)
+    if (dd.kind === "switch" && it.inp && isRouted(dd, it.inp)) {
+      if (it.tag === undefined && ifUp(s, dd.id, it.inp))
+        out.push({ id: dd.id, port: it.inp, path: it.path });
+      continue;
+    }
     if (dd.kind !== "switch") {
       let name = it.inp!;
       if (dd.kind === "router" && it.tag !== undefined) {
