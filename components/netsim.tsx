@@ -481,14 +481,28 @@ export function operMode(
   const i = s.devs[id].ifaces[port],
     m = i.mode ?? "auto";
   if (m === "access" || m === "trunk") return m;
+
+  // 1. If this port is part of a Port-channel, inherit the mode from the Port-channel interface
+  if (i.channelGroup) {
+    const po = s.devs[id].ifaces[`Port-channel${i.channelGroup}`];
+    if (po?.mode === "trunk" || po?.mode === "access") return po.mode;
+  }
+
   const pe = peerOf(s, id, port),
     pd = pe && s.devs[pe.id];
   
-  // If the peer is a router, the switch port must be a trunk to carry VLAN tags
+  // 2. If the peer is a router, the switch port must be a trunk to carry VLAN tags
   if (!pd) return "access";
   if (pd.kind !== "switch") return "trunk"; 
-  const pi = pd.ifaces[pe!.port],
-    pm = pi.mode ?? "auto";
+
+  // 3. If the peer is a switch, check if the peer's port is part of a Port-channel
+  const pi = pd.ifaces[pe!.port];
+  if (pi.channelGroup) {
+    const peerPo = pd.ifaces[`Port-channel${pi.channelGroup}`];
+    if (peerPo?.mode === "trunk" || peerPo?.mode === "access") return peerPo.mode;
+  }
+
+  const pm = pi.mode ?? "auto";
   if (i.nonegotiate || (pm === "trunk" && pi.nonegotiate)) return "access";
   if (pm === "trunk") return "trunk";
   return (m === "desirable" && (pm === "auto" || pm === "desirable")) ||
