@@ -106,6 +106,7 @@ import { SwitchForwardingMethods } from "@/components/sw-fw";
 import { useTheme } from "@/lib/use-theme";
 import { createPortal } from "react-dom";
 import { StaticRoutingLab } from "@/components/static-routing-lab";
+import { TopicLanding } from "@/components/topic-landing";
 import { ThreeTierArchitecture } from "./3-tier";
 import { VlanConcepts } from "./vlan-basics";
 import { AccessPortLab } from "./access-port";
@@ -1173,10 +1174,12 @@ function Sidebar({
   selected,
   selectedQuizId,
   selectedSummary,
+  selectedTopicOnly,
   onSelect,
   onSelectQuiz,
   onSelectSummary,
   onSelectExtra,
+  onSelectTopic,
   selectedExtra,
   openedExtras,
   completed,
@@ -1185,12 +1188,13 @@ function Sidebar({
 }: {
   selected?: string;
   selectedQuizId?: string;
-  /** Slug of the topic whose Summary page is open */
   selectedSummary?: string;
+  selectedTopicOnly?: string;
   onSelect: (topic: Topic, subtopic: Subtopic) => void;
   onSelectQuiz: (quizId: string) => void;
   onSelectSummary: (topicSlug: string) => void;
   onSelectExtra: (topic: Topic, subtopic: Subtopic) => void;
+  onSelectTopic: (topic: Topic) => void;
   selectedExtra?: string;
   openedExtras: Set<string>;
   completed: Set<string>;
@@ -1202,12 +1206,13 @@ function Sidebar({
 
   const topicWithActive = useMemo(() => {
     if (selectedSummary) return selectedSummary;
+    if (selectedTopicOnly) return selectedTopicOnly;
     if (!selected) return null;
     for (const topic of topics) {
       if (topic.subtopics.some((s) => s.slug === selected)) return topic.slug;
     }
     return null;
-  }, [selected, selectedSummary]);
+  }, [selected, selectedSummary, selectedTopicOnly]);
 
   const [openTopics, setOpenTopics] = useState<string[]>(() =>
     topics.map((t) => t.slug),
@@ -1220,7 +1225,8 @@ function Sidebar({
     );
   }, [topicWithActive]);
 
-  const activeKey = selected ?? selectedQuizId ?? selectedSummary;
+  const activeKey =
+    selected ?? selectedQuizId ?? selectedSummary ?? selectedTopicOnly;
 
   // Sort topics so the LABS topic is always last
   const sortedTopics = useMemo(() => {
@@ -1306,15 +1312,41 @@ function Sidebar({
                   />
                 </div>
                 <AccordionItem value={topic.slug} className="border-b-0">
-                  <AccordionTrigger className="rounded-md px-3 py-2.5 text-left text-xs font-medium hover:bg-[var(--accent-soft)] hover:no-underline [&>svg]:size-3.5">
-                    <span className="flex min-w-0 flex-1 items-center gap-2.5">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onSelectTopic(topic)}
+                      className={`flex min-w-0 flex-1 items-center gap-2.5 rounded-md px-3 py-2.5 text-left text-xs font-medium transition-colors hover:bg-[var(--accent-soft)] ${
+                        selectedTopicOnly === topic.slug ? "text-primary" : ""
+                      }`}
+                    >
                       <Icon className="size-4 shrink-0 text-muted-foreground" />
                       <span className="flex-1 truncate">{topic.title}</span>
                       <span className="shrink-0 text-[10px] font-normal tabular-nums text-muted-foreground">
                         {doneCount}/{totalCount}
                       </span>
-                    </span>
-                  </AccordionTrigger>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={
+                        openTopics.includes(topic.slug) ? "Collapse" : "Expand"
+                      }
+                      onClick={() =>
+                        setOpenTopics((prev) =>
+                          prev.includes(topic.slug)
+                            ? prev.filter((s) => s !== topic.slug)
+                            : [...prev, topic.slug],
+                        )
+                      }
+                      className="flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-[var(--accent-soft)]"
+                    >
+                      <ChevronRight
+                        className={`size-3.5 transition-transform ${
+                          openTopics.includes(topic.slug) ? "rotate-90" : ""
+                        }`}
+                      />
+                    </button>
+                  </div>
                   <AccordionContent className="pb-1 pt-0">
                     <div className="ml-5 border-l pl-3">
                       {groupSubtopicsWithQuiz(topic.subtopics, topic.slug).map(
@@ -1799,6 +1831,12 @@ export default function CcnaStudyApp() {
     return { topic, subtopic };
   }, [topicSlug, subSlug]);
 
+  const selectedTopicOnly = useMemo(() => {
+    if (!topicSlug || subSlug) return null;
+    const topic = topics.find((t) => t.slug === topicSlug);
+    return topic ?? null;
+  }, [topicSlug, subSlug]);
+
   const selectedQuiz = useMemo(() => {
     if (!quizParam) return null;
     return quizById(quizParam) ?? null;
@@ -1867,6 +1905,15 @@ export default function CcnaStudyApp() {
     setMobileOpen(false);
   };
 
+  const selectTopic = (topic: Topic) => {
+    const params = new URLSearchParams();
+    params.set("topic", topic.slug);
+    startTransition(() => {
+      router.push(`?${params.toString()}`, { scroll: false });
+    });
+    setMobileOpen(false);
+  };
+
   const select = (topic: Topic, subtopic: Subtopic) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("topic", topic.slug);
@@ -1926,10 +1973,12 @@ export default function CcnaStudyApp() {
           selected={current?.slug}
           selectedQuizId={selectedQuiz?.id}
           selectedSummary={selectedSummary?.topic.slug}
+          selectedTopicOnly={selectedTopicOnly?.slug}
           onSelect={select}
           onSelectQuiz={selectQuiz}
           onSelectSummary={selectSummary}
           onSelectExtra={selectExtra}
+          onSelectTopic={selectTopic}
           openedExtras={openedExtras}
           selectedExtra={selectedExtra?.subtopic.slug}
           completed={completed}
@@ -1950,10 +1999,12 @@ export default function CcnaStudyApp() {
                   selected={current?.slug}
                   selectedQuizId={selectedQuiz?.id}
                   selectedSummary={selectedSummary?.topic.slug}
+                  selectedTopicOnly={selectedTopicOnly?.slug}
                   onSelect={select}
                   onSelectQuiz={selectQuiz}
                   onSelectSummary={selectSummary}
                   onSelectExtra={selectExtra}
+                  onSelectTopic={selectTopic}
                   openedExtras={openedExtras}
                   selectedExtra={selectedExtra?.subtopic.slug}
                   completed={completed}
@@ -1977,7 +2028,7 @@ export default function CcnaStudyApp() {
                   <ChevronRight className="size-3" />
                   <button
                     type="button"
-                    onClick={goHome}
+                    onClick={() => selectTopic(selected.topic)}
                     className="transition-colors hover:text-foreground"
                   >
                     {selected.topic.title}
@@ -1985,6 +2036,14 @@ export default function CcnaStudyApp() {
                   <ChevronRight className="size-3" />
                   <span className="truncate max-w-[200px] text-foreground">
                     {selected.subtopic.title}
+                  </span>
+                </>
+              )}
+              {selectedTopicOnly && (
+                <>
+                  <ChevronRight className="size-3" />
+                  <span className="truncate max-w-[200px] text-foreground">
+                    {selectedTopicOnly.title}
                   </span>
                 </>
               )}
@@ -2069,6 +2128,19 @@ export default function CcnaStudyApp() {
                 onFinish={(score, total, length) =>
                   saveScore(selectedQuiz.id, score, total, length)
                 }
+                onBack={goHome}
+              />
+            ) : selectedTopicOnly ? (
+              <TopicLanding
+                topic={{
+                  ...selectedTopicOnly,
+                  icon:
+                    iconMap[selectedTopicOnly.icon as keyof typeof iconMap] ??
+                    BookOpen,
+                }}
+                completed={completed}
+                progressKey={progressKey}
+                onSelect={select}
                 onBack={goHome}
               />
             ) : current ? (
@@ -2222,64 +2294,38 @@ export default function CcnaStudyApp() {
                   <TrunkConfigLab />
                 )}
 
-                {current.slug ===
-                  "dhcp-intervlan-labs" && (
+                {current.slug === "dhcp-intervlan-labs" && (
                   <DhcpInterVlanLabs />
                 )}
 
-                {current.slug ===
-                  "inter-vlan-routing-mls-and-svi" && (
+                {current.slug === "inter-vlan-routing-mls-and-svi" && (
                   <InterVlanRoutingLab />
                 )}
-                {current.slug === "mls-eigrp-ospf-lab" && (
-                  <MlsEigrpOspfLab />
-                )}
+                {current.slug === "mls-eigrp-ospf-lab" && <MlsEigrpOspfLab />}
                 {current.slug === "asymmetric-routing-lab-2" && (
                   <AsymmetricRoutingLab />
                 )}
                 {current.slug === "asymmetric-routing-lab-3" && (
                   <AsymmetricRoutingLab3 />
                 )}
-                {current.slug === "rip-v1-lab" && (
-                  <RipV1Lab />
-                )}
-                {current.slug === "rip-v2-lab" && (
-                  <RipV2Lab />
-                )}
-                {current.slug === "eigrp-lab" && (
-                  <EigrpLab />
-                )}
-                {current.slug === "ospf-lab" && (
-                  <OspfLab />
-                )}
-                {current.slug === "access-port-lab" && (
-                  <AccessPortLabS />
-                )}
-                {current.slug === "trunk-lab" && (
-                  <TrunkLab />
-                )}
-                {current.slug === "dtp-trunk-lab" && (
-                  <DtpTrunkLab />
-                )}
-                {current.slug === "etherchannel-lab" && (
-                  <EtherChannelLab />
-                )}
-                {current.slug === "intervlan-lab" && (
-                  <InterVlanLab />
-                )}
-                
+                {current.slug === "rip-v1-lab" && <RipV1Lab />}
+                {current.slug === "rip-v2-lab" && <RipV2Lab />}
+                {current.slug === "eigrp-lab" && <EigrpLab />}
+                {current.slug === "ospf-lab" && <OspfLab />}
+                {current.slug === "access-port-lab" && <AccessPortLabS />}
+                {current.slug === "trunk-lab" && <TrunkLab />}
+                {current.slug === "dtp-trunk-lab" && <DtpTrunkLab />}
+                {current.slug === "etherchannel-lab" && <EtherChannelLab />}
+                {current.slug === "intervlan-lab" && <InterVlanLab />}
+
                 {current.slug === "physical-logical-lab" && (
                   <PhysicalLogicalLab />
                 )}
-                {current.slug === "mls-ring-all-vlans" && (
-                  <MlsRingLab />
-                )}
+                {current.slug === "mls-ring-all-vlans" && <MlsRingLab />}
                 {current.slug === "router-on-a-stick-lab" && (
                   <RouterOnAStickLab />
                 )}
-                {current.slug === "dhcp-relay-ospf-lab" && (
-                  <DhcpRelayOspfLab />
-                )}
+                {current.slug === "dhcp-relay-ospf-lab" && <DhcpRelayOspfLab />}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
                     type="button"
