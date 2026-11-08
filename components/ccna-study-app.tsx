@@ -1207,7 +1207,7 @@ function Dashboard({
       <div className="flex min-h-[calc(100vh-4rem)] w-full items-center justify-center bg-background px-6">
         <div className="flex max-w-md flex-col items-center text-center">
           <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent-soft)] text-primary ring-1 ring-primary/15">
-            <Network className="size-8" strokeWidth={1.5} />
+            <BookOpen className="size-8" strokeWidth={1.5} />
           </span>
           <h1 className="mt-7 text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
             Pick a topic to begin
@@ -1997,26 +1997,11 @@ export default function CcnaStudyApp() {
   return (
     <div className="h-screen overflow-hidden bg-background text-foreground">
       <div className="flex h-full">
-        <Sidebar
-          selected={current?.slug}
-          selectedQuizId={selectedQuiz?.id}
-          selectedSummary={selectedSummary?.topic.slug}
-          selectedTopicOnly={selectedTopicOnly?.slug}
-          onSelect={select}
-          onSelectQuiz={selectQuiz}
-          onSelectSummary={selectSummary}
-          onSelectExtra={selectExtra}
-          onSelectTopic={selectTopic}
-          openedExtras={openedExtras}
-          selectedExtra={selectedExtra?.subtopic.slug}
-          completed={completed}
-          bestFor={bestFor}
-        />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
-                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--accent-soft)] hover:text-foreground lg:hidden"
+                className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-[var(--accent-soft)] hover:text-foreground"
                 aria-label="Open curriculum"
               >
                 <Menu />
@@ -2027,7 +2012,7 @@ export default function CcnaStudyApp() {
                   selected={current?.slug}
                   selectedQuizId={selectedQuiz?.id}
                   selectedSummary={selectedSummary?.topic.slug}
-                  selectedTopicOnly={selectedTopicOnly?.slug}
+                  selectedTopic={selectedTopicOnly?.slug}
                   onSelect={select}
                   onSelectQuiz={selectQuiz}
                   onSelectSummary={selectSummary}
@@ -2172,7 +2157,11 @@ export default function CcnaStudyApp() {
                 onBack={goHome}
               />
             ) : current ? (
-              <article className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
+              <article
+                className={`mx-auto px-6 py-10 lg:px-10 ${
+                  selected?.topic.wide ? "max-w-6xl" : "max-w-4xl"
+                }`}
+              >
                 <Button
                   variant="ghost"
                   size="sm"

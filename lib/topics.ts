@@ -26,6 +26,7 @@ export type Topic = {
   number: string
   title: string
   description: string
+  wide?: boolean
   icon: string
   summary?: string
   subtopics: Subtopic[]
@@ -5403,6 +5404,7 @@ export const topics: Topic[] = [
     slug: 'labs',
     number: '11',
     title: 'LABS',
+    wide: true,
     icon: 'terminal', // or 'brackets', 'layers', etc. based on your iconMap
     description: 'Hands-on practice labs for switching, routing, and network configuration.',
     subtopics: [

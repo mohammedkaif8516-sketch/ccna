@@ -269,7 +269,7 @@ const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";
 
 export function AsymmetricRoutingLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 1600 }}>
+    <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
   <div style={{ overflowX: "auto" }}>
     <NetLab title="Asymmetric Routing Lab 2" width={1560} height={1020}>
       <Note x={200} y={30}>192.168.10.XX/26 LANs</Note>

@@ -287,7 +287,7 @@ const CELL: React.CSSProperties = { padding: "4px 10px", textAlign: "left", vert
 
 export function RipV2Lab() {
   return (
-   <div style={{ display: "grid", gap: 14, maxWidth: 1420, gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
+   <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
   <div style={{ overflowX: "auto" }}>
     <NetLab title="RIP v2 Lab" width={1230} height={1140}>
       <Note x={220} y={40}>10.10.10.XX/30 router links</Note>

@@ -595,7 +595,7 @@ export function MlsRingLab() {
       style={{
         display: "grid",
         gap: 14,
-        maxWidth: 1000,
+        maxWidth: "100%",
         gridTemplateColumns: "minmax(0, 1fr)",
         alignItems: "start",
         width: "100%",

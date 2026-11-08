@@ -262,7 +262,7 @@ function PathRow({
 }
 export function StaticRoutingLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 1240 }}>
+    <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
       <div style={{ overflowX: "auto" }}>
         <NetLab title="Static Routing Lab 1" width={1200} height={740}>
           <Note x={600} y={34} size={22}>

@@ -418,7 +418,7 @@ export function DhcpRelayOspfLab() {
   const mls = US.switches[0];
 
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 1000, gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
+    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
       <div style={{ overflowX: "auto" }}>
         <NetLab title="DHCP Relay + OSPF Lab" width={3000} height={1150}>
           {/* branch titles */}

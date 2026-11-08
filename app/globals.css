@@ -257,3 +257,32 @@
     overflow-x: hidden;
   }
 }
+
+
+/* For WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 14px;  
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  border: 3px solid transparent; 
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--muted-foreground);
+}
+
+/* For Firefox */
+* {
+  /* Firefox only supports 'auto', 'thin', or 'none'. 'auto' is the widest option. */
+  scrollbar-width: auto; 
+  scrollbar-color: var(--border) transparent;
+}

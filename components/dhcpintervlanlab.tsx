@@ -422,7 +422,7 @@ function LabView({ lab }: { lab: Lab }) {
   }));
 
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 1000, gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
+    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
       <div style={{ overflowX: "auto" }}>
         <NetLab title={lab.title} width={lab.width} height={lab.height}>
           <Note x={500} y={25} size={22}>{lab.site}</Note>

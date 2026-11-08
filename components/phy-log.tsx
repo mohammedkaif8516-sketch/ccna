@@ -339,7 +339,7 @@ const RPOS: Record<string, [number, number]> = {
 
 export function PhysicalLogicalLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 1000, gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
+    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
       <div style={{ minWidth: 0 }}>
         <div style={{ font: "600 13px ui-sans-serif,system-ui", margin: "0 0 6px" }}>
           Physical (what you build and configure: click a device)

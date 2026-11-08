@@ -273,7 +273,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
 
 export function RouterOnAStickLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: 1000, gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
+    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
       <div style={{ overflowX: "auto" }}>
         <NetLab title="Router-on-a-Stick Lab" width={1000} height={1150}>
           <Note x={500} y={25} size={22}>RouterOnAStick1</Note>
