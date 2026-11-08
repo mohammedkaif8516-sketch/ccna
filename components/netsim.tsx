@@ -3128,7 +3128,7 @@ font:13px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color
 .ns-pop table{border-collapse:collapse;font:12px var(--ns-mono)}.ns-pop th,.ns-pop td{padding:3px 9px;text-align:center}.ns-pop td.yes{color:var(--ns-up);font-weight:700}.ns-pop td.no{color:var(--ns-down);font-weight:700}.ns-pop td.self{opacity:.4}
 @media(prefers-reduced-motion:no-preference){.ns-node{transition:background .12s,border-color .12s}}
 .ns-lab{container-type:inline-size}
-.ns-scroll{display:flex;align-items:flex-start;background:var(--ns-paper);padding-bottom:16px}
+.ns-scroll{display:flex;align-items:flex-start;background:var(--ns-paper);padding-bottom:16px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain}
 .ns-scroll>.ns-canvas{flex:0 0 auto}
 .ns-scroll::after{content:"";flex:0 0 140px}
 @container (min-width:1400px){
@@ -3136,7 +3136,7 @@ font:13px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color
 .ns-side{display:flex;flex-direction:column;min-width:0;background:var(--ns-term);border-left:1px solid var(--ns-edge)}
 .ns-side .ns-tabs{border-top:0}
 .ns-side .ns-term{flex:1;min-height:0;display:flex;flex-direction:column}
-.ns-side .ns-tbody{flex:1;height:auto;min-height:300px}
+.ns-side .ns-tbody{flex:1;height:auto;min-height:300px;overscroll-behavior:contain}
 }
 `;
 
