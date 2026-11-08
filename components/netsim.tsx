@@ -2662,11 +2662,18 @@ export const Note = ({
   y: number;
   size?: number;
   children: ReactNode;
-}) => (
-  <div className="ns-note" style={{ left: x, top: y, fontSize: size }}>
-    {children}
-  </div>
-);
+}) => {
+  const { w } = useLab();
+  const text = typeof children === "string" ? children : Array.isArray(children) ? children.filter((c) => typeof c === "string").join("") : "";
+  // monospace ≈ 0.62em per character; clamp the centre so neither end of the text leaves the canvas
+  const half = text ? (text.length * size * 0.62) / 2 + 6 : 0;
+  const left = half ? Math.min(Math.max(x, half), Math.max(half, w - half)) : x;
+  return (
+    <div className="ns-note" style={{ left, top: y, fontSize: size }}>
+      {children}
+    </div>
+  );
+};
 
 export function Cable({
   a,
@@ -3121,12 +3128,15 @@ font:13px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color
 .ns-pop table{border-collapse:collapse;font:12px var(--ns-mono)}.ns-pop th,.ns-pop td{padding:3px 9px;text-align:center}.ns-pop td.yes{color:var(--ns-up);font-weight:700}.ns-pop td.no{color:var(--ns-down);font-weight:700}.ns-pop td.self{opacity:.4}
 @media(prefers-reduced-motion:no-preference){.ns-node{transition:background .12s,border-color .12s}}
 .ns-lab{container-type:inline-size}
+.ns-scroll{display:flex;align-items:flex-start;background:var(--ns-paper);padding-bottom:16px}
+.ns-scroll>.ns-canvas{flex:0 0 auto}
+.ns-scroll::after{content:"";flex:0 0 140px}
 @container (min-width:1400px){
-.ns-body.has-term{display:grid;grid-template-columns:minmax(0,max-content) minmax(380px,1fr);align-items:start}
-.ns-side{position:sticky;top:72px;display:flex;flex-direction:column;height:calc(100vh - 88px);min-width:0;border-left:1px solid var(--ns-edge)}
+.ns-body.has-term{display:grid;grid-template-columns:minmax(0,max-content) minmax(380px,1fr);align-items:stretch}
+.ns-side{display:flex;flex-direction:column;min-width:0;background:var(--ns-term);border-left:1px solid var(--ns-edge)}
 .ns-side .ns-tabs{border-top:0}
 .ns-side .ns-term{flex:1;min-height:0;display:flex;flex-direction:column}
-.ns-side .ns-tbody{height:auto;flex:1;min-height:0}
+.ns-side .ns-tbody{flex:1;height:auto;min-height:300px}
 }
 `;
 
