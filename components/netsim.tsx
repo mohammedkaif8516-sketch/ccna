@@ -3132,11 +3132,11 @@ font:13px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color
 .ns-scroll>.ns-canvas{flex:0 0 auto}
 .ns-scroll::after{content:"";flex:0 0 140px}
 @container (min-width:1400px){
-.ns-body.has-term{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);align-items:stretch}
-.ns-side{display:flex;flex-direction:column;min-width:0;background:var(--ns-term);border-left:1px solid var(--ns-edge)}
+.ns-body.has-term{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);align-items:stretch;min-height:360px}
+.ns-side{contain:size;overflow:hidden;display:flex;flex-direction:column;min-width:0;background:var(--ns-term);border-left:1px solid var(--ns-edge)}
 .ns-side .ns-tabs{border-top:0}
 .ns-side .ns-term{flex:1;min-height:0;display:flex;flex-direction:column}
-.ns-side .ns-tbody{flex:1;height:auto;min-height:300px;overscroll-behavior:contain}
+.ns-side .ns-tbody{flex:1;height:auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
 }
 `;
 
