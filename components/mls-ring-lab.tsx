@@ -613,7 +613,7 @@ export function MlsRingLab() {
           Physical (what you build and configure: click a device)
         </div>
 
-        <div style={{ overflowX: "auto" }}>
+        <div style={{ overflowX: "clip" }}>
           <NetLab
             title="MLS Ring — All VLANs Allowed"
             width={1000}

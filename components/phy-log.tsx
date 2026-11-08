@@ -344,7 +344,7 @@ export function PhysicalLogicalLab() {
         <div style={{ font: "600 13px ui-sans-serif,system-ui", margin: "0 0 6px" }}>
           Physical (what you build and configure: click a device)
         </div>
-        <div style={{ overflowX: "auto" }}>
+        <div style={{ overflowX: "clip" }}>
           <NetLab title="Physical Works as Logical" width={1000} height={760}>
             <Note x={500} y={380} size={16}>one cable per router</Note>
 

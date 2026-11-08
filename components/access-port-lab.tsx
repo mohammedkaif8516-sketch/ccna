@@ -319,7 +319,7 @@ export function AccessPortLabS() {
         width: "100%",
       }}
     >
-      <div style={{ overflowX: "auto" }}>
+      <div style={{ overflowX: "clip" }}>
         <NetLab title="Access Port Lab (Intra-VLAN)" width={1000} height={1000}>
           <Note x={500} y={25} size={22}>
             Intra-VLAN · access ports only

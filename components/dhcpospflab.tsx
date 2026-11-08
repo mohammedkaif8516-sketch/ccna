@@ -419,7 +419,7 @@ export function DhcpRelayOspfLab() {
 
   return (
     <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
-      <div style={{ overflowX: "auto" }}>
+      <div style={{ overflowX: "clip" }}>
         <NetLab title="DHCP Relay + OSPF Lab" width={3000} height={1150}>
           {/* branch titles */}
           <Note x={BLR.cx} y={25} size={22}>BR_BLR · 192.168.XX.0/24 · gw .100</Note>

@@ -331,7 +331,7 @@ const GREEN = "#22c55e";
 export function AsymmetricRoutingLab3() {
   return (
     <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
-  <div style={{ overflowX: "auto" }}>
+  <div style={{ overflowX: "clip" }}>
     <NetLab title="Asymmetric Routing Lab 3" width={1800} height={1180}>
       <Note x={300} y={30}>192.168.10.XX/26 and 192.168.20.XX/26 LANs</Note>
       <Note x={300} y={54}>10.10.10.XX/30 router links</Note>

@@ -206,7 +206,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
 export function OspfLab() {
   return (
     <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
-      <div style={{ overflowX: "auto" }}>
+      <div style={{ overflowX: "clip" }}>
         <NetLab title="OSPF 1024 Lab" width={1400} height={720}>
           <Note x={1230} y={30} size={22}>OSPF 1024</Note>
           <Note x={1230} y={58}>R–R: 200.10.XX.0/24</Note>

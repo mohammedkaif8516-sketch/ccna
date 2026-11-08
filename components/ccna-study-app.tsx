@@ -2159,7 +2159,7 @@ export default function CcnaStudyApp() {
             ) : current ? (
               <article
                 className={`mx-auto px-6 py-10 lg:px-10 ${
-                  selected?.topic.wide ? "max-w-6xl" : "max-w-4xl"
+                  selected?.topic.wide ? "max-w-none" : "max-w-4xl"
                 }`}
               >
                 <Button

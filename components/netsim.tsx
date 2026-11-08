@@ -3120,6 +3120,14 @@ font:13px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color
 .ns-pop{position:absolute;right:12px;top:44px;z-index:20;background:var(--ns-chip);border:1px solid var(--ns-edge);border-radius:8px;padding:10px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
 .ns-pop table{border-collapse:collapse;font:12px var(--ns-mono)}.ns-pop th,.ns-pop td{padding:3px 9px;text-align:center}.ns-pop td.yes{color:var(--ns-up);font-weight:700}.ns-pop td.no{color:var(--ns-down);font-weight:700}.ns-pop td.self{opacity:.4}
 @media(prefers-reduced-motion:no-preference){.ns-node{transition:background .12s,border-color .12s}}
+.ns-lab{container-type:inline-size}
+@container (min-width:1400px){
+.ns-body.has-term{display:grid;grid-template-columns:minmax(0,max-content) minmax(380px,1fr);align-items:start}
+.ns-side{position:sticky;top:72px;display:flex;flex-direction:column;height:calc(100vh - 88px);min-width:0;border-left:1px solid var(--ns-edge)}
+.ns-side .ns-tabs{border-top:0}
+.ns-side .ns-term{flex:1;min-height:0;display:flex;flex-direction:column}
+.ns-side .ns-tbody{height:auto;flex:1;min-height:0}
+}
 `;
 
 export function NetLab({
@@ -3229,13 +3237,14 @@ export function NetLab({
           </button>
         </div>
         {mx && <Matrix store={store} />}
+        <div className={"ns-body" + (live.length > 0 ? " has-term" : "")}>
         <div className="ns-scroll">
           <div className="ns-canvas" style={{ width, height }}>
             {children}
           </div>
         </div>
         {live.length > 0 && (
-          <>
+          <div className="ns-side">
             <div className="ns-tabs" role="tablist">
               {live.map((t) => (
                 <div
@@ -3269,8 +3278,9 @@ export function NetLab({
                 <div className="ns-empty">Pick a tab</div>
               )}
             </div>
-          </>
+          </div>
         )}
+        </div>
       </section>
     </Lab.Provider>
   );
