@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { Copy } from "lucide-react";
 import { useCompletedTopics, progressKey } from "@/lib/use-completed";
 import {
   useMemo,
@@ -1628,6 +1629,35 @@ function DiagramSlot({ diagram, onOpen, wide = false }: DiagramSlotProps) {
   );
 }
 
+function CodeBlockView({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <div className="group relative overflow-hidden rounded-xl border bg-muted/50">
+      <button
+        onClick={handleCopy}
+        className="absolute right-2 top-2 rounded-md border bg-background p-1.5 opacity-0 transition-opacity hover:bg-muted group-hover:opacity-100"
+        aria-label="Copy code"
+      >
+        {copied ? (
+          <Check className="size-3.5 text-primary" />
+        ) : (
+          <Copy className="size-3.5 text-muted-foreground" />
+        )}
+      </button>
+      <pre className="overflow-x-auto p-4 font-mono text-xs leading-6 text-foreground">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+}
+
 function NoteBlockView({ block }: { block: NoteBlock }) {
   if (block.type === "heading")
     return (
@@ -1647,12 +1677,15 @@ function NoteBlockView({ block }: { block: NoteBlock }) {
         ))}
       </ul>
     );
-  if (block.type === "code")
+  if (block.type === "code") {
+    const codeString =
+      (block as any).code || (block as any).items?.join("\n") || "";
     return (
       <pre className="overflow-x-auto rounded-xl border bg-muted/50 p-4 font-mono text-xs leading-6 text-foreground">
-        <code>{block.code}</code>
+        <code>{codeString}</code>
       </pre>
     );
+  }
   return (
     <div className="overflow-x-auto rounded-xl border">
       <Table>

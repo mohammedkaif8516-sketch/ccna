@@ -6224,2018 +6224,2345 @@ export const quizzes: Quiz[] = [
     ]
   },
   {
-  id: "layer-3-services-and-inter-vlan-routing",
-  topicSlug: "switching-vlans-and-trunking",
-  group: "Layer 3 Services & Inter-VLAN Routing",
-  title: "Layer 3 Services & Inter-VLAN Routing Quiz",
-  questions: [
-    {
-      id: "q1",
-      prompt: "By default, what is the status of the routing capability on a Cisco multilayer switch (MLS)?",
-      options: [
-        "Enabled for VLAN 1 only",
-        "Disabled globally",
-        "Enabled globally",
-        "Enabled for access ports only"
-      ],
-      answer: 1,
-      explanation: "By default, the routing capability is disabled on a multilayer switch. It must be manually enabled globally."
-    },
-    {
-      id: "q2",
-      prompt: "Which global configuration command enables Layer 3 routing on a multilayer switch?",
-      options: [
-        "ip routing",
-        "router enable",
-        "switchport routing",
-        "ip forward"
-      ],
-      answer: 0,
-      explanation: "The global command 'ip routing' turns on the routing capabilities of a multilayer switch."
-    },
-    {
-      id: "q3",
-      prompt: "To convert a Layer 2 switchport into a Layer 3 routed port on a multilayer switch, which command must be issued in interface configuration mode?",
-      options: [
-        "no switchport",
-        "switchport mode routed",
-        "ip address allow",
-        "routing enable"
-      ],
-      answer: 0,
-      explanation: "Issuing 'no switchport' on an interface converts it from a Layer 2 port to a Layer 3 routed port, allowing you to assign an IP address directly to it."
-    },
-    {
-      id: "q4",
-      prompt: "After a port has been configured as a routed port, what command converts it back to a Layer 2 switchport?",
-      options: [
-        "default interface",
-        "switchport",
-        "no ip routing",
-        "switchport mode access"
-      ],
-      answer: 1,
-      explanation: "Issuing the 'switchport' command on a routed port restores its Layer 2 switching capabilities."
-    },
-    {
-      id: "q5",
-      prompt: "Which command resets the configuration of interface f0/0 back to its factory default settings?",
-      options: [
-        "clear interface f0/0",
-        "reset interface f0/0",
-        "default interface f0/0",
-        "no interface f0/0 config"
-      ],
-      answer: 2,
-      explanation: "The 'default interface <id>' command completely removes custom configurations on the interface and resets it to default."
-    },
-    {
-      id: "q6",
-      prompt: "In a 'Router on a Stick' configuration, how does the router identify traffic belonging to different VLANs arriving on a single physical interface?",
-      options: [
-        "By examining the source IP subnet",
-        "By utilizing dot1q tags on subinterfaces",
-        "By using different physical MAC addresses",
-        "By dynamically negotiating with the switch using DTP"
-      ],
-      answer: 1,
-      explanation: "The router uses dot1q VLAN tags. The physical interface is split into subinterfaces, and each subinterface is configured to recognize a specific dot1q tag."
-    },
-    {
-      id: "q7",
-      prompt: "When setting up Router on a Stick, what must be done to the physical router interface before configuring the subinterfaces?",
-      options: [
-        "It must be configured as an access port.",
-        "It must be assigned an IP address in VLAN 1.",
-        "It must be brought up using the 'no shutdown' command.",
-        "It must be configured with 'encapsulation dot1q'."
-      ],
-      answer: 2,
-      explanation: "The physical interface must be brought up with 'no shutdown'. If the physical interface is shut down, all virtual subinterfaces remain down."
-    },
-    {
-      id: "q8",
-      prompt: "Which command is required on a router subinterface (e.g., f0/0.10) to map it to VLAN 10?",
-      options: [
-        "switchport access vlan 10",
-        "encapsulation dot1q 10",
-        "vlan 10 enable",
-        "tag dot1q 10"
-      ],
-      answer: 1,
-      explanation: "The 'encapsulation dot1q <vlan_id>' command tells the subinterface to process and tag frames for that specific VLAN."
-    },
-    {
-      id: "q9",
-      prompt: "In a Router on a Stick setup, what configuration is required on the switchport that connects to the router?",
-      options: [
-        "It must be configured as a trunk port.",
-        "It must be converted to a routed port.",
-        "It must be placed in VLAN 1.",
-        "It must be configured as an access port for all VLANs."
-      ],
-      answer: 0,
-      explanation: "The switchport facing the router must be a trunk port so it can carry multi-VLAN traffic with dot1q tags up to the router."
-    },
-    {
-      id: "q10",
-      prompt: "What serves as the default gateway for host devices in a Router on a Stick architecture?",
-      options: [
-        "The IP address of the switch's native VLAN.",
-        "The IP address of the router's subinterface for that VLAN.",
-        "The IP address of the switch's management interface.",
-        "The IP address of the main physical router interface."
-      ],
-      answer: 1,
-      explanation: "Each router subinterface acts as the default gateway for the VLAN it is assigned to via dot1q encapsulation."
-    },
-    {
-      id: "q11",
-      prompt: "What is a Switched Virtual Interface (SVI)?",
-      options: [
-        "A physical port used exclusively for management.",
-        "A subinterface on a traditional router used for tagging.",
-        "A logical interface on a Layer 3 switch created for a specific VLAN.",
-        "A temporary tunnel interface used for Etherchannel."
-      ],
-      answer: 2,
-      explanation: "An SVI is a virtual/logical interface on a multilayer switch. There is one SVI per VLAN, which provides Layer 3 processing for that VLAN."
-    },
-    {
-      id: "q12",
-      prompt: "What is a major advantage of using SVIs over Router on a Stick for inter-VLAN routing?",
-      options: [
-        "SVIs operate at Layer 2, avoiding routing overhead.",
-        "SVIs route inside the switch, eliminating the single trunk link bottleneck of an external router.",
-        "SVIs do not require an IP address to route traffic.",
-        "SVIs automatically assign IP addresses to hosts using DHCP."
-      ],
-      answer: 1,
-      explanation: "Router on a stick relies on an external router and a single trunk link, which can become a bottleneck. SVIs handle routing internally on the switch's backplane."
-    },
-    {
-      id: "q13",
-      prompt: "An administrator configures `interface vlan 20` and assigns an IP address. However, the interface stays in a \"down\" state. What is the most likely cause based on SVI requirements?",
-      options: [
-        "The 'ip routing' command was not entered.",
-        "VLAN 20 does not exist in the switch's VLAN database.",
-        "The physical ports are not set to access mode.",
-        "The subinterface encapsulation was not configured."
-      ],
-      answer: 1,
-      explanation: "For an SVI to come up, the corresponding VLAN must exist in the VLAN database (vlan.dat)."
-    },
-    {
-      id: "q14",
-      prompt: "When using SVIs for inter-VLAN routing on a multilayer switch, what acts as the default gateway for devices in VLAN 30?",
-      options: [
-        "The IP address assigned to interface vlan 30.",
-        "The IP address of the connected edge router.",
-        "The IP address of the switch's management VLAN.",
-        "The lowest IP address assigned to any switchport in VLAN 30."
-      ],
-      answer: 0,
-      explanation: "The IP address assigned to the SVI (`interface vlan 30`) serves as the default gateway for all hosts in that VLAN."
-    },
-    {
-      id: "q15",
-      prompt: "Which sequence of commands correctly creates an SVI and prepares it to act as a gateway for VLAN 10?",
-      options: [
-        "(conf)# interface f0/1.10\n(conf-if)# encapsulation dot1q 10\n(conf-if)# ip address 10.1.1.1 255.255.255.0",
-        "(conf)# interface vlan 10\n(conf-if)# switchport mode access",
-        "(conf)# vlan 10\n(conf-vlan)# ip address 10.1.1.1 255.255.255.0",
-        "(conf)# interface vlan 10\n(conf-if)# ip address 10.1.1.1 255.255.255.0\n(conf-if)# no sh"
-      ],
-      answer: 3,
-      explanation: "To create an SVI, you enter global config mode, type `interface vlan <id>`, assign an IP address, and bring the interface up with `no sh`."
-    },
-    {
-      id: "q16",
-      prompt: "In a pure Layer 2 switched network without a router or a multilayer switch, what happens to traffic destined for a different VLAN?",
-      options: [
-        "It is broadcasted to all VLANs.",
-        "It is forwarded using the native VLAN.",
-        "It is sent to the VMPS server for routing.",
-        "It is not forwarded; it is dropped."
-      ],
-      answer: 3,
-      explanation: "Because each VLAN is a separate network, traffic between different VLANs cannot be forwarded without a Layer 3 routing device."
-    },
-    {
-      id: "q17",
-      prompt: "While configuring a Multilayer Switch (MLS) for routing, you assign an IP address to a physical interface without typing 'no switchport'. What will happen?",
-      options: [
-        "The switch will accept the IP and automatically convert the port.",
-        "The switch will assign the IP address to the native VLAN.",
-        "The switch will reject the IP address command.",
-        "The switch will crash and reload."
-      ],
-      answer: 2,
-      explanation: "The switch operating system will reject the `ip address` command on a Layer 2 interface. You must convert it to a Layer 3 routed port first using `no switchport`."
-    },
-    {
-      id: "q18",
-      prompt: "What is an alternative, port-heavy physical variant to Router on a Stick for connecting an external router to a switch?",
-      options: [
-        "Using one access port on the switch per VLAN, connected to separate physical router interfaces.",
-        "Using ISL encapsulation instead of 802.1Q on the trunk.",
-        "Creating an Etherchannel of routed ports.",
-        "Connecting the router exclusively to a VMPS server."
-      ],
-      answer: 0,
-      explanation: "Instead of a single trunk link, you can use one dedicated access port (and one physical cable to a dedicated router interface) for each VLAN. This uses more physical ports but avoids trunking overhead."
-    },
-    {
-      id: "q19",
-      prompt: "An SVI (interface vlan 10) is configured and VLAN 10 exists in the database. However, 'show ip interface brief' reveals the SVI's line protocol is \"down\". What is the most likely real-world reason for this?",
-      options: [
-        "The 'ip routing' command was removed.",
-        "The subnet mask applied is a /30.",
-        "There are no active physical switchports carrying VLAN 10 traffic.",
-        "The switch does not have a static route configured."
-      ],
-      answer: 2,
-      explanation: "For an SVI's line protocol to be \"up\", the VLAN must exist AND at least one physical port (access or trunk) carrying that VLAN must be in the STP forwarding state."
-    },
-    {
-      id: "q20",
-      prompt: "When configuring a router for Router on a Stick, how is native VLAN traffic typically handled if it arrives at the router without a VLAN tag?",
-      options: [
-        "It is processed by the main physical interface instead of a subinterface.",
-        "It is automatically assigned to subinterface .1.",
-        "It is dropped immediately by the router.",
-        "It is broadcast back to the switch to request a tag."
-      ],
-      answer: 0,
-      explanation: "Unless explicitly mapped to a subinterface using 'encapsulation dot1q <vlan> native', untagged frames are processed by the main physical router interface."
-    },
-    {
-      id: "q21",
-      prompt: "A network engineer tries to assign the IP address 192.168.10.1/24 to f0/0.10 and 192.168.10.50/24 to f0/0.20 on a router. What will occur?",
-      options: [
-        "The router will load balance traffic between the two VLANs.",
-        "The router will reject the second IP address because it overlaps subnets.",
-        "The router will change the subnet mask to /25 automatically.",
-        "The router will accept the configuration and route successfully."
-      ],
-      answer: 1,
-      explanation: "A router cannot have multiple interfaces (or subinterfaces) residing in the same IP subnet. The IOS will return an \"overlaps with\" error and reject the command."
-    },
-    {
-      id: "q22",
-      prompt: "Which interface processes the data when an SVI routes traffic at gigabit speeds?",
-      options: [
-        "The physical access port handles all routing.",
-        "The external edge router handles the routing.",
-        "The Layer 3 switch's internal CPU and hardware forwarding engine.",
-        "The Spanning Tree Protocol designated port."
-      ],
-      answer: 2,
-      explanation: "SVIs have the bandwidth of a physical switchport but are logically handled internally by the Multilayer Switch's CPU and specialized forwarding ASICs."
-    }
-  ]
-},
-{
-  id: "vlan-fundamentals-and-port-membership",
-  topicSlug: "switching-vlans-and-trunking",
-  group: "VLAN Fundamentals & Port Membership",
-  title: "VLAN Fundamentals & Port Membership Quiz",
-  questions: [
-    {
-      id: "q1",
-      prompt: "In a switched network, what does a VLAN primarily represent?",
-      options: [
-        "A single collision domain",
-        "A physical spanning-tree segment",
-        "A separate broadcast domain",
-        "A dedicated point-to-point trunk"
-      ],
-      answer: 2,
-      explanation: "A VLAN (Virtual Local Area Network) logically segregates a switch into multiple, isolated broadcast domains."
-    },
-    {
-      id: "q2",
-      prompt: "By default, every port on a new Cisco switch belongs to which VLAN?",
-      options: [
-        "VLAN 0",
-        "VLAN 1",
-        "VLAN 100",
-        "VLAN 999"
-      ],
-      answer: 1,
-      explanation: "By default, all switchports are members of the default VLAN, which is VLAN 1. This VLAN cannot be deleted or renamed."
-    },
-    {
-      id: "q3",
-      prompt: "Why is a Layer 3 device required for communication between two different VLANs?",
-      options: [
-        "Because Layer 2 switches cannot forward broadcast traffic.",
-        "Because trunk links natively block ICMP packets.",
-        "Because each VLAN is a separate logical network requiring inter-VLAN routing.",
-        "Because VLANs encrypt traffic at the Data Link layer."
-      ],
-      answer: 2,
-      explanation: "Since each VLAN represents a distinct subnet/broadcast domain, Layer 2 switches will not forward traffic between them. A router or multilayer switch is required."
-    },
-    {
-      id: "q4",
-      prompt: "What is the identifier range for the 'normal' (old) VLAN range on Cisco switches?",
-      options: [
-        "1 to 1001",
-        "1 to 1005",
-        "1 to 1024",
-        "1 to 4094"
-      ],
-      answer: 1,
-      explanation: "The normal VLAN range is 1 to 1005, which stems from the legacy support for Token Ring and FDDI VLANs."
-    },
-    {
-      id: "q5",
-      prompt: "According to best practices, what should an administrator do with unused switchports?",
-      options: [
-        "Leave them in VLAN 1 but enable port security.",
-        "Configure them as trunk ports with DTP turned off.",
-        "Assign them to a dedicated 'black hole' or unused VLAN, such as VLAN 999.",
-        "Delete the ports from the running configuration."
-      ],
-      answer: 2,
-      explanation: "Parking unused ports in a dedicated, unused VLAN (like VLAN 999) prevents unauthorized users from plugging in and accessing active production VLANs."
-    },
-    {
-      id: "q6",
-      prompt: "Which of the following is NOT a primary advantage of utilizing VLANs?",
-      options: [
-        "Security, by separating users and applying ACLs.",
-        "Performance, by eliminating unnecessary broadcast traffic.",
-        "Flexibility, by removing physical boundary restrictions for users.",
-        "Bandwidth, by compressing frames as they cross the switch backplane."
-      ],
-      answer: 3,
-      explanation: "VLANs do not compress frames or natively increase physical link bandwidth. They improve network performance by shrinking broadcast domains."
-    },
-    {
-      id: "q7",
-      prompt: "How does static VLAN membership differ from dynamic VLAN membership?",
-      options: [
-        "Static membership relies on the host's MAC address; dynamic relies on IP.",
-        "Static membership is manually configured on the switchport and takes effect immediately.",
-        "Static membership requires a VMPS server to authenticate the port.",
-        "Static membership only works over trunk links."
-      ],
-      answer: 1,
-      explanation: "Static membership is manually configured by the administrator (`switchport access vlan X`) and places the port into the VLAN immediately without negotiation."
-    },
-    {
-      id: "q8",
-      prompt: "What is the purpose of a VMPS (VLAN Membership Policy Server)?",
-      options: [
-        "To assign VLANs dynamically based on the connecting host's MAC address.",
-        "To automatically generate and distribute VLAN databases to all switches.",
-        "To perform inter-VLAN routing between dynamic access ports.",
-        "To authenticate users via 802.1X before applying an ACL."
-      ],
-      answer: 0,
-      explanation: "VMPS stores a database mapping MAC addresses to VLANs. When a device plugs in, the switch queries the VMPS server to learn which VLAN the port should join."
-    },
-    {
-      id: "q9",
-      prompt: "Why is VMPS (Dynamic VLAN membership) rarely used in modern enterprise networks?",
-      options: [
-        "It limits switches to the 1-1005 VLAN range.",
-        "It is insecure because it relies on plain-text HTTP.",
-        "It is Cisco proprietary, complex to manage, and prone to negotiation delays.",
-        "It requires every switch to act as a VMPS server simultaneously."
-      ],
-      answer: 2,
-      explanation: "VMPS is an older, Cisco-proprietary technology. Maintaining a central MAC-to-VLAN database is inefficient, complex, and introduces port-startup delays."
-    },
-    {
-      id: "q10",
-      prompt: "Which command sequence correctly creates a VLAN and assigns it a name?",
-      options: [
-        "(conf)# vlan add 10 \n (conf-vlan)# name HR",
-        "(conf)# vlan 10 \n (conf-vlan)# name HR",
-        "(conf)# interface vlan 10 \n (conf-if)# description HR",
-        "(conf)# switchport vlan 10 name HR"
-      ],
-      answer: 1,
-      explanation: "You enter VLAN configuration mode with `vlan <id>`, and then assign a name using the `name <name>` command."
-    },
-    {
-      id: "q11",
-      prompt: "What happens to the CAM (MAC address) table when a new VLAN is created?",
-      options: [
-        "The switch flushes its entire CAM table to accommodate the new VLAN.",
-        "A separate, dedicated CAM table is created specifically for that VLAN.",
-        "The VLAN is assigned a single, shared MAC address for all routing.",
-        "The switch disables MAC learning until the VLAN is assigned to a port."
-      ],
-      answer: 1,
-      explanation: "Each VLAN operates as an independent L2 network, so the switch creates a distinct CAM (MAC address) table for every VLAN it hosts."
-    },
-    {
-      id: "q12",
-      prompt: "Where is the VLAN database strictly stored on a Cisco switch?",
-      options: [
-        "In the running-config file in RAM.",
-        "In the startup-config file in NVRAM.",
-        "In a file called vlan.dat located in flash memory.",
-        "In the VMPS server cache."
-      ],
-      answer: 2,
-      explanation: "VLAN configurations (for the normal range 1-1005) are not stored in the standard startup-config. They are saved in a separate file named `vlan.dat` located in flash."
-    },
-    {
-      id: "q13",
-      prompt: "During an interview, you are presented with this scenario: SW1 sends VLAN 30 traffic to SW2, destined for SW3. SW2 does not have VLAN 30 in its database. What does SW2 do?",
-      options: [
-        "It forwards the traffic using the default VLAN 1.",
-        "It drops the traffic because it has no record of VLAN 30.",
-        "It automatically adds VLAN 30 to its database upon receiving the tagged frame.",
-        "It forwards the traffic out all trunk ports as a broadcast."
-      ],
-      answer: 1,
-      explanation: "If a transit switch receives tagged traffic for a VLAN that does not exist in its local VLAN database, it will silently drop the frames."
-    },
-    {
-      id: "q14",
-      prompt: "Which of the following best describes an access port?",
-      options: [
-        "It carries traffic for multiple VLANs simultaneously.",
-        "It tags frames with an 802.1Q header before sending them to a host.",
-        "It is a member of a single VLAN and sends traffic untagged.",
-        "It is used exclusively to build uplinks between switches."
-      ],
-      answer: 2,
-      explanation: "An access port connects to end hosts (like PCs). It belongs to only one VLAN and strips off any VLAN tags before transmitting frames to the host."
-    },
-    {
-      id: "q15",
-      prompt: "Which command assigns an interface to VLAN 40 as an access port?",
-      options: [
-        "switchport mode access \n switchport access vlan 40",
-        "switchport trunk allowed vlan 40",
-        "switchport vlan 40 enable",
-        "vlan 40 \n assign interface f0/0"
-      ],
-      answer: 0,
-      explanation: "You must first force the port into access mode using `switchport mode access`, then assign the specific VLAN using `switchport access vlan 40`."
-    },
-    {
-      id: "q16",
-      prompt: "To assign interfaces FastEthernet 0/1 through 0/5 to a VLAN simultaneously, which command should you use?",
-      options: [
-        "interface group f0/1-5",
-        "interface fastethernet 0/1 to 0/5",
-        "interface range f0/1-5",
-        "interface multiple f0/1,f0/5"
-      ],
-      answer: 2,
-      explanation: "The `interface range` command allows you to execute configuration changes across multiple interfaces at the same time."
-    },
-    {
-      id: "q17",
-      prompt: "Which command provides a summary of all VLANs, their names, and the access ports currently assigned to them?",
-      options: [
-        "show ip interface brief",
-        "show interface status",
-        "show vlan",
-        "show mac address-table"
-      ],
-      answer: 2,
-      explanation: "The `show vlan` (or `show vlan brief`) command displays the VLAN database, including VLAN IDs, names, and the specific ports assigned to each."
-    },
-    {
-      id: "q18",
-      prompt: "You issue the command 'no vlan 20' in global configuration mode. What happens to the access ports that were assigned to VLAN 20?",
-      options: [
-        "They automatically revert to VLAN 1.",
-        "They transition into a 'suspended' state and cannot pass traffic until reassigned.",
-        "They remain in VLAN 20, keeping the VLAN active locally.",
-        "They dynamically negotiate trunking to find a new VLAN."
-      ],
-      answer: 1,
-      explanation: "If you delete a VLAN, any ports assigned to it become inactive (suspended) and will not pass traffic until they are reassigned to an active VLAN."
-    },
-    {
-      id: "q19",
-      prompt: "A junior engineer wants to factory reset a switch. They issue 'erase startup-config' and reload the switch, but the old VLANs are still present. Why?",
-      options: [
-        "They forgot to issue the 'write memory' command before reloading.",
-        "VLAN configurations are hardcoded into the switch ASIC.",
-        "The vlan.dat file in flash memory was not deleted.",
-        "The switch learned the VLANs via CDP from a neighboring device."
-      ],
-      answer: 2,
-      explanation: "Because standard VLANs are stored in `flash:vlan.dat`, erasing the NVRAM startup-config does not remove them. You must also issue `delete flash:vlan.dat`."
-    },
-    {
-      id: "q20",
-      prompt: "While configuring a switch, you assign an access port to VLAN 88 (`switchport access vlan 88`). However, VLAN 88 does not currently exist in the switch's VLAN database. How does modern Cisco IOS handle this?",
-      options: [
-        "It rejects the command and throws a syntax error.",
-        "It automatically creates VLAN 88 and prints a console message stating it was created.",
-        "It accepts the command but places the port in an err-disabled state.",
-        "It temporarily assigns the port to the native VLAN instead."
-      ],
-      answer: 1,
-      explanation: "Modern Cisco IOS is designed to be helpful; if you assign an access port to a non-existent VLAN, it will auto-create the VLAN and display: `%Access VLAN does not exist. Creating vlan 88`."
-    },
-    {
-      id: "q21",
-      prompt: "An administrator tries to create VLAN 2000 (an extended VLAN) on an older switch, but the switch returns an error. What is the most likely reason?",
-      options: [
-        "The switch is running VTP version 1 or 2 in Server mode.",
-        "The vlan.dat file has exceeded its 1MB size limit.",
-        "Extended VLANs require ISL encapsulation to function.",
-        "The switchport must first be configured as a trunk."
-      ],
-      answer: 0,
-      explanation: "VTP versions 1 and 2 do not support the extended VLAN range (1006-4094). To create extended VLANs on these switches, VTP must be set to Transparent mode (or upgraded to VTPv3)."
-    }
-  ]
-},
-{
-  id: "trunking-protocols-and-operations",
-  topicSlug: "switching-vlans-and-trunking",
-  group: "Trunking Protocols & Operations",
-  title: "Trunking Protocols & Operations Quiz",
-  questions: [
-    {
-      id: "q1",
-      prompt: "What is the primary function of a trunk port in a switched network?",
-      options: [
-        "To connect end-user devices such as PCs directly to a single VLAN.",
-        "To logically combine multiple physical links into one Etherchannel.",
-        "To carry the traffic of multiple VLANs between switches.",
-        "To prevent Spanning Tree loops by blocking redundant links."
-      ],
-      answer: 2,
-      explanation: "Unlike an access port that belongs to a single VLAN, a trunk port carries traffic for multiple VLANs simultaneously, typically functioning as an uplink between switches."
-    },
-    {
-      id: "q2",
-      prompt: "How does a trunk port differentiate between frames belonging to different VLANs?",
-      options: [
-        "By examining the destination IP subnet in the network header.",
-        "By utilizing frame tagging protocols (trunk encapsulation).",
-        "By checking the CAM table for the source MAC address.",
-        "By transmitting each VLAN on a different physical wire."
-      ],
-      answer: 1,
-      explanation: "The switch uses frame tagging (trunk encapsulation) to attach a VLAN identifier tag to the frame before sending it across the trunk, allowing the receiving switch to identify the VLAN."
-    },
-    {
-      id: "q3",
-      prompt: "Which statement accurately describes the ISL (Inter-Switch Link) trunking protocol?",
-      options: [
-        "It is an open IEEE standard supported by all vendors.",
-        "It attaches a small 4-byte tag to the frame.",
-        "It is a Cisco proprietary protocol that attaches a 26-byte tag to frames.",
-        "It is the default trunking protocol on all modern switches."
-      ],
-      answer: 2,
-      explanation: "ISL is a legacy, Cisco-proprietary encapsulation method that encapsulates the entire original frame with a new 26-byte header and a new FCS."
-    },
-    {
-      id: "q4",
-      prompt: "What is a major limitation of using ISL compared to 802.1Q regarding VLAN support?",
-      options: [
-        "ISL only supports the old (normal) VLAN range of 1 to 1005.",
-        "ISL cannot forward traffic for the default VLAN 1.",
-        "ISL requires a dedicated VMPS server to operate.",
-        "ISL does not support Etherchannel bundling."
-      ],
-      answer: 0,
-      explanation: "ISL lacks support for the extended VLAN range, meaning it can only transport VLANs 1 through 1005."
-    },
-    {
-      id: "q5",
-      prompt: "How large is the VLAN tag inserted by the IEEE 802.1Q (dot1q) protocol?",
-      options: [
-        "2 bytes",
-        "4 bytes",
-        "26 bytes",
-        "64 bytes"
-      ],
-      answer: 1,
-      explanation: "The 802.1Q standard inserts a compact 4-byte (32-bit) VLAN tag into the original Ethernet frame."
-    },
-    {
-      id: "q6",
-      prompt: "In an IEEE 802.1Q trunk, how are frames belonging to the native VLAN handled?",
-      options: [
-        "They are encrypted before transmission.",
-        "They are tagged with VLAN ID 1 regardless of the native VLAN setting.",
-        "They are encapsulated with an ISL header.",
-        "They are sent untagged."
-      ],
-      answer: 3,
-      explanation: "To maintain backward compatibility with devices that do not understand VLANs, 802.1Q sends native VLAN traffic without attaching a VLAN tag."
-    },
-    {
-      id: "q7",
-      prompt: "By default, when a switchport is configured as a manual trunk, which VLANs are allowed to cross the link?",
-      options: [
-        "Only the native VLAN.",
-        "Only VLANs 1 through 1005.",
-        "All VLANs.",
-        "No VLANs are allowed until explicitly added."
-      ],
-      answer: 2,
-      explanation: "By default, a Cisco switch allows all active VLANs (1-4094) to traverse a newly configured trunk port."
-    },
-    {
-      id: "q8",
-      prompt: "An administrator previously configured `switchport trunk allowed vlan 10,20`. They now want to allow VLAN 50 to cross the trunk without disrupting VLANs 10 and 20. Which command should they use?",
-      options: [
-        "switchport trunk allowed vlan 10,20,50",
-        "switchport trunk allowed vlan add 50",
-        "switchport trunk allow vlan 50",
-        "switchport trunk allowed vlan all"
-      ],
-      answer: 1,
-      explanation: "Using the `add` keyword appends VLAN 50 to the existing allowed list. Issuing just `switchport trunk allowed vlan 50` would overwrite the list, removing VLANs 10 and 20."
-    },
-    {
-      id: "q9",
-      prompt: "You need to prevent VLAN 40 from crossing an active trunk link, but all other currently allowed VLANs must remain untouched. Which command accomplishes this?",
-      options: [
-        "no switchport trunk allowed vlan 40",
-        "switchport trunk filter vlan 40",
-        "switchport trunk allowed vlan remove 40",
-        "switchport trunk allowed vlan except 40"
-      ],
-      answer: 2,
-      explanation: "The `remove` keyword specifically deletes a VLAN from the allowed list without modifying the rest of the list."
-    },
-    {
-      id: "q10",
-      prompt: "When troubleshooting a trunk link that fails to form between two switches, which of the following conditions does NOT need to match on both ends?",
-      options: [
-        "Speed and duplex settings.",
-        "Native VLAN configuration.",
-        "Access VLAN membership.",
-        "Trunk encapsulation protocol."
-      ],
-      answer: 2,
-      explanation: "Because trunk ports carry multiple VLANs and are not access ports, access VLAN membership is irrelevant. Native VLAN, allowed VLANs, speed, duplex, and encapsulation must match."
-    },
-    {
-      id: "q11",
-      prompt: "What is the primary function of the Dynamic Trunking Protocol (DTP)?",
-      options: [
-        "To negotiate the election of the STP root bridge over a trunk.",
-        "To automatically assign access ports to the correct VLAN.",
-        "To negotiate and establish a trunk link between two switches.",
-        "To dynamically prune unused VLANs across the network."
-      ],
-      answer: 2,
-      explanation: "DTP is a Cisco proprietary protocol used to negotiate trunking between two switches, establishing parameters like trunk status, encapsulation, and native VLAN."
-    },
-    {
-      id: "q12",
-      prompt: "Which DTP mode actively attempts to form a trunk by periodically sending DTP frames to the neighboring switch?",
-      options: [
-        "Dynamic Auto",
-        "Dynamic Desirable",
-        "Trunk Active",
-        "Mode On"
-      ],
-      answer: 1,
-      explanation: "Dynamic Desirable (DD) actively initiates trunk negotiation. In contrast, Dynamic Auto (DA) passively waits for the other side to initiate."
-    },
-    {
-      id: "q13",
-      prompt: "Switch A is configured with `switchport mode dynamic auto` and Switch B is configured with `switchport mode dynamic auto`. What is the resulting link state?",
-      options: [
-        "Trunk link",
-        "Etherchannel bundle",
-        "No trunk (Access link)",
-        "Err-disabled state"
-      ],
-      answer: 2,
-      explanation: "When both sides are configured as Dynamic Auto, neither side actively initiates DTP negotiation, so they fall back to being access ports (no trunk is formed)."
-    },
-    {
-      id: "q14",
-      prompt: "Switch 1 is configured with `switchport mode dynamic desirable` and Switch 2 is configured with `switchport mode trunk`. What will be the resulting state of the link?",
-      options: [
-        "Trunk",
-        "Access",
-        "Suspended",
-        "Half-duplex trunk"
-      ],
-      answer: 0,
-      explanation: "Because Switch 2 is permanently set to Trunk mode, and Switch 1 is actively trying to negotiate (Dynamic Desirable), the negotiation succeeds and a trunk forms."
-    },
-    {
-      id: "q15",
-      prompt: "What are the default Hello and Hold timers for DTP frames?",
-      options: [
-        "Hello 10s, Hold 30s",
-        "Hello 30s, Hold 300s",
-        "Hello 60s, Hold 180s",
-        "Hello 2s, Hold 20s"
-      ],
-      answer: 1,
-      explanation: "DTP sends Hello frames every 30 seconds by default, and a switch will keep DTP frames for 300 seconds (Hold timer) before discarding them."
-    },
-    {
-      id: "q16",
-      prompt: "According to Cisco best practices for production networks, how should trunks and DTP be configured?",
-      options: [
-        "Use Dynamic Auto on both sides to prevent unwanted negotiations.",
-        "Use Dynamic Desirable to ensure trunks form quickly upon reboot.",
-        "Avoid DTP entirely by configuring manual trunks and disabling negotiation.",
-        "Configure trunks manually but leave DTP running for redundancy."
-      ],
-      answer: 2,
-      explanation: "Relying on DTP can cause negotiation delays or security risks (like rogue switches forming trunks). Best practice is to manually configure the trunk and disable DTP."
-    },
-    {
-      id: "q17",
-      prompt: "Which command permanently disables DTP negotiation frames from being sent out a switchport?",
-      options: [
-        "switchport mode access",
-        "no dtp enable",
-        "switchport nonegotiate",
-        "no switchport trunk dtp"
-      ],
-      answer: 2,
-      explanation: "The `switchport nonegotiate` command stops the interface from generating DTP frames, locking it into its manually configured mode."
-    },
-    {
-      id: "q18",
-      prompt: "Which verification command provides a consolidated view of the trunking status, native VLAN, and allowed VLANs on a specific interface?",
-      options: [
-        "show interface trunk",
-        "show ip interface brief",
-        "show dtp summary",
-        "show vlan"
-      ],
-      answer: 0,
-      explanation: "The `show interface trunk` command is the standard way to verify which ports are actively trunking, their negotiated encapsulation, native VLAN, and the VLANs allowed to forward."
-    },
-    {
-      id: "q19",
-      prompt: "When viewing the frame layout of an 802.1Q tagged frame, where exactly is the VLAN tag inserted?",
-      options: [
-        "Before the Destination MAC address.",
-        "Between the Source MAC address and the EtherType/Length field.",
-        "Immediately after the IP Header.",
-        "At the very end of the frame, replacing the FCS."
-      ],
-      answer: 1,
-      explanation: "The 4-byte 802.1Q tag is inserted directly after the Source MAC address and right before the EtherType field (or IP header), pushing the original payload back by 4 bytes."
-    },
-    {
-      id: "q20",
-      prompt: "A network engineer configures 'Router on a Stick' to route between VLANs. They configure the router's subinterfaces correctly and set the connected switchport to 'switchport mode dynamic desirable'. Why does inter-VLAN routing fail?",
-      options: [
-        "The router cannot process untagged native VLAN traffic.",
-        "Routers do not support or respond to DTP frames to negotiate a trunk.",
-        "DTP requires an Etherchannel to connect to a Layer 3 device.",
-        "The switchport must be configured as 'dynamic auto' when connecting to routers."
-      ],
-      answer: 1,
-      explanation: "DTP is a switch-to-switch protocol. Routers do not speak DTP, so the switchport will fail to negotiate a trunk and fall back to access mode. The switchport must be statically set to 'switchport mode trunk'."
-    },
-    {
-      id: "q21",
-      prompt: "Two switches are connected via an 802.1Q trunk, but one switch is configured with Native VLAN 10 and the other with Native VLAN 20. Which protocol will actively detect this mismatch and issue a warning log message on the console?",
-      options: [
-        "DTP (Dynamic Trunking Protocol)",
-        "VTP (VLAN Trunking Protocol)",
-        "CDP (Cisco Discovery Protocol)",
-        "STP (Spanning Tree Protocol)"
-      ],
-      answer: 2,
-      explanation: "CDP messages exchange native VLAN information between neighbors. If it detects a mismatch, CDP generates a console warning (e.g., %CDP-4-NATIVE_VLAN_MISMATCH)."
-    },
-    {
-      id: "q22",
-      prompt: "Beyond security risks and data leakage, what is a severe operational consequence of leaving a native VLAN mismatch unresolved on an active trunk link?",
-      options: [
-        "The switch will crash due to infinite CPU interrupts.",
-        "Spanning Tree (STP) may block the port to prevent loops due to BPDU inconsistencies.",
-        "The trunk will automatically revert to ISL encapsulation.",
-        "All VLANs on the trunk will be automatically placed into an err-disabled state."
-      ],
-      answer: 1,
-      explanation: "Spanning Tree BPDUs traverse the native VLAN. If the native VLAN is mismatched, BPDUs are misinterpreted or leaked across broadcast domains, often prompting STP to block the port to prevent Layer 2 loops."
-    }
-  ]
-},
-{
-  id: "vlan-security-and-operations",
-  topicSlug: "switching-vlans-and-trunking",
-  group: "VLAN Security & Operations",
-  title: "VLAN Security & Operations Quiz",
-  questions: [
-    {
-      id: "q1",
-      prompt: "Which of the following statements correctly contrasts the Default VLAN with the Native VLAN?",
-      options: [
-        "The Default VLAN can be deleted, while the Native VLAN cannot.",
-        "The Default VLAN is always VLAN 1 and cannot be deleted, while the Native VLAN can be changed.",
-        "The Default VLAN is used for ISL trunks, while the Native VLAN is used for 802.1Q trunks.",
-        "The Default VLAN carries tagged traffic, while the Native VLAN carries all control traffic."
-      ],
-      answer: 1,
-      explanation: "VLAN 1 is the permanent Default VLAN and cannot be deleted. The Native VLAN defaults to VLAN 1 on an 802.1Q trunk but can be changed to any other VLAN."
-    },
-    {
-      id: "q2",
-      prompt: "On a standard Cisco 802.1Q trunk port, how is traffic for the native VLAN processed?",
-      options: [
-        "It is dropped by default.",
-        "It is tagged with a 26-byte ISL header.",
-        "It is sent untagged.",
-        "It is tagged with VLAN ID 1."
-      ],
-      answer: 2,
-      explanation: "To maintain backward compatibility and process frames faster, 802.1Q sends native VLAN traffic across the trunk without attaching a VLAN tag."
-    },
-    {
-      id: "q3",
-      prompt: "Which type of traffic is typically forwarded over the native VLAN?",
-      options: [
-        "Encrypted SSH management traffic.",
-        "Inter-VLAN routing traffic from SVIs.",
-        "User data from the IT department.",
-        "Switching control frames such as STP messages and negotiation frames."
-      ],
-      answer: 3,
-      explanation: "Critical switching control frames, including Spanning Tree Protocol (STP) messages and negotiation protocols, are carried over the untagged native VLAN."
-    },
-    {
-      id: "q4",
-      prompt: "An administrator mistakenly connects a standard PC directly to a switchport configured as an 802.1Q trunk. By default, which VLAN's traffic will the PC be able to send and receive?",
-      options: [
-        "VLAN 1, because it is sent untagged by default.",
-        "None, a PC cannot understand trunk encapsulation.",
-        "All VLANs, because the PC's NIC will operate in promiscuous mode.",
-        "The highest numbered active VLAN on the trunk."
-      ],
-      answer: 0,
-      explanation: "Because standard PCs do not understand 802.1Q tags, they will only be able to read and interact with the untagged frames, which belong to VLAN 1 (the default native VLAN) on a trunk port."
-    },
-    {
-      id: "q5",
-      prompt: "Switch 1 has a port in VLAN 10 and Switch 2 has a port in VLAN 20. These two ports are connected together using a standard untagged access cable. Assuming compatible IP subnets, can a PC in VLAN 10 communicate with a PC in VLAN 20?",
-      options: [
-        "No, the switches will detect a VLAN mismatch and block the port.",
-        "Yes, because the uplink is untagged, the traffic passes between the ports as if they were on a single physical segment.",
-        "No, because different VLAN numbers always require inter-VLAN routing.",
-        "Yes, but only if both switches are configured to run ISL encapsulation."
-      ],
-      answer: 1,
-      explanation: "Because the connection between the switches is untagged (an access link), neither switch is aware of the other's VLAN assignment. The frames flow between them seamlessly as a single broadcast domain."
-    },
-    {
-      id: "q6",
-      prompt: "Two PCs are placed in VLAN 10 on separate switches connected by a trunk. PC A is assigned 192.168.10.1/24 and PC B is assigned 192.168.10.2/25. Can these PCs communicate?",
-      options: [
-        "No, the mismatched subnet masks will cause the switch to drop the frames.",
-        "Yes, because when the AND operation is performed with the subnet mask, both IPs fall into the same local network.",
-        "No, the /25 PC will send traffic to its default gateway instead of directly to the /24 PC.",
-        "Yes, because VLAN 10 automatically bridges all 192.168.10.x addresses regardless of mask."
-      ],
-      answer: 1,
-      explanation: "Devices use the AND operation (IP address compared against their own subnet mask) to determine if a destination is local. Since 10.1 and 10.2 fall within the same local range for both the /24 and /25 masks, they will communicate directly at Layer 2."
-    },
-    {
-      id: "q7",
-      prompt: "What prerequisite allows a VLAN double-tagging attack to successfully cross a trunk link to a target switch?",
-      options: [
-        "The attacker must be connected to a trunk port on the first switch.",
-        "The attacker's access VLAN must match the native VLAN of the trunk link.",
-        "The attacker must have administrative access to the VMPS server.",
-        "Both switches must be utilizing ISL encapsulation."
-      ],
-      answer: 1,
-      explanation: "A double-tagging attack relies on the switch stripping off the outer tag. This only happens if the attacker's generated outer tag matches the untagged native VLAN of the trunk link."
-    },
-    {
-      id: "q8",
-      prompt: "In a VLAN double-tagging attack, what does the first switch do when it receives the attacker's maliciously crafted frame?",
-      options: [
-        "It reads the inner tag, routes it, and leaves the outer tag intact.",
-        "It drops the frame due to a Maximum Transmission Unit (MTU) violation.",
-        "It strips off the outer tag because it matches the native VLAN, and forwards the frame out the trunk with the inner tag still attached.",
-        "It encapsulates both tags inside a new 802.1Q header and broadcasts it to all ports."
-      ],
-      answer: 2,
-      explanation: "The first switch sees the outer tag, recognizes it as the native VLAN, and strips it off (as native VLANs are sent untagged over the trunk). It is unaware of the hidden inner tag, which is then sent across the trunk."
-    },
-    {
-      id: "q9",
-      prompt: "Why is a VLAN double-tagging attack generally classified as a one-way communication attack?",
-      options: [
-        "The attacker's PC can only transmit at half-duplex.",
-        "The return traffic is dropped by the router's Access Control List (ACL).",
-        "The return traffic from the victim is not double-tagged, so it cannot navigate back across the native VLAN to the attacker.",
-        "The victim switch shuts down the port immediately after receiving the first malicious frame."
-      ],
-      answer: 2,
-      explanation: "Because the victim device will reply with standard, single-tagged (or untagged) traffic, the return frames will not have the necessary forged tags to traverse back to the attacker's isolated VLAN."
-    },
-    {
-      id: "q10",
-      prompt: "Even though a double-tagging attack is typically one-way, why is it still considered a serious security threat?",
-      options: [
-        "It allows the attacker to silently capture and read all cross-VLAN traffic.",
-        "It is sufficient to launch a Denial of Service (DoS) attack against devices in the victim VLAN.",
-        "It enables the attacker to dynamically reconfigure the switch's running configuration.",
-        "It bypasses port security by spoofing multiple MAC addresses simultaneously."
-      ],
-      answer: 1,
-      explanation: "While the attacker cannot receive a reply, sending a continuous stream of malicious, one-way traffic is often enough to overwhelm a target host or service, causing a Denial of Service."
-    },
-    {
-      id: "q11",
-      prompt: "What is a basic, common method for mitigating VLAN double-tagging attacks on an 802.1Q trunk?",
-      options: [
-        "Disable DTP negotiation on the trunk port.",
-        "Change the native VLAN from the default (VLAN 1) to an unused, dummy VLAN.",
-        "Configure the trunk to use the ISL encapsulation protocol.",
-        "Apply a BPDU guard to the trunk interface."
-      ],
-      answer: 1,
-      explanation: "By changing the native VLAN to an unused \"black hole\" VLAN, you ensure that no access ports share the native VLAN with the trunk, stopping the first step of a double-tagging attack."
-    },
-    {
-      id: "q12",
-      prompt: "While changing the native VLAN to an unused VLAN helps, what is considered the most effective solution to prevent native VLAN abuse?",
-      options: [
-        "Configure the switch to attach a VLAN tag to native VLAN traffic as well.",
-        "Disable the native VLAN feature globally across the switch.",
-        "Manually assign every access port to the native VLAN.",
-        "Enable port security on all trunk interfaces."
-      ],
-      answer: 0,
-      explanation: "Tagging the native VLAN forces the switch to explicitly identify all traffic on the trunk. If an attacker tries to double-tag, the outer tag will not be stripped, nullifying the attack."
-    },
-    {
-      id: "q13",
-      prompt: "Which interface-level command is used to force a Cisco switch to tag native VLAN traffic on an 802.1Q trunk?",
-      options: [
-        "switchport trunk native vlan 1",
-        "switchport trunk encapsulate native",
-        "switchport trunk native vlan tagged",
-        "vlan dot1q tag native"
-      ],
-      answer: 2,
-      explanation: "The interface command `switchport trunk native vlan tagged` overrides the default 802.1Q behavior and attaches a 4-byte tag to native VLAN frames."
-    },
-    {
-      id: "q14",
-      prompt: "Why is the legacy ISL trunking protocol NOT susceptible to VLAN double-tagging attacks?",
-      options: [
-        "ISL encrypts the payload, making tag injection impossible.",
-        "ISL does not utilize a native (untagged) VLAN; all VLAN traffic is tagged.",
-        "ISL automatically authenticates the source MAC address of every frame.",
-        "ISL limits trunks to the 1-1005 VLAN range, which drops extended tags."
-      ],
-      answer: 1,
-      explanation: "Because ISL encapsulates the entire frame and tags all VLAN traffic without exception, there is no untagged native VLAN for an attacker to exploit."
-    },
-    {
-      id: "q15",
-      prompt: "Why was the concept of an untagged native VLAN originally implemented in the 802.1Q standard?",
-      options: [
-        "To provide a dedicated channel for encrypted SSH management.",
-        "To process frames faster and maintain backward compatibility with non-VLAN aware devices (like hubs).",
-        "To ensure routing protocols like OSPF can form neighbor adjacencies at Layer 2.",
-        "To allow administrators to bypass access control lists during an emergency."
-      ],
-      answer: 1,
-      explanation: "The native VLAN was designed to allow a trunk port to connect to legacy switches or hubs that do not understand 802.1Q headers, as well as to speed up the processing of untagged frames."
-    },
-    {
-      id: "q16",
-      prompt: "Which command correctly changes the native VLAN on a trunk port to VLAN 99?",
-      options: [
-        "switchport native vlan 99",
-        "switchport mode trunk vlan 99",
-        "switchport trunk allowed vlan 99",
-        "switchport trunk native vlan 99"
-      ],
-      answer: 3,
-      explanation: "The `switchport trunk native vlan <id>` command is used in interface configuration mode to assign a specific VLAN as the untagged native VLAN."
-    },
-    {
-      id: "q17",
-      prompt: "You configure 'switchport trunk native vlan 50' on a switchport, but you forgot to create VLAN 50 in the VLAN database. What happens to untagged traffic received on this trunk?",
-      options: [
-        "It is dropped because the native VLAN does not exist in the database.",
-        "It is automatically forwarded to VLAN 1 instead.",
-        "The switch automatically creates VLAN 50 in the database and forwards the traffic.",
-        "It is broadcasted out all access ports on the switch."
-      ],
-      answer: 0,
-      explanation: "Untagged frames arriving on a trunk are mapped to the configured native VLAN. If that VLAN has not been created in the local VLAN database, the switch has nowhere to forward it and drops the traffic."
-    },
-    {
-      id: "q18",
-      prompt: "VLAN double-tagging is one method of \"VLAN hopping.\" What is the other primary method used by attackers to perform a VLAN hopping attack?",
-      options: [
-        "MAC flooding to overflow the CAM table.",
-        "Switch spoofing, where the attacker's device negotiates a trunk link with the switch.",
-        "ARP poisoning the default gateway.",
-        "BPDU spoofing to become the STP root bridge."
-      ],
-      answer: 1,
-      explanation: "Switch spoofing relies on exploiting protocols like DTP to trick a switchport into becoming a trunk, granting the attacker's machine direct access to all VLANs traversing that link."
-    },
-    {
-      id: "q19",
-      prompt: "Two Cisco switches are connected via an 802.1Q trunk. Switch 1 has its native VLAN set to 1, and Switch 2 has its native VLAN set to 99. Which protocol will actively detect this misconfiguration and log warnings to the console?",
-      options: [
-        "VTP (VLAN Trunking Protocol)",
-        "STP (Spanning Tree Protocol)",
-        "DTP (Dynamic Trunking Protocol)",
-        "CDP (Cisco Discovery Protocol)"
-      ],
-      answer: 3,
-      explanation: "CDP periodically exchanges device information with neighbors, including native VLAN settings. A mismatch triggers a %CDP-4-NATIVE_VLAN_MISMATCH console error to alert administrators."
-    },
-    {
-      id: "q20",
-      prompt: "In addition to the interface-level command 'switchport trunk native vlan tagged', which global configuration command instructs a Cisco switch to tag native VLAN traffic across all 802.1Q trunks?",
-      options: [
-        "vtp native tag",
-        "vlan dot1q tag native",
-        "spanning-tree vlan native tag",
-        "switchport global native tagged"
-      ],
-      answer: 1,
-      explanation: "The global command `vlan dot1q tag native` forces the switch to tag the native VLAN on all 802.1Q trunks simultaneously, providing a network-wide mitigation against double-tagging attacks."
-    },
-    {
-      id: "q21",
-      prompt: "In a double-tagging attack, where does the attacker insert the VLAN tag of their intended victim?",
-      options: [
-        "Inside the payload data portion of the frame.",
-        "As the outer 802.1Q tag, replacing the native VLAN tag.",
-        "As the inner 802.1Q tag, immediately following the outer native VLAN tag.",
-        "Inside the Source MAC address field."
-      ],
-      answer: 2,
-      explanation: "The attacker crafts a frame with two 802.1Q tags. The outer tag matches the native VLAN (to cross the trunk), and the inner tag holds the ID of the target victim VLAN."
-    },
-    {
-      id: "q22",
-      prompt: "Which characteristic is exclusively true for the Default VLAN (VLAN 1) but NOT necessarily true for the Native VLAN?",
-      options: [
-        "It carries untagged traffic over a trunk link.",
-        "It is used to transport spanning tree BPDUs.",
-        "It cannot be deleted or renamed from the VLAN database.",
-        "It can be reassigned using a switchport configuration command."
-      ],
-      answer: 2,
-      explanation: "The Default VLAN (VLAN 1) is a permanent fixture in the switch operating system and cannot be deleted or renamed. The Native VLAN, however, is a port-level setting that can be changed to any existing standard VLAN."
-    }
-  ]
-},
-{
-  id: "dhcp-dynamic-host-configuration-protocol",
-  topicSlug: "switching-vlans-and-trunking",
-  group: "DHCP (Dynamic Host Configuration Protocol)",
-  title: "DHCP (Dynamic Host Configuration Protocol) Quiz",
-  questions: [
-    {
-      id: "q1",
-      prompt: "What is the primary purpose of a DHCP server in a network environment?",
-      options: [
-        "To dynamically assign IP address information to clients",
-        "To translate private IP addresses to public IPs",
-        "To resolve domain hostnames to IP addresses",
-        "To encrypt traffic between a client and a web server"
-      ],
-      answer: 0,
-      explanation: "DHCP helps network administrators dynamically configure IP information on client machines, avoiding the difficulty of manually assigning static IPs to large numbers of devices."
-    },
-    {
-      id: "q2",
-      prompt: "Which UDP ports are used by the DHCP server and the DHCP client?",
-      options: [
-        "Server listens on 68, client listens on 67",
-        "Server listens on 67, client listens on 68",
-        "Server listens on 53, client listens on 68",
-        "Server listens on 67, client listens on 53"
-      ],
-      answer: 1,
-      explanation: "All DHCP messages use UDP, with the server listening on port 67 and the client listening on port 68."
-    },
-    {
-      id: "q3",
-      prompt: "What does the DORA acronym stand for in the DHCP server-client handshake?",
-      options: [
-        "Discover, Observe, Request, Acknowledge",
-        "Discover, Offer, Request, Ack",
-        "Detect, Offer, Route, Ack",
-        "Discover, Offer, Reply, Accept"
-      ],
-      answer: 1,
-      explanation: "The DORA process consists of four steps: Discover (Client), Offer (Server), Request (Client), and Ack (Server)."
-    },
-    {
-      id: "q4",
-      prompt: "In a Windows environment, what happens if no DHCP server is available to provide an IP address?",
-      options: [
-        "The machine uses 0.0.0.0 as its permanent IP address.",
-        "The machine prompts the user to enter a static IP address manually.",
-        "The machine autoconfigures an IP address from the APIPA range 169.254.0.0/16.",
-        "The machine broadcasts an ARP request asking another host to surrender its IP."
-      ],
-      answer: 2,
-      explanation: "Windows machines use Automatic Private IP Address Allocation (APIPA) and assign themselves an IP in the 169.254.0.0/16 range when a DHCP server cannot be reached."
-    },
-    {
-      id: "q5",
-      prompt: "What are the source and destination IP addresses in a DHCP Discover message?",
-      options: [
-        "Src: 0.0.0.0, Dst: 255.255.255.255",
-        "Src: 127.0.0.1, Dst: 255.255.255.255",
-        "Src: 0.0.0.0, Dst: 192.168.1.1",
-        "Src: 169.254.0.1, Dst: 255.255.255.255"
-      ],
-      answer: 0,
-      explanation: "Because the client doesn't have an IP address yet, it uses 0.0.0.0 as the source and broadcasts to 255.255.255.255 to find a server."
-    },
-    {
-      id: "q6",
-      prompt: "In the DHCP Offer message, what information is typically provided to the client?",
-      options: [
-        "Only the available IP address and subnet mask.",
-        "IP address, subnet mask, gateway IP, domain name, DNS server, and lease time.",
-        "IP address, default gateway, and a static MAC address binding.",
-        "Only the DNS server IP address and the company domain name."
-      ],
-      answer: 1,
-      explanation: "The server responds with an offer containing a full suite of network configuration details, including IP, mask, gateway, DNS, domain name, and the lease time."
-    },
-    {
-      id: "q7",
-      prompt: "Which UDP ports are used in the DHCP Request message sent from the client?",
-      options: [
-        "Source UDP 67, Destination UDP 68",
-        "Source UDP 68, Destination UDP 67",
-        "Source UDP 67, Destination UDP 67",
-        "Source UDP 68, Destination UDP 68"
-      ],
-      answer: 1,
-      explanation: "Because it is sent by the client to the server, the source port is 68 (client) and the destination port is 67 (server)."
-    },
-    {
-      id: "q8",
-      prompt: "What is the specific purpose of the DHCP Ack message in the DORA process?",
-      options: [
-        "The client acknowledges it received the DHCP Offer.",
-        "The server acknowledges that the client accepted the offered information.",
-        "The switch acknowledges the new MAC address binding on its port.",
-        "The router acknowledges the new IP route for the client."
-      ],
-      answer: 1,
-      explanation: "The Ack (Acknowledgment) is the final step where the server confirms to the client that it has successfully recorded the lease and the client can begin using the IP."
-    },
-    {
-      id: "q9",
-      prompt: "What is the default DHCP lease period for most vendors?",
-      options: [
-        "24 hours",
-        "7 days",
-        "8 days",
-        "30 days"
-      ],
-      answer: 2,
-      explanation: "In most network vendors, the default lease period given to a client machine is 8 days."
-    },
-    {
-      id: "q10",
-      prompt: "At what point does a DHCP client first attempt to renew its IP lease?",
-      options: [
-        "At 25% of the lease period",
-        "At 50% of the lease period",
-        "At 87.5% of the lease period",
-        "At 100% of the lease period"
-      ],
-      answer: 1,
-      explanation: "The client tries to renew its lease by sending a DHCP Request message to the server when it reaches 50% of the lease period."
-    },
-    {
-      id: "q11",
-      prompt: "If the server does not acknowledge a client's first lease renewal request, when does the client try again?",
-      options: [
-        "At 75% of the lease period",
-        "At 80% of the lease period",
-        "At 87.5% of the lease period",
-        "At 99% of the lease period"
-      ],
-      answer: 2,
-      explanation: "If the 50% renewal attempt is ignored or fails, the client waits and tries again at 87.5% of the lease period."
-    },
-    {
-      id: "q12",
-      prompt: "What happens if a client's lease reaches 100% expiration without being successfully renewed?",
-      options: [
-        "The client keeps the IP address but cannot reach the default gateway.",
-        "The client falls back to its last known good configuration permanently.",
-        "The IP returns to the pool and the client must initiate the DORA process again.",
-        "The client sends a DHCP Offer message to locate a new server."
-      ],
-      answer: 2,
-      explanation: "Once the lease fully expires (100%), the client loses the right to use the IP, which returns to the server's pool. The client must restart the DORA process from the Discover step."
-    },
-    {
-      id: "q13",
-      prompt: "Which Cisco IOS command correctly creates a DHCP pool named VLAN10?",
-      options: [
-        "dhcp pool create VLAN10",
-        "ip dhcp pool VLAN10",
-        "pool dhcp VLAN10",
-        "ip pool dhcp VLAN10"
-      ],
-      answer: 1,
-      explanation: "The command to create a DHCP pool and enter DHCP configuration mode on a Cisco router is `ip dhcp pool <name>`."
-    },
-    {
-      id: "q14",
-      prompt: "Inside a Cisco DHCP pool configuration, how do you specify the default gateway that will be given to clients?",
-      options: [
-        "gateway 192.168.10.100",
-        "default-gateway 192.168.10.100",
-        "ip gateway 192.168.10.100",
-        "default-router 192.168.10.100"
-      ],
-      answer: 3,
-      explanation: "The command `default-router <ip>` is used inside the DHCP pool configuration to tell clients their gateway IP."
-    },
-    {
-      id: "q15",
-      prompt: "How do you configure a lease period of 2 days and 0 hours inside a Cisco DHCP pool?",
-      options: [
-        "lease 2 0",
-        "lease 48 hours",
-        "dhcp lease 2",
-        "ip lease 2 0"
-      ],
-      answer: 0,
-      explanation: "The command is `lease <days> <hours>`, so `lease 2 0` sets the lease period to exactly 2 days."
-    },
-    {
-      id: "q16",
-      prompt: "Which command displays a list of all IP addresses and their corresponding MAC addresses currently assigned by the Cisco DHCP server?",
-      options: [
-        "show ip dhcp pool",
-        "show ip dhcp binding",
-        "show dhcp clients",
-        "show ip dhcp leases"
-      ],
-      answer: 1,
-      explanation: "The `show ip dhcp binding` command verifies the active leases by displaying the IPs mapped to client MAC addresses."
-    },
-    {
-      id: "q17",
-      prompt: "Why would an administrator use the command `clear ip dhcp binding *` on a router?",
-      options: [
-        "To completely delete the DHCP pool configuration from the running-config.",
-        "To reset a single specific IP assignment during a lab exercise.",
-        "To refresh and clear all currently active DHCP bindings.",
-        "To restart the router's DHCP service daemon."
-      ],
-      answer: 2,
-      explanation: "The `clear ip dhcp binding *` command releases all active IP bindings in the router's database, forcing all clients to renew or request new leases."
-    },
-    {
-      id: "q18",
-      prompt: "During the DORA process, which two messages are typically sent as broadcasts by the client?",
-      options: [
-        "Discover and Request",
-        "Offer and Ack",
-        "Discover and Offer",
-        "Request and Ack"
-      ],
-      answer: 0,
-      explanation: "The client broadcasts the initial Discover to find any server, and broadcasts the Request to tell all listening servers which Offer it is accepting."
-    },
-    {
-      id: "q19",
-      prompt: "A PC completes the DORA process and can ping devices on its own subnet, but cannot ping external internet addresses. Which DHCP pool configuration is most likely missing?",
-      options: [
-        "network 192.168.10.0 255.255.255.0",
-        "dns-server 8.8.8.8",
-        "default-router 192.168.10.100",
-        "domain-name mycompany.com"
-      ],
-      answer: 2,
-      explanation: "Without a configured `default-router`, the client won't know how to leave its local subnet to reach external networks."
-    },
-    {
-      id: "q20",
-      prompt: "If a DHCP client and the DHCP server are on completely different subnets, how does the client's broadcast Discover message reach the server?",
-      options: [
-        "The switch converts the broadcast into a multicast frame.",
-        "A router is configured with an 'ip helper-address' to forward the request as a unicast.",
-        "The client sends a unicast Discover directly to the server's IP address.",
-        "The DHCP server listens on all subnets simultaneously by default."
-      ],
-      answer: 1,
-      explanation: "Routers drop broadcasts by default. An 'ip helper-address' (DHCP Relay) must be configured on the router's interface to forward the broadcast as a unicast packet to the remote DHCP server."
-    },
-    {
-      id: "q21",
-      prompt: "In a scenario where a DHCP server cannot satisfy a client's Request (for example, the requested IP is already taken), what message does the server reply with?",
-      options: [
-        "DHCP Decline",
-        "DHCP Release",
-        "DHCP NAK (Negative Acknowledgment)",
-        "DHCP Drop"
-      ],
-      answer: 2,
-      explanation: "A DHCP NAK is sent by the server to tell the client that its request for a specific IP address is denied, forcing the client to restart the Discover process."
-    },
-    {
-      id: "q22",
-      prompt: "To prevent malicious actors from connecting a rogue DHCP server to the network and handing out incorrect gateway addresses, which Layer 2 security feature is commonly implemented on switches?",
-      options: [
-        "Port Security",
-        "DHCP Snooping",
-        "Dynamic ARP Inspection",
-        "IP Source Guard"
-      ],
-      answer: 1,
-      explanation: "DHCP Snooping is a security feature that drops DHCP Offer and Ack messages from untrusted ports, ensuring clients only get IP configurations from authorized servers."
-    },
-    
-    {
-      id: "q23",
-      prompt: "What is the primary reason an IP Helper Address (DHCP Relay) is required when a DHCP server is placed in a different network than the clients?",
-      options: [
-        "Clients do not know the subnet mask of their own network.",
-        "Routers block broadcast traffic by default, preventing the Discover message from reaching the server.",
-        "DHCP servers only respond to unicast messages by default.",
-        "The DHCP protocol requires a relay agent to encrypt the payload."
-      ],
-      answer: 1,
-      explanation: "DHCP clients broadcast their Discover messages. Because routers do not forward broadcasts, the request will never reach a remote DHCP server without a relay agent."
-    },
-    {
-      id: "q24",
-      prompt: "What is the Cisco-specific term for a DHCP Relay Agent?",
-      options: [
-        "IP Helper Address",
-        "DHCP Forwarder",
-        "Broadcast Unicast Translator (BUT)",
-        "IP DHCP Relay"
-      ],
-      answer: 0,
-      explanation: "In Cisco IOS, the feature used to configure a DHCP Relay Agent is called the IP Helper Address."
-    },
-    {
-      id: "q25",
-      prompt: "Where must the `ip helper-address` command be configured on a Cisco multilayer switch or router?",
-      options: [
-        "On the physical interface connected to the DHCP server.",
-        "On the global configuration mode of the DHCP server.",
-        "On the Gateway (GW) interface of the client's network, such as an SVI or subinterface.",
-        "On the client's access port interface."
-      ],
-      answer: 2,
-      explanation: "The helper address must be applied to the interface that acts as the default gateway for the broadcasting clients (e.g., the SVI or subinterface)."
-    },
-    {
-      id: "q26",
-      prompt: "How does the IP Helper Address modify the DHCP Discover packet before sending it to the remote server?",
-      options: [
-        "It changes the destination MAC address to the client's MAC address.",
-        "It encapsulates the broadcast inside a TCP segment.",
-        "It converts the broadcast message into a unicast communication directed at the server.",
-        "It changes the UDP destination port from 67 to 80."
-      ],
-      answer: 2,
-      explanation: "The IP Helper converts the local L2/L3 broadcast packet into a unicast packet routed directly to the original DHCP server's IP address."
-    },
-    {
-      id: "q27",
-      prompt: "When the router forwards the relayed DHCP Discover to the remote server, what does it use as the source IP address in the packet?",
-      options: [
-        "0.0.0.0",
-        "255.255.255.255",
-        "The DHCP server's IP address",
-        "The Gateway interface's IP address"
-      ],
-      answer: 3,
-      explanation: "The router places the IP address of the interface that received the broadcast (the client's gateway) into the source IP field of the unicast packet. (e.g., changing 0.0.0.0 to the GW IP)."
-    },
-    {
-      id: "q28",
-      prompt: "You are configuring a Router on a Stick (RoaS) environment. The client VLAN is 10 and the remote DHCP server is 4.4.4.1. Which set of commands correctly applies the helper address?",
-      options: [
-        "interface f0/0.10 \\n ip helper-address 4.4.4.1",
-        "interface f0/0 \\n ip dhcp relay 4.4.4.1",
-        "ip dhcp pool VLAN10 \\n helper-address 4.4.4.1",
-        "interface vlan 10 \\n ip forward-protocol 4.4.4.1"
-      ],
-      answer: 0,
-      explanation: "In a RoaS setup, the gateway for VLAN 10 is the subinterface (f0/0.10). The command `ip helper-address 4.4.4.1` must be applied directly to this subinterface."
-    },
-    {
-      id: "q29",
-      prompt: "How does the remote DHCP server know which specific IP pool to select a lease from when it receives a relayed DHCP Discover?",
-      options: [
-        "It assigns an IP based on the client's MAC address.",
-        "It looks at the source IP address (the gateway IP) of the relayed unicast packet.",
-        "The router adds a VLAN tag to the DHCP payload.",
-        "The server sends a ping broadcast to see which subnets are empty."
-      ],
-      answer: 1,
-      explanation: "The DHCP server checks the source IP address of the incoming unicast packet (which is the client's default gateway) and matches it to a DHCP pool containing that network."
-    },
-    {
-      id: "q30",
-      prompt: "Which command is the most direct way to verify if an IP helper address has been applied to an SVI for VLAN 10?",
-      options: [
-        "show ip dhcp binding",
-        "show ip dhcp pool",
-        "show run interface vlan 10",
-        "show ip route"
-      ],
-      answer: 2,
-      explanation: "The `show run interface vlan 10` command displays the running configuration for that specific SVI, allowing you to see if the `ip helper-address` command is present."
-    },
-    {
-      id: "q31",
-      prompt: "In addition to DHCP (UDP ports 67 and 68), which of the following broadcast types does the Cisco `ip helper-address` command forward by default?",
-      options: [
-        "TFTP and DNS broadcasts",
-        "ARP requests and replies",
-        "OSPF and EIGRP multicast hellos",
-        "ICMP echo requests"
-      ],
-      answer: 0,
-      explanation: "By default, the `ip helper-address` command forwards 8 specific UDP broadcast ports, including DHCP/BOOTP (67/68), TFTP (69), DNS (53), Time (37), TACACS (49), and NetBIOS (137/138)."
-    },
-    {
-      id: "q32",
-      prompt: "You configured an `ip helper-address` on the gateway, and you can ping the remote DHCP server from the router. However, clients are still not receiving IP addresses. What is a common real-world routing issue that causes this failure?",
-      options: [
-        "The DHCP server is running out of MAC addresses.",
-        "The clients are sending unicast Discover messages.",
-        "The DHCP server lacks a return route back to the client's subnet (the gateway's IP).",
-        "The router requires an ACL to permit UDP port 80."
-      ],
-      answer: 2,
-      explanation: "Even if the router can reach the server, the remote DHCP server must have a routing table entry (or default route) pointing back to the client's subnet so it can successfully return the DHCP Offer."
-    }
-  ]
-},
-{
-  id: "vtp-vlan-trunking-protocol",
-  topicSlug: "switching-vlans-and-trunking",
-  group: "VTP (VLAN Trunking Protocol)",
-  title: "VTP (VLAN Trunking Protocol) Quiz",
-  questions: [
-    {
-      id: "q1",
-      prompt: "What is the primary purpose of the VLAN Trunking Protocol (VTP)?",
-      options: [
-        "To encrypt VLAN traffic over trunk links.",
-        "To automatically negotiate trunking encapsulation.",
-        "To simplify VLAN database management across a network.",
-        "To prevent Layer 2 switching loops in redundant topologies."
-      ],
-      answer: 2,
-      explanation: "VTP allows network administrators to manage and maintain a consistent VLAN database centrally, avoiding the difficult task of configuring VLANs manually on every single switch."
-    },
-    {
-      id: "q2",
-      prompt: "Who developed the VLAN Trunking Protocol (VTP)?",
-      options: [
-        "IEEE",
-        "IETF",
-        "Cisco",
-        "Juniper"
-      ],
-      answer: 2,
-      explanation: "VTP is a Cisco-proprietary technology and is only supported on Cisco networking equipment."
-    },
-    {
-      id: "q3",
-      prompt: "What type of architecture does VTP use to distribute VLAN information?",
-      options: [
-        "Peer-to-Peer",
-        "Server-Client",
-        "Hub-and-Spoke",
-        "Ring-and-Token"
-      ],
-      answer: 1,
-      explanation: "VTP uses a Server-Client architecture, where one or more switches are configured as VTP servers and the remaining switches act as VTP clients."
-    },
-    {
-      id: "q4",
-      prompt: "In a VTP Server-Client architecture, where must an administrator make changes to the VLAN database?",
-      options: [
-        "On any switch in the network.",
-        "Only on the VTP Client switches.",
-        "Only on the VTP Server switches.",
-        "Only on the designated Root Bridge."
-      ],
-      answer: 2,
-      explanation: "VLAN database changes (creating, modifying, or deleting VLANs) are made exclusively on the VTP server switches, which then push those changes out to the clients."
-    },
-    {
-      id: "q5",
-      prompt: "How does a VTP server share the updated VLAN database with other switches in the network?",
-      options: [
-        "By periodically sending a VTP advertisement.",
-        "By sending an ARP broadcast to all access ports.",
-        "By querying a centralized DNS server.",
-        "By uploading a text file to a TFTP server."
-      ],
-      answer: 0,
-      explanation: "The server periodically shares the new, updated VLAN database via a VTP advertisement to the other switches in the topology."
-    },
-    {
-      id: "q6",
-      prompt: "What action does a VTP client take when it receives a new VTP advertisement?",
-      options: [
-        "It stores it in a temporary buffer and asks the administrator to approve it.",
-        "It accepts and stores it as its current VLAN database, then shares it with other clients.",
-        "It ignores the advertisement unless its own database is completely empty.",
-        "It forwards it to other clients but keeps its own local database unchanged."
-      ],
-      answer: 1,
-      explanation: "When a client switch receives the new VLAN database, it automatically accepts and stores it as its own, and then forwards the advertisement to other clients."
-    },
-    {
-      id: "q7",
-      prompt: "Which type of physical connection is required between switches for VTP advertisements to be exchanged successfully?",
-      options: [
-        "Active access interfaces",
-        "Active trunk interfaces",
-        "Active routed interfaces",
-        "Active management interfaces"
-      ],
-      answer: 1,
-      explanation: "For VTP to function, trunk interfaces must be up and running between the switches."
-    },
-    {
-      id: "q8",
-      prompt: "Which VLAN is responsible for carrying VTP advertisements across a trunk link?",
-      options: [
-        "VLAN 1 only",
-        "The highest numbered VLAN",
-        "The lowest numbered VLAN",
-        "The native VLAN"
-      ],
-      answer: 3,
-      explanation: "VTP advertisements pass through the trunk port via the native VLAN."
-    },
-    {
-      id: "q9",
-      prompt: "What happens if the native VLAN is removed or not allowed on a trunk interface connecting two VTP switches?",
-      options: [
-        "Switches will not receive VTP advertisements.",
-        "VTP will automatically fall back to using VLAN 1.",
-        "VTP advertisements will be sent as standard untagged broadcast traffic.",
-        "The trunk will automatically shut down due to a VTP violation."
-      ],
-      answer: 0,
-      explanation: "Because VTP advertisements ride on the native VLAN, if the native VLAN is not allowed or configured on the trunk, VTP updates will be blocked."
-    },
-    {
-      id: "q10",
-      prompt: "Can VTP advertisements be transmitted out of standard switch access ports?",
-      options: [
-        "Yes, if the access port belongs to VLAN 1.",
-        "Yes, to any device listening on the network.",
-        "No, VTP advertisements only pass through trunk ports.",
-        "No, they only pass through loopback interfaces."
-      ],
-      answer: 2,
-      explanation: "VTP advertisements do not pass through access ports; they exclusively pass through trunk interfaces."
-    },
-    {
-      id: "q11",
-      prompt: "Which of the following statements about VTP domains is true?",
-      options: [
-        "A switch can be part of multiple VTP domains simultaneously.",
-        "The domain name is case-insensitive.",
-        "A switch can only be part of a single VTP domain.",
-        "The domain name must match the switch's hostname."
-      ],
-      answer: 2,
-      explanation: "Every switch must be part of the same VTP domain to sync, and a switch can only belong to one single VTP domain at a time."
-    },
-    {
-      id: "q12",
-      prompt: "A network administrator configures one switch with the VTP domain 'CCNA' and another with 'ccna'. Will VTP synchronize the VLAN database between them?",
-      options: [
-        "Yes, because domain names are not case-sensitive.",
-        "Yes, because the letters are identical regardless of case.",
-        "No, because a switch can only belong to domains with numbers.",
-        "No, because the VTP domain name is case-sensitive."
-      ],
-      answer: 3,
-      explanation: "The VTP domain name is strictly case-sensitive, meaning 'CCNA' and 'ccna' are treated as two entirely different domains."
-    },
-    {
-      id: "q13",
-      prompt: "Which hashing algorithm does VTP use to authenticate its advertisements when a password is configured?",
-      options: [
-        "SHA-256",
-        "MD5",
-        "AES-128",
-        "RSA"
-      ],
-      answer: 1,
-      explanation: "VTP passwords use the MD5 (Message-Digest 5) hashing algorithm to authenticate VTP advertisements."
-    },
-    {
-      id: "q14",
-      prompt: "When configuring a VTP password across multiple switches, which rule must be followed?",
-      options: [
-        "The password must be exactly 8 characters long.",
-        "The password must match exactly on all switches and is case-sensitive.",
-        "The password must be updated every 30 days.",
-        "The password is only required on the VTP server."
-      ],
-      answer: 1,
-      explanation: "For authentication to succeed, the password must be identical on all switches and, like the domain name, is case-sensitive."
-    },
-    {
-      id: "q15",
-      prompt: "How many versions of the VLAN Trunking Protocol (VTP) currently exist?",
-      options: [
-        "1",
-        "2",
-        "3",
-        "4"
-      ],
-      answer: 2,
-      explanation: "There are 3 versions of VTP: V1, V2, and V3."
-    },
-    {
-      id: "q16",
-      prompt: "Which VTP version is considered the default version on Cisco switches?",
-      options: [
-        "VTP V1",
-        "VTP V2",
-        "VTP V3",
-        "VTP V4"
-      ],
-      answer: 1,
-      explanation: "VTP V2 is the default version running on Cisco switches."
-    },
-    {
-      id: "q17",
-      prompt: "An engineer is attempting to mix switches running VTP Version 1, Version 2, and Version 3 in the same topology. What is the expected behavior?",
-      options: [
-        "The switches will automatically negotiate down to VTP V1.",
-        "The switches will synchronize seamlessly because all versions are backwards compatible.",
-        "The switches will not synchronize because VTP versions are not compatible.",
-        "Only VTP V2 and V3 will synchronize; V1 will be ignored."
-      ],
-      answer: 2,
-      explanation: "The switches in the topology must run the exact same VTP version because the different versions are not compatible with one another."
-    },
-    {
-      id: "q18",
-      prompt: "A network administrator types the command to create VLAN 50 on a switch, but receives an error stating the device is in VTP Client mode. Why does this happen?",
-      options: [
-        "Client switches require an MD5 password to create VLANs locally.",
-        "Client switches cannot modify the VLAN database; changes must be made on the VTP Server.",
-        "Client switches can only delete VLANs, not create new ones.",
-        "Client switches must first be upgraded to VTP Version 3."
-      ],
-      answer: 1,
-      explanation: "In a Server-Client VTP architecture, clients receive and accept the database but cannot natively create, modify, or delete VLANs themselves."
-    },
-    {
-      id: "q19",
-      prompt: "Which of the following combinations must perfectly match between two switches for VTP to successfully synchronize the VLAN database?",
-      options: [
-        "VTP domain, VTP password, and VTP version.",
-        "VTP domain, VTP revision number, and Native VLAN.",
-        "VTP password, VTP version, and switch hostname.",
-        "VTP domain, spanning-tree mode, and trunk encapsulation."
-      ],
-      answer: 0,
-      explanation: "To participate in the same VTP synchronization process, switches require the exact same VTP domain name, VTP password, and VTP version."
-    },
-    {
-      id: "q20",
-      prompt: "Which of the following best describes 'VTP Transparent Mode'?",
-      options: [
-        "A mode where the switch acts as a backup VTP Server if the primary fails.",
-        "A mode where the switch maintains its own independent VLAN database and forwards VTP advertisements without syncing its own.",
-        "A mode where the switch completely ignores and drops all VTP advertisements.",
-        "A mode where the switch forces all other switches to erase their VLAN databases."
-      ],
-      answer: 1,
-      explanation: "Transparent mode switches do not synchronize their database with VTP Servers, but they do forward VTP advertisements to other switches to keep the VTP domain functioning."
-    },
-    {
-      id: "q21",
-      prompt: "What specific metric does a VTP switch check inside a VTP advertisement to determine if it should overwrite its current VLAN database?",
-      options: [
-        "The MD5 Hash Length",
-        "The VTP Priority Value",
-        "The Configuration Revision Number",
-        "The MAC Address of the VTP Server"
-      ],
-      answer: 2,
-      explanation: "The Configuration Revision Number increments with every change. Switches always adopt the VLAN database with the highest revision number, assuming it is the most recent update."
-    },
-    {
-      id: "q22",
-      prompt: "A technician accidentally connects an old lab switch configured as a VTP Client to the production network. Why might this accidentally wipe the production VLAN database?",
-      options: [
-        "Because VTP Clients always overwrite VTP Servers by default.",
-        "Because the lab switch might have a higher VTP Configuration Revision Number than the production server.",
-        "Because the lab switch will flood the network with BPDU frames.",
-        "Because VTP V1 always overrides VTP V2 and V3 databases."
-      ],
-      answer: 1,
-      explanation: "If a new switch (even in Client mode) has the same domain and password but a higher Configuration Revision Number, the other switches (including Servers) will believe its database is newer and overwrite their own."
-    }
-  ]
-},
-{
-  id: "etherchannel-link-aggregation",
-  topicSlug: "switching-vlans-and-trunking",
-  group: "EtherChannel (Link Aggregation)",
-  title: "EtherChannel (Link Aggregation) Quiz",
-  questions: [
-    {
-      id: "q1",
-      prompt: "What is the primary architectural purpose of configuring an Etherchannel between two switches?",
-      options: [
-        "To bypass the Spanning Tree Protocol entirely across the network.",
-        "To logically bundle multiple physical links into one, providing higher bandwidth and redundancy.",
-        "To allow Layer 2 frames to be routed over Layer 3 network boundaries.",
-        "To split a single high-speed link into multiple virtual VLAN connections."
-      ],
-      answer: 1,
-      explanation: "Etherchannel (or Link Aggregation) groups multiple physical links into a single logical port-channel, aggregating their bandwidth and providing seamless redundancy if one link fails."
-    },
-    {
-      id: "q2",
-      prompt: "How does the Spanning Tree Protocol (STP) handle an active, fully formed Etherchannel bundle?",
-      options: [
-        "It treats the entire bundle as a single logical link, so member ports are not blocked.",
-        "It disables STP automatically on all bundled ports.",
-        "It places half of the bundled ports into a blocking state for redundancy.",
-        "It treats each link individually and blocks redundant connections."
-      ],
-      answer: 0,
-      explanation: "To STP, the logical port-channel interface appears as a single connection, allowing all physical member links to forward traffic simultaneously without causing Layer 2 loops."
-    },
-    {
-      id: "q3",
-      prompt: "Two switches are connected with four parallel cables. Without Etherchannel configured, what will Spanning Tree Protocol (STP) do to these links?",
-      options: [
-        "It will load balance traffic across all four links equally.",
-        "It will disable the switchports automatically.",
-        "It will place three of the links into a blocking state to prevent Layer 2 loops.",
-        "It will merge them into a temporary LAG automatically."
-      ],
-      answer: 2,
-      explanation: "Without Etherchannel to bundle them logically, STP sees four parallel paths and will block three of them to prevent broadcast storms, wasting potential bandwidth."
-    },
-    {
-      id: "q4",
-      prompt: "Which Etherchannel negotiation protocol is an open standard (IEEE 802.3ad) supported across multiple vendor platforms?",
-      options: [
-        "PAgP (Port Aggregation Protocol)",
-        "CDP (Cisco Discovery Protocol)",
-        "DTP (Dynamic Trunking Protocol)",
-        "LACP (Link Aggregation Control Protocol)"
-      ],
-      answer: 3,
-      explanation: "LACP is the open IEEE standard supported by almost every network vendor, whereas PAgP is Cisco proprietary."
-    },
-    {
-      id: "q5",
-      prompt: "When using LACP, what is the maximum number of links that can be assigned to a single bundle, and how do they operate?",
-      options: [
-        "8 links total, all 8 actively forwarding.",
-        "16 links total, with 8 actively forwarding and 8 in standby mode.",
-        "4 links total, with 2 actively forwarding and 2 in standby mode.",
-        "16 links total, all 16 actively forwarding."
-      ],
-      answer: 1,
-      explanation: "LACP allows up to 16 links to be grouped together; however, only a maximum of 8 links will actively forward traffic while the remaining 8 act as hot-standby backups."
-    },
-    {
-      id: "q6",
-      prompt: "Which two configuration modes belong exclusively to the Cisco-proprietary Port Aggregation Protocol (PAgP)?",
-      options: [
-        "Active and Passive",
-        "On and Off",
-        "Desirable and Auto",
-        "Dynamic and Static"
-      ],
-      answer: 2,
-      explanation: "PAgP uses the modes 'desirable' (actively initiates negotiation) and 'auto' (passively waits for negotiation). LACP uses 'active' and 'passive'."
-    },
-    {
-      id: "q7",
-      prompt: "Switch A is configured for LACP Passive mode, and Switch B is also configured for LACP Passive mode. What will be the outcome?",
-      options: [
-        "An active Etherchannel will form.",
-        "The switches will fall back to using PAgP.",
-        "The ports will be placed in an err-disabled state.",
-        "No Etherchannel will form because neither side initiates negotiation."
-      ],
-      answer: 3,
-      explanation: "Passive mode only listens for LACP packets but does not start the negotiation. If both sides are passive, they wait indefinitely and a bundle never forms."
-    },
-    {
-      id: "q8",
-      prompt: "In PAgP, if Switch 1 is set to 'Desirable' and Switch 2 is set to 'Auto', what is the result?",
-      options: [
-        "No bundle is formed.",
-        "The Etherchannel bundle forms successfully.",
-        "The link enters a suspended state.",
-        "The protocol defaults back to LACP."
-      ],
-      answer: 1,
-      explanation: "Because the 'Desirable' side actively sends PAgP messages and the 'Auto' side is willing to respond, the negotiation succeeds and the bundle is formed."
-    },
-    {
-      id: "q9",
-      prompt: "If an administrator configures physical interfaces with the command `channel-group 5 mode on`, what behavior should be expected?",
-      options: [
-        "The switch will actively negotiate using both LACP and PAgP simultaneously.",
-        "The interfaces will only form a bundle if the remote switch is set to 'active' or 'desirable'.",
-        "A manual Etherchannel forms immediately without sending any negotiation protocol frames.",
-        "The switch will perform a loopback test before bundling the links."
-      ],
-      answer: 2,
-      explanation: "The 'mode on' command creates a static, manual Etherchannel. No negotiation packets (LACP or PAgP) are sent or processed. The other side must also be configured with 'mode on'."
-    },
-    {
-      id: "q10",
-      prompt: "You are troubleshooting an Etherchannel that refuses to form. Which of the following mismatches between member ports would cause the bundling to fail?",
-      options: [
-        "A mismatch in Spanning Tree cost across the VLANs.",
-        "A mismatch in speed and duplex settings across the member interfaces.",
-        "A mismatch in port description strings.",
-        "A mismatch in the dynamic MAC addresses learned on the ports."
-      ],
-      answer: 1,
-      explanation: "All member interfaces in an Etherchannel must have matching characteristics, heavily including interface type, speed, and duplex. If these mismatch, the port cannot join the bundle."
-    },
-    {
-      id: "q11",
-      prompt: "If a single physical interface in an active 4-port Etherchannel bundle experiences a hardware failure and goes down, what happens to the traffic crossing the bundle?",
-      options: [
-        "The entire bundle goes down and triggers an STP recalculation.",
-        "Traffic is halted for 30-50 seconds while STP transitions the remaining ports.",
-        "The bundle falls back to half-duplex operation.",
-        "Traffic continues seamlessly over the remaining active links without requiring an STP recalculation."
-      ],
-      answer: 3,
-      explanation: "Because STP views the bundle as one logical link, the loss of a single physical member does not break the logical link. Traffic is simply redistributed among the surviving links."
-    },
-    {
-      id: "q12",
-      prompt: "What happens if you attempt to bundle a FastEthernet interface and a GigabitEthernet interface into the same Etherchannel?",
-      options: [
-        "The bundle will form, but will operate at FastEthernet speeds.",
-        "The bundle will fail to form because member interfaces must be of the exact same type and speed.",
-        "The switch will use the Gigabit port for data and the FastEthernet port for management.",
-        "The Gigabit interface will be placed in standby mode until the FastEthernet interface fails."
-      ],
-      answer: 1,
-      explanation: "Etherchannel strict formation conditions dictate that you cannot mix interface types (e.g., Fast Ethernet and Gigabit Ethernet) or differing speeds within the same bundle."
-    },
-    {
-      id: "q13",
-      prompt: "An administrator applies a different allowed VLAN list to one physical port than the rest of the ports already in the Etherchannel bundle. What is the immediate consequence for that port?",
-      options: [
-        "It is suspended from the bundle and stops forwarding traffic, but the rest of the bundle keeps working.",
-        "It forces the entire bundle to adopt the new allowed VLAN list.",
-        "It causes the entire Etherchannel to crash and enter an err-disabled state.",
-        "It converts the physical port back into an access port."
-      ],
-      answer: 0,
-      explanation: "If a member port's configuration (like allowed VLANs, native VLAN, or trunk encapsulation) diverges from the bundle's parameters, that specific port is suspended (flagged with an 's' or 'I') while the rest of the links remain operational."
-    },
-    {
-      id: "q14",
-      prompt: "Which command sequence correctly configures a physical interface to actively negotiate an LACP Etherchannel?",
-      options: [
-        "channel-protocol lacp \n channel-group 10 mode desirable",
-        "channel-protocol lacp \n channel-group 10 mode active",
-        "channel-protocol pagp \n channel-group 10 mode active",
-        "lacp enable \n channel-group 10 mode on"
-      ],
-      answer: 1,
-      explanation: "To configure LACP, specify `channel-protocol lacp`, and to make it actively negotiate, assign it to a group using `channel-group <num> mode active`."
-    },
-    {
-      id: "q15",
-      prompt: "After successfully bundling physical ports into an Etherchannel, where should you apply the `switchport trunk allowed vlan` and `switchport mode trunk` configurations?",
-      options: [
-        "To the newly created logical `interface port-channel <number>`.",
-        "To a loopback interface.",
-        "Individually to every physical interface in the bundle.",
-        "To the global configuration menu."
-      ],
-      answer: 0,
-      explanation: "Once the physical links are bundled into a port-channel, all further Layer 2 trunking or access configurations should be applied directly to the logical port-channel interface. The physical members will automatically inherit these settings."
-    },
-    {
-      id: "q16",
-      prompt: "Which verification command provides a concise, summarized table showing the state of the logical port-channels, the protocols in use, and the status flags of each bundled physical interface?",
-      options: [
-        "show ip interface brief",
-        "show etherchannel summary",
-        "show interface trunk",
-        "show spanning-tree"
-      ],
-      answer: 1,
-      explanation: "The `show etherchannel summary` command is the standard troubleshooting tool for quickly viewing bundle status, protocol (LACP/PAgP), and whether member ports are bundled (P), suspended (s), or standalone (I)."
-    },
-    {
-      id: "q17",
-      prompt: "An Etherchannel summary output shows a physical member port with the status flag '(s)'. According to Etherchannel operations, what does this indicate?",
-      options: [
-        "The port is successfully bundled and forwarding traffic.",
-        "The port is operating in standby mode for LACP.",
-        "The port is suspended from the bundle due to a configuration mismatch or physical issue.",
-        "The port has been secured by Port Security."
-      ],
-      answer: 2,
-      explanation: "The lowercase '(s)' flag in the `show etherchannel summary` output indicates that the port is suspended and not actively participating in the bundle, usually due to a parameter mismatch."
-    },
-    {
-      id: "q18",
-      prompt: "Can an Etherchannel bundle be configured to operate as a Layer 3 routed interface rather than a Layer 2 switchport?",
-      options: [
-        "No, Etherchannels operate exclusively at Layer 2.",
-        "Yes, but only when using the PAgP protocol.",
-        "No, routers do not support link aggregation.",
-        "Yes, an Etherchannel can be configured on a Multilayer Switch or Router to act as an L3 interface with an IP address."
-      ],
-      answer: 3,
-      explanation: "Etherchannels can act as Layer 3 routed ports on Multilayer Switches and Routers, allowing you to assign an IP address directly to the port-channel for high-bandwidth routing."
-    },
-    {
-      id: "q19",
-      prompt: "An administrator accidentally configures SW1 to use LACP (`mode active`) and SW2 to use PAgP (`mode desirable`) on the same physical link. What happens?",
-      options: [
-        "The Etherchannel fails to negotiate and no bundle is formed because the protocols must match.",
-        "The switches automatically elect to use LACP because it is an open standard.",
-        "The bundle forms successfully because both sides are actively negotiating.",
-        "The switches will form the bundle but traffic will be limited to half-duplex."
-      ],
-      answer: 0,
-      explanation: "Both ends of a point-to-point link must use the identical Etherchannel protocol. LACP and PAgP cannot negotiate with each other, so the bundle will fail to form."
-    },
-    {
-      id: "q20",
-      prompt: "When configuring a Layer 3 Etherchannel on a multilayer switch, what crucial step must be taken on the physical interfaces before assigning them to a channel group?",
-      options: [
-        "Configure them with 'switchport mode trunk'.",
-        "Issue the 'no switchport' command on all physical member interfaces.",
-        "Assign them an IP address individually.",
-        "Configure them for 'mode desirable'."
-      ],
-      answer: 1,
-      explanation: "To create a Layer 3 Etherchannel, the physical ports must first be converted from Layer 2 switchports into routed ports by issuing the `no switchport` command before they are bundled."
-    },
-    {
-      id: "q21",
-      prompt: "How does a Cisco switch determine which specific physical link within an Etherchannel bundle to use when forwarding a given frame?",
-      options: [
-        "It sends traffic in a strict round-robin sequence across all links.",
-        "It utilizes a hashing algorithm based on characteristics like MAC addresses or IP addresses.",
-        "It broadcasts the frame out of all active links simultaneously.",
-        "It uses Spanning Tree to calculate the lowest cost physical link per frame."
-      ],
-      answer: 1,
-      explanation: "Etherchannel does not load-balance via round-robin. Instead, it uses a hashing algorithm (which can be configured to use source MAC, destination MAC, source IP, etc.) to ensure packets belonging to the same flow always use the same physical link, preventing out-of-order delivery."
-    },
-    {
-      id: "q22",
-      prompt: "A junior admin connects four cables between SW1 and SW2, but accidentally plugs one of the cables into SW3 instead. If Etherchannel Misconfiguration Guard is enabled, what will happen?",
-      options: [
-        "The switch detects the STP inconsistency and places the misconfigured port(s) into an err-disabled state.",
-        "The switch will automatically route the traffic through SW3 using an SVI.",
-        "The switch will convert the three correct links into an Etherchannel and leave the fourth as a trunk.",
-        "The switch will drop all traffic on all connected devices to prevent a loop."
-      ],
-      answer: 0,
-      explanation: "Etherchannel Misconfiguration Guard uses STP BPDUs to detect if bundled ports are connected to different remote devices. If a cross-connection is detected, it places the affected ports into an err-disabled state to prevent severe bridging loops."
-    }
-  ]
-},
+    id: "layer-3-services-and-inter-vlan-routing",
+    topicSlug: "switching-vlans-and-trunking",
+    group: "Layer 3 Services & Inter-VLAN Routing",
+    title: "Layer 3 Services & Inter-VLAN Routing Quiz",
+    questions: [
+      {
+        id: "q1",
+        prompt: "By default, what is the status of the routing capability on a Cisco multilayer switch (MLS)?",
+        options: [
+          "Enabled for VLAN 1 only",
+          "Disabled globally",
+          "Enabled globally",
+          "Enabled for access ports only"
+        ],
+        answer: 1,
+        explanation: "By default, the routing capability is disabled on a multilayer switch. It must be manually enabled globally."
+      },
+      {
+        id: "q2",
+        prompt: "Which global configuration command enables Layer 3 routing on a multilayer switch?",
+        options: [
+          "ip routing",
+          "router enable",
+          "switchport routing",
+          "ip forward"
+        ],
+        answer: 0,
+        explanation: "The global command 'ip routing' turns on the routing capabilities of a multilayer switch."
+      },
+      {
+        id: "q3",
+        prompt: "To convert a Layer 2 switchport into a Layer 3 routed port on a multilayer switch, which command must be issued in interface configuration mode?",
+        options: [
+          "no switchport",
+          "switchport mode routed",
+          "ip address allow",
+          "routing enable"
+        ],
+        answer: 0,
+        explanation: "Issuing 'no switchport' on an interface converts it from a Layer 2 port to a Layer 3 routed port, allowing you to assign an IP address directly to it."
+      },
+      {
+        id: "q4",
+        prompt: "After a port has been configured as a routed port, what command converts it back to a Layer 2 switchport?",
+        options: [
+          "default interface",
+          "switchport",
+          "no ip routing",
+          "switchport mode access"
+        ],
+        answer: 1,
+        explanation: "Issuing the 'switchport' command on a routed port restores its Layer 2 switching capabilities."
+      },
+      {
+        id: "q5",
+        prompt: "Which command resets the configuration of interface f0/0 back to its factory default settings?",
+        options: [
+          "clear interface f0/0",
+          "reset interface f0/0",
+          "default interface f0/0",
+          "no interface f0/0 config"
+        ],
+        answer: 2,
+        explanation: "The 'default interface <id>' command completely removes custom configurations on the interface and resets it to default."
+      },
+      {
+        id: "q6",
+        prompt: "In a 'Router on a Stick' configuration, how does the router identify traffic belonging to different VLANs arriving on a single physical interface?",
+        options: [
+          "By examining the source IP subnet",
+          "By utilizing dot1q tags on subinterfaces",
+          "By using different physical MAC addresses",
+          "By dynamically negotiating with the switch using DTP"
+        ],
+        answer: 1,
+        explanation: "The router uses dot1q VLAN tags. The physical interface is split into subinterfaces, and each subinterface is configured to recognize a specific dot1q tag."
+      },
+      {
+        id: "q7",
+        prompt: "When setting up Router on a Stick, what must be done to the physical router interface before configuring the subinterfaces?",
+        options: [
+          "It must be configured as an access port.",
+          "It must be assigned an IP address in VLAN 1.",
+          "It must be brought up using the 'no shutdown' command.",
+          "It must be configured with 'encapsulation dot1q'."
+        ],
+        answer: 2,
+        explanation: "The physical interface must be brought up with 'no shutdown'. If the physical interface is shut down, all virtual subinterfaces remain down."
+      },
+      {
+        id: "q8",
+        prompt: "Which command is required on a router subinterface (e.g., f0/0.10) to map it to VLAN 10?",
+        options: [
+          "switchport access vlan 10",
+          "encapsulation dot1q 10",
+          "vlan 10 enable",
+          "tag dot1q 10"
+        ],
+        answer: 1,
+        explanation: "The 'encapsulation dot1q <vlan_id>' command tells the subinterface to process and tag frames for that specific VLAN."
+      },
+      {
+        id: "q9",
+        prompt: "In a Router on a Stick setup, what configuration is required on the switchport that connects to the router?",
+        options: [
+          "It must be configured as a trunk port.",
+          "It must be converted to a routed port.",
+          "It must be placed in VLAN 1.",
+          "It must be configured as an access port for all VLANs."
+        ],
+        answer: 0,
+        explanation: "The switchport facing the router must be a trunk port so it can carry multi-VLAN traffic with dot1q tags up to the router."
+      },
+      {
+        id: "q10",
+        prompt: "What serves as the default gateway for host devices in a Router on a Stick architecture?",
+        options: [
+          "The IP address of the switch's native VLAN.",
+          "The IP address of the router's subinterface for that VLAN.",
+          "The IP address of the switch's management interface.",
+          "The IP address of the main physical router interface."
+        ],
+        answer: 1,
+        explanation: "Each router subinterface acts as the default gateway for the VLAN it is assigned to via dot1q encapsulation."
+      },
+      {
+        id: "q11",
+        prompt: "What is a Switched Virtual Interface (SVI)?",
+        options: [
+          "A physical port used exclusively for management.",
+          "A subinterface on a traditional router used for tagging.",
+          "A logical interface on a Layer 3 switch created for a specific VLAN.",
+          "A temporary tunnel interface used for Etherchannel."
+        ],
+        answer: 2,
+        explanation: "An SVI is a virtual/logical interface on a multilayer switch. There is one SVI per VLAN, which provides Layer 3 processing for that VLAN."
+      },
+      {
+        id: "q12",
+        prompt: "What is a major advantage of using SVIs over Router on a Stick for inter-VLAN routing?",
+        options: [
+          "SVIs operate at Layer 2, avoiding routing overhead.",
+          "SVIs route inside the switch, eliminating the single trunk link bottleneck of an external router.",
+          "SVIs do not require an IP address to route traffic.",
+          "SVIs automatically assign IP addresses to hosts using DHCP."
+        ],
+        answer: 1,
+        explanation: "Router on a stick relies on an external router and a single trunk link, which can become a bottleneck. SVIs handle routing internally on the switch's backplane."
+      },
+      {
+        id: "q13",
+        prompt: "An administrator configures `interface vlan 20` and assigns an IP address. However, the interface stays in a \"down\" state. What is the most likely cause based on SVI requirements?",
+        options: [
+          "The 'ip routing' command was not entered.",
+          "VLAN 20 does not exist in the switch's VLAN database.",
+          "The physical ports are not set to access mode.",
+          "The subinterface encapsulation was not configured."
+        ],
+        answer: 1,
+        explanation: "For an SVI to come up, the corresponding VLAN must exist in the VLAN database (vlan.dat)."
+      },
+      {
+        id: "q14",
+        prompt: "When using SVIs for inter-VLAN routing on a multilayer switch, what acts as the default gateway for devices in VLAN 30?",
+        options: [
+          "The IP address assigned to interface vlan 30.",
+          "The IP address of the connected edge router.",
+          "The IP address of the switch's management VLAN.",
+          "The lowest IP address assigned to any switchport in VLAN 30."
+        ],
+        answer: 0,
+        explanation: "The IP address assigned to the SVI (`interface vlan 30`) serves as the default gateway for all hosts in that VLAN."
+      },
+      {
+        id: "q15",
+        prompt: "Which sequence of commands correctly creates an SVI and prepares it to act as a gateway for VLAN 10?",
+        options: [
+          "(conf)# interface f0/1.10\n(conf-if)# encapsulation dot1q 10\n(conf-if)# ip address 10.1.1.1 255.255.255.0",
+          "(conf)# interface vlan 10\n(conf-if)# switchport mode access",
+          "(conf)# vlan 10\n(conf-vlan)# ip address 10.1.1.1 255.255.255.0",
+          "(conf)# interface vlan 10\n(conf-if)# ip address 10.1.1.1 255.255.255.0\n(conf-if)# no sh"
+        ],
+        answer: 3,
+        explanation: "To create an SVI, you enter global config mode, type `interface vlan <id>`, assign an IP address, and bring the interface up with `no sh`."
+      },
+      {
+        id: "q16",
+        prompt: "In a pure Layer 2 switched network without a router or a multilayer switch, what happens to traffic destined for a different VLAN?",
+        options: [
+          "It is broadcasted to all VLANs.",
+          "It is forwarded using the native VLAN.",
+          "It is sent to the VMPS server for routing.",
+          "It is not forwarded; it is dropped."
+        ],
+        answer: 3,
+        explanation: "Because each VLAN is a separate network, traffic between different VLANs cannot be forwarded without a Layer 3 routing device."
+      },
+      {
+        id: "q17",
+        prompt: "While configuring a Multilayer Switch (MLS) for routing, you assign an IP address to a physical interface without typing 'no switchport'. What will happen?",
+        options: [
+          "The switch will accept the IP and automatically convert the port.",
+          "The switch will assign the IP address to the native VLAN.",
+          "The switch will reject the IP address command.",
+          "The switch will crash and reload."
+        ],
+        answer: 2,
+        explanation: "The switch operating system will reject the `ip address` command on a Layer 2 interface. You must convert it to a Layer 3 routed port first using `no switchport`."
+      },
+      {
+        id: "q18",
+        prompt: "What is an alternative, port-heavy physical variant to Router on a Stick for connecting an external router to a switch?",
+        options: [
+          "Using one access port on the switch per VLAN, connected to separate physical router interfaces.",
+          "Using ISL encapsulation instead of 802.1Q on the trunk.",
+          "Creating an Etherchannel of routed ports.",
+          "Connecting the router exclusively to a VMPS server."
+        ],
+        answer: 0,
+        explanation: "Instead of a single trunk link, you can use one dedicated access port (and one physical cable to a dedicated router interface) for each VLAN. This uses more physical ports but avoids trunking overhead."
+      },
+      {
+        id: "q19",
+        prompt: "An SVI (interface vlan 10) is configured and VLAN 10 exists in the database. However, 'show ip interface brief' reveals the SVI's line protocol is \"down\". What is the most likely real-world reason for this?",
+        options: [
+          "The 'ip routing' command was removed.",
+          "The subnet mask applied is a /30.",
+          "There are no active physical switchports carrying VLAN 10 traffic.",
+          "The switch does not have a static route configured."
+        ],
+        answer: 2,
+        explanation: "For an SVI's line protocol to be \"up\", the VLAN must exist AND at least one physical port (access or trunk) carrying that VLAN must be in the STP forwarding state."
+      },
+      {
+        id: "q20",
+        prompt: "When configuring a router for Router on a Stick, how is native VLAN traffic typically handled if it arrives at the router without a VLAN tag?",
+        options: [
+          "It is processed by the main physical interface instead of a subinterface.",
+          "It is automatically assigned to subinterface .1.",
+          "It is dropped immediately by the router.",
+          "It is broadcast back to the switch to request a tag."
+        ],
+        answer: 0,
+        explanation: "Unless explicitly mapped to a subinterface using 'encapsulation dot1q <vlan> native', untagged frames are processed by the main physical router interface."
+      },
+      {
+        id: "q21",
+        prompt: "A network engineer tries to assign the IP address 192.168.10.1/24 to f0/0.10 and 192.168.10.50/24 to f0/0.20 on a router. What will occur?",
+        options: [
+          "The router will load balance traffic between the two VLANs.",
+          "The router will reject the second IP address because it overlaps subnets.",
+          "The router will change the subnet mask to /25 automatically.",
+          "The router will accept the configuration and route successfully."
+        ],
+        answer: 1,
+        explanation: "A router cannot have multiple interfaces (or subinterfaces) residing in the same IP subnet. The IOS will return an \"overlaps with\" error and reject the command."
+      },
+      {
+        id: "q22",
+        prompt: "Which interface processes the data when an SVI routes traffic at gigabit speeds?",
+        options: [
+          "The physical access port handles all routing.",
+          "The external edge router handles the routing.",
+          "The Layer 3 switch's internal CPU and hardware forwarding engine.",
+          "The Spanning Tree Protocol designated port."
+        ],
+        answer: 2,
+        explanation: "SVIs have the bandwidth of a physical switchport but are logically handled internally by the Multilayer Switch's CPU and specialized forwarding ASICs."
+      }
+    ]
+  },
+  {
+    id: "vlan-fundamentals-and-port-membership",
+    topicSlug: "switching-vlans-and-trunking",
+    group: "VLAN Fundamentals & Port Membership",
+    title: "VLAN Fundamentals & Port Membership Quiz",
+    questions: [
+      {
+        id: "q1",
+        prompt: "In a switched network, what does a VLAN primarily represent?",
+        options: [
+          "A single collision domain",
+          "A physical spanning-tree segment",
+          "A separate broadcast domain",
+          "A dedicated point-to-point trunk"
+        ],
+        answer: 2,
+        explanation: "A VLAN (Virtual Local Area Network) logically segregates a switch into multiple, isolated broadcast domains."
+      },
+      {
+        id: "q2",
+        prompt: "By default, every port on a new Cisco switch belongs to which VLAN?",
+        options: [
+          "VLAN 0",
+          "VLAN 1",
+          "VLAN 100",
+          "VLAN 999"
+        ],
+        answer: 1,
+        explanation: "By default, all switchports are members of the default VLAN, which is VLAN 1. This VLAN cannot be deleted or renamed."
+      },
+      {
+        id: "q3",
+        prompt: "Why is a Layer 3 device required for communication between two different VLANs?",
+        options: [
+          "Because Layer 2 switches cannot forward broadcast traffic.",
+          "Because trunk links natively block ICMP packets.",
+          "Because each VLAN is a separate logical network requiring inter-VLAN routing.",
+          "Because VLANs encrypt traffic at the Data Link layer."
+        ],
+        answer: 2,
+        explanation: "Since each VLAN represents a distinct subnet/broadcast domain, Layer 2 switches will not forward traffic between them. A router or multilayer switch is required."
+      },
+      {
+        id: "q4",
+        prompt: "What is the identifier range for the 'normal' (old) VLAN range on Cisco switches?",
+        options: [
+          "1 to 1001",
+          "1 to 1005",
+          "1 to 1024",
+          "1 to 4094"
+        ],
+        answer: 1,
+        explanation: "The normal VLAN range is 1 to 1005, which stems from the legacy support for Token Ring and FDDI VLANs."
+      },
+      {
+        id: "q5",
+        prompt: "According to best practices, what should an administrator do with unused switchports?",
+        options: [
+          "Leave them in VLAN 1 but enable port security.",
+          "Configure them as trunk ports with DTP turned off.",
+          "Assign them to a dedicated 'black hole' or unused VLAN, such as VLAN 999.",
+          "Delete the ports from the running configuration."
+        ],
+        answer: 2,
+        explanation: "Parking unused ports in a dedicated, unused VLAN (like VLAN 999) prevents unauthorized users from plugging in and accessing active production VLANs."
+      },
+      {
+        id: "q6",
+        prompt: "Which of the following is NOT a primary advantage of utilizing VLANs?",
+        options: [
+          "Security, by separating users and applying ACLs.",
+          "Performance, by eliminating unnecessary broadcast traffic.",
+          "Flexibility, by removing physical boundary restrictions for users.",
+          "Bandwidth, by compressing frames as they cross the switch backplane."
+        ],
+        answer: 3,
+        explanation: "VLANs do not compress frames or natively increase physical link bandwidth. They improve network performance by shrinking broadcast domains."
+      },
+      {
+        id: "q7",
+        prompt: "How does static VLAN membership differ from dynamic VLAN membership?",
+        options: [
+          "Static membership relies on the host's MAC address; dynamic relies on IP.",
+          "Static membership is manually configured on the switchport and takes effect immediately.",
+          "Static membership requires a VMPS server to authenticate the port.",
+          "Static membership only works over trunk links."
+        ],
+        answer: 1,
+        explanation: "Static membership is manually configured by the administrator (`switchport access vlan X`) and places the port into the VLAN immediately without negotiation."
+      },
+      {
+        id: "q8",
+        prompt: "What is the purpose of a VMPS (VLAN Membership Policy Server)?",
+        options: [
+          "To assign VLANs dynamically based on the connecting host's MAC address.",
+          "To automatically generate and distribute VLAN databases to all switches.",
+          "To perform inter-VLAN routing between dynamic access ports.",
+          "To authenticate users via 802.1X before applying an ACL."
+        ],
+        answer: 0,
+        explanation: "VMPS stores a database mapping MAC addresses to VLANs. When a device plugs in, the switch queries the VMPS server to learn which VLAN the port should join."
+      },
+      {
+        id: "q9",
+        prompt: "Why is VMPS (Dynamic VLAN membership) rarely used in modern enterprise networks?",
+        options: [
+          "It limits switches to the 1-1005 VLAN range.",
+          "It is insecure because it relies on plain-text HTTP.",
+          "It is Cisco proprietary, complex to manage, and prone to negotiation delays.",
+          "It requires every switch to act as a VMPS server simultaneously."
+        ],
+        answer: 2,
+        explanation: "VMPS is an older, Cisco-proprietary technology. Maintaining a central MAC-to-VLAN database is inefficient, complex, and introduces port-startup delays."
+      },
+      {
+        id: "q10",
+        prompt: "Which command sequence correctly creates a VLAN and assigns it a name?",
+        options: [
+          "(conf)# vlan add 10 \n (conf-vlan)# name HR",
+          "(conf)# vlan 10 \n (conf-vlan)# name HR",
+          "(conf)# interface vlan 10 \n (conf-if)# description HR",
+          "(conf)# switchport vlan 10 name HR"
+        ],
+        answer: 1,
+        explanation: "You enter VLAN configuration mode with `vlan <id>`, and then assign a name using the `name <name>` command."
+      },
+      {
+        id: "q11",
+        prompt: "What happens to the CAM (MAC address) table when a new VLAN is created?",
+        options: [
+          "The switch flushes its entire CAM table to accommodate the new VLAN.",
+          "A separate, dedicated CAM table is created specifically for that VLAN.",
+          "The VLAN is assigned a single, shared MAC address for all routing.",
+          "The switch disables MAC learning until the VLAN is assigned to a port."
+        ],
+        answer: 1,
+        explanation: "Each VLAN operates as an independent L2 network, so the switch creates a distinct CAM (MAC address) table for every VLAN it hosts."
+      },
+      {
+        id: "q12",
+        prompt: "Where is the VLAN database strictly stored on a Cisco switch?",
+        options: [
+          "In the running-config file in RAM.",
+          "In the startup-config file in NVRAM.",
+          "In a file called vlan.dat located in flash memory.",
+          "In the VMPS server cache."
+        ],
+        answer: 2,
+        explanation: "VLAN configurations (for the normal range 1-1005) are not stored in the standard startup-config. They are saved in a separate file named `vlan.dat` located in flash."
+      },
+      {
+        id: "q13",
+        prompt: "During an interview, you are presented with this scenario: SW1 sends VLAN 30 traffic to SW2, destined for SW3. SW2 does not have VLAN 30 in its database. What does SW2 do?",
+        options: [
+          "It forwards the traffic using the default VLAN 1.",
+          "It drops the traffic because it has no record of VLAN 30.",
+          "It automatically adds VLAN 30 to its database upon receiving the tagged frame.",
+          "It forwards the traffic out all trunk ports as a broadcast."
+        ],
+        answer: 1,
+        explanation: "If a transit switch receives tagged traffic for a VLAN that does not exist in its local VLAN database, it will silently drop the frames."
+      },
+      {
+        id: "q14",
+        prompt: "Which of the following best describes an access port?",
+        options: [
+          "It carries traffic for multiple VLANs simultaneously.",
+          "It tags frames with an 802.1Q header before sending them to a host.",
+          "It is a member of a single VLAN and sends traffic untagged.",
+          "It is used exclusively to build uplinks between switches."
+        ],
+        answer: 2,
+        explanation: "An access port connects to end hosts (like PCs). It belongs to only one VLAN and strips off any VLAN tags before transmitting frames to the host."
+      },
+      {
+        id: "q15",
+        prompt: "Which command assigns an interface to VLAN 40 as an access port?",
+        options: [
+          "switchport mode access \n switchport access vlan 40",
+          "switchport trunk allowed vlan 40",
+          "switchport vlan 40 enable",
+          "vlan 40 \n assign interface f0/0"
+        ],
+        answer: 0,
+        explanation: "You must first force the port into access mode using `switchport mode access`, then assign the specific VLAN using `switchport access vlan 40`."
+      },
+      {
+        id: "q16",
+        prompt: "To assign interfaces FastEthernet 0/1 through 0/5 to a VLAN simultaneously, which command should you use?",
+        options: [
+          "interface group f0/1-5",
+          "interface fastethernet 0/1 to 0/5",
+          "interface range f0/1-5",
+          "interface multiple f0/1,f0/5"
+        ],
+        answer: 2,
+        explanation: "The `interface range` command allows you to execute configuration changes across multiple interfaces at the same time."
+      },
+      {
+        id: "q17",
+        prompt: "Which command provides a summary of all VLANs, their names, and the access ports currently assigned to them?",
+        options: [
+          "show ip interface brief",
+          "show interface status",
+          "show vlan",
+          "show mac address-table"
+        ],
+        answer: 2,
+        explanation: "The `show vlan` (or `show vlan brief`) command displays the VLAN database, including VLAN IDs, names, and the specific ports assigned to each."
+      },
+      {
+        id: "q18",
+        prompt: "You issue the command 'no vlan 20' in global configuration mode. What happens to the access ports that were assigned to VLAN 20?",
+        options: [
+          "They automatically revert to VLAN 1.",
+          "They transition into a 'suspended' state and cannot pass traffic until reassigned.",
+          "They remain in VLAN 20, keeping the VLAN active locally.",
+          "They dynamically negotiate trunking to find a new VLAN."
+        ],
+        answer: 1,
+        explanation: "If you delete a VLAN, any ports assigned to it become inactive (suspended) and will not pass traffic until they are reassigned to an active VLAN."
+      },
+      {
+        id: "q19",
+        prompt: "A junior engineer wants to factory reset a switch. They issue 'erase startup-config' and reload the switch, but the old VLANs are still present. Why?",
+        options: [
+          "They forgot to issue the 'write memory' command before reloading.",
+          "VLAN configurations are hardcoded into the switch ASIC.",
+          "The vlan.dat file in flash memory was not deleted.",
+          "The switch learned the VLANs via CDP from a neighboring device."
+        ],
+        answer: 2,
+        explanation: "Because standard VLANs are stored in `flash:vlan.dat`, erasing the NVRAM startup-config does not remove them. You must also issue `delete flash:vlan.dat`."
+      },
+      {
+        id: "q20",
+        prompt: "While configuring a switch, you assign an access port to VLAN 88 (`switchport access vlan 88`). However, VLAN 88 does not currently exist in the switch's VLAN database. How does modern Cisco IOS handle this?",
+        options: [
+          "It rejects the command and throws a syntax error.",
+          "It automatically creates VLAN 88 and prints a console message stating it was created.",
+          "It accepts the command but places the port in an err-disabled state.",
+          "It temporarily assigns the port to the native VLAN instead."
+        ],
+        answer: 1,
+        explanation: "Modern Cisco IOS is designed to be helpful; if you assign an access port to a non-existent VLAN, it will auto-create the VLAN and display: `%Access VLAN does not exist. Creating vlan 88`."
+      },
+      {
+        id: "q21",
+        prompt: "An administrator tries to create VLAN 2000 (an extended VLAN) on an older switch, but the switch returns an error. What is the most likely reason?",
+        options: [
+          "The switch is running VTP version 1 or 2 in Server mode.",
+          "The vlan.dat file has exceeded its 1MB size limit.",
+          "Extended VLANs require ISL encapsulation to function.",
+          "The switchport must first be configured as a trunk."
+        ],
+        answer: 0,
+        explanation: "VTP versions 1 and 2 do not support the extended VLAN range (1006-4094). To create extended VLANs on these switches, VTP must be set to Transparent mode (or upgraded to VTPv3)."
+      },
+
+
+    ]
+  },
+  {
+    id: "trunking-protocols-and-operations",
+    topicSlug: "switching-vlans-and-trunking",
+    group: "Trunking Protocols & Operations",
+    title: "Trunking Protocols & Operations Quiz",
+    questions: [
+      {
+        id: "q1",
+        prompt: "What is the primary function of a trunk port in a switched network?",
+        options: [
+          "To connect end-user devices such as PCs directly to a single VLAN.",
+          "To logically combine multiple physical links into one Etherchannel.",
+          "To carry the traffic of multiple VLANs between switches.",
+          "To prevent Spanning Tree loops by blocking redundant links."
+        ],
+        answer: 2,
+        explanation: "Unlike an access port that belongs to a single VLAN, a trunk port carries traffic for multiple VLANs simultaneously, typically functioning as an uplink between switches."
+      },
+      {
+        id: "q2",
+        prompt: "How does a trunk port differentiate between frames belonging to different VLANs?",
+        options: [
+          "By examining the destination IP subnet in the network header.",
+          "By utilizing frame tagging protocols (trunk encapsulation).",
+          "By checking the CAM table for the source MAC address.",
+          "By transmitting each VLAN on a different physical wire."
+        ],
+        answer: 1,
+        explanation: "The switch uses frame tagging (trunk encapsulation) to attach a VLAN identifier tag to the frame before sending it across the trunk, allowing the receiving switch to identify the VLAN."
+      },
+      {
+        id: "q3",
+        prompt: "Which statement accurately describes the ISL (Inter-Switch Link) trunking protocol?",
+        options: [
+          "It is an open IEEE standard supported by all vendors.",
+          "It attaches a small 4-byte tag to the frame.",
+          "It is a Cisco proprietary protocol that attaches a 26-byte tag to frames.",
+          "It is the default trunking protocol on all modern switches."
+        ],
+        answer: 2,
+        explanation: "ISL is a legacy, Cisco-proprietary encapsulation method that encapsulates the entire original frame with a new 26-byte header and a new FCS."
+      },
+      {
+        id: "q4",
+        prompt: "What is a major limitation of using ISL compared to 802.1Q regarding VLAN support?",
+        options: [
+          "ISL only supports the old (normal) VLAN range of 1 to 1005.",
+          "ISL cannot forward traffic for the default VLAN 1.",
+          "ISL requires a dedicated VMPS server to operate.",
+          "ISL does not support Etherchannel bundling."
+        ],
+        answer: 0,
+        explanation: "ISL lacks support for the extended VLAN range, meaning it can only transport VLANs 1 through 1005."
+      },
+      {
+        id: "q5",
+        prompt: "How large is the VLAN tag inserted by the IEEE 802.1Q (dot1q) protocol?",
+        options: [
+          "2 bytes",
+          "4 bytes",
+          "26 bytes",
+          "64 bytes"
+        ],
+        answer: 1,
+        explanation: "The 802.1Q standard inserts a compact 4-byte (32-bit) VLAN tag into the original Ethernet frame."
+      },
+      {
+        id: "q6",
+        prompt: "In an IEEE 802.1Q trunk, how are frames belonging to the native VLAN handled?",
+        options: [
+          "They are encrypted before transmission.",
+          "They are tagged with VLAN ID 1 regardless of the native VLAN setting.",
+          "They are encapsulated with an ISL header.",
+          "They are sent untagged."
+        ],
+        answer: 3,
+        explanation: "To maintain backward compatibility with devices that do not understand VLANs, 802.1Q sends native VLAN traffic without attaching a VLAN tag."
+      },
+      {
+        id: "q7",
+        prompt: "By default, when a switchport is configured as a manual trunk, which VLANs are allowed to cross the link?",
+        options: [
+          "Only the native VLAN.",
+          "Only VLANs 1 through 1005.",
+          "All VLANs.",
+          "No VLANs are allowed until explicitly added."
+        ],
+        answer: 2,
+        explanation: "By default, a Cisco switch allows all active VLANs (1-4094) to traverse a newly configured trunk port."
+      },
+      {
+        id: "q8",
+        prompt: "An administrator previously configured `switchport trunk allowed vlan 10,20`. They now want to allow VLAN 50 to cross the trunk without disrupting VLANs 10 and 20. Which command should they use?",
+        options: [
+          "switchport trunk allowed vlan 10,20,50",
+          "switchport trunk allowed vlan add 50",
+          "switchport trunk allow vlan 50",
+          "switchport trunk allowed vlan all"
+        ],
+        answer: 1,
+        explanation: "Using the `add` keyword appends VLAN 50 to the existing allowed list. Issuing just `switchport trunk allowed vlan 50` would overwrite the list, removing VLANs 10 and 20."
+      },
+      {
+        id: "q9",
+        prompt: "You need to prevent VLAN 40 from crossing an active trunk link, but all other currently allowed VLANs must remain untouched. Which command accomplishes this?",
+        options: [
+          "no switchport trunk allowed vlan 40",
+          "switchport trunk filter vlan 40",
+          "switchport trunk allowed vlan remove 40",
+          "switchport trunk allowed vlan except 40"
+        ],
+        answer: 2,
+        explanation: "The `remove` keyword specifically deletes a VLAN from the allowed list without modifying the rest of the list."
+      },
+      {
+        id: "q10",
+        prompt: "When troubleshooting a trunk link that fails to form between two switches, which of the following conditions does NOT need to match on both ends?",
+        options: [
+          "Speed and duplex settings.",
+          "Native VLAN configuration.",
+          "Access VLAN membership.",
+          "Trunk encapsulation protocol."
+        ],
+        answer: 2,
+        explanation: "Because trunk ports carry multiple VLANs and are not access ports, access VLAN membership is irrelevant. Native VLAN, allowed VLANs, speed, duplex, and encapsulation must match."
+      },
+      {
+        id: "q11",
+        prompt: "What is the primary function of the Dynamic Trunking Protocol (DTP)?",
+        options: [
+          "To negotiate the election of the STP root bridge over a trunk.",
+          "To automatically assign access ports to the correct VLAN.",
+          "To negotiate and establish a trunk link between two switches.",
+          "To dynamically prune unused VLANs across the network."
+        ],
+        answer: 2,
+        explanation: "DTP is a Cisco proprietary protocol used to negotiate trunking between two switches, establishing parameters like trunk status, encapsulation, and native VLAN."
+      },
+      {
+        id: "q12",
+        prompt: "Which DTP mode actively attempts to form a trunk by periodically sending DTP frames to the neighboring switch?",
+        options: [
+          "Dynamic Auto",
+          "Dynamic Desirable",
+          "Trunk Active",
+          "Mode On"
+        ],
+        answer: 1,
+        explanation: "Dynamic Desirable (DD) actively initiates trunk negotiation. In contrast, Dynamic Auto (DA) passively waits for the other side to initiate."
+      },
+      {
+        id: "q13",
+        prompt: "Switch A is configured with `switchport mode dynamic auto` and Switch B is configured with `switchport mode dynamic auto`. What is the resulting link state?",
+        options: [
+          "Trunk link",
+          "Etherchannel bundle",
+          "No trunk (Access link)",
+          "Err-disabled state"
+        ],
+        answer: 2,
+        explanation: "When both sides are configured as Dynamic Auto, neither side actively initiates DTP negotiation, so they fall back to being access ports (no trunk is formed)."
+      },
+      {
+        id: "q14",
+        prompt: "Switch 1 is configured with `switchport mode dynamic desirable` and Switch 2 is configured with `switchport mode trunk`. What will be the resulting state of the link?",
+        options: [
+          "Trunk",
+          "Access",
+          "Suspended",
+          "Half-duplex trunk"
+        ],
+        answer: 0,
+        explanation: "Because Switch 2 is permanently set to Trunk mode, and Switch 1 is actively trying to negotiate (Dynamic Desirable), the negotiation succeeds and a trunk forms."
+      },
+      {
+        id: "q15",
+        prompt: "What are the default Hello and Hold timers for DTP frames?",
+        options: [
+          "Hello 10s, Hold 30s",
+          "Hello 30s, Hold 300s",
+          "Hello 60s, Hold 180s",
+          "Hello 2s, Hold 20s"
+        ],
+        answer: 1,
+        explanation: "DTP sends Hello frames every 30 seconds by default, and a switch will keep DTP frames for 300 seconds (Hold timer) before discarding them."
+      },
+      {
+        id: "q16",
+        prompt: "According to Cisco best practices for production networks, how should trunks and DTP be configured?",
+        options: [
+          "Use Dynamic Auto on both sides to prevent unwanted negotiations.",
+          "Use Dynamic Desirable to ensure trunks form quickly upon reboot.",
+          "Avoid DTP entirely by configuring manual trunks and disabling negotiation.",
+          "Configure trunks manually but leave DTP running for redundancy."
+        ],
+        answer: 2,
+        explanation: "Relying on DTP can cause negotiation delays or security risks (like rogue switches forming trunks). Best practice is to manually configure the trunk and disable DTP."
+      },
+      {
+        id: "q17",
+        prompt: "Which command permanently disables DTP negotiation frames from being sent out a switchport?",
+        options: [
+          "switchport mode access",
+          "no dtp enable",
+          "switchport nonegotiate",
+          "no switchport trunk dtp"
+        ],
+        answer: 2,
+        explanation: "The `switchport nonegotiate` command stops the interface from generating DTP frames, locking it into its manually configured mode."
+      },
+      {
+        id: "q18",
+        prompt: "Which verification command provides a consolidated view of the trunking status, native VLAN, and allowed VLANs on a specific interface?",
+        options: [
+          "show interface trunk",
+          "show ip interface brief",
+          "show dtp summary",
+          "show vlan"
+        ],
+        answer: 0,
+        explanation: "The `show interface trunk` command is the standard way to verify which ports are actively trunking, their negotiated encapsulation, native VLAN, and the VLANs allowed to forward."
+      },
+      {
+        id: "q19",
+        prompt: "When viewing the frame layout of an 802.1Q tagged frame, where exactly is the VLAN tag inserted?",
+        options: [
+          "Before the Destination MAC address.",
+          "Between the Source MAC address and the EtherType/Length field.",
+          "Immediately after the IP Header.",
+          "At the very end of the frame, replacing the FCS."
+        ],
+        answer: 1,
+        explanation: "The 4-byte 802.1Q tag is inserted directly after the Source MAC address and right before the EtherType field (or IP header), pushing the original payload back by 4 bytes."
+      },
+      {
+        id: "q20",
+        prompt: "A network engineer configures 'Router on a Stick' to route between VLANs. They configure the router's subinterfaces correctly and set the connected switchport to 'switchport mode dynamic desirable'. Why does inter-VLAN routing fail?",
+        options: [
+          "The router cannot process untagged native VLAN traffic.",
+          "Routers do not support or respond to DTP frames to negotiate a trunk.",
+          "DTP requires an Etherchannel to connect to a Layer 3 device.",
+          "The switchport must be configured as 'dynamic auto' when connecting to routers."
+        ],
+        answer: 1,
+        explanation: "DTP is a switch-to-switch protocol. Routers do not speak DTP, so the switchport will fail to negotiate a trunk and fall back to access mode. The switchport must be statically set to 'switchport mode trunk'."
+      },
+      {
+        id: "q21",
+        prompt: "Two switches are connected via an 802.1Q trunk, but one switch is configured with Native VLAN 10 and the other with Native VLAN 20. Which protocol will actively detect this mismatch and issue a warning log message on the console?",
+        options: [
+          "DTP (Dynamic Trunking Protocol)",
+          "VTP (VLAN Trunking Protocol)",
+          "CDP (Cisco Discovery Protocol)",
+          "STP (Spanning Tree Protocol)"
+        ],
+        answer: 2,
+        explanation: "CDP messages exchange native VLAN information between neighbors. If it detects a mismatch, CDP generates a console warning (e.g., %CDP-4-NATIVE_VLAN_MISMATCH)."
+      },
+      {
+        id: "q22",
+        prompt: "Beyond security risks and data leakage, what is a severe operational consequence of leaving a native VLAN mismatch unresolved on an active trunk link?",
+        options: [
+          "The switch will crash due to infinite CPU interrupts.",
+          "Spanning Tree (STP) may block the port to prevent loops due to BPDU inconsistencies.",
+          "The trunk will automatically revert to ISL encapsulation.",
+          "All VLANs on the trunk will be automatically placed into an err-disabled state."
+        ],
+        answer: 1,
+        explanation: "Spanning Tree BPDUs traverse the native VLAN. If the native VLAN is mismatched, BPDUs are misinterpreted or leaked across broadcast domains, often prompting STP to block the port to prevent Layer 2 loops."
+      }
+    ]
+  },
+  {
+    id: "vlan-security-and-operations",
+    topicSlug: "switching-vlans-and-trunking",
+    group: "VLAN Security & Operations",
+    title: "VLAN Security & Operations Quiz",
+    questions: [
+      {
+        id: "q1",
+        prompt: "Which of the following statements correctly contrasts the Default VLAN with the Native VLAN?",
+        options: [
+          "The Default VLAN can be deleted, while the Native VLAN cannot.",
+          "The Default VLAN is always VLAN 1 and cannot be deleted, while the Native VLAN can be changed.",
+          "The Default VLAN is used for ISL trunks, while the Native VLAN is used for 802.1Q trunks.",
+          "The Default VLAN carries tagged traffic, while the Native VLAN carries all control traffic."
+        ],
+        answer: 1,
+        explanation: "VLAN 1 is the permanent Default VLAN and cannot be deleted. The Native VLAN defaults to VLAN 1 on an 802.1Q trunk but can be changed to any other VLAN."
+      },
+      {
+        id: "q2",
+        prompt: "On a standard Cisco 802.1Q trunk port, how is traffic for the native VLAN processed?",
+        options: [
+          "It is dropped by default.",
+          "It is tagged with a 26-byte ISL header.",
+          "It is sent untagged.",
+          "It is tagged with VLAN ID 1."
+        ],
+        answer: 2,
+        explanation: "To maintain backward compatibility and process frames faster, 802.1Q sends native VLAN traffic across the trunk without attaching a VLAN tag."
+      },
+      {
+        id: "q3",
+        prompt: "Which type of traffic is typically forwarded over the native VLAN?",
+        options: [
+          "Encrypted SSH management traffic.",
+          "Inter-VLAN routing traffic from SVIs.",
+          "User data from the IT department.",
+          "Switching control frames such as STP messages and negotiation frames."
+        ],
+        answer: 3,
+        explanation: "Critical switching control frames, including Spanning Tree Protocol (STP) messages and negotiation protocols, are carried over the untagged native VLAN."
+      },
+      {
+        id: "q4",
+        prompt: "An administrator mistakenly connects a standard PC directly to a switchport configured as an 802.1Q trunk. By default, which VLAN's traffic will the PC be able to send and receive?",
+        options: [
+          "VLAN 1, because it is sent untagged by default.",
+          "None, a PC cannot understand trunk encapsulation.",
+          "All VLANs, because the PC's NIC will operate in promiscuous mode.",
+          "The highest numbered active VLAN on the trunk."
+        ],
+        answer: 0,
+        explanation: "Because standard PCs do not understand 802.1Q tags, they will only be able to read and interact with the untagged frames, which belong to VLAN 1 (the default native VLAN) on a trunk port."
+      },
+      {
+        id: "q5",
+        prompt: "Switch 1 has a port in VLAN 10 and Switch 2 has a port in VLAN 20. These two ports are connected together using a standard untagged access cable. Assuming compatible IP subnets, can a PC in VLAN 10 communicate with a PC in VLAN 20?",
+        options: [
+          "No, the switches will detect a VLAN mismatch and block the port.",
+          "Yes, because the uplink is untagged, the traffic passes between the ports as if they were on a single physical segment.",
+          "No, because different VLAN numbers always require inter-VLAN routing.",
+          "Yes, but only if both switches are configured to run ISL encapsulation."
+        ],
+        answer: 1,
+        explanation: "Because the connection between the switches is untagged (an access link), neither switch is aware of the other's VLAN assignment. The frames flow between them seamlessly as a single broadcast domain."
+      },
+      {
+        id: "q6",
+        prompt: "Two PCs are placed in VLAN 10 on separate switches connected by a trunk. PC A is assigned 192.168.10.1/24 and PC B is assigned 192.168.10.2/25. Can these PCs communicate?",
+        options: [
+          "No, the mismatched subnet masks will cause the switch to drop the frames.",
+          "Yes, because when the AND operation is performed with the subnet mask, both IPs fall into the same local network.",
+          "No, the /25 PC will send traffic to its default gateway instead of directly to the /24 PC.",
+          "Yes, because VLAN 10 automatically bridges all 192.168.10.x addresses regardless of mask."
+        ],
+        answer: 1,
+        explanation: "Devices use the AND operation (IP address compared against their own subnet mask) to determine if a destination is local. Since 10.1 and 10.2 fall within the same local range for both the /24 and /25 masks, they will communicate directly at Layer 2."
+      },
+      {
+        id: "q7",
+        prompt: "What prerequisite allows a VLAN double-tagging attack to successfully cross a trunk link to a target switch?",
+        options: [
+          "The attacker must be connected to a trunk port on the first switch.",
+          "The attacker's access VLAN must match the native VLAN of the trunk link.",
+          "The attacker must have administrative access to the VMPS server.",
+          "Both switches must be utilizing ISL encapsulation."
+        ],
+        answer: 1,
+        explanation: "A double-tagging attack relies on the switch stripping off the outer tag. This only happens if the attacker's generated outer tag matches the untagged native VLAN of the trunk link."
+      },
+      {
+        id: "q8",
+        prompt: "In a VLAN double-tagging attack, what does the first switch do when it receives the attacker's maliciously crafted frame?",
+        options: [
+          "It reads the inner tag, routes it, and leaves the outer tag intact.",
+          "It drops the frame due to a Maximum Transmission Unit (MTU) violation.",
+          "It strips off the outer tag because it matches the native VLAN, and forwards the frame out the trunk with the inner tag still attached.",
+          "It encapsulates both tags inside a new 802.1Q header and broadcasts it to all ports."
+        ],
+        answer: 2,
+        explanation: "The first switch sees the outer tag, recognizes it as the native VLAN, and strips it off (as native VLANs are sent untagged over the trunk). It is unaware of the hidden inner tag, which is then sent across the trunk."
+      },
+      {
+        id: "q9",
+        prompt: "Why is a VLAN double-tagging attack generally classified as a one-way communication attack?",
+        options: [
+          "The attacker's PC can only transmit at half-duplex.",
+          "The return traffic is dropped by the router's Access Control List (ACL).",
+          "The return traffic from the victim is not double-tagged, so it cannot navigate back across the native VLAN to the attacker.",
+          "The victim switch shuts down the port immediately after receiving the first malicious frame."
+        ],
+        answer: 2,
+        explanation: "Because the victim device will reply with standard, single-tagged (or untagged) traffic, the return frames will not have the necessary forged tags to traverse back to the attacker's isolated VLAN."
+      },
+      {
+        id: "q10",
+        prompt: "Even though a double-tagging attack is typically one-way, why is it still considered a serious security threat?",
+        options: [
+          "It allows the attacker to silently capture and read all cross-VLAN traffic.",
+          "It is sufficient to launch a Denial of Service (DoS) attack against devices in the victim VLAN.",
+          "It enables the attacker to dynamically reconfigure the switch's running configuration.",
+          "It bypasses port security by spoofing multiple MAC addresses simultaneously."
+        ],
+        answer: 1,
+        explanation: "While the attacker cannot receive a reply, sending a continuous stream of malicious, one-way traffic is often enough to overwhelm a target host or service, causing a Denial of Service."
+      },
+      {
+        id: "q11",
+        prompt: "What is a basic, common method for mitigating VLAN double-tagging attacks on an 802.1Q trunk?",
+        options: [
+          "Disable DTP negotiation on the trunk port.",
+          "Change the native VLAN from the default (VLAN 1) to an unused, dummy VLAN.",
+          "Configure the trunk to use the ISL encapsulation protocol.",
+          "Apply a BPDU guard to the trunk interface."
+        ],
+        answer: 1,
+        explanation: "By changing the native VLAN to an unused \"black hole\" VLAN, you ensure that no access ports share the native VLAN with the trunk, stopping the first step of a double-tagging attack."
+      },
+      {
+        id: "q12",
+        prompt: "While changing the native VLAN to an unused VLAN helps, what is considered the most effective solution to prevent native VLAN abuse?",
+        options: [
+          "Configure the switch to attach a VLAN tag to native VLAN traffic as well.",
+          "Disable the native VLAN feature globally across the switch.",
+          "Manually assign every access port to the native VLAN.",
+          "Enable port security on all trunk interfaces."
+        ],
+        answer: 0,
+        explanation: "Tagging the native VLAN forces the switch to explicitly identify all traffic on the trunk. If an attacker tries to double-tag, the outer tag will not be stripped, nullifying the attack."
+      },
+      {
+        id: "q13",
+        prompt: "Which interface-level command is used to force a Cisco switch to tag native VLAN traffic on an 802.1Q trunk?",
+        options: [
+          "switchport trunk native vlan 1",
+          "switchport trunk encapsulate native",
+          "switchport trunk native vlan tagged",
+          "vlan dot1q tag native"
+        ],
+        answer: 2,
+        explanation: "The interface command `switchport trunk native vlan tagged` overrides the default 802.1Q behavior and attaches a 4-byte tag to native VLAN frames."
+      },
+      {
+        id: "q14",
+        prompt: "Why is the legacy ISL trunking protocol NOT susceptible to VLAN double-tagging attacks?",
+        options: [
+          "ISL encrypts the payload, making tag injection impossible.",
+          "ISL does not utilize a native (untagged) VLAN; all VLAN traffic is tagged.",
+          "ISL automatically authenticates the source MAC address of every frame.",
+          "ISL limits trunks to the 1-1005 VLAN range, which drops extended tags."
+        ],
+        answer: 1,
+        explanation: "Because ISL encapsulates the entire frame and tags all VLAN traffic without exception, there is no untagged native VLAN for an attacker to exploit."
+      },
+      {
+        id: "q15",
+        prompt: "Why was the concept of an untagged native VLAN originally implemented in the 802.1Q standard?",
+        options: [
+          "To provide a dedicated channel for encrypted SSH management.",
+          "To process frames faster and maintain backward compatibility with non-VLAN aware devices (like hubs).",
+          "To ensure routing protocols like OSPF can form neighbor adjacencies at Layer 2.",
+          "To allow administrators to bypass access control lists during an emergency."
+        ],
+        answer: 1,
+        explanation: "The native VLAN was designed to allow a trunk port to connect to legacy switches or hubs that do not understand 802.1Q headers, as well as to speed up the processing of untagged frames."
+      },
+      {
+        id: "q16",
+        prompt: "Which command correctly changes the native VLAN on a trunk port to VLAN 99?",
+        options: [
+          "switchport native vlan 99",
+          "switchport mode trunk vlan 99",
+          "switchport trunk allowed vlan 99",
+          "switchport trunk native vlan 99"
+        ],
+        answer: 3,
+        explanation: "The `switchport trunk native vlan <id>` command is used in interface configuration mode to assign a specific VLAN as the untagged native VLAN."
+      },
+      {
+        id: "q17",
+        prompt: "You configure 'switchport trunk native vlan 50' on a switchport, but you forgot to create VLAN 50 in the VLAN database. What happens to untagged traffic received on this trunk?",
+        options: [
+          "It is dropped because the native VLAN does not exist in the database.",
+          "It is automatically forwarded to VLAN 1 instead.",
+          "The switch automatically creates VLAN 50 in the database and forwards the traffic.",
+          "It is broadcasted out all access ports on the switch."
+        ],
+        answer: 0,
+        explanation: "Untagged frames arriving on a trunk are mapped to the configured native VLAN. If that VLAN has not been created in the local VLAN database, the switch has nowhere to forward it and drops the traffic."
+      },
+      {
+        id: "q18",
+        prompt: "VLAN double-tagging is one method of \"VLAN hopping.\" What is the other primary method used by attackers to perform a VLAN hopping attack?",
+        options: [
+          "MAC flooding to overflow the CAM table.",
+          "Switch spoofing, where the attacker's device negotiates a trunk link with the switch.",
+          "ARP poisoning the default gateway.",
+          "BPDU spoofing to become the STP root bridge."
+        ],
+        answer: 1,
+        explanation: "Switch spoofing relies on exploiting protocols like DTP to trick a switchport into becoming a trunk, granting the attacker's machine direct access to all VLANs traversing that link."
+      },
+      {
+        id: "q19",
+        prompt: "Two Cisco switches are connected via an 802.1Q trunk. Switch 1 has its native VLAN set to 1, and Switch 2 has its native VLAN set to 99. Which protocol will actively detect this misconfiguration and log warnings to the console?",
+        options: [
+          "VTP (VLAN Trunking Protocol)",
+          "STP (Spanning Tree Protocol)",
+          "DTP (Dynamic Trunking Protocol)",
+          "CDP (Cisco Discovery Protocol)"
+        ],
+        answer: 3,
+        explanation: "CDP periodically exchanges device information with neighbors, including native VLAN settings. A mismatch triggers a %CDP-4-NATIVE_VLAN_MISMATCH console error to alert administrators."
+      },
+      {
+        id: "q20",
+        prompt: "In addition to the interface-level command 'switchport trunk native vlan tagged', which global configuration command instructs a Cisco switch to tag native VLAN traffic across all 802.1Q trunks?",
+        options: [
+          "vtp native tag",
+          "vlan dot1q tag native",
+          "spanning-tree vlan native tag",
+          "switchport global native tagged"
+        ],
+        answer: 1,
+        explanation: "The global command `vlan dot1q tag native` forces the switch to tag the native VLAN on all 802.1Q trunks simultaneously, providing a network-wide mitigation against double-tagging attacks."
+      },
+      {
+        id: "q21",
+        prompt: "In a double-tagging attack, where does the attacker insert the VLAN tag of their intended victim?",
+        options: [
+          "Inside the payload data portion of the frame.",
+          "As the outer 802.1Q tag, replacing the native VLAN tag.",
+          "As the inner 802.1Q tag, immediately following the outer native VLAN tag.",
+          "Inside the Source MAC address field."
+        ],
+        answer: 2,
+        explanation: "The attacker crafts a frame with two 802.1Q tags. The outer tag matches the native VLAN (to cross the trunk), and the inner tag holds the ID of the target victim VLAN."
+      },
+      {
+        id: "q22",
+        prompt: "Which characteristic is exclusively true for the Default VLAN (VLAN 1) but NOT necessarily true for the Native VLAN?",
+        options: [
+          "It carries untagged traffic over a trunk link.",
+          "It is used to transport spanning tree BPDUs.",
+          "It cannot be deleted or renamed from the VLAN database.",
+          "It can be reassigned using a switchport configuration command."
+        ],
+        answer: 2,
+        explanation: "The Default VLAN (VLAN 1) is a permanent fixture in the switch operating system and cannot be deleted or renamed. The Native VLAN, however, is a port-level setting that can be changed to any existing standard VLAN."
+      }
+    ]
+  },
+  {
+    id: "dhcp-dynamic-host-configuration-protocol",
+    topicSlug: "switching-vlans-and-trunking",
+    group: "DHCP (Dynamic Host Configuration Protocol)",
+    title: "DHCP (Dynamic Host Configuration Protocol) Quiz",
+    questions: [
+      {
+        id: "q1",
+        prompt: "What is the primary purpose of a DHCP server in a network environment?",
+        options: [
+          "To dynamically assign IP address information to clients",
+          "To translate private IP addresses to public IPs",
+          "To resolve domain hostnames to IP addresses",
+          "To encrypt traffic between a client and a web server"
+        ],
+        answer: 0,
+        explanation: "DHCP helps network administrators dynamically configure IP information on client machines, avoiding the difficulty of manually assigning static IPs to large numbers of devices."
+      },
+      {
+        id: "q2",
+        prompt: "Which UDP ports are used by the DHCP server and the DHCP client?",
+        options: [
+          "Server listens on 68, client listens on 67",
+          "Server listens on 67, client listens on 68",
+          "Server listens on 53, client listens on 68",
+          "Server listens on 67, client listens on 53"
+        ],
+        answer: 1,
+        explanation: "All DHCP messages use UDP, with the server listening on port 67 and the client listening on port 68."
+      },
+      {
+        id: "q3",
+        prompt: "What does the DORA acronym stand for in the DHCP server-client handshake?",
+        options: [
+          "Discover, Observe, Request, Acknowledge",
+          "Discover, Offer, Request, Ack",
+          "Detect, Offer, Route, Ack",
+          "Discover, Offer, Reply, Accept"
+        ],
+        answer: 1,
+        explanation: "The DORA process consists of four steps: Discover (Client), Offer (Server), Request (Client), and Ack (Server)."
+      },
+      {
+        id: "q4",
+        prompt: "In a Windows environment, what happens if no DHCP server is available to provide an IP address?",
+        options: [
+          "The machine uses 0.0.0.0 as its permanent IP address.",
+          "The machine prompts the user to enter a static IP address manually.",
+          "The machine autoconfigures an IP address from the APIPA range 169.254.0.0/16.",
+          "The machine broadcasts an ARP request asking another host to surrender its IP."
+        ],
+        answer: 2,
+        explanation: "Windows machines use Automatic Private IP Address Allocation (APIPA) and assign themselves an IP in the 169.254.0.0/16 range when a DHCP server cannot be reached."
+      },
+      {
+        id: "q5",
+        prompt: "What are the source and destination IP addresses in a DHCP Discover message?",
+        options: [
+          "Src: 0.0.0.0, Dst: 255.255.255.255",
+          "Src: 127.0.0.1, Dst: 255.255.255.255",
+          "Src: 0.0.0.0, Dst: 192.168.1.1",
+          "Src: 169.254.0.1, Dst: 255.255.255.255"
+        ],
+        answer: 0,
+        explanation: "Because the client doesn't have an IP address yet, it uses 0.0.0.0 as the source and broadcasts to 255.255.255.255 to find a server."
+      },
+      {
+        id: "q6",
+        prompt: "In the DHCP Offer message, what information is typically provided to the client?",
+        options: [
+          "Only the available IP address and subnet mask.",
+          "IP address, subnet mask, gateway IP, domain name, DNS server, and lease time.",
+          "IP address, default gateway, and a static MAC address binding.",
+          "Only the DNS server IP address and the company domain name."
+        ],
+        answer: 1,
+        explanation: "The server responds with an offer containing a full suite of network configuration details, including IP, mask, gateway, DNS, domain name, and the lease time."
+      },
+      {
+        id: "q7",
+        prompt: "Which UDP ports are used in the DHCP Request message sent from the client?",
+        options: [
+          "Source UDP 67, Destination UDP 68",
+          "Source UDP 68, Destination UDP 67",
+          "Source UDP 67, Destination UDP 67",
+          "Source UDP 68, Destination UDP 68"
+        ],
+        answer: 1,
+        explanation: "Because it is sent by the client to the server, the source port is 68 (client) and the destination port is 67 (server)."
+      },
+      {
+        id: "q8",
+        prompt: "What is the specific purpose of the DHCP Ack message in the DORA process?",
+        options: [
+          "The client acknowledges it received the DHCP Offer.",
+          "The server acknowledges that the client accepted the offered information.",
+          "The switch acknowledges the new MAC address binding on its port.",
+          "The router acknowledges the new IP route for the client."
+        ],
+        answer: 1,
+        explanation: "The Ack (Acknowledgment) is the final step where the server confirms to the client that it has successfully recorded the lease and the client can begin using the IP."
+      },
+      {
+        id: "q9",
+        prompt: "What is the default DHCP lease period for most vendors?",
+        options: [
+          "24 hours",
+          "7 days",
+          "8 days",
+          "30 days"
+        ],
+        answer: 2,
+        explanation: "In most network vendors, the default lease period given to a client machine is 8 days."
+      },
+      {
+        id: "q10",
+        prompt: "At what point does a DHCP client first attempt to renew its IP lease?",
+        options: [
+          "At 25% of the lease period",
+          "At 50% of the lease period",
+          "At 87.5% of the lease period",
+          "At 100% of the lease period"
+        ],
+        answer: 1,
+        explanation: "The client tries to renew its lease by sending a DHCP Request message to the server when it reaches 50% of the lease period."
+      },
+      {
+        id: "q11",
+        prompt: "If the server does not acknowledge a client's first lease renewal request, when does the client try again?",
+        options: [
+          "At 75% of the lease period",
+          "At 80% of the lease period",
+          "At 87.5% of the lease period",
+          "At 99% of the lease period"
+        ],
+        answer: 2,
+        explanation: "If the 50% renewal attempt is ignored or fails, the client waits and tries again at 87.5% of the lease period."
+      },
+      {
+        id: "q12",
+        prompt: "What happens if a client's lease reaches 100% expiration without being successfully renewed?",
+        options: [
+          "The client keeps the IP address but cannot reach the default gateway.",
+          "The client falls back to its last known good configuration permanently.",
+          "The IP returns to the pool and the client must initiate the DORA process again.",
+          "The client sends a DHCP Offer message to locate a new server."
+        ],
+        answer: 2,
+        explanation: "Once the lease fully expires (100%), the client loses the right to use the IP, which returns to the server's pool. The client must restart the DORA process from the Discover step."
+      },
+      {
+        id: "q13",
+        prompt: "Which Cisco IOS command correctly creates a DHCP pool named VLAN10?",
+        options: [
+          "dhcp pool create VLAN10",
+          "ip dhcp pool VLAN10",
+          "pool dhcp VLAN10",
+          "ip pool dhcp VLAN10"
+        ],
+        answer: 1,
+        explanation: "The command to create a DHCP pool and enter DHCP configuration mode on a Cisco router is `ip dhcp pool <name>`."
+      },
+      {
+        id: "q14",
+        prompt: "Inside a Cisco DHCP pool configuration, how do you specify the default gateway that will be given to clients?",
+        options: [
+          "gateway 192.168.10.100",
+          "default-gateway 192.168.10.100",
+          "ip gateway 192.168.10.100",
+          "default-router 192.168.10.100"
+        ],
+        answer: 3,
+        explanation: "The command `default-router <ip>` is used inside the DHCP pool configuration to tell clients their gateway IP."
+      },
+      {
+        id: "q15",
+        prompt: "How do you configure a lease period of 2 days and 0 hours inside a Cisco DHCP pool?",
+        options: [
+          "lease 2 0",
+          "lease 48 hours",
+          "dhcp lease 2",
+          "ip lease 2 0"
+        ],
+        answer: 0,
+        explanation: "The command is `lease <days> <hours>`, so `lease 2 0` sets the lease period to exactly 2 days."
+      },
+      {
+        id: "q16",
+        prompt: "Which command displays a list of all IP addresses and their corresponding MAC addresses currently assigned by the Cisco DHCP server?",
+        options: [
+          "show ip dhcp pool",
+          "show ip dhcp binding",
+          "show dhcp clients",
+          "show ip dhcp leases"
+        ],
+        answer: 1,
+        explanation: "The `show ip dhcp binding` command verifies the active leases by displaying the IPs mapped to client MAC addresses."
+      },
+      {
+        id: "q17",
+        prompt: "Why would an administrator use the command `clear ip dhcp binding *` on a router?",
+        options: [
+          "To completely delete the DHCP pool configuration from the running-config.",
+          "To reset a single specific IP assignment during a lab exercise.",
+          "To refresh and clear all currently active DHCP bindings.",
+          "To restart the router's DHCP service daemon."
+        ],
+        answer: 2,
+        explanation: "The `clear ip dhcp binding *` command releases all active IP bindings in the router's database, forcing all clients to renew or request new leases."
+      },
+      {
+        id: "q18",
+        prompt: "During the DORA process, which two messages are typically sent as broadcasts by the client?",
+        options: [
+          "Discover and Request",
+          "Offer and Ack",
+          "Discover and Offer",
+          "Request and Ack"
+        ],
+        answer: 0,
+        explanation: "The client broadcasts the initial Discover to find any server, and broadcasts the Request to tell all listening servers which Offer it is accepting."
+      },
+      {
+        id: "q19",
+        prompt: "A PC completes the DORA process and can ping devices on its own subnet, but cannot ping external internet addresses. Which DHCP pool configuration is most likely missing?",
+        options: [
+          "network 192.168.10.0 255.255.255.0",
+          "dns-server 8.8.8.8",
+          "default-router 192.168.10.100",
+          "domain-name mycompany.com"
+        ],
+        answer: 2,
+        explanation: "Without a configured `default-router`, the client won't know how to leave its local subnet to reach external networks."
+      },
+      {
+        id: "q20",
+        prompt: "If a DHCP client and the DHCP server are on completely different subnets, how does the client's broadcast Discover message reach the server?",
+        options: [
+          "The switch converts the broadcast into a multicast frame.",
+          "A router is configured with an 'ip helper-address' to forward the request as a unicast.",
+          "The client sends a unicast Discover directly to the server's IP address.",
+          "The DHCP server listens on all subnets simultaneously by default."
+        ],
+        answer: 1,
+        explanation: "Routers drop broadcasts by default. An 'ip helper-address' (DHCP Relay) must be configured on the router's interface to forward the broadcast as a unicast packet to the remote DHCP server."
+      },
+      {
+        id: "q21",
+        prompt: "In a scenario where a DHCP server cannot satisfy a client's Request (for example, the requested IP is already taken), what message does the server reply with?",
+        options: [
+          "DHCP Decline",
+          "DHCP Release",
+          "DHCP NAK (Negative Acknowledgment)",
+          "DHCP Drop"
+        ],
+        answer: 2,
+        explanation: "A DHCP NAK is sent by the server to tell the client that its request for a specific IP address is denied, forcing the client to restart the Discover process."
+      },
+      {
+        id: "q22",
+        prompt: "To prevent malicious actors from connecting a rogue DHCP server to the network and handing out incorrect gateway addresses, which Layer 2 security feature is commonly implemented on switches?",
+        options: [
+          "Port Security",
+          "DHCP Snooping",
+          "Dynamic ARP Inspection",
+          "IP Source Guard"
+        ],
+        answer: 1,
+        explanation: "DHCP Snooping is a security feature that drops DHCP Offer and Ack messages from untrusted ports, ensuring clients only get IP configurations from authorized servers."
+      },
+
+      {
+        id: "q23",
+        prompt: "What is the primary reason an IP Helper Address (DHCP Relay) is required when a DHCP server is placed in a different network than the clients?",
+        options: [
+          "Clients do not know the subnet mask of their own network.",
+          "Routers block broadcast traffic by default, preventing the Discover message from reaching the server.",
+          "DHCP servers only respond to unicast messages by default.",
+          "The DHCP protocol requires a relay agent to encrypt the payload."
+        ],
+        answer: 1,
+        explanation: "DHCP clients broadcast their Discover messages. Because routers do not forward broadcasts, the request will never reach a remote DHCP server without a relay agent."
+      },
+      {
+        id: "q24",
+        prompt: "What is the Cisco-specific term for a DHCP Relay Agent?",
+        options: [
+          "IP Helper Address",
+          "DHCP Forwarder",
+          "Broadcast Unicast Translator (BUT)",
+          "IP DHCP Relay"
+        ],
+        answer: 0,
+        explanation: "In Cisco IOS, the feature used to configure a DHCP Relay Agent is called the IP Helper Address."
+      },
+      {
+        id: "q25",
+        prompt: "Where must the `ip helper-address` command be configured on a Cisco multilayer switch or router?",
+        options: [
+          "On the physical interface connected to the DHCP server.",
+          "On the global configuration mode of the DHCP server.",
+          "On the Gateway (GW) interface of the client's network, such as an SVI or subinterface.",
+          "On the client's access port interface."
+        ],
+        answer: 2,
+        explanation: "The helper address must be applied to the interface that acts as the default gateway for the broadcasting clients (e.g., the SVI or subinterface)."
+      },
+      {
+        id: "q26",
+        prompt: "How does the IP Helper Address modify the DHCP Discover packet before sending it to the remote server?",
+        options: [
+          "It changes the destination MAC address to the client's MAC address.",
+          "It encapsulates the broadcast inside a TCP segment.",
+          "It converts the broadcast message into a unicast communication directed at the server.",
+          "It changes the UDP destination port from 67 to 80."
+        ],
+        answer: 2,
+        explanation: "The IP Helper converts the local L2/L3 broadcast packet into a unicast packet routed directly to the original DHCP server's IP address."
+      },
+      {
+        id: "q27",
+        prompt: "When the router forwards the relayed DHCP Discover to the remote server, what does it use as the source IP address in the packet?",
+        options: [
+          "0.0.0.0",
+          "255.255.255.255",
+          "The DHCP server's IP address",
+          "The Gateway interface's IP address"
+        ],
+        answer: 3,
+        explanation: "The router places the IP address of the interface that received the broadcast (the client's gateway) into the source IP field of the unicast packet. (e.g., changing 0.0.0.0 to the GW IP)."
+      },
+      {
+        id: "q28",
+        prompt: "You are configuring a Router on a Stick (RoaS) environment. The client VLAN is 10 and the remote DHCP server is 4.4.4.1. Which set of commands correctly applies the helper address?",
+        options: [
+          "interface f0/0.10 \\n ip helper-address 4.4.4.1",
+          "interface f0/0 \\n ip dhcp relay 4.4.4.1",
+          "ip dhcp pool VLAN10 \\n helper-address 4.4.4.1",
+          "interface vlan 10 \\n ip forward-protocol 4.4.4.1"
+        ],
+        answer: 0,
+        explanation: "In a RoaS setup, the gateway for VLAN 10 is the subinterface (f0/0.10). The command `ip helper-address 4.4.4.1` must be applied directly to this subinterface."
+      },
+      {
+        id: "q29",
+        prompt: "How does the remote DHCP server know which specific IP pool to select a lease from when it receives a relayed DHCP Discover?",
+        options: [
+          "It assigns an IP based on the client's MAC address.",
+          "It looks at the source IP address (the gateway IP) of the relayed unicast packet.",
+          "The router adds a VLAN tag to the DHCP payload.",
+          "The server sends a ping broadcast to see which subnets are empty."
+        ],
+        answer: 1,
+        explanation: "The DHCP server checks the source IP address of the incoming unicast packet (which is the client's default gateway) and matches it to a DHCP pool containing that network."
+      },
+      {
+        id: "q30",
+        prompt: "Which command is the most direct way to verify if an IP helper address has been applied to an SVI for VLAN 10?",
+        options: [
+          "show ip dhcp binding",
+          "show ip dhcp pool",
+          "show run interface vlan 10",
+          "show ip route"
+        ],
+        answer: 2,
+        explanation: "The `show run interface vlan 10` command displays the running configuration for that specific SVI, allowing you to see if the `ip helper-address` command is present."
+      },
+      {
+        id: "q31",
+        prompt: "In addition to DHCP (UDP ports 67 and 68), which of the following broadcast types does the Cisco `ip helper-address` command forward by default?",
+        options: [
+          "TFTP and DNS broadcasts",
+          "ARP requests and replies",
+          "OSPF and EIGRP multicast hellos",
+          "ICMP echo requests"
+        ],
+        answer: 0,
+        explanation: "By default, the `ip helper-address` command forwards 8 specific UDP broadcast ports, including DHCP/BOOTP (67/68), TFTP (69), DNS (53), Time (37), TACACS (49), and NetBIOS (137/138)."
+      },
+      {
+        id: "q32",
+        prompt: "You configured an `ip helper-address` on the gateway, and you can ping the remote DHCP server from the router. However, clients are still not receiving IP addresses. What is a common real-world routing issue that causes this failure?",
+        options: [
+          "The DHCP server is running out of MAC addresses.",
+          "The clients are sending unicast Discover messages.",
+          "The DHCP server lacks a return route back to the client's subnet (the gateway's IP).",
+          "The router requires an ACL to permit UDP port 80."
+        ],
+        answer: 2,
+        explanation: "Even if the router can reach the server, the remote DHCP server must have a routing table entry (or default route) pointing back to the client's subnet so it can successfully return the DHCP Offer."
+      }
+    ]
+  },
+  {
+    id: "vtp-vlan-trunking-protocol",
+    topicSlug: "switching-vlans-and-trunking",
+    group: "VTP (VLAN Trunking Protocol)",
+    title: "VTP (VLAN Trunking Protocol) Quiz",
+    questions: [
+      {
+        id: "q1",
+        prompt: "What is the primary purpose of the VLAN Trunking Protocol (VTP)?",
+        options: [
+          "To encrypt VLAN traffic over trunk links.",
+          "To automatically negotiate trunking encapsulation.",
+          "To simplify VLAN database management across a network.",
+          "To prevent Layer 2 switching loops in redundant topologies."
+        ],
+        answer: 2,
+        explanation: "VTP allows network administrators to manage and maintain a consistent VLAN database centrally, avoiding the difficult task of configuring VLANs manually on every single switch."
+      },
+      {
+        id: "q2",
+        prompt: "Who developed the VLAN Trunking Protocol (VTP)?",
+        options: [
+          "IEEE",
+          "IETF",
+          "Cisco",
+          "Juniper"
+        ],
+        answer: 2,
+        explanation: "VTP is a Cisco-proprietary technology and is only supported on Cisco networking equipment."
+      },
+      {
+        id: "q3",
+        prompt: "What type of architecture does VTP use to distribute VLAN information?",
+        options: [
+          "Peer-to-Peer",
+          "Server-Client",
+          "Hub-and-Spoke",
+          "Ring-and-Token"
+        ],
+        answer: 1,
+        explanation: "VTP uses a Server-Client architecture, where one or more switches are configured as VTP servers and the remaining switches act as VTP clients."
+      },
+      {
+        id: "q4",
+        prompt: "In a VTP Server-Client architecture, where must an administrator make changes to the VLAN database?",
+        options: [
+          "On any switch in the network.",
+          "Only on the VTP Client switches.",
+          "Only on the VTP Server switches.",
+          "Only on the designated Root Bridge."
+        ],
+        answer: 2,
+        explanation: "VLAN database changes (creating, modifying, or deleting VLANs) are made exclusively on the VTP server switches, which then push those changes out to the clients."
+      },
+      {
+        id: "q5",
+        prompt: "How does a VTP server share the updated VLAN database with other switches in the network?",
+        options: [
+          "By periodically sending a VTP advertisement.",
+          "By sending an ARP broadcast to all access ports.",
+          "By querying a centralized DNS server.",
+          "By uploading a text file to a TFTP server."
+        ],
+        answer: 0,
+        explanation: "The server periodically shares the new, updated VLAN database via a VTP advertisement to the other switches in the topology."
+      },
+      {
+        id: "q6",
+        prompt: "What action does a VTP client take when it receives a new VTP advertisement?",
+        options: [
+          "It stores it in a temporary buffer and asks the administrator to approve it.",
+          "It accepts and stores it as its current VLAN database, then shares it with other clients.",
+          "It ignores the advertisement unless its own database is completely empty.",
+          "It forwards it to other clients but keeps its own local database unchanged."
+        ],
+        answer: 1,
+        explanation: "When a client switch receives the new VLAN database, it automatically accepts and stores it as its own, and then forwards the advertisement to other clients."
+      },
+      {
+        id: "q7",
+        prompt: "Which type of physical connection is required between switches for VTP advertisements to be exchanged successfully?",
+        options: [
+          "Active access interfaces",
+          "Active trunk interfaces",
+          "Active routed interfaces",
+          "Active management interfaces"
+        ],
+        answer: 1,
+        explanation: "For VTP to function, trunk interfaces must be up and running between the switches."
+      },
+      {
+        id: "q8",
+        prompt: "Which VLAN is responsible for carrying VTP advertisements across a trunk link?",
+        options: [
+          "VLAN 1 only",
+          "The highest numbered VLAN",
+          "The lowest numbered VLAN",
+          "The native VLAN"
+        ],
+        answer: 3,
+        explanation: "VTP advertisements pass through the trunk port via the native VLAN."
+      },
+      {
+        id: "q9",
+        prompt: "What happens if the native VLAN is removed or not allowed on a trunk interface connecting two VTP switches?",
+        options: [
+          "Switches will not receive VTP advertisements.",
+          "VTP will automatically fall back to using VLAN 1.",
+          "VTP advertisements will be sent as standard untagged broadcast traffic.",
+          "The trunk will automatically shut down due to a VTP violation."
+        ],
+        answer: 0,
+        explanation: "Because VTP advertisements ride on the native VLAN, if the native VLAN is not allowed or configured on the trunk, VTP updates will be blocked."
+      },
+      {
+        id: "q10",
+        prompt: "Can VTP advertisements be transmitted out of standard switch access ports?",
+        options: [
+          "Yes, if the access port belongs to VLAN 1.",
+          "Yes, to any device listening on the network.",
+          "No, VTP advertisements only pass through trunk ports.",
+          "No, they only pass through loopback interfaces."
+        ],
+        answer: 2,
+        explanation: "VTP advertisements do not pass through access ports; they exclusively pass through trunk interfaces."
+      },
+      {
+        id: "q11",
+        prompt: "Which of the following statements about VTP domains is true?",
+        options: [
+          "A switch can be part of multiple VTP domains simultaneously.",
+          "The domain name is case-insensitive.",
+          "A switch can only be part of a single VTP domain.",
+          "The domain name must match the switch's hostname."
+        ],
+        answer: 2,
+        explanation: "Every switch must be part of the same VTP domain to sync, and a switch can only belong to one single VTP domain at a time."
+      },
+      {
+        id: "q12",
+        prompt: "A network administrator configures one switch with the VTP domain 'CCNA' and another with 'ccna'. Will VTP synchronize the VLAN database between them?",
+        options: [
+          "Yes, because domain names are not case-sensitive.",
+          "Yes, because the letters are identical regardless of case.",
+          "No, because a switch can only belong to domains with numbers.",
+          "No, because the VTP domain name is case-sensitive."
+        ],
+        answer: 3,
+        explanation: "The VTP domain name is strictly case-sensitive, meaning 'CCNA' and 'ccna' are treated as two entirely different domains."
+      },
+      {
+        id: "q13",
+        prompt: "Which hashing algorithm does VTP use to authenticate its advertisements when a password is configured?",
+        options: [
+          "SHA-256",
+          "MD5",
+          "AES-128",
+          "RSA"
+        ],
+        answer: 1,
+        explanation: "VTP passwords use the MD5 (Message-Digest 5) hashing algorithm to authenticate VTP advertisements."
+      },
+      {
+        id: "q14",
+        prompt: "When configuring a VTP password across multiple switches, which rule must be followed?",
+        options: [
+          "The password must be exactly 8 characters long.",
+          "The password must match exactly on all switches and is case-sensitive.",
+          "The password must be updated every 30 days.",
+          "The password is only required on the VTP server."
+        ],
+        answer: 1,
+        explanation: "For authentication to succeed, the password must be identical on all switches and, like the domain name, is case-sensitive."
+      },
+      {
+        id: "q15",
+        prompt: "How many versions of the VLAN Trunking Protocol (VTP) currently exist?",
+        options: [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        answer: 2,
+        explanation: "There are 3 versions of VTP: V1, V2, and V3."
+      },
+      {
+        id: "q16",
+        prompt: "Which VTP version is considered the default version on Cisco switches?",
+        options: [
+          "VTP V1",
+          "VTP V2",
+          "VTP V3",
+          "VTP V4"
+        ],
+        answer: 1,
+        explanation: "VTP V2 is the default version running on Cisco switches."
+      },
+      {
+        id: "q17",
+        prompt: "An engineer is attempting to mix switches running VTP Version 1, Version 2, and Version 3 in the same topology. What is the expected behavior?",
+        options: [
+          "The switches will automatically negotiate down to VTP V1.",
+          "The switches will synchronize seamlessly because all versions are backwards compatible.",
+          "The switches will not synchronize because VTP versions are not compatible.",
+          "Only VTP V2 and V3 will synchronize; V1 will be ignored."
+        ],
+        answer: 2,
+        explanation: "The switches in the topology must run the exact same VTP version because the different versions are not compatible with one another."
+      },
+      {
+        id: "q18",
+        prompt: "A network administrator types the command to create VLAN 50 on a switch, but receives an error stating the device is in VTP Client mode. Why does this happen?",
+        options: [
+          "Client switches require an MD5 password to create VLANs locally.",
+          "Client switches cannot modify the VLAN database; changes must be made on the VTP Server.",
+          "Client switches can only delete VLANs, not create new ones.",
+          "Client switches must first be upgraded to VTP Version 3."
+        ],
+        answer: 1,
+        explanation: "In a Server-Client VTP architecture, clients receive and accept the database but cannot natively create, modify, or delete VLANs themselves."
+      },
+      {
+        id: "q19",
+        prompt: "Which of the following combinations must perfectly match between two switches for VTP to successfully synchronize the VLAN database?",
+        options: [
+          "VTP domain, VTP password, and VTP version.",
+          "VTP domain, VTP revision number, and Native VLAN.",
+          "VTP password, VTP version, and switch hostname.",
+          "VTP domain, spanning-tree mode, and trunk encapsulation."
+        ],
+        answer: 0,
+        explanation: "To participate in the same VTP synchronization process, switches require the exact same VTP domain name, VTP password, and VTP version."
+      },
+      {
+        id: "q20",
+        prompt: "Which of the following best describes 'VTP Transparent Mode'?",
+        options: [
+          "A mode where the switch acts as a backup VTP Server if the primary fails.",
+          "A mode where the switch maintains its own independent VLAN database and forwards VTP advertisements without syncing its own.",
+          "A mode where the switch completely ignores and drops all VTP advertisements.",
+          "A mode where the switch forces all other switches to erase their VLAN databases."
+        ],
+        answer: 1,
+        explanation: "Transparent mode switches do not synchronize their database with VTP Servers, but they do forward VTP advertisements to other switches to keep the VTP domain functioning."
+      },
+      {
+        id: "q21",
+        prompt: "What specific metric does a VTP switch check inside a VTP advertisement to determine if it should overwrite its current VLAN database?",
+        options: [
+          "The MD5 Hash Length",
+          "The VTP Priority Value",
+          "The Configuration Revision Number",
+          "The MAC Address of the VTP Server"
+        ],
+        answer: 2,
+        explanation: "The Configuration Revision Number increments with every change. Switches always adopt the VLAN database with the highest revision number, assuming it is the most recent update."
+      },
+
+      {
+        "id": "q22",
+        "prompt": "Which VTP version is the default on Cisco switches?",
+        "options": [
+          "VTP Version 1",
+          "VTP Version 2",
+          "VTP Version 3",
+          "VTP Version 4"
+        ],
+        "answer": 1,
+        "explanation": "VTP Version 2 is the default version enabled on Cisco switches."
+      },
+      {
+        "id": "q23",
+        "prompt": "What is a major limitation of VTP Version 1 compared to later versions?",
+        "options": [
+          "It supports only the old VLAN range (1-1005) and ISL trunking.",
+          "It requires a primary and secondary server.",
+          "It enforces MD5 authentication by default.",
+          "It automatically forces all switches into Client mode."
+        ],
+        "answer": 0,
+        "explanation": "VTP Version 1 only supports the standard VLAN range (1-1005), supports only ISL trunking, and has no authentication."
+      },
+      {
+        "id": "q24",
+        "prompt": "Which trunking encapsulation protocols are supported by VTP Version 2?",
+        "options": [
+          "Only ISL",
+          "Only 802.1Q (dot1q)",
+          "Both ISL and dot1q",
+          "Neither; VTP operates independently of trunking encapsulation"
+        ],
+        "answer": 2,
+        "explanation": "Unlike VTP Version 1 which only supports ISL, Version 2 supports both ISL and dot1q trunking."
+      },
+      {
+        "id": "q25",
+        "prompt": "Which VTP version supports the extended VLAN range (1-4094) and introduces a primary/secondary server mechanism to prevent accidental overwrites?",
+        "options": [
+          "VTP Version 1",
+          "VTP Version 2",
+          "VTP Version 2.5",
+          "VTP Version 3"
+        ],
+        "answer": 3,
+        "explanation": "VTP Version 3 supports the full 1-4094 VLAN range, improves authentication, and uses a primary/secondary server model for better database protection."
+      },
+      {
+        "id": "q26",
+        "prompt": "Are VTP Version 1 and VTP Version 2 compatible with each other in the same domain?",
+        "options": [
+          "Yes, V2 is perfectly backwards compatible with V1.",
+          "Yes, but only if MD5 authentication is disabled.",
+          "No, VTP Version 1 is not compatible with Version 2.",
+          "No, unless the switches are connected via an access port."
+        ],
+        "answer": 2,
+        "explanation": "VTP versions are not compatible. A switch running VTP Version 1 cannot synchronize with a switch running VTP Version 2."
+      },
+      {
+        "id": "q27",
+        "prompt": "What is the default VTP mode for Cisco switches out of the box?",
+        "options": [
+          "Server Mode",
+          "Client Mode",
+          "Transparent Mode",
+          "Off Mode"
+        ],
+        "answer": 0,
+        "explanation": "By default, every Cisco switch operates in VTP Server mode."
+      },
+      {
+        "id": "q28",
+        "prompt": "Which operation is restricted when a switch is operating in VTP Client mode?",
+        "options": [
+          "Forwarding VTP advertisements out of its trunk ports.",
+          "Creating, modifying, or deleting VLANs in the local database.",
+          "Passing traffic for VLANs that do not exist on the VTP server.",
+          "Resetting the VTP revision number to zero."
+        ],
+        "answer": 1,
+        "explanation": "In Client mode, an administrator cannot manually create, modify, or delete VLANs. The switch completely depends on the database received from the VTP Server."
+      },
+      {
+        "id": "q29",
+        "prompt": "How does a switch in VTP Transparent mode handle VTP advertisements sent by the Server?",
+        "options": [
+          "It accepts the advertisement and updates its own VLAN database.",
+          "It blocks the advertisement and prevents it from crossing the switch.",
+          "It forwards the advertisement to other clients but does not update its own database.",
+          "It modifies the advertisement to set the revision number to zero before forwarding."
+        ],
+        "answer": 2,
+        "explanation": "A Transparent switch maintains its own independent VLAN database and ignores the server's database, but it still politely forwards the VTP frames out its trunk ports to other clients."
+      },
+      {
+        "id": "q30",
+        "prompt": "Across which VLAN does a VTP server send its VLAN database advertisements over a trunk port?",
+        "options": [
+          "VLAN 1 only",
+          "The highest active VLAN",
+          "The management VLAN",
+          "The native VLAN"
+        ],
+        "answer": 3,
+        "explanation": "VTP advertisements, containing the vlan.dat database, are always sent across trunk ports using the native VLAN."
+      },
+      {
+        "id": "q31",
+        "prompt": "Why is VTP Transparent mode often used in production networks?",
+        "options": [
+          "To isolate a switch's VLAN database from the VTP domain for security.",
+          "To allow a switch to act as a backup VTP Server.",
+          "To automatically encrypt all VLAN traffic passing through the switch.",
+          "To permit the creation of extended range VLANs in VTP Version 1."
+        ],
+        "answer": 0,
+        "explanation": "Transparent mode allows a switch to be isolated from the rest of the topology. Because it ignores incoming VTP advertisements, its database cannot be accidentally overwritten."
+      },
+      {
+        "id": "q32",
+        "prompt": "How do VTP Versions 1 and 2 handle the configuration of Private VLANs?",
+        "options": [
+          "They allow Private VLANs to be created on the VTP Server and synced to all clients.",
+          "They only support Private VLAN configuration if the switch is in Transparent mode.",
+          "They completely lack support for Private VLANs under all circumstances.",
+          "They require MD5 authentication to be enabled before creating a Private VLAN."
+        ],
+        "answer": 1,
+        "explanation": "In VTP versions 1 and 2, Private VLANs can only be configured if the switch is placed in Transparent mode."
+      },
+      {
+        "id": "q33",
+        "prompt": "Which statement correctly describes Private VLAN support in VTP Version 3?",
+        "options": [
+          "Private VLANs are deprecated in VTP Version 3.",
+          "Private VLANs are only supported on the secondary server.",
+          "Private VLANs still require the switch to be in Transparent mode.",
+          "Private VLANs can be created on the server and shared to clients via VTP advertisements."
+        ],
+        "answer": 3,
+        "explanation": "VTP Version 3 upgraded its feature set to allow Private VLANs to be created centrally on the server and distributed to all client switches."
+      },
+      {
+        "id": "q34",
+        "prompt": "What is the core conceptual purpose of a Private VLAN?",
+        "options": [
+          "To encrypt traffic crossing a trunk link.",
+          "To control a VLAN with another VLAN for isolating specific groups of devices.",
+          "To hide the switch's management IP address from end users.",
+          "To automatically assign IP addresses dynamically without DHCP."
+        ],
+        "answer": 1,
+        "explanation": "Private VLANs are used to control a VLAN with another VLAN, subdividing a broadcast domain so different groups or categories of devices have controlled reachability."
+      },
+      {
+        "id": "q35",
+        "prompt": "Within a Private VLAN, what type of port allows connected devices to communicate with each other freely?",
+        "options": [
+          "Community port",
+          "Isolated port",
+          "Promiscuous port",
+          "Trunk port"
+        ],
+        "answer": 0,
+        "explanation": "Devices connected to Community ports can reach each other as long as they belong to the same community."
+      },
+      {
+        "id": "q36",
+        "prompt": "In a Private VLAN setup, what is the behavior of an Isolated port?",
+        "options": [
+          "It can reach all devices within its own community.",
+          "It drops all traffic except spanning-tree BPDUs.",
+          "It has no reachability to other devices, except through the gateway.",
+          "It can only communicate with other Isolated ports on the same switch."
+        ],
+        "answer": 2,
+        "explanation": "An Isolated port is completely blocked from talking to any other port in the Private VLAN except for the gateway (the Promiscuous port)."
+      },
+      {
+        "id": "q37",
+        "prompt": "Which type of Private VLAN port acts as the gateway and can be accessed by anyone?",
+        "options": [
+          "Isolated port",
+          "Community port",
+          "Access port",
+          "Promiscuous port"
+        ],
+        "answer": 3,
+        "explanation": "The Promiscuous port has full reachability to all other ports (both community and isolated) and is typically connected to the router or gateway."
+      },
+      {
+        "id": "q38",
+        "prompt": "What does the VTP configuration revision number represent?",
+        "options": [
+          "The number of VTP servers currently active in the domain.",
+          "A 32-bit number indicating the freshness of the VLAN database; higher means newer.",
+          "The VTP version currently running on the switch.",
+          "The total number of VLANs configured on the local switch."
+        ],
+        "answer": 1,
+        "explanation": "The revision number is a 32-bit integer that tracks updates. A higher revision number dictates which VLAN database is the most recent."
+      },
+      {
+        "id": "q39",
+        "prompt": "Which action causes a VTP Server to increment its configuration revision number?",
+        "options": [
+          "Creating, modifying, or deleting a VLAN.",
+          "Rebooting the switch.",
+          "Changing the VTP mode to transparent.",
+          "Plugging in a new device to an access port."
+        ],
+        "answer": 0,
+        "explanation": "Whenever the VLAN database is changed by creating, modifying, or deleting a VLAN, the switch automatically increments the revision number."
+      },
+      {
+        "id": "q40",
+        "prompt": "What is the recommended method to reset a switch's VTP configuration revision number to zero?",
+        "options": [
+          "Reboot the switch while holding the Mode button.",
+          "Enter the command `clear vtp revision`.",
+          "Temporarily change the VTP mode to Transparent, then back.",
+          "Delete the `startup-config` file."
+        ],
+        "answer": 2,
+        "explanation": "Changing the VTP mode to Transparent instantly resets the switch's revision number to zero. It can then be safely changed back to Client or Server mode."
+      },
+      {
+        "id": "q41",
+        "prompt": "What happens if a new VTP Client switch with a blank VLAN database and a higher revision number is connected to a production network?",
+        "options": [
+          "The Server will reject the Client's database due to a mode mismatch.",
+          "The Client will automatically downgrade its revision number to match the Server.",
+          "The Client will crash because a blank database is invalid.",
+          "Every switch will accept the blank database, deleting their own VLANs and causing a network outage."
+        ],
+        "answer": 3,
+        "explanation": "Because the Client has a higher revision number, all other switches (even Servers) assume the Client's empty database is the newest version. They will sync to it, erasing their own VLANs and bringing the network down."
+      },
+      {
+        "id": "q42",
+        "prompt": "Which global configuration command assigns a switch to the VTP domain named \"CORP\"?",
+        "options": [
+          "vtp domain CORP",
+          "domain vtp CORP",
+          "set vtp domain CORP",
+          "vlan domain CORP"
+        ],
+        "answer": 0,
+        "explanation": "The correct command to set the VTP domain is `vtp domain <domain-name>`."
+      },
+      {
+        "id": "q43",
+        "prompt": "Which command configures a switch so it maintains its own independent VLAN database while forwarding VTP updates to others?",
+        "options": [
+          "vtp mode client",
+          "vtp mode server",
+          "vtp mode transparent",
+          "vtp mode independent"
+        ],
+        "answer": 2,
+        "explanation": "The command `vtp mode transparent` places the switch in Transparent mode, allowing it to act independently while keeping the VTP chain unbroken for other switches."
+      },
+      {
+        "id": "q44",
+        "prompt": "Which privileged EXEC command shows the VTP version, domain name, mode, and configuration revision number?",
+        "options": [
+          "show vlan brief",
+          "show vtp status",
+          "show vtp counters",
+          "show running-config vtp"
+        ],
+        "answer": 1,
+        "explanation": "The `show vtp status` command is the primary verification tool for viewing the domain, mode, version, and revision number."
+      },
+      {
+        "id": "q45",
+        "prompt": "Which command is used specifically to verify the configured MD5 hash password for VTP?",
+        "options": [
+          "show vtp status",
+          "show running-config password",
+          "show vlan password",
+          "show vtp password"
+        ],
+        "answer": 3,
+        "explanation": "The `show vtp password` command displays the password configured for the VTP domain."
+      },
+      {
+        "id": "q46",
+        "prompt": "In VTP Version 2, what happens if a switch in Transparent mode receives a VTP advertisement for a domain name different from its own?",
+        "options": [
+          "It drops the advertisement and logs a VTP domain mismatch error.",
+          "It forwards the advertisement anyway (Domain-independent transparent passthrough).",
+          "It temporarily changes its domain name to match, forwards the packet, and changes back.",
+          "It overwrites its own database because domain names are ignored in V2."
+        ],
+        "answer": 1,
+        "explanation": "VTP Version 2 features domain-independent transparent passthrough, meaning a transparent switch will forward a VTP advertisement out its trunk ports even if the domain name doesn't match its own."
+      },
+      {
+        "id": "q47",
+        "prompt": "By default, where is the VTP VLAN database (vlan.dat) physically stored on a Cisco switch?",
+        "options": [
+          "In the running-config file.",
+          "On an external TFTP server.",
+          "In the switch's flash memory.",
+          "In the NVRAM alongside the startup-config."
+        ],
+        "answer": 2,
+        "explanation": "The VLAN database is stored in a file named `vlan.dat` located in the switch's flash memory, which is why erasing the startup-config doesn't delete the VLANs."
+      },
+      {
+        "id": "q48",
+        "prompt": "Besides changing the switch to Transparent mode, what is another documented way to safely reset the VTP configuration revision number to zero before deploying a switch?",
+        "options": [
+          "Erasing the NVRAM.",
+          "Changing the VTP domain name to a bogus name, then changing it back to the correct name.",
+          "Disabling the switch's trunk ports for 60 seconds.",
+          "Upgrading the switch from VTP Version 2 to Version 3."
+        ],
+        "answer": 1,
+        "explanation": "Changing the VTP domain name automatically resets the revision number to zero. You can change it to a fake name and then back to the correct domain to safely clear the revision counter."
+      },
+      {
+        id: "q49",
+        prompt: "A technician accidentally connects an old lab switch configured as a VTP Client to the production network. Why might this accidentally wipe the production VLAN database?",
+        options: [
+          "Because VTP Clients always overwrite VTP Servers by default.",
+          "Because the lab switch might have a higher VTP Configuration Revision Number than the production server.",
+          "Because the lab switch will flood the network with BPDU frames.",
+          "Because VTP V1 always overrides VTP V2 and V3 databases."
+        ],
+        answer: 1,
+        explanation: "If a new switch (even in Client mode) has the same domain and password but a higher Configuration Revision Number, the other switches (including Servers) will believe its database is newer and overwrite their own."
+      },
+    ]
+  },
+  {
+    id: "etherchannel-link-aggregation",
+    topicSlug: "switching-vlans-and-trunking",
+    group: "EtherChannel (Link Aggregation)",
+    title: "EtherChannel (Link Aggregation) Quiz",
+    questions: [
+      {
+        id: "q1",
+        prompt: "What is the primary architectural purpose of configuring an Etherchannel between two switches?",
+        options: [
+          "To bypass the Spanning Tree Protocol entirely across the network.",
+          "To logically bundle multiple physical links into one, providing higher bandwidth and redundancy.",
+          "To allow Layer 2 frames to be routed over Layer 3 network boundaries.",
+          "To split a single high-speed link into multiple virtual VLAN connections."
+        ],
+        answer: 1,
+        explanation: "Etherchannel (or Link Aggregation) groups multiple physical links into a single logical port-channel, aggregating their bandwidth and providing seamless redundancy if one link fails."
+      },
+      {
+        id: "q2",
+        prompt: "How does the Spanning Tree Protocol (STP) handle an active, fully formed Etherchannel bundle?",
+        options: [
+          "It treats the entire bundle as a single logical link, so member ports are not blocked.",
+          "It disables STP automatically on all bundled ports.",
+          "It places half of the bundled ports into a blocking state for redundancy.",
+          "It treats each link individually and blocks redundant connections."
+        ],
+        answer: 0,
+        explanation: "To STP, the logical port-channel interface appears as a single connection, allowing all physical member links to forward traffic simultaneously without causing Layer 2 loops."
+      },
+      {
+        id: "q3",
+        prompt: "Two switches are connected with four parallel cables. Without Etherchannel configured, what will Spanning Tree Protocol (STP) do to these links?",
+        options: [
+          "It will load balance traffic across all four links equally.",
+          "It will disable the switchports automatically.",
+          "It will place three of the links into a blocking state to prevent Layer 2 loops.",
+          "It will merge them into a temporary LAG automatically."
+        ],
+        answer: 2,
+        explanation: "Without Etherchannel to bundle them logically, STP sees four parallel paths and will block three of them to prevent broadcast storms, wasting potential bandwidth."
+      },
+      {
+        id: "q4",
+        prompt: "Which Etherchannel negotiation protocol is an open standard (IEEE 802.3ad) supported across multiple vendor platforms?",
+        options: [
+          "PAgP (Port Aggregation Protocol)",
+          "CDP (Cisco Discovery Protocol)",
+          "DTP (Dynamic Trunking Protocol)",
+          "LACP (Link Aggregation Control Protocol)"
+        ],
+        answer: 3,
+        explanation: "LACP is the open IEEE standard supported by almost every network vendor, whereas PAgP is Cisco proprietary."
+      },
+      {
+        id: "q5",
+        prompt: "When using LACP, what is the maximum number of links that can be assigned to a single bundle, and how do they operate?",
+        options: [
+          "8 links total, all 8 actively forwarding.",
+          "16 links total, with 8 actively forwarding and 8 in standby mode.",
+          "4 links total, with 2 actively forwarding and 2 in standby mode.",
+          "16 links total, all 16 actively forwarding."
+        ],
+        answer: 1,
+        explanation: "LACP allows up to 16 links to be grouped together; however, only a maximum of 8 links will actively forward traffic while the remaining 8 act as hot-standby backups."
+      },
+      {
+        id: "q6",
+        prompt: "Which two configuration modes belong exclusively to the Cisco-proprietary Port Aggregation Protocol (PAgP)?",
+        options: [
+          "Active and Passive",
+          "On and Off",
+          "Desirable and Auto",
+          "Dynamic and Static"
+        ],
+        answer: 2,
+        explanation: "PAgP uses the modes 'desirable' (actively initiates negotiation) and 'auto' (passively waits for negotiation). LACP uses 'active' and 'passive'."
+      },
+      {
+        id: "q7",
+        prompt: "Switch A is configured for LACP Passive mode, and Switch B is also configured for LACP Passive mode. What will be the outcome?",
+        options: [
+          "An active Etherchannel will form.",
+          "The switches will fall back to using PAgP.",
+          "The ports will be placed in an err-disabled state.",
+          "No Etherchannel will form because neither side initiates negotiation."
+        ],
+        answer: 3,
+        explanation: "Passive mode only listens for LACP packets but does not start the negotiation. If both sides are passive, they wait indefinitely and a bundle never forms."
+      },
+      {
+        id: "q8",
+        prompt: "In PAgP, if Switch 1 is set to 'Desirable' and Switch 2 is set to 'Auto', what is the result?",
+        options: [
+          "No bundle is formed.",
+          "The Etherchannel bundle forms successfully.",
+          "The link enters a suspended state.",
+          "The protocol defaults back to LACP."
+        ],
+        answer: 1,
+        explanation: "Because the 'Desirable' side actively sends PAgP messages and the 'Auto' side is willing to respond, the negotiation succeeds and the bundle is formed."
+      },
+      {
+        id: "q9",
+        prompt: "If an administrator configures physical interfaces with the command `channel-group 5 mode on`, what behavior should be expected?",
+        options: [
+          "The switch will actively negotiate using both LACP and PAgP simultaneously.",
+          "The interfaces will only form a bundle if the remote switch is set to 'active' or 'desirable'.",
+          "A manual Etherchannel forms immediately without sending any negotiation protocol frames.",
+          "The switch will perform a loopback test before bundling the links."
+        ],
+        answer: 2,
+        explanation: "The 'mode on' command creates a static, manual Etherchannel. No negotiation packets (LACP or PAgP) are sent or processed. The other side must also be configured with 'mode on'."
+      },
+      {
+        id: "q10",
+        prompt: "You are troubleshooting an Etherchannel that refuses to form. Which of the following mismatches between member ports would cause the bundling to fail?",
+        options: [
+          "A mismatch in Spanning Tree cost across the VLANs.",
+          "A mismatch in speed and duplex settings across the member interfaces.",
+          "A mismatch in port description strings.",
+          "A mismatch in the dynamic MAC addresses learned on the ports."
+        ],
+        answer: 1,
+        explanation: "All member interfaces in an Etherchannel must have matching characteristics, heavily including interface type, speed, and duplex. If these mismatch, the port cannot join the bundle."
+      },
+      {
+        id: "q11",
+        prompt: "If a single physical interface in an active 4-port Etherchannel bundle experiences a hardware failure and goes down, what happens to the traffic crossing the bundle?",
+        options: [
+          "The entire bundle goes down and triggers an STP recalculation.",
+          "Traffic is halted for 30-50 seconds while STP transitions the remaining ports.",
+          "The bundle falls back to half-duplex operation.",
+          "Traffic continues seamlessly over the remaining active links without requiring an STP recalculation."
+        ],
+        answer: 3,
+        explanation: "Because STP views the bundle as one logical link, the loss of a single physical member does not break the logical link. Traffic is simply redistributed among the surviving links."
+      },
+      {
+        id: "q12",
+        prompt: "What happens if you attempt to bundle a FastEthernet interface and a GigabitEthernet interface into the same Etherchannel?",
+        options: [
+          "The bundle will form, but will operate at FastEthernet speeds.",
+          "The bundle will fail to form because member interfaces must be of the exact same type and speed.",
+          "The switch will use the Gigabit port for data and the FastEthernet port for management.",
+          "The Gigabit interface will be placed in standby mode until the FastEthernet interface fails."
+        ],
+        answer: 1,
+        explanation: "Etherchannel strict formation conditions dictate that you cannot mix interface types (e.g., Fast Ethernet and Gigabit Ethernet) or differing speeds within the same bundle."
+      },
+      {
+        id: "q13",
+        prompt: "An administrator applies a different allowed VLAN list to one physical port than the rest of the ports already in the Etherchannel bundle. What is the immediate consequence for that port?",
+        options: [
+          "It is suspended from the bundle and stops forwarding traffic, but the rest of the bundle keeps working.",
+          "It forces the entire bundle to adopt the new allowed VLAN list.",
+          "It causes the entire Etherchannel to crash and enter an err-disabled state.",
+          "It converts the physical port back into an access port."
+        ],
+        answer: 0,
+        explanation: "If a member port's configuration (like allowed VLANs, native VLAN, or trunk encapsulation) diverges from the bundle's parameters, that specific port is suspended (flagged with an 's' or 'I') while the rest of the links remain operational."
+      },
+      {
+        id: "q14",
+        prompt: "Which command sequence correctly configures a physical interface to actively negotiate an LACP Etherchannel?",
+        options: [
+          "channel-protocol lacp \n channel-group 10 mode desirable",
+          "channel-protocol lacp \n channel-group 10 mode active",
+          "channel-protocol pagp \n channel-group 10 mode active",
+          "lacp enable \n channel-group 10 mode on"
+        ],
+        answer: 1,
+        explanation: "To configure LACP, specify `channel-protocol lacp`, and to make it actively negotiate, assign it to a group using `channel-group <num> mode active`."
+      },
+      {
+        id: "q15",
+        prompt: "After successfully bundling physical ports into an Etherchannel, where should you apply the `switchport trunk allowed vlan` and `switchport mode trunk` configurations?",
+        options: [
+          "To the newly created logical `interface port-channel <number>`.",
+          "To a loopback interface.",
+          "Individually to every physical interface in the bundle.",
+          "To the global configuration menu."
+        ],
+        answer: 0,
+        explanation: "Once the physical links are bundled into a port-channel, all further Layer 2 trunking or access configurations should be applied directly to the logical port-channel interface. The physical members will automatically inherit these settings."
+      },
+      {
+        id: "q16",
+        prompt: "Which verification command provides a concise, summarized table showing the state of the logical port-channels, the protocols in use, and the status flags of each bundled physical interface?",
+        options: [
+          "show ip interface brief",
+          "show etherchannel summary",
+          "show interface trunk",
+          "show spanning-tree"
+        ],
+        answer: 1,
+        explanation: "The `show etherchannel summary` command is the standard troubleshooting tool for quickly viewing bundle status, protocol (LACP/PAgP), and whether member ports are bundled (P), suspended (s), or standalone (I)."
+      },
+      {
+        id: "q17",
+        prompt: "An Etherchannel summary output shows a physical member port with the status flag '(s)'. According to Etherchannel operations, what does this indicate?",
+        options: [
+          "The port is successfully bundled and forwarding traffic.",
+          "The port is operating in standby mode for LACP.",
+          "The port is suspended from the bundle due to a configuration mismatch or physical issue.",
+          "The port has been secured by Port Security."
+        ],
+        answer: 2,
+        explanation: "The lowercase '(s)' flag in the `show etherchannel summary` output indicates that the port is suspended and not actively participating in the bundle, usually due to a parameter mismatch."
+      },
+      {
+        id: "q18",
+        prompt: "Can an Etherchannel bundle be configured to operate as a Layer 3 routed interface rather than a Layer 2 switchport?",
+        options: [
+          "No, Etherchannels operate exclusively at Layer 2.",
+          "Yes, but only when using the PAgP protocol.",
+          "No, routers do not support link aggregation.",
+          "Yes, an Etherchannel can be configured on a Multilayer Switch or Router to act as an L3 interface with an IP address."
+        ],
+        answer: 3,
+        explanation: "Etherchannels can act as Layer 3 routed ports on Multilayer Switches and Routers, allowing you to assign an IP address directly to the port-channel for high-bandwidth routing."
+      },
+      {
+        id: "q19",
+        prompt: "An administrator accidentally configures SW1 to use LACP (`mode active`) and SW2 to use PAgP (`mode desirable`) on the same physical link. What happens?",
+        options: [
+          "The Etherchannel fails to negotiate and no bundle is formed because the protocols must match.",
+          "The switches automatically elect to use LACP because it is an open standard.",
+          "The bundle forms successfully because both sides are actively negotiating.",
+          "The switches will form the bundle but traffic will be limited to half-duplex."
+        ],
+        answer: 0,
+        explanation: "Both ends of a point-to-point link must use the identical Etherchannel protocol. LACP and PAgP cannot negotiate with each other, so the bundle will fail to form."
+      },
+      {
+        id: "q20",
+        prompt: "When configuring a Layer 3 Etherchannel on a multilayer switch, what crucial step must be taken on the physical interfaces before assigning them to a channel group?",
+        options: [
+          "Configure them with 'switchport mode trunk'.",
+          "Issue the 'no switchport' command on all physical member interfaces.",
+          "Assign them an IP address individually.",
+          "Configure them for 'mode desirable'."
+        ],
+        answer: 1,
+        explanation: "To create a Layer 3 Etherchannel, the physical ports must first be converted from Layer 2 switchports into routed ports by issuing the `no switchport` command before they are bundled."
+      },
+      {
+        id: "q21",
+        prompt: "How does a Cisco switch determine which specific physical link within an Etherchannel bundle to use when forwarding a given frame?",
+        options: [
+          "It sends traffic in a strict round-robin sequence across all links.",
+          "It utilizes a hashing algorithm based on characteristics like MAC addresses or IP addresses.",
+          "It broadcasts the frame out of all active links simultaneously.",
+          "It uses Spanning Tree to calculate the lowest cost physical link per frame."
+        ],
+        answer: 1,
+        explanation: "Etherchannel does not load-balance via round-robin. Instead, it uses a hashing algorithm (which can be configured to use source MAC, destination MAC, source IP, etc.) to ensure packets belonging to the same flow always use the same physical link, preventing out-of-order delivery."
+      },
+      {
+        id: "q22",
+        prompt: "A junior admin connects four cables between SW1 and SW2, but accidentally plugs one of the cables into SW3 instead. If Etherchannel Misconfiguration Guard is enabled, what will happen?",
+        options: [
+          "The switch detects the STP inconsistency and places the misconfigured port(s) into an err-disabled state.",
+          "The switch will automatically route the traffic through SW3 using an SVI.",
+          "The switch will convert the three correct links into an Etherchannel and leave the fourth as a trunk.",
+          "The switch will drop all traffic on all connected devices to prevent a loop."
+        ],
+        answer: 0,
+        explanation: "Etherchannel Misconfiguration Guard uses STP BPDUs to detect if bundled ports are connected to different remote devices. If a cross-connection is detected, it places the affected ports into an err-disabled state to prevent severe bridging loops."
+      }
+    ]
+  },
 ]
 
 

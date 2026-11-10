@@ -5372,9 +5372,7 @@ export const topics: Topic[] = [
               'The password must be the same on all switches and is case-sensitive.',
             ]
           },
-          {
-            type: 'code', language: 'text', code: 'SW1 & SW2\nDomain: CCNA + MD5 => Hash value -> Attached with VTP-Advertisement\nPassword: CCNA123\n\nSW1 -- VTP Advertisement with hash value --> SW2\nSW1 <-- VTP Advertisement with hash value -- SW2'
-          },
+
           { type: 'heading', text: '(iv) Same VTP Version' },
           {
             type: 'bullets', items: [
@@ -5397,7 +5395,291 @@ export const topics: Topic[] = [
           { label: 'Versions', value: 'V1 (old), V2 (default), V3 (new)' },
           { label: 'Compatibility', value: 'Versions are not compatible' },
         ],
+        diagrams: [
+          {
+            src: '/diagrams/vtp_hash_wide.png',
+            alt: 'VTP password authentication: domain name CCNA and password 123 are combined using MD5 to produce a hash value, which is attached to the VTP advertisement exchanged between SW1 and SW2',
+            caption: 'VTP Authentication: MD5 hash of domain and password attached to every advertisement',
+          },
+        ],
       },
+
+      {
+        slug: 'vtp-versions-comparison-v1-v2-v3',
+        title: 'VTP Versions Comparison (V1 vs V2 vs V3)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'VTP has three versions. Each newer version adds support for more VLANs, better authentication and extra safety features. Version 2 is the default on Cisco switches.',
+        blocks: [
+          { type: 'heading', text: 'VTP Version 1' },
+          {
+            type: 'bullets', items: [
+              'Supports only the old VLAN range (1-1005).',
+              'Supports only ISL trunking.',
+              'No authentication.',
+              'Not compatible with Version 2.',
+            ]
+          },
+          { type: 'heading', text: 'VTP Version 2' },
+          {
+            type: 'bullets', items: [
+              'Supports both the old and new VLAN range.',
+              'Supports ISL and dot1q trunking.',
+              'Provides authentication using the MD5 hashing algorithm.',
+              'Performs VLAN consistency checks.',
+              'Domain-independent transparent passthrough: even if the domain name is different, a transparent switch will still forward the VTP advertisement.',
+              'This is the default version on Cisco switches.',
+            ]
+          },
+          { type: 'heading', text: 'VTP Version 3' },
+          {
+            type: 'bullets', items: [
+              'Supports the old and new VLAN range (1-4094).',
+              'Improved authentication.',
+              'Can forward private VLAN information from the server switch to client switches.',
+              'Protects against accidental database overwrite by using a primary server and a secondary server.',
+              'VTP advertisements can be enabled on a per-port basis.',
+              'Can also share other information such as MST (Multiple Spanning Tree) information.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'V1', value: 'VLAN 1-1005, ISL only, no auth' },
+          { label: 'V2', value: 'ISL + dot1q, MD5 auth (default)' },
+          { label: 'V3', value: 'VLAN 1-4094, primary/secondary server' },
+          { label: 'Compatibility', value: 'V1 is not compatible with V2' },
+        ],
+      },
+
+      {
+        slug: 'vtp-modes-server-client-transparent',
+        title: 'VTP Modes (Server, Client, Transparent)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'Every switch in a VTP domain runs in one of three modes: Server, Client or Transparent. The mode decides whether the switch can edit the VLAN database and how it handles VTP advertisements.',
+        blocks: [
+          { type: 'heading', text: 'Server Mode' },
+          {
+            type: 'bullets', items: [
+              'VLANs can be created, modified and deleted in this mode.',
+              'There should be at least one VTP server inside the VTP domain.',
+              'This is the default mode of the switches.',
+              'The server advertises its VLAN database (vlan.dat) through VTP advertisements to all client switches over the trunk ports using the native VLAN.',
+            ]
+          },
+          { type: 'heading', text: 'Client Mode' },
+          {
+            type: 'bullets', items: [
+              'VLANs cannot be created, modified or deleted in this mode.',
+              'The client depends on the VLAN database coming from the server.',
+              'Once the client receives the database, it accepts it and updates its own VLAN database.',
+              'After updating, it shares the new database with the other clients.',
+            ]
+          },
+          { type: 'heading', text: 'Transparent Mode' },
+          {
+            type: 'bullets', items: [
+              'The switch does not store any VLAN database coming from the server.',
+              'It maintains its own VLAN database and does not advertise it to any other switch.',
+              'It still forwards VTP frames coming from the server to the other clients, hence the name "transparent".',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Server', value: 'Create/modify/delete VLANs, advertises DB (default)' },
+          { label: 'Client', value: 'Read-only, accepts DB from server' },
+          { label: 'Transparent', value: 'Own DB, forwards VTP frames only' },
+          { label: 'Advertisement path', value: 'Trunk ports using native VLAN' },
+        ],
+      },
+
+      {
+        slug: 'vtp-transparent-mode-benefits',
+        title: 'Benefits of VTP Transparent Mode (Isolation, Security)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'A transparent switch keeps its own VLAN database and ignores the server database, which makes it useful for isolating a switch, improving security and configuring private VLANs.',
+        blocks: [
+          { type: 'heading', text: 'Key benefits' },
+          {
+            type: 'bullets', items: [
+              'It maintains its own VLAN database.',
+              'A switch can be isolated from the rest of the switches in the topology by configuring it as transparent.',
+              'Provides security, since it cannot be overwritten by a VTP advertisement.',
+              'Supports private VLANs.',
+            ]
+          },
+          { type: 'heading', text: 'Private VLANs and VTP versions' },
+          {
+            type: 'bullets', items: [
+              'In VTP version 1 and 2, private VLANs are enabled only if the switch is in transparent mode.',
+              'In VTP version 3, private VLANs can be created on the server switches and shared to the clients through VTP advertisements.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Database', value: 'Own, independent VLAN DB' },
+          { label: 'Use case', value: 'Isolation and security' },
+          { label: 'PVLAN in V1/V2', value: 'Only in transparent mode' },
+          { label: 'PVLAN in V3', value: 'Can be created on server and shared' },
+        ],
+      },
+
+      {
+        slug: 'private-vlan-community-isolated-promiscuous',
+        title: 'Private VLAN Concepts (Community, Isolated, Promiscuous Ports)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'A private VLAN is a way of controlling a VLAN with another VLAN. It is used when different groups or categories of devices exist in the same network and need controlled reachability.',
+        blocks: [
+          { type: 'heading', text: 'Why Private VLANs are used' },
+          {
+            type: 'bullets', items: [
+              'Private VLAN means controlling a VLAN with a VLAN.',
+              'If there are different groups or categories of devices in the same network, the private VLAN concept can be used.',
+            ]
+          },
+          { type: 'heading', text: 'Port types' },
+          {
+            type: 'bullets', items: [
+              'Community: devices within the same community can reach each other.',
+              'Isolated: the port is isolated and has no reachability to other devices, except through the gateway.',
+              'Promiscuous: can be accessed by anyone.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Community', value: 'Reachable within the community' },
+          { label: 'Isolated', value: 'No reachability, only via gateway' },
+          { label: 'Promiscuous', value: 'Can be accessed by anyone' },
+          { label: 'Concept', value: 'Controlling a VLAN with a VLAN' },
+        ],
+      },
+
+      {
+        slug: 'vtp-revision-number',
+        title: 'VTP Revision Number (Definition, Synchronization, Resetting)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'The VTP revision number is a 32-bit number that represents the newest VLAN database. A higher revision number means a newer database, and it can be reset to zero by switching to transparent mode.',
+        blocks: [
+          { type: 'heading', text: 'What it is' },
+          {
+            type: 'bullets', items: [
+              'It is a 32-bit number that represents the newest VLAN database.',
+              'Whenever the VLAN database is changed (create, modify or delete), the switch increments the revision number.',
+              'A higher revision number means the latest VLAN database.',
+            ]
+          },
+          { type: 'heading', text: 'Synchronization' },
+          {
+            type: 'bullets', items: [
+              'Once all the switches are synchronized, the revision number is the same on every switch.',
+            ]
+          },
+          { type: 'heading', text: 'Resetting the revision number' },
+          {
+            type: 'bullets', items: [
+              'To reset the revision number, change the mode to transparent.',
+              'The revision number resets to zero when the mode is changed to transparent.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Size', value: '32-bit number' },
+          { label: 'Incremented on', value: 'Create / modify / delete VLAN' },
+          { label: 'Higher value', value: 'Newer VLAN database' },
+          { label: 'Reset method', value: 'Change mode to transparent' },
+        ],
+      },
+
+      {
+        slug: 'vtp-revision-number-attack-issue',
+        title: 'VTP Revision Number Attack/Issue (New Client Overwriting Production DB)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'Connecting a new switch with a higher revision number and an empty VLAN database can cause every switch to delete its VLANs, bringing the production network down.',
+        blocks: [
+          { type: 'heading', text: 'What happens' },
+          {
+            type: 'bullets', items: [
+              'When a new client switch was introduced into the topology, the entire production network went down.',
+              'The new client switch had a higher revision number and no VLANs in its database.',
+              'The client also shares its VLAN database with the other switches.',
+              'Because of the higher revision number, every switch in the topology accepted this client database with no VLANs.',
+              'Every switch deleted its own VLANs, and the production network went down.',
+            ]
+          },
+          { type: 'heading', text: 'Solution' },
+          {
+            type: 'bullets', items: [
+              'Always make sure the revision number is zero before connecting a new switch into the topology.',
+              'To do that, change the mode to transparent, which resets the revision number.',
+              'Then connect the switch to the topology.',
+              'Later, change the mode back to client.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Cause', value: 'Higher revision number + empty VLAN DB' },
+          { label: 'Impact', value: 'All switches delete VLANs, network down' },
+          { label: 'Prevention', value: 'Reset revision number to zero first' },
+          { label: 'Fix method', value: 'Transparent mode, connect, then client' },
+        ],
+      },
+
+      {
+        slug: 'vtp-configurations-domain-password-version-mode',
+        title: 'VTP Configurations (Domain, Password, Version, Mode)',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'VTP is configured in global configuration mode by setting the domain name, password, version and mode on each switch.',
+        blocks: [
+          { type: 'heading', text: 'Configuration commands' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# vtp domain <domain-name>
+(config)# vtp password <password>
+(config)# vtp version <1 | 2 | 3>
+(config)# vtp mode <server | client | transparent>`
+          },
+          { type: 'heading', text: 'Important note' },
+          {
+            type: 'bullets', items: [
+              'The revision number resets to zero if the mode is changed to transparent.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Domain', value: 'vtp domain <name>' },
+          { label: 'Password', value: 'vtp password <password>' },
+          { label: 'Version', value: 'vtp version <1|2|3>' },
+          { label: 'Mode', value: 'vtp mode <server|client|transparent>' },
+        ],
+      },
+
+      {
+        slug: 'vtp-status-verification',
+        title: 'VTP Status Verification',
+        group: 'VTP (VLAN Trunking Protocol)',
+        description: 'Use the show commands to verify the VTP configuration, including the domain, mode, version, revision number and password.',
+        blocks: [
+          { type: 'heading', text: 'Verification commands' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `# show vtp status
+# show vtp password`
+          },
+          { type: 'heading', text: 'What to check' },
+          {
+            type: 'bullets', items: [
+              'show vtp status displays the VTP version, domain name, mode and configuration revision number.',
+              'show vtp password displays the configured VTP password.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Status', value: 'show vtp status' },
+          { label: 'Password', value: 'show vtp password' },
+          { label: 'Run from', value: 'Privileged EXEC mode (#)' },
+        ],
+      },
+
     ],
   },
   {
@@ -6663,101 +6945,101 @@ export const topics: Topic[] = [
         ],
       },
       {
-  slug: 'dhcp-relay-ospf-lab',
-  title: 'DHCP Relay Lab: Two Branches, an OSPF Core and One DHCP Server',
-  group: 'Switching Labs',
-  description:
-    'Connect two branches, BR_BLR (router-on-a-stick) and BR_US (multilayer switch with SVIs), through an OSPF core, and serve all hosts from one central DHCP server with ip helper-address on every gateway.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'The two branches from the previous lab are now connected to each other. BR_BLR uses 192.168.XX.0/24 with the gateway .100, and its gateway is the router RBLR, which is connected to SW1 with one trunk and uses sub-interfaces (router on a stick). BR_US uses 10.10.XX.0/24 with the gateway .254, and its gateway is the multilayer switch MLS1 with SVIs. In each branch, three devices sit in a line (SW1, SW2 and SW3 in BR_BLR, MLS1, SW4 and SW5 in BR_US), every device has four hosts, one per VLAN (10 HR, 20 IT, 30 Marketing, 40 Management), and each connection between two switches is four cables bundled into an LACP port-channel. Between the branches there is a routed core with three routers, R1, R2 and R3, connected as a triangle. RBLR connects to R1, and MLS1 connects to R3. All core links use 200.10.XX.0/24 and run OSPF process 200 in area 0. DHCP is no longer configured on the gateways. Instead, R2 is the central DHCP server for both branches, reachable on its loopback address 2.2.2.1, and every gateway interface forwards DHCP requests to it with ip helper-address. Every device starts in its factory state.'
-    },
+        slug: 'dhcp-relay-ospf-lab',
+        title: 'DHCP Relay Lab: Two Branches, an OSPF Core and One DHCP Server',
+        group: 'Switching Labs',
+        description:
+          'Connect two branches, BR_BLR (router-on-a-stick) and BR_US (multilayer switch with SVIs), through an OSPF core, and serve all hosts from one central DHCP server with ip helper-address on every gateway.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'The two branches from the previous lab are now connected to each other. BR_BLR uses 192.168.XX.0/24 with the gateway .100, and its gateway is the router RBLR, which is connected to SW1 with one trunk and uses sub-interfaces (router on a stick). BR_US uses 10.10.XX.0/24 with the gateway .254, and its gateway is the multilayer switch MLS1 with SVIs. In each branch, three devices sit in a line (SW1, SW2 and SW3 in BR_BLR, MLS1, SW4 and SW5 in BR_US), every device has four hosts, one per VLAN (10 HR, 20 IT, 30 Marketing, 40 Management), and each connection between two switches is four cables bundled into an LACP port-channel. Between the branches there is a routed core with three routers, R1, R2 and R3, connected as a triangle. RBLR connects to R1, and MLS1 connects to R3. All core links use 200.10.XX.0/24 and run OSPF process 200 in area 0. DHCP is no longer configured on the gateways. Instead, R2 is the central DHCP server for both branches, reachable on its loopback address 2.2.2.1, and every gateway interface forwards DHCP requests to it with ip helper-address. Every device starts in its factory state.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'Loopback 0 (/32): R1 1.1.1.1, R2 2.2.2.1, R3 3.3.3.1, RBLR 4.4.4.1 and MLS1 5.5.5.1. The loopback of R2, 2.2.2.1, is the DHCP server address used in every ip helper-address.',
-        'Link 1, 200.10.1.0/24: RBLR e0/1 is .1 and R1 e0/0 is .2.',
-        'Link 2, 200.10.2.0/24: R1 e0/1 is .1 and R2 e0/0 is .2.',
-        'Link 3, 200.10.3.0/24: R1 e0/2 is .1 and R3 e0/0 is .2.',
-        'Link 4, 200.10.4.0/24: R2 e0/1 is .1 and R3 e0/1 is .2.',
-        'Link 5, 200.10.5.0/24: R3 e0/2 is .1 and MLS1 e2/0 is .2. On MLS1 this is a routed port (no switchport).',
-        'BR_BLR VLANs: 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24 and 192.168.40.0/24, all with the gateway .100 on RBLR e0/0.10 to e0/0.40. Hosts: VPC1 to VPC4 on SW1, VPC5 to VPC8 on SW2 and VPC9 to VPC12 on SW3, in VLAN order 10, 20, 30, 40.',
-        'BR_US VLANs: 10.10.10.0/24, 10.10.20.0/24, 10.10.30.0/24 and 10.10.40.0/24, all with the gateway .254 on MLS1 Vlan10 to Vlan40. Hosts: VPC13 to VPC16 on MLS1, VPC17 to VPC20 on SW4 and VPC21 to VPC24 on SW5, in VLAN order 10, 20, 30, 40.',
-        'BR_BLR host ports: SW1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW2 e0/2, e0/3, e1/0, e1/1. SW3 e0/1, e0/2, e0/3, e1/0.',
-        'BR_US host ports: MLS1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW4 e0/2, e0/3, e1/0, e1/1. SW5 e0/1, e0/2, e0/3, e1/0.',
-        'BR_BLR bundles (LACP): Po1 SW1 (active) e1/3, e1/2, e1/1, e0/1 to SW2 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW2 (active) e2/3, e2/2, e2/1, e0/0 to SW3 (passive) e1/3, e1/2, e1/1, e0/0. SW1 e2/0 is the single trunk to RBLR e0/0.',
-        'BR_US bundles (LACP): Po1 MLS1 (active) e1/3, e1/2, e1/1, e0/1 to SW4 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW4 (active) e2/3, e2/2, e2/1, e0/0 to SW5 (passive) e1/3, e1/2, e1/1, e0/0.',
-        'DHCP on R2: DNS server 8.8.8.8, domain name www.BSOFT.com, lease 2 days 0 hours. Eight pools, named BR_BLR_VLAN10 to BR_BLR_VLAN40 and BR_US_VLAN10 to BR_US_VLAN40. The eight gateway addresses are excluded.',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Loopback 0 (/32): R1 1.1.1.1, R2 2.2.2.1, R3 3.3.3.1, RBLR 4.4.4.1 and MLS1 5.5.5.1. The loopback of R2, 2.2.2.1, is the DHCP server address used in every ip helper-address.',
+              'Link 1, 200.10.1.0/24: RBLR e0/1 is .1 and R1 e0/0 is .2.',
+              'Link 2, 200.10.2.0/24: R1 e0/1 is .1 and R2 e0/0 is .2.',
+              'Link 3, 200.10.3.0/24: R1 e0/2 is .1 and R3 e0/0 is .2.',
+              'Link 4, 200.10.4.0/24: R2 e0/1 is .1 and R3 e0/1 is .2.',
+              'Link 5, 200.10.5.0/24: R3 e0/2 is .1 and MLS1 e2/0 is .2. On MLS1 this is a routed port (no switchport).',
+              'BR_BLR VLANs: 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24 and 192.168.40.0/24, all with the gateway .100 on RBLR e0/0.10 to e0/0.40. Hosts: VPC1 to VPC4 on SW1, VPC5 to VPC8 on SW2 and VPC9 to VPC12 on SW3, in VLAN order 10, 20, 30, 40.',
+              'BR_US VLANs: 10.10.10.0/24, 10.10.20.0/24, 10.10.30.0/24 and 10.10.40.0/24, all with the gateway .254 on MLS1 Vlan10 to Vlan40. Hosts: VPC13 to VPC16 on MLS1, VPC17 to VPC20 on SW4 and VPC21 to VPC24 on SW5, in VLAN order 10, 20, 30, 40.',
+              'BR_BLR host ports: SW1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW2 e0/2, e0/3, e1/0, e1/1. SW3 e0/1, e0/2, e0/3, e1/0.',
+              'BR_US host ports: MLS1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW4 e0/2, e0/3, e1/0, e1/1. SW5 e0/1, e0/2, e0/3, e1/0.',
+              'BR_BLR bundles (LACP): Po1 SW1 (active) e1/3, e1/2, e1/1, e0/1 to SW2 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW2 (active) e2/3, e2/2, e2/1, e0/0 to SW3 (passive) e1/3, e1/2, e1/1, e0/0. SW1 e2/0 is the single trunk to RBLR e0/0.',
+              'BR_US bundles (LACP): Po1 MLS1 (active) e1/3, e1/2, e1/1, e0/1 to SW4 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW4 (active) e2/3, e2/2, e2/1, e0/0 to SW5 (passive) e1/3, e1/2, e1/1, e0/0.',
+              'DHCP on R2: DNS server 8.8.8.8, domain name www.BSOFT.com, lease 2 days 0 hours. Eight pools, named BR_BLR_VLAN10 to BR_BLR_VLAN40 and BR_US_VLAN10 to BR_US_VLAN40. The eight gateway addresses are excluded.',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Create VLANs 10, 20, 30 and 40 with names on all six switches: SW1, SW2, SW3, MLS1, SW4 and SW5.',
-        'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
-        'Bundle each switch-to-switch connection with LACP (active on the upper device, passive on the lower one) and configure the trunk only on the port-channel interface. Make SW1 e2/0 a trunk to RBLR.',
-        'Configure a loopback 0 on every Layer 3 device and address the five core links. On MLS1 make the port to R3 a routed port with no switchport.',
-        'Configure OSPF process 200 in area 0 on RBLR, R1, R2, R3 and MLS1. Advertise 200.10.0.0 0.0.255.255, the loopback, and on the gateways the VLAN subnets (192.168.0.0 on RBLR and 10.10.0.0 on MLS1).',
-        'Verify with show ip ospf neighbor and show ip route ospf, and ping 2.2.2.1 from RBLR and from MLS1 before configuring DHCP.',
-        'On RBLR create the sub-interfaces e0/0.10 to e0/0.40 (encapsulation dot1Q, gateway .100). On MLS1 enable ip routing and create the SVIs (gateway .254). On every sub-interface and SVI add ip helper-address 2.2.2.1.',
-        'Configure R2 as DHCP server for both branches: exclude the eight gateway addresses and create eight pools, each with network, default-router, dns-server, domain-name and lease 2 0.',
-        'On all 24 VPCs type ip dhcp and confirm with show ip that the address, gateway and DNS server are correct.',
-        'Verify on R2 with show ip dhcp binding and show ip dhcp pool, and on a gateway with show run interface e0/0.10 or show run interface vlan 10.',
-        'Ping and trace across the core, for example VPC1 to VPC13 and VPC2 to VPC24, and read every hop.',
-        'Shut down R1 e0/1 and see that OSPF reroutes through R3 and the DHCP server stays reachable. Restore it. Then remove ip helper-address from RBLR e0/0.20 and see that VLAN 20 hosts of BR_BLR can no longer get an address while the other VLANs still can. Restore it.',
-        'Save with copy running-config startup-config on every device, then test with reload.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all six switches: SW1, SW2, SW3, MLS1, SW4 and SW5.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Bundle each switch-to-switch connection with LACP (active on the upper device, passive on the lower one) and configure the trunk only on the port-channel interface. Make SW1 e2/0 a trunk to RBLR.',
+              'Configure a loopback 0 on every Layer 3 device and address the five core links. On MLS1 make the port to R3 a routed port with no switchport.',
+              'Configure OSPF process 200 in area 0 on RBLR, R1, R2, R3 and MLS1. Advertise 200.10.0.0 0.0.255.255, the loopback, and on the gateways the VLAN subnets (192.168.0.0 on RBLR and 10.10.0.0 on MLS1).',
+              'Verify with show ip ospf neighbor and show ip route ospf, and ping 2.2.2.1 from RBLR and from MLS1 before configuring DHCP.',
+              'On RBLR create the sub-interfaces e0/0.10 to e0/0.40 (encapsulation dot1Q, gateway .100). On MLS1 enable ip routing and create the SVIs (gateway .254). On every sub-interface and SVI add ip helper-address 2.2.2.1.',
+              'Configure R2 as DHCP server for both branches: exclude the eight gateway addresses and create eight pools, each with network, default-router, dns-server, domain-name and lease 2 0.',
+              'On all 24 VPCs type ip dhcp and confirm with show ip that the address, gateway and DNS server are correct.',
+              'Verify on R2 with show ip dhcp binding and show ip dhcp pool, and on a gateway with show run interface e0/0.10 or show run interface vlan 10.',
+              'Ping and trace across the core, for example VPC1 to VPC13 and VPC2 to VPC24, and read every hop.',
+              'Shut down R1 e0/1 and see that OSPF reroutes through R3 and the DHCP server stays reachable. Restore it. Then remove ip helper-address from RBLR e0/0.20 and see that VLAN 20 hosts of BR_BLR can no longer get an address while the other VLANs still can. Restore it.',
+              'Save with copy running-config startup-config on every device, then test with reload.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'A DHCP client does not know any address yet, so it sends its Discover as a broadcast to 255.255.255.255 from 0.0.0.0, using UDP port 68 to port 67. A broadcast stays inside its own VLAN and routers do not forward it. In the previous lab the DHCP server was the gateway, so it received the broadcast directly. Here the server R2 is in another network, possibly in another branch, so the broadcast would never reach it. The solution is the DHCP relay agent, which Cisco calls ip helper-address. You configure it on the gateway interface of every VLAN, which is the sub-interface on a router on a stick or the SVI on a multilayer switch, and the address you give is the real DHCP server. The gateway then takes the broadcast and sends it as a unicast to the server, using the gateway interface address as the source. The server compares that source address with its pools and uses the pool whose network contains it, which is why one server can serve many VLANs and many branches. Inside the pool, default-router is the gateway of that network, so the client learns where to send its traffic. The reply is a unicast back to the gateway, which delivers it to the client. For this to work, three things must be true: the gateway must reach 2.2.2.1, R2 must be able to route back to the gateway networks, and the helper address must be configured on every VLAN gateway. OSPF takes care of the first two: all core links, the loopbacks and the VLAN subnets are advertised in area 0. Using a loopback as the DHCP server address is better than a physical interface address, because it stays reachable as long as any path to R2 exists, and the triangle R1, R2, R3 gives two paths. Remember that the helper address is set on the gateways, not on the server, and that the gateways no longer need any pool. The gateway addresses must still be excluded on the server, otherwise it could lease them to a host.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'A DHCP client does not know any address yet, so it sends its Discover as a broadcast to 255.255.255.255 from 0.0.0.0, using UDP port 68 to port 67. A broadcast stays inside its own VLAN and routers do not forward it. In the previous lab the DHCP server was the gateway, so it received the broadcast directly. Here the server R2 is in another network, possibly in another branch, so the broadcast would never reach it. The solution is the DHCP relay agent, which Cisco calls ip helper-address. You configure it on the gateway interface of every VLAN, which is the sub-interface on a router on a stick or the SVI on a multilayer switch, and the address you give is the real DHCP server. The gateway then takes the broadcast and sends it as a unicast to the server, using the gateway interface address as the source. The server compares that source address with its pools and uses the pool whose network contains it, which is why one server can serve many VLANs and many branches. Inside the pool, default-router is the gateway of that network, so the client learns where to send its traffic. The reply is a unicast back to the gateway, which delivers it to the client. For this to work, three things must be true: the gateway must reach 2.2.2.1, R2 must be able to route back to the gateway networks, and the helper address must be configured on every VLAN gateway. OSPF takes care of the first two: all core links, the loopbacks and the VLAN subnets are advertised in area 0. Using a loopback as the DHCP server address is better than a physical interface address, because it stays reachable as long as any path to R2 exists, and the triangle R1, R2, R3 gives two paths. Remember that the helper address is set on the gateways, not on the server, and that the gateways no longer need any pool. The gateway addresses must still be excluded on the server, otherwise it could lease them to a host.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show vlan brief and show etherchannel summary on the switches: all VLANs exist, Po1 and Po2 have the flags SU, and the four members of each bundle are flagged P.',
-        'show ip ospf neighbor: RBLR has 1 neighbor, R1 has 3, R2 has 2, R3 has 3 and MLS1 has 1, all in state FULL.',
-        'show ip route ospf on R2: routes to 192.168.10.0 to 192.168.40.0 and to 10.10.10.0 to 10.10.40.0, as well as to the loopbacks 1.1.1.1, 3.3.3.1, 4.4.4.1 and 5.5.5.1.',
-        'ping 2.2.2.1 from RBLR and MLS1: replies. This is the DHCP server address that the relay uses.',
-        'show run interface e0/0.10 on RBLR and show run interface vlan 10 on MLS1: the gateway address and ip helper-address 2.2.2.1 are present.',
-        'show ip dhcp pool on R2: eight pools with the correct networks and a growing number of leased addresses.',
-        'show ip dhcp binding on R2: 24 leases, 12 in 192.168.X.0 and 12 in 10.10.X.0, and never a gateway address. RBLR and MLS1 show no leases because they only relay.',
-        'show ip on each VPC: address, mask, gateway (.100 or .254) and DNS server match its VLAN and branch.',
-        'ping and trace across the core: replies between branches. From VPC1 to VPC13 the first hop is 192.168.10.100 and the last router is 10.10.10.254.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'BR_BLR', value: '192.168.XX.0/24, gateway .100, RBLR router on a stick' },
-    { label: 'BR_US', value: '10.10.XX.0/24, gateway .254, MLS1 with SVIs' },
-    { label: 'Core', value: 'OSPF 200, area 0, links 200.10.XX.0/24' },
-    { label: 'DHCP server', value: 'R2, loopback 2.2.2.1, 8 pools' },
-    { label: 'Loopback', value: 'interface loopback 0, ip address <ip> 255.255.255.255' },
-    { label: 'Routed port', value: 'no switchport, then ip address <ip> <mask>' },
-    { label: 'OSPF', value: 'router ospf 200, network <net> <wildcard> area 0' },
-    { label: 'Relay agent', value: 'ip helper-address 2.2.2.1 (on the gateway interface)' },
-    { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
-    { label: 'SVI', value: 'ip routing, interface vlan <id>, ip address <ip> <mask>' },
-    { label: 'Exclude address', value: 'ip dhcp excluded-address <ip>' },
-    { label: 'DHCP pool', value: 'ip dhcp pool <name>, network, default-router, dns-server, domain-name, lease' },
-    { label: 'LACP member', value: 'channel-group <n> mode active | passive' },
-    { label: 'VPC DHCP', value: 'ip dhcp (release with ip dhcp -r)' },
-    { label: 'Check OSPF', value: 'show ip ospf neighbor, show ip route ospf' },
-    { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
-  ],
-},
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief and show etherchannel summary on the switches: all VLANs exist, Po1 and Po2 have the flags SU, and the four members of each bundle are flagged P.',
+              'show ip ospf neighbor: RBLR has 1 neighbor, R1 has 3, R2 has 2, R3 has 3 and MLS1 has 1, all in state FULL.',
+              'show ip route ospf on R2: routes to 192.168.10.0 to 192.168.40.0 and to 10.10.10.0 to 10.10.40.0, as well as to the loopbacks 1.1.1.1, 3.3.3.1, 4.4.4.1 and 5.5.5.1.',
+              'ping 2.2.2.1 from RBLR and MLS1: replies. This is the DHCP server address that the relay uses.',
+              'show run interface e0/0.10 on RBLR and show run interface vlan 10 on MLS1: the gateway address and ip helper-address 2.2.2.1 are present.',
+              'show ip dhcp pool on R2: eight pools with the correct networks and a growing number of leased addresses.',
+              'show ip dhcp binding on R2: 24 leases, 12 in 192.168.X.0 and 12 in 10.10.X.0, and never a gateway address. RBLR and MLS1 show no leases because they only relay.',
+              'show ip on each VPC: address, mask, gateway (.100 or .254) and DNS server match its VLAN and branch.',
+              'ping and trace across the core: replies between branches. From VPC1 to VPC13 the first hop is 192.168.10.100 and the last router is 10.10.10.254.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'BR_BLR', value: '192.168.XX.0/24, gateway .100, RBLR router on a stick' },
+          { label: 'BR_US', value: '10.10.XX.0/24, gateway .254, MLS1 with SVIs' },
+          { label: 'Core', value: 'OSPF 200, area 0, links 200.10.XX.0/24' },
+          { label: 'DHCP server', value: 'R2, loopback 2.2.2.1, 8 pools' },
+          { label: 'Loopback', value: 'interface loopback 0, ip address <ip> 255.255.255.255' },
+          { label: 'Routed port', value: 'no switchport, then ip address <ip> <mask>' },
+          { label: 'OSPF', value: 'router ospf 200, network <net> <wildcard> area 0' },
+          { label: 'Relay agent', value: 'ip helper-address 2.2.2.1 (on the gateway interface)' },
+          { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
+          { label: 'SVI', value: 'ip routing, interface vlan <id>, ip address <ip> <mask>' },
+          { label: 'Exclude address', value: 'ip dhcp excluded-address <ip>' },
+          { label: 'DHCP pool', value: 'ip dhcp pool <name>, network, default-router, dns-server, domain-name, lease' },
+          { label: 'LACP member', value: 'channel-group <n> mode active | passive' },
+          { label: 'VPC DHCP', value: 'ip dhcp (release with ip dhcp -r)' },
+          { label: 'Check OSPF', value: 'show ip ospf neighbor, show ip route ospf' },
+          { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
+        ],
+      },
       //   {
       // slug: 'mls-eigrp-ospf-lab',
       // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
