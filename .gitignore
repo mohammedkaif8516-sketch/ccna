@@ -17,3 +17,7 @@ update-devicecards.css
 
 components/INTEGRATION.md
 extract-dev.js
+
+app/glob.css
+app/global.css
+app/globals.css
