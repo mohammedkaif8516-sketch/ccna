@@ -95,7 +95,7 @@ function Colored({ line }: { line: string }) {
         ? "#38bdf8"
         : "inherit";
   return (
-    <span style={{ whiteSpace: "pre" }}>
+    <span style={{ whiteSpace: "pre", flexShrink: 0 }}>
       {" ".repeat(indent)}
       <span style={{ color, fontWeight: 600 }}>{first}</span> {rest.join(" ")}
     </span>

@@ -7040,6 +7040,81 @@ export const topics: Topic[] = [
           { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
         ],
       },
+      {
+  slug: 'vtp-labs',
+  title: 'VTP Labs (Server, Client & Transparent)',
+  group: 'Switching Labs',
+  description:
+    'Explore VLAN Trunking Protocol (VTP) across three scenarios: multi-server synchronization, server-client updates, and transparent mode forwarding. Each scenario uses a router-on-a-stick for inter-VLAN routing.',
+  blocks: [
+    { type: 'heading', text: 'Scenario' },
+    {
+      type: 'paragraph',
+      text:
+        'This lab is divided into three parts to demonstrate how VTP manages the VLAN database across a network. In LAB-1, three switches act as VTP Servers (SW1, SW2, SW3), where any switch can create or modify VLANs and synchronize the domain. In LAB-2, a VTP Server (SW4) distributes VLANs to two VTP Clients (SW5, SW6), which can only listen and apply changes. In LAB-3, a Transparent switch (SW8) sits between a Server (SW7) and a Client (SW9); it forwards VTP advertisements to the client without applying them locally, while maintaining its own isolated VLAN database. In all three parts, a single router (R1, R2, R3) provides inter-VLAN routing using a router-on-a-stick configuration over a trunk link.'
+    },
+
+    { type: 'heading', text: 'Addressing Plan' },
+    {
+      type: 'bullets',
+      items: [
+        'VLANs map to subnets using the formula 192.168.N.0/24, where N is the VLAN ID divided by 100.',
+        'LAB-1: R1 uses subnets 192.168.1.0 (VLAN 100), 192.168.2.0 (VLAN 200), and 192.168.3.0 (VLAN 300).',
+        'LAB-2: R2 uses subnet 192.168.4.0 (VLAN 400).',
+        'LAB-3: R3 uses subnet 192.168.6.0 (VLAN 600). VLAN 700 remains local to SW8 with no gateway.',
+        'The gateway is always the .254 address on the respective router sub-interface.',
+        'Trunk ports interconnect the switches (e1/3 to e2/0, and e2/3 to e1/3) and connect the first switch of each lab to the router (e2/0 to e0/0).',
+      ]
+    },
+
+    { type: 'heading', text: 'Objectives' },
+    {
+      type: 'bullets',
+      items: [
+        'Configure VTP with domain BSOFT, version 2, and password cisco123 on all switches.',
+        'Set VTP modes to match the specific lab requirements: Server, Client, or Transparent.',
+        'Configure the inter-switch and switch-to-router links as 802.1Q trunks.',
+        'Create the required sub-interfaces on the routers with dot1Q encapsulation and IP addresses.',
+        'Verify VTP synchronization using show vtp status and confirm VLAN propagation with show vlan brief.',
+        'Assign host ports to their VLANs only after the VLANs have arrived via VTP.',
+        'In LAB-2, attempt to create a VLAN on a client switch to verify that the action is rejected.',
+        'In LAB-3, observe that VLAN 600 passes through the Transparent switch to the Client, but is not added to the Transparent switch\'s database.',
+        'In LAB-3, manually create VLAN 600 on the Transparent switch to allow user data traffic to cross it successfully.',
+      ]
+    },
+
+    { type: 'heading', text: 'Think Before You Type' },
+    {
+      type: 'paragraph',
+      text:
+        'VTP copies the VLAN database from switch to switch over trunk links, preventing you from having to create VLANs manually on every device. A switch only accepts a VTP advertisement if it matches the domain name and password, and carries a higher configuration revision number. Server mode allows full control, while Client mode only listens and forwards. Transparent mode ignores VTP updates entirely—keeping its revision at 0 and storing VLANs in its local running configuration—but still forwards the advertisements downstream. Keep in mind that VTP only distributes the VLAN definitions; it does not assign host ports. Furthermore, while a transparent switch will forward a VTP update for a VLAN, user traffic for that VLAN cannot pass through the transparent switch unless the VLAN is also created locally on it.'
+    },
+
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'bullets',
+      items: [
+        'show vtp status: Confirms the VTP Operating Mode, Domain Name (BSOFT), and Configuration Revision. Servers and Clients in the same domain should share the same revision number.',
+        'show vlan brief: Confirms that VLANs created on the server have successfully populated the database of other switches (excluding Transparent switches).',
+        'show ip route: On the routers, confirms the connected (C) subnets on the respective sub-interfaces.',
+        'ping: Verifies connectivity within the same VLAN across different switches, and between different VLANs via the router gateways.',
+      ]
+    }
+  ],
+  quickReference: [
+    { label: 'VTP Domain', value: 'vtp domain <name>' },
+    { label: 'VTP Password', value: 'vtp password <password>' },
+    { label: 'VTP Version', value: 'vtp version 2' },
+    { label: 'VTP Mode', value: 'vtp mode [server | client | transparent]' },
+    { label: 'Show VTP', value: 'show vtp status' },
+    { label: 'Trunk port', value: 'switchport trunk encapsulation dot1q, then switchport mode trunk' },
+    { label: 'Sub-interface', value: 'interface e0/0.<id>' },
+    { label: 'Tag match', value: 'encapsulation dot1Q <id>' },
+    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+    { label: 'Show VLANs', value: 'show vlan brief' },
+  ],
+},
       //   {
       // slug: 'mls-eigrp-ospf-lab',
       // title: 'Four MLS: LACP, STP, EIGRP and OSPF',

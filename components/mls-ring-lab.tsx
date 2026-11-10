@@ -266,7 +266,7 @@ function Colored({ cmd }: { cmd: string }) {
         : "inherit";
 
   return (
-    <span style={{ whiteSpace: "pre" }}>
+    <span style={{ whiteSpace: "pre", flexShrink: 0 }}>
       {" ".repeat(indent)}
       <span style={{ color, fontWeight: 600 }}>
         {first}
@@ -334,6 +334,8 @@ function KeyLine({
             font: "11px/1.3 ui-sans-serif,system-ui,sans-serif",
             opacity: 0.55,
             whiteSpace: "normal",
+            minWidth: 0,
+            flex: "1 1 0%",
           }}
         >
           {note}

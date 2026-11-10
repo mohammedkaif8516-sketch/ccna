@@ -117,7 +117,7 @@ function Colored({ cmd }: { cmd: string }) {
   const color =
     first === "interface" ? "#c084fc" : first === "ip" || first === "no" ? "#38bdf8" : "inherit";
   return (
-    <span style={{ whiteSpace: "pre" }}>
+    <span style={{ whiteSpace: "pre", flexShrink: 0 }}>
       {" ".repeat(indent)}
       <span style={{ color, fontWeight: 600 }}>{first}</span> {rest.join(" ")}
     </span>
@@ -163,6 +163,8 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
             font: "11px/1.3 ui-sans-serif,system-ui,sans-serif",
             opacity: 0.55,
             whiteSpace: "normal",
+            minWidth: 0,
+            flex: "1 1 0%",
           }}
         >
           {note}
