@@ -662,7 +662,7 @@ function Colored({ cmd }: { cmd: string }) {
         ? "#38bdf8"
         : "inherit";
   return (
-    <span style={{ whiteSpace: "pre", flexShrink: 0 }}>
+    <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
       {" ".repeat(indent)}
       <span style={{ color, fontWeight: 600 }}>{first}</span> {rest.join(" ")}
     </span>
@@ -695,7 +695,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
+      className="group flex flex-wrap items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
       style={{
         background: state === "ran" ? "rgba(34,197,94,.18)" : undefined,
         minWidth: 0,
@@ -709,15 +709,15 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
             font: "11px/1.3 ui-sans-serif,system-ui,sans-serif",
             opacity: 0.55,
             whiteSpace: "normal",
-            width: 0,
-            flexGrow: 1,
+            flex: "1 1 120px",
+            minWidth: 120,
             overflowWrap: "break-word",
           }}
         >
           {note}
         </span>
       )}
-      <span className="ml-auto flex items-center gap-2 pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <span className="ml-auto flex shrink-0 items-center gap-2 pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           title="Copy only"
           className="text-muted-foreground hover:text-foreground"

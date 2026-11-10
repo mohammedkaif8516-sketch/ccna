@@ -283,7 +283,7 @@ function Colored({ cmd }: { cmd: string }) {
   const color =
     first === "interface" || first === "vlan" || first === "router" || isPool ? "#c084fc" : BLUE.has(first) ? "#38bdf8" : "inherit";
   return (
-    <span style={{ whiteSpace: "pre", flexShrink: 0 }}>
+    <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
       {" ".repeat(indent)}
       <span style={{ color, fontWeight: 600 }}>{first}</span> {rest.join(" ")}
     </span>
@@ -334,7 +334,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
           {note}
         </span>
       )}
-      <span className="ml-auto flex items-center gap-2 pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <span className="ml-auto flex shrink-0 items-center gap-2 pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           title="Copy only"
           className="text-muted-foreground hover:text-foreground"

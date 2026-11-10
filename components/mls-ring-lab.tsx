@@ -266,7 +266,7 @@ function Colored({ cmd }: { cmd: string }) {
         : "inherit";
 
   return (
-    <span style={{ whiteSpace: "pre", flexShrink: 0 }}>
+    <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
       {" ".repeat(indent)}
       <span style={{ color, fontWeight: 600 }}>
         {first}
@@ -342,7 +342,7 @@ function KeyLine({
         </span>
       )}
 
-      <span className="ml-auto flex items-center gap-2 pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <span className="ml-auto flex shrink-0 items-center gap-2 pl-4 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           title="Copy only"
           className="text-muted-foreground hover:text-foreground"
