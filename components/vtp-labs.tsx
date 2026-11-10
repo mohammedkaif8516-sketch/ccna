@@ -709,8 +709,9 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
             font: "11px/1.3 ui-sans-serif,system-ui,sans-serif",
             opacity: 0.55,
             whiteSpace: "normal",
-            minWidth: 0,
-            flex: "1 1 0%",
+            width: 0,
+            flexGrow: 1,
+            overflowWrap: "break-word",
           }}
         >
           {note}
@@ -795,8 +796,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
         style={{
           padding: 6,
           display: open ? "block" : "none",
-          font: MONO,
-          overflow: "hidden",
+          font: "12px/1.5 ui-monospace,Menlo,Consolas,monospace",
+          width: "100%",
+          overflowX: "auto",
         }}
       >
         {device.lines.map((_, i) => (

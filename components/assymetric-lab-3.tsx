@@ -289,7 +289,15 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
-      <div style={{ padding: 6, display: open ? "block" : "none", font: "12px/1.5 ui-monospace,Menlo,Consolas,monospace" }}>
+      <div
+        style={{
+          padding: 6,
+          display: open ? "block" : "none",
+          font: "12px/1.5 ui-monospace,Menlo,Consolas,monospace",
+          width: "100%",
+          overflowX: "auto",
+        }}
+      >
         {device.lines.map((_, i) => (
           <KeyLine key={i} device={device} index={i} />
         ))}

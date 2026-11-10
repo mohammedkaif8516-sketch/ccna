@@ -161,7 +161,8 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   return (
     <div
       style={{
-        alignSelf: "start", border: "1px solid rgba(128,128,128,.25)",
+        alignSelf: "start",
+        border: "1px solid rgba(128,128,128,.25)",
         borderRadius: 10,
         overflow: "hidden",
       }}
@@ -203,8 +204,11 @@ function DeviceCard({ device }: { device: KeyDevice }) {
       </div>
       <div
         style={{
-          padding: 6, display: open ? "block" : "none",
+          padding: 6,
+          display: open ? "block" : "none",
           font: "12px/1.5 ui-monospace,Menlo,Consolas,monospace",
+          width: "100%",
+          overflowX: "auto",
         }}
       >
         {device.lines.map((_, i) => (
