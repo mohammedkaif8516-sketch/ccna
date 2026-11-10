@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
+import { Palette } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -148,6 +150,88 @@ const SUMMARY_VIEWS: Record<string, ComponentType> = {
   switching: SwitchingVlanExplainer,
 };
 
+
+const THEMES = [
+  { id: "glass",     label: "Default Glass",   colors: ["#6D28D9", "#3B82F6"] },
+  { id: "synthwave", label: "Synthwave",       colors: ["#ff2e97", "#00f0ff"] },
+  { id: "terminal",  label: "Terminal",        colors: ["#39ff6a", "#ffb000"] },
+  { id: "deco",      label: "Art Deco",        colors: ["#d9b45a", "#0f5c4a"] },
+  { id: "biolum",    label: "Bioluminescent",  colors: ["#19e3d0", "#7dff9b"] },
+  { id: "ink",       label: "Japanese Ink",    colors: ["#c63d2f", "#2c4a6e"] },
+  { id: "forest",    label: "Autumn Forest",   colors: ["#c2571a", "#5b7a3a"] },
+  { id: "blueprint", label: "Blueprint",       colors: ["#1d4ed8", "#e8590c"] },
+] as const;
+
+const STORAGE_KEY = "app-theme";
+
+function useColorTheme() {
+  const [theme, setTheme] = useState<string>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) ?? "glass";
+    } catch {
+      return "glass";
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch {}
+  }, [theme]);
+
+  return [theme, setTheme] as const;
+}
+
+function ThemeSwitcher() {
+  const [theme, setTheme] = useColorTheme();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2">
+      {open && (
+        <div
+          role="menu"
+          className="w-56 rounded-xl border bg-popover p-1.5 text-popover-foreground shadow-xl"
+        >
+          {THEMES.map((t) => (
+            <button
+              key={t.id}
+              role="menuitemradio"
+              aria-checked={theme === t.id}
+              onClick={() => {
+                setTheme(t.id);
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground"
+            >
+              <span className="flex -space-x-1">
+                {t.colors.map((c) => (
+                  <span
+                    key={c}
+                    className="size-4 rounded-full ring-2 ring-popover"
+                    style={{ background: c }}
+                  />
+                ))}
+              </span>
+              <span className="flex-1">{t.label}</span>
+              {theme === t.id && <Check className="size-4 text-primary" />}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-label="Change theme"
+        aria-expanded={open}
+        className="grid size-12 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
+      >
+        <Palette className="size-5" />
+      </button>
+    </div>
+  );
+}
 const ExtraPlaceholder = () => (
   <div className="p-4 border rounded-xl mt-6">Extra content coming soon...</div>
 );
@@ -1206,40 +1290,47 @@ function Dashboard({
 }) {
   if (visitHistory.length === 0) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] w-full items-center justify-center bg-background px-6">
-        <div className="flex max-w-md flex-col items-center text-center">
-          <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent-soft)] text-primary ring-1 ring-primary/15">
-            <BookOpen className="size-8" strokeWidth={1.5} />
-          </span>
-          <h1 className="mt-7 text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
-            Pick a topic to begin
-          </h1>
-          <p className="mt-3 text-pretty text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
-            Choose anything from the curriculum and it opens here. The pages you
-            visit are collected on this screen, so you can jump back in later.
-          </p>
-          <p className="mt-6 hidden items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs text-muted-foreground lg:inline-flex">
-            <ArrowLeft className="size-3.5 text-primary" />
-            The curriculum is in the sidebar
-          </p>
-          <p className="mt-6 inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs text-muted-foreground lg:hidden">
-            Open the menu to see the curriculum
-          </p>
+      <>
+        <div className="flex min-h-[calc(100vh-4rem)] w-full items-center justify-center bg-background px-6">
+          <div className="flex max-w-md flex-col items-center text-center">
+            <span className="grid size-16 place-items-center rounded-2xl bg-[var(--accent-soft)] text-primary ring-1 ring-primary/15">
+              <BookOpen className="size-8" strokeWidth={1.5} />
+            </span>
+            <h1 className="mt-7 text-balance text-2xl font-semibold tracking-tight sm:text-3xl">
+              Pick a topic to begin
+            </h1>
+            <p className="mt-3 text-pretty text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+              Choose anything from the curriculum and it opens here. The pages
+              you visit are collected on this screen, so you can jump back in
+              later.
+            </p>
+            <p className="mt-6 hidden items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs text-muted-foreground lg:inline-flex">
+              <ArrowLeft className="size-3.5 text-primary" />
+              The curriculum is in the sidebar
+            </p>
+            <p className="mt-6 inline-flex items-center gap-2 rounded-full border bg-card px-3.5 py-1.5 text-xs text-muted-foreground lg:hidden">
+              Open the menu to see the curriculum
+            </p>
+          </div>
         </div>
-      </div>
+        <ThemeSwitcher />
+      </>
     );
   }
 
   return (
-    <div className="glass-canvas min-h-full w-full px-4 py-10 sm:px-6 lg:px-10">
-      <div className="relative z-10 mx-auto w-full max-w-2xl">
-        <VisitTree
-          entries={visitHistory}
-          onSelect={onSelectVisit}
-          onClear={onClearHistory}
-        />
+    <>
+      <div className="glass-canvas min-h-full w-full px-4 py-10 sm:px-6 lg:px-10">
+        <div className="relative z-10 mx-auto w-full max-w-2xl">
+          <VisitTree
+            entries={visitHistory}
+            onSelect={onSelectVisit}
+            onClear={onClearHistory}
+          />
+        </div>
       </div>
-    </div>
+      <ThemeSwitcher />
+    </>
   );
 }
 

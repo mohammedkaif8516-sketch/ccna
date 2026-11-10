@@ -1,0 +1,424 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Retro 90s — Light (Windows 95 / 98 desktop)
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --background: #c0c0c0;
+  --foreground: #000000;
+  --card: #c0c0c0;
+  --card-foreground: #000000;
+  --popover: #c0c0c0;
+  --popover-foreground: #000000;
+  --primary: #000080;            /* classic navy */
+  --primary-foreground: #ffffff;
+  --secondary: #dfdfdf;
+  --secondary-foreground: #000000;
+  --muted: #dfdfdf;
+  --muted-foreground: #545454;
+  --accent: #008080;             /* teal */
+  --accent-foreground: #ffffff;
+  --destructive: #c00000;
+  --border: #808080;
+  --input: #808080;
+  --ring: #000080;
+  --chart-1: #000080;
+  --chart-2: #008080;
+  --chart-3: #008000;
+  --chart-4: #ffcc00;
+  --chart-5: #ff00ff;
+  --radius: 0rem;
+
+  --sidebar: #c0c0c0;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #000080;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #000080;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #808080;
+  --sidebar-ring: #000080;
+
+  /* Desktop + title bar */
+  --desktop: #008080;
+  --desktop-dot: rgba(0, 0, 0, 0.12);
+  --title-from: #000080;
+  --title-to: #1084d0;
+
+  /* Bevel palette */
+  --bv-white: #ffffff;
+  --bv-light: #dfdfdf;
+  --bv-shadow: #808080;
+  --bv-dark: #0a0a0a;
+
+  --g-from: #008080;
+  --g-via: #008080;
+  --g-to: #008080;
+
+  --glass-bg: #c0c0c0;
+  --glass-bg-hover: #cfcfcf;
+  --glass-border: transparent;
+  /* raised window */
+  --glass-shadow:
+    inset -1px -1px var(--bv-dark),
+    inset 1px 1px var(--bv-white),
+    inset -2px -2px var(--bv-shadow),
+    inset 2px 2px var(--bv-light);
+  --glass-shadow-hover: var(--glass-shadow);
+  /* pressed button */
+  --glass-shadow-pressed:
+    inset -1px -1px var(--bv-white),
+    inset 1px 1px var(--bv-dark),
+    inset -2px -2px var(--bv-light),
+    inset 2px 2px var(--bv-shadow);
+  /* sunken field (inputs, wells) */
+  --field-shadow:
+    inset -1px -1px var(--bv-white),
+    inset 1px 1px var(--bv-shadow),
+    inset -2px -2px var(--bv-light),
+    inset 2px 2px var(--bv-dark);
+  --accent-soft: rgba(0, 0, 128, 0.35);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Dark — 90s Arcade Night
+   ───────────────────────────────────────────────────────────── */
+.dark {
+  color-scheme: dark;
+
+  --background: #2a2a3c;
+  --foreground: #e8e8ff;
+  --card: #2a2a3c;
+  --card-foreground: #e8e8ff;
+  --popover: #2a2a3c;
+  --popover-foreground: #e8e8ff;
+  --primary: #00e5d4;            /* neon teal */
+  --primary-foreground: #0a0a1f;
+  --secondary: #38384f;
+  --secondary-foreground: #e8e8ff;
+  --muted: #38384f;
+  --muted-foreground: #9a9ac0;
+  --accent: #ff2fb9;             /* neon magenta */
+  --accent-foreground: #0a0a1f;
+  --destructive: #ff4d4d;
+  --border: #4a4a6a;
+  --input: #4a4a6a;
+  --ring: #00e5d4;
+  --chart-1: #00e5d4;
+  --chart-2: #6c8cff;
+  --chart-3: #7dff6b;
+  --chart-4: #ffe14d;
+  --chart-5: #ff2fb9;
+
+  --sidebar: #232335;
+  --sidebar-foreground: #e8e8ff;
+  --sidebar-primary: #00e5d4;
+  --sidebar-primary-foreground: #0a0a1f;
+  --sidebar-accent: #ff2fb9;
+  --sidebar-accent-foreground: #0a0a1f;
+  --sidebar-border: #4a4a6a;
+  --sidebar-ring: #00e5d4;
+
+  --desktop: #1a0b3b;
+  --desktop-dot: rgba(0, 229, 212, 0.14);
+  --title-from: #6a1bb8;
+  --title-to: #ff2fb9;
+
+  --bv-white: #5a5a80;
+  --bv-light: #44445f;
+  --bv-shadow: #1a1a2a;
+  --bv-dark: #05050d;
+
+  --g-from: #1a0b3b;
+  --g-via: #1a0b3b;
+  --g-to: #1a0b3b;
+
+  --glass-bg: #2a2a3c;
+  --glass-bg-hover: #33334a;
+  --glass-border: transparent;
+  --glass-shadow:
+    inset -1px -1px var(--bv-dark),
+    inset 1px 1px var(--bv-white),
+    inset -2px -2px var(--bv-shadow),
+    inset 2px 2px var(--bv-light);
+  --glass-shadow-hover: var(--glass-shadow);
+  --glass-shadow-pressed:
+    inset -1px -1px var(--bv-white),
+    inset 1px 1px var(--bv-dark),
+    inset -2px -2px var(--bv-light),
+    inset 2px 2px var(--bv-shadow);
+  --field-shadow:
+    inset -1px -1px var(--bv-white),
+    inset 1px 1px var(--bv-shadow),
+    inset -2px -2px var(--bv-light),
+    inset 2px 2px var(--bv-dark);
+  --accent-soft: rgba(0, 229, 212, 0.4);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: Tahoma, "MS Sans Serif", "Segoe UI", Geneva, Verdana, sans-serif;
+    font-size: 13px;
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+  }
+  h1, h2, h3, h4 {
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  code, kbd, pre, samp {
+    font-family: "Courier New", Courier, monospace;
+  }
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  /* the famous dotted focus rectangle */
+  :focus-visible {
+    outline: 1px dotted var(--foreground);
+    outline-offset: -4px;
+  }
+}
+
+/* Visit-history tree animation (stepped, like low-frame-rate animation) */
+@keyframes visitNodeIn {
+  0%   { opacity: 0; transform: scale(0.4) translateY(-6px); }
+  60%  { opacity: 1; transform: scale(1.05) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes visitLineIn {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes blink90 {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Canvas: the desktop (dithered dots + pixel squiggles)
+   ───────────────────────────────────────────────────────────── */
+.glass-canvas {
+  position: relative;
+  min-height: 100%;
+  background-color: var(--desktop);
+  background-image:
+    radial-gradient(var(--desktop-dot) 1px, transparent 1px),
+    radial-gradient(var(--desktop-dot) 1px, transparent 1px);
+  background-size: 8px 8px;
+  background-position: 0 0, 4px 4px;
+  background-attachment: fixed;
+}
+
+/* Memphis-style confetti, pure CSS */
+.glass-canvas::before,
+.glass-canvas::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.glass-canvas::before {
+  width: 140px;
+  height: 140px;
+  top: 40px;
+  right: 40px;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #ff2fb9 0 6px,
+      transparent 6px 12px
+    );
+  border: 3px solid #ffe14d;
+  opacity: 0.5;
+}
+
+.glass-canvas::after {
+  width: 110px;
+  height: 110px;
+  bottom: 50px;
+  left: 18%;
+  border-radius: 50%;
+  background:
+    radial-gradient(#ffe14d 2px, transparent 2.5px) 0 0 / 12px 12px;
+  border: 3px solid #00e5d4;
+  opacity: 0.5;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Panels: Win95 windows (class name kept for existing markup)
+   ───────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  border: 0;
+  border-radius: 0;
+  box-shadow: var(--glass-shadow);
+  padding: 2px;
+}
+
+.glass-hover {
+  transition: none;
+}
+
+.glass-hover:hover {
+  background: var(--glass-bg-hover);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+/* button press = swap the bevel and nudge the content */
+.glass-hover:active {
+  box-shadow: var(--glass-shadow-pressed);
+  padding-top: 3px;
+  padding-left: 3px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Optional utilities (add the class where you want the look)
+   ───────────────────────────────────────────────────────────── */
+
+/* Navy → blue title bar */
+.win-titlebar {
+  background: linear-gradient(90deg, var(--title-from), var(--title-to));
+  color: #ffffff;
+  font-weight: 700;
+  padding: 2px 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Sunken field: inputs, textareas, lists */
+.clay-inset,
+.win-field {
+  background: var(--card);
+  border-radius: 0;
+  box-shadow: var(--field-shadow);
+}
+
+/* Blinking cursor block */
+.win-cursor::after {
+  content: "█";
+  animation: blink90 1s steps(1) infinite;
+}
+
+@media (max-width: 640px) {
+  html,
+  body {
+    overflow-x: hidden;
+  }
+  .glass-canvas::before,
+  .glass-canvas::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .win-cursor::after {
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Scrollbars: classic Win95 (dithered track, bevelled thumb)
+   ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--bv-light);
+  background-image:
+    linear-gradient(45deg, var(--bv-white) 25%, transparent 25%, transparent 75%, var(--bv-white) 75%),
+    linear-gradient(45deg, var(--bv-white) 25%, transparent 25%, transparent 75%, var(--bv-white) 75%);
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--glass-bg);
+  border-radius: 0;
+  box-shadow:
+    inset -1px -1px var(--bv-dark),
+    inset 1px 1px var(--bv-white),
+    inset -2px -2px var(--bv-shadow),
+    inset 2px 2px var(--bv-light);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--glass-bg-hover);
+}
+
+::-webkit-scrollbar-button {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background-color: var(--glass-bg);
+  box-shadow:
+    inset -1px -1px var(--bv-dark),
+    inset 1px 1px var(--bv-white),
+    inset -2px -2px var(--bv-shadow),
+    inset 2px 2px var(--bv-light);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--glass-bg);
+}
+
+* {
+  scrollbar-width: auto;
+  scrollbar-color: var(--glass-bg) var(--bv-light);
+}

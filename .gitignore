@@ -13,7 +13,7 @@ __v0_jsx-dev-runtime.ts
 node_modules
 .next/
 .DS_Store
-update-devicecards.js
+update-devicecards.css
 
 components/INTEGRATION.md
 extract-dev.js

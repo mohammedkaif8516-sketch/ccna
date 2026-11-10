@@ -1,0 +1,401 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Lunar Day — Light
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --background: #eef1fa;
+  --foreground: #14173a;
+  --card: #f7f8fe;
+  --card-foreground: #14173a;
+  --popover: #f7f8fe;
+  --popover-foreground: #14173a;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #e1e6f5;
+  --secondary-foreground: #14173a;
+  --muted: #e1e6f5;
+  --muted-foreground: #5b6286;
+  --accent: #0ea5c6;
+  --accent-foreground: #ffffff;
+  --destructive: #e11d48;
+  --border: #cdd4ec;
+  --input: #cdd4ec;
+  --ring: #4f46e5;
+  --chart-1: #4f46e5;
+  --chart-2: #0ea5c6;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #d946ef;
+  --radius: 0.75rem;
+
+  --sidebar: #e4e8f6;
+  --sidebar-foreground: #14173a;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #d3d9f0;
+  --sidebar-accent-foreground: #4f46e5;
+  --sidebar-border: #cdd4ec;
+  --sidebar-ring: #4f46e5;
+
+  /* Sky */
+  --g-from: #f4f6fd;
+  --g-via: #e9edfa;
+  --g-to: #dde3f6;
+  --star: rgba(79, 70, 229, 0.35);
+  --star-bright: rgba(14, 165, 198, 0.55);
+  --nebula-1: rgba(217, 70, 239, 0.18);
+  --nebula-2: rgba(14, 165, 198, 0.2);
+  --nebula-3: rgba(79, 70, 229, 0.16);
+
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-bg-hover: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(79, 70, 229, 0.18);
+  --glass-shadow:
+    0 8px 30px rgba(79, 70, 229, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-shadow-hover:
+    0 14px 40px rgba(79, 70, 229, 0.22),
+    0 0 0 1px rgba(79, 70, 229, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  --accent-soft: rgba(79, 70, 229, 0.2);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Deep Space — Dark
+   ───────────────────────────────────────────────────────────── */
+.dark {
+  color-scheme: dark;
+
+  --background: #05061a;
+  --foreground: #e8ecff;
+  --card: #0d1030;
+  --card-foreground: #e8ecff;
+  --popover: #0a0c26;
+  --popover-foreground: #e8ecff;
+  --primary: #7c5cff;
+  --primary-foreground: #ffffff;
+  --secondary: #141846;
+  --secondary-foreground: #e8ecff;
+  --muted: #101440;
+  --muted-foreground: #8d96c9;
+  --accent: #22d3ee;
+  --accent-foreground: #04122a;
+  --destructive: #ff5470;
+  --border: #232a66;
+  --input: #232a66;
+  --ring: #22d3ee;
+  --chart-1: #7c5cff;
+  --chart-2: #22d3ee;
+  --chart-3: #34f5a8;
+  --chart-4: #ffc857;
+  --chart-5: #ff5fd2;
+
+  --sidebar: #080a24;
+  --sidebar-foreground: #e8ecff;
+  --sidebar-primary: #7c5cff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #141846;
+  --sidebar-accent-foreground: #22d3ee;
+  --sidebar-border: #232a66;
+  --sidebar-ring: #22d3ee;
+
+  --g-from: #05061a;
+  --g-via: #0a0b2e;
+  --g-to: #04050f;
+  --star: rgba(255, 255, 255, 0.85);
+  --star-bright: rgba(160, 235, 255, 1);
+  --nebula-1: rgba(255, 95, 210, 0.22);
+  --nebula-2: rgba(34, 211, 238, 0.2);
+  --nebula-3: rgba(124, 92, 255, 0.28);
+
+  --glass-bg: rgba(14, 18, 54, 0.55);
+  --glass-bg-hover: rgba(22, 28, 78, 0.75);
+  --glass-border: rgba(124, 140, 255, 0.22);
+  --glass-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --glass-shadow-hover:
+    0 12px 48px rgba(34, 211, 238, 0.22),
+    0 0 0 1px rgba(34, 211, 238, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --accent-soft: rgba(34, 211, 238, 0.3);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: 0.01em;
+  }
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  ::selection {
+    background: var(--accent);
+    color: var(--accent-foreground);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+}
+
+/* Visit-history tree animation */
+@keyframes visitNodeIn {
+  0%   { opacity: 0; transform: scale(0.4) translateY(-6px); }
+  60%  { opacity: 1; transform: scale(1.05) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes visitLineIn {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(30px, -20px) scale(1.08); }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Canvas: star field + nebula clouds
+   ::before = stars (two tiles of different size, twinkling)
+   ::after  = nebula glow (drifting)
+   ───────────────────────────────────────────────────────────── */
+.glass-canvas {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--g-from), var(--g-via) 55%, var(--g-to));
+  background-attachment: fixed;
+}
+
+.glass-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.2px 1.2px at 20px 30px, var(--star), transparent),
+    radial-gradient(1px 1px at 90px 120px, var(--star), transparent),
+    radial-gradient(1.6px 1.6px at 160px 60px, var(--star-bright), transparent),
+    radial-gradient(1px 1px at 230px 170px, var(--star), transparent),
+    radial-gradient(1.3px 1.3px at 300px 90px, var(--star), transparent),
+    radial-gradient(1.8px 1.8px at 340px 210px, var(--star-bright), transparent),
+    radial-gradient(1px 1px at 60px 250px, var(--star), transparent),
+    radial-gradient(1.2px 1.2px at 270px 20px, var(--star), transparent);
+  background-size: 360px 280px;
+  animation: twinkle 5s ease-in-out infinite;
+}
+
+.glass-canvas::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: 900px;
+  height: 900px;
+  top: -250px;
+  right: -250px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 35%, var(--nebula-1), transparent 55%),
+    radial-gradient(circle at 70% 60%, var(--nebula-2), transparent 55%),
+    radial-gradient(circle at 45% 80%, var(--nebula-3), transparent 60%);
+  filter: blur(50px);
+  animation: drift 24s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Panels: glowing glass "cockpit" cards
+   ───────────────────────────────────────────────────────────── */
+.glass {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+}
+
+.glass-hover {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.glass-hover:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.glass-hover:active {
+  transform: translateY(0) scale(0.99);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .glass {
+    background: var(--glass-bg-hover);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Optional utilities
+   ───────────────────────────────────────────────────────────── */
+
+/* Glowing gradient text (use on headings) */
+.cosmic-text {
+  background: linear-gradient(90deg, var(--chart-2), var(--chart-1), var(--chart-5));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Soft neon glow on any element */
+.cosmic-glow {
+  box-shadow: 0 0 0 1px var(--accent), 0 0 24px var(--accent-soft);
+}
+
+/* Small orbiting planet badge: <span class="orbit"></span> */
+.orbit {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px dashed var(--accent);
+  animation: orbit 8s linear infinite;
+}
+.orbit::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+@media (max-width: 640px) {
+  .glass {
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    backdrop-filter: blur(8px) saturate(140%);
+  }
+  .glass-canvas::after {
+    width: 600px;
+    height: 600px;
+    filter: blur(40px);
+  }
+  html,
+  body {
+    overflow-x: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-canvas::before,
+  .glass-canvas::after,
+  .orbit {
+    animation: none;
+  }
+  .glass-hover,
+  .glass-hover:hover,
+  .glass-hover:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Scrollbars: slim glowing rails
+   ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--accent);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
