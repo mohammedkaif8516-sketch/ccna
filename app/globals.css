@@ -3174,3 +3174,11 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* after the .ccna-lab block in globals.css */
+.ccna-lab .ccna-lab__device.glass-hover,
+.ccna-lab .ccna-lab__device.glass-hover:hover,
+.ccna-lab .ccna-lab__device.glass-hover:active {
+  transform: none;
+  transition: none;
+}
