@@ -26,7 +26,7 @@ import {
   type H,
   type Iface,
   type RE,
-} from "./netsim";
+} from "@/components/simulator/netsim";
 
 const noop: H = () => {};
 const int = (s: string, lo: number, hi: number) => {

@@ -14,10 +14,9 @@
  * `show ip eigrp neighbors|topology`, `show ip route eigrp` (D routes, AD 90), loopback interfaces,
  * a router with an Ethernet1/0 port (R3) and a switch with 4 ports (SW9).
  */
-import { NetLab, Cable, Note } from "./netsim";
-import Router from "./Router";
-import Switch from "./Switch";
-import { useState } from "react";
+import { NetLab, Cable, Note } from "@/components/simulator/netsim";
+import Router from "@/components/simulator/Router";
+import Switch from "@/components/simulator/Switch";import { useState } from "react";
 import { Copy, Check, Play, Zap } from "lucide-react";
 
 /* ───────────────────────────── Answer key data ───────────────────────────── */

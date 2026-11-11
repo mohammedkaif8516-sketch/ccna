@@ -25,7 +25,7 @@ import {
   vlanAllowed,
   fakeHash,
   macOf,
-} from "./netsim";
+} from "@/components/simulator/netsim";
 
 const mk = (): VtpCfg => ({ mode: "server", version: 2, rev: 0 });
 const eff = (d: Dev): VtpCfg => d.vtp ?? mk();

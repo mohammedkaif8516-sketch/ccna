@@ -23,7 +23,7 @@ import {
   ip2n,
   n2ip,
   shortIf,
-} from "./netsim";
+} from "@/components/simulator/netsim";
 import { aclPermits } from "./Acl";
 
 const natOf = (c: Ctx) => (c.dev.nat ??= { pools: {}, rules: [] });

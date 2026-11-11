@@ -38,8 +38,8 @@ import {
   shortIf,
   classLen,
   ip2n,
-} from "./netsim";
-import { dhcpGlobalX, dhcpPoolX, dhcpPrivX, renderDhcp } from "./Dhcp";
+} from "@/components/simulator/netsim";
+import { dhcpGlobalX, dhcpPoolX, dhcpPrivX, renderDhcp } from "@/components/labcp/Dhcp";
 
 import {
   routingGlobalX,
@@ -50,7 +50,7 @@ import {
   ospfX,
   renderIfExtra,
   renderRouting,
-} from "./Routing";
+} from "@/components/labcp/Routing";
 
 /* ───────────── icon ───────────── */
 export function RouterIcon({ size = 64 }: { size?: number }) {

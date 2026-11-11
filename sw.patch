@@ -8,7 +8,7 @@ index a9217c4..a00af89 100644
    iosShared, iosEngine, userFilter, ensureIf, findIf, ifUp, operMode, parseVlans, rangeStr, vlanAllowed, isIp, isMask, maskLen,
 -  macOf, shortIf, fakeHash,
 +  macOf, shortIf, fakeHash, peerOf, ip2n, isL3,
- } from "./netsim";
+ } from "@/components/simulator/netsim";
 +import { ipRoute, noRoute, showRoute, showRouteArg } from "./Router";
  
  export function SwitchIcon({ size = 64 }: { size?: number }) {

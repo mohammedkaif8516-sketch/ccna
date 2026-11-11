@@ -21,7 +21,7 @@ import {
   isIp,
   ip2n,
   shortIf,
-} from "./netsim";
+} from "@/components/simulator/netsim";
 
 type St = "init" | "listen" | "standby" | "active";
 interface Mem { id: string; n: string }

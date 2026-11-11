@@ -9,10 +9,10 @@
  * Click a device → console. Address everything, then steer VPC9 → VPC11 over the top (R2)
  * and the reply VPC11 → VPC9 along the bottom (R4).
  */
-import { NetLab, Cable, Note } from "./netsim";
-import Router from "./Router";
-import Switch from "./Switch";
-import VPC from "./VPC";
+import { NetLab, Cable, Note } from "@/components/simulator/netsim";
+import Router from "@/components/simulator/Router";
+import Switch from "@/components/simulator/Switch"; import VPC from "@/components/simulator/VPC";
+
 import { useState } from "react";
 import { Copy, Check, Play, Zap } from "lucide-react";
 

@@ -13,9 +13,9 @@
  * Every device starts in its factory state. Click a device → console. Do the lab for real.
  * Needs NetLab / Cable (with the offset prop) / Note from netsim.tsx, plus Switch and VPC components.
  */
-import { NetLab, Cable, Note } from "./netsim";
-import Switch from "./Switch";
-import VPC from "./VPC";
+import { NetLab, Cable, Note } from "@/components/simulator/netsim";
+import Switch from "@/components/simulator/Switch"; import VPC from "@/components/simulator/VPC";
+
 import { useState } from "react";
 import { Copy, Check, Play, Zap } from "lucide-react";
 

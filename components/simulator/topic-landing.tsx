@@ -87,7 +87,7 @@ export function TopicLanding({
 
       <header className="flex items-center gap-5">
         <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-[var(--accent-soft)] text-primary">
-          <Icon className="size-7" />
+          <Icon {...({ className: "size-7" } as any)} />
         </span>
         <div className="min-w-0 flex-1">
           <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight">{topic.title}</h1>

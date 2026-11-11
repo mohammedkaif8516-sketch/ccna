@@ -521,15 +521,15 @@ export function bundleState(s: State, id: string, name: string): "P" | "s" | "I"
   const pe = peerOf(s, id, name);
   if (!pe) return "I";
   const pi = s.devs[pe.id].ifaces[pe.port];
-  
-  // If the peer isn't configured for a channel-group, this port is stand-alone
-  if (pi.cg === undefined) return "I";
 
-  // Check if the modes are compatible
+  // peer is not in a channel-group: "on" is suspended, LACP/PAgP fall back to a normal port
+  if (pi.cg === undefined) return i.cgMode === "on" ? "s" : "I";
+
   if (chanOk(i.cgMode, pi.cgMode)) return "P";
-  
-  // If the modes are incompatible, it's suspended
-  return "s";
+
+  // both sides are channeled but incompatible: any "on" involved is suspended;
+  // passive/passive and auto/auto just stay stand-alone and keep working
+  return i.cgMode === "on" || pi.cgMode === "on" ? "s" : "I";
 }
 
 function reach(s: State, d: Dev, ip: string): boolean {
@@ -1474,8 +1474,43 @@ export function getDyn(s: State): Dyn {
 }
 
 /* ════════════════════════ 5. forwarding ════════════════════════ */
+export interface XlRec {
+  router: string;
+  local: string;
+  global: string;
+}
+export interface Pkt {
+  src: string;
+  dst: string;
+  proto: string; // icmp | tcp | udp | gre | esp
+  icmp?: string; // echo | echo-reply | unreachable | time-exceeded
+  sport?: number;
+  dport?: number;
+  xl: XlRec[]; // NAT translations already applied (the reply path un-does them)
+}
+export interface Peer {
+  id: string;
+  port: string;
+}
+export const hooks = {
+  /** frame from `mac` enters switch `sw` on `port`; return false to drop it (port-security) */
+  l2: [] as Array<(s: State, sw: string, port: string, mac: string, fx: Fx[]) => boolean>,
+  /** ACL check on an L3 interface; return false to drop */
+  acl: [] as Array<(s: State, d: Dev, iface: string, dir: "in" | "out", p: Pkt, fx: Fx[]) => boolean>,
+  /** NAT outside→inside: runs before the routing lookup */
+  xin: [] as Array<(s: State, d: Dev, inIf: string, p: Pkt) => void>,
+  /** NAT inside→outside: runs after the routing lookup; return false to drop */
+  xout: [] as Array<(s: State, d: Dev, inIf: string, outIf: string, p: Pkt, fx: Fx[]) => boolean>,
+  /** tunnel / IPsec: encapsulate and jump to the far router (or "drop") */
+  tun: [] as Array<(s: State, d: Dev, outIf: string, p: Pkt, fx: Fx[]) => Peer | "drop" | undefined>,
+};
+
+const vipOn = (s: State, d: Dev, n: string, ip: string) =>
+  d.ifaces[n]?.fhrp?.vip === ip && d.rt?.fhrp?.[n] === "active" && ifUp(s, d.id, n);
 const owns = (s: State, d: Dev, ip: string) =>
-  Object.entries(d.ifaces).some(([n, i]) => i.ip === ip && ifUp(s, d.id, n));
+  Object.entries(d.ifaces).some(
+    ([n, i]) => (i.ip === ip && ifUp(s, d.id, n)) || vipOn(s, d, n, ip),
+  );
 function hostPick(
   d: Dev,
   dst: string,
@@ -1503,7 +1538,9 @@ function arpFind(
 ) {
   const eps = l2domain(s, id, iface);
   let hit = eps.find(
-    (e) => e.id !== id && s.devs[e.id].ifaces[e.port]?.ip === nh,
+    (e) =>
+      e.id !== id &&
+      (s.devs[e.id].ifaces[e.port]?.ip === nh || vipOn(s, s.devs[e.id], e.port, nh)),
   );
   if (!hit && proxy)
     hit = eps.find((e) => {
@@ -1521,26 +1558,46 @@ const upsert = (d: Dev, vlan: number, mac: string, port: string) => {
   else d.macTable.push({ vlan, mac, port });
 };
 export interface Trace {
-  status: "ok" | "noroute" | "unreach" | "ttl" | "noip" | "null";
+  status: "ok" | "noroute" | "unreach" | "ttl" | "noip" | "null" | "acl" | "drop";
   at: string;
   inIf: string;
   hops: string[];
   routers: number;
   first?: { iface: string; nh: string; srcIp?: string };
+  pkt: Pkt;
 }
-/** push one packet from `start` toward `dst`. TTL is decremented per router (not at the origin). */
+export interface RouteOpts {
+  proto?: string;
+  icmp?: string;
+  sport?: number;
+  dport?: number;
+  xl?: XlRec[];
+}
+/** push one packet from `start` toward `dst`. TTL is decremented per router (not at the origin).
+ *  At each router: inbound ACL → NAT-in → (own?) → routing → NAT-out → outbound ACL → tunnel / ARP. */
 export function route(
   s: State,
   start: string,
   dst: string,
   ttl: number,
   fx: Fx[],
+  o: RouteOpts = {},
 ): Trace {
   let cur = start,
     inIf = "",
     t = ttl,
     routers = 0,
     first: Trace["first"];
+  const proto = o.proto ?? "icmp",
+    p: Pkt = {
+      src: "",
+      dst,
+      proto,
+      icmp: o.icmp ?? (proto === "icmp" ? "echo" : undefined),
+      sport: o.sport,
+      dport: o.dport,
+      xl: o.xl ? [...o.xl] : [],
+    };
   const hops = [start],
     res = (status: Trace["status"]): Trace => ({
       status,
@@ -1549,10 +1606,15 @@ export function route(
       hops,
       routers,
       first,
+      pkt: p,
     });
   for (let g = 0; g < 48; g++) {
     const d = s.devs[cur];
-    if (owns(s, d, dst)) return res("ok");
+    if (cur !== start && isL3(d)) {
+      if (!hooks.acl.every((f) => f(s, d, inIf, "in", p, fx))) return res("acl");
+      hooks.xin.forEach((f) => f(s, d, inIf, p));
+    }
+    if (owns(s, d, p.dst)) return res("ok");
     let eg: { iface: string; nh: string } | undefined,
       proxy = false;
     if (isL3(d)) {
@@ -1561,24 +1623,43 @@ export function route(
         routers++;
         if (t <= 0) return res("ttl");
       }
-      const r = bestRoute(routeTable(s, d), dst);
+      const r = bestRoute(routeTable(s, d), p.dst);
       if (!r) return res("noroute");
       if (r.iface === "Null0") return res("null");
-      eg = { iface: r.iface, nh: r.via ?? dst };
+      eg = { iface: r.iface, nh: r.via ?? p.dst };
       proxy = !!r.exit;
+      if (cur !== start) {
+        const e0 = eg;
+        if (!hooks.xout.every((f) => f(s, d, inIf, e0.iface, p, fx))) return res("drop");
+        if (!hooks.acl.every((f) => f(s, d, e0.iface, "out", p, fx))) return res("acl");
+      }
     } else {
-      eg = hostPick(d, dst);
+      eg = hostPick(d, p.dst);
       if (!eg) return res("noip");
     }
-    if (!first)
+    if (!first) {
       first = { iface: eg.iface, nh: eg.nh, srcIp: d.ifaces[eg.iface]?.ip };
-    const hit = arpFind(s, cur, eg.iface, eg.nh, proxy, dst);
+      p.src = first.srcIp ?? "";
+    }
+    // tunnel / IPsec: the packet jumps to the far router; the underlay is routed by a nested route() call
+    const tn = hooks.tun.map((f) => f(s, d, eg!.iface, p, fx)).find(Boolean);
+    if (tn) {
+      if (tn === "drop") return res("drop");
+      cur = tn.id;
+      inIf = tn.port;
+      hops.push(cur);
+      continue;
+    }
+    const hit = arpFind(s, cur, eg.iface, eg.nh, proxy, p.dst);
     if (!hit) return res("unreach");
     const from = cur,
       e = eg,
       mA = macOf(from, e.iface),
       mB = macOf(hit.id, hit.port),
       srcIp = d.ifaces[e.iface]?.ip;
+    for (const h of hit.path)
+      if (h.inPort && !hooks.l2.every((f) => f(s, h.sw, h.inPort!, mA, fx)))
+        return res("drop");
     fx.push((st) => {
       st.update(from, (x) => {
         x.arp[e.nh] = { mac: mB, iface: e.iface };
@@ -1607,9 +1688,18 @@ export interface Probe {
   srcIp?: string;
   firstNh?: string;
 }
-/** one ICMP echo, round trip. A missing return route => timeout (exactly like real life). */
-export function probe(s: State, src: string, dst: string, fx: Fx[], _ext?: any): Probe {  const sd = s.devs[src],
-    f = route(s, src, dst, isL3(sd) ? 255 : 64, fx);
+/** one ICMP echo (or a TCP SYN when proto = "tcp"), round trip. A missing return route => timeout. */
+export function probe(
+  s: State,
+  src: string,
+  dst: string,
+  fx: Fx[],
+  o: { proto?: string; dport?: number } = {},
+): Probe {
+  const sd = s.devs[src],
+    proto = o.proto ?? "icmp",
+    sport = proto === "icmp" ? undefined : 49152,
+    f = route(s, src, dst, isL3(sd) ? 255 : 64, fx, { proto, sport, dport: o.dport });
   const srcIp = f.first?.srcIp,
     hops = f.hops.length - 1,
     ms = Math.round((0.35 + hops * 0.92) * 1000) / 1000,
@@ -1623,18 +1713,32 @@ export function probe(s: State, src: string, dst: string, fx: Fx[], _ext?: any):
         srcIp: dst,
       };
     const init = isL3(s.devs[f.at]) ? 255 : 64;
-    const b = route(s, f.at, srcIp!, init, fx);
+    // the reply goes to the source address AS THE DESTINATION SAW IT (after NAT)
+    const b = route(
+      s,
+      f.at,
+      f.pkt.src,
+      init,
+      fx,
+      proto === "icmp"
+        ? { icmp: "echo-reply", xl: f.pkt.xl }
+        : { proto, sport: o.dport, dport: sport, xl: f.pkt.xl },
+    );
     return b.status === "ok"
       ? { kind: "reply", ttl: init - b.routers, ms, srcIp, firstNh }
       : { kind: "timeout", ms, srcIp, firstNh, why: "no return route" };
   }
+  if (f.status === "drop") return { kind: "timeout", ms, srcIp, firstNh, why: "dropped" };
   if (f.at === src) return { kind: "local", why: f.status, ms, srcIp };
   if (f.status === "ttl" || !srcIp) return { kind: "timeout", ms, srcIp };
-  const b = route(s, f.at, srcIp, 255, []);
+  const b = route(s, f.at, f.pkt.src || srcIp, 255, [], {
+    icmp: "unreachable",
+    xl: f.pkt.xl,
+  });
   if (b.status !== "ok")
     return { kind: "timeout", ms, srcIp, why: "ICMP error lost" };
   return {
-    kind: f.status === "unreach" ? "host" : "net",
+    kind: f.status === "acl" ? "admin" : f.status === "unreach" ? "host" : "net",
     from: s.devs[f.at].ifaces[f.inIf]?.ip,
     ttl: 255 - b.routers,
     ms,
@@ -1662,7 +1766,17 @@ export function traceRoute(
       rows.push({});
       break;
     }
-    const back = srcIp ? route(s, f.at, srcIp, 255, []).status === "ok" : false;
+    if (f.status === "drop") {
+      rows.push({});
+      if (++dead >= 4) break;
+      continue;
+    }
+    const back = srcIp
+      ? route(s, f.at, f.pkt.src || srcIp, 255, [], {
+          icmp: "time-exceeded",
+          xl: f.pkt.xl,
+        }).status === "ok"
+      : false;
     const ip = f.status === "ok" ? dst : s.devs[f.at].ifaces[f.inIf]?.ip;
     if (!back || !ip) {
       rows.push({});
@@ -1678,7 +1792,11 @@ export function traceRoute(
       rows.push({ ip });
       continue;
     }
-    rows.push({ ip, mark: f.status === "unreach" ? "!H" : "!N", done: true });
+    rows.push({
+      ip,
+      mark: f.status === "unreach" ? "!H" : f.status === "acl" ? "!A" : "!N",
+      done: true,
+    });
     break;
   }
   return rows;

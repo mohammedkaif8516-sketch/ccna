@@ -381,7 +381,7 @@ export function NumberSystemConverter() {
         : from === "hex"
           ? cleanHex(hexInput)
           : cleanBin(binInput);
-    if (c.error) return c;
+    if (!("text" in c)) return c;
     if (to === "dec") {
       if (from === "bin" && c.text.length > 64)
         return { error: "For decimal output keep binary to 64 bits or fewer." };
@@ -399,7 +399,7 @@ export function NumberSystemConverter() {
     from === "dec" ? setDecInput : from === "hex" ? setHexInput : setBinInput;
 
   const toggleNibbleBit = (nibbleIndex: number, bitIndex: number) => {
-    if (cleaned.error) return;
+    if (!("text" in cleaned)) return;
     const { nibbles } = binToNibbles(cleaned.text);
     const flat = nibbles.map((n) => n.bits).join("");
     const pos = nibbleIndex * 4 + bitIndex;
@@ -409,7 +409,7 @@ export function NumberSystemConverter() {
   };
 
   const toggleBit = (index: number) => {
-    if (cleaned.error) return;
+    if (!("text" in cleaned)) return;
     const flat = cleaned.text;
     const flipped =
       flat.slice(0, index) +
@@ -432,7 +432,7 @@ export function NumberSystemConverter() {
   let resultText = "";
   let body: React.ReactNode = null;
 
-  if (!cleaned.error) {
+  if ("text" in cleaned) {
     const value = cleaned.value;
 
     if (mode === "hex2bin") {
@@ -593,13 +593,13 @@ export function NumberSystemConverter() {
           </div>
         )}
 
-        {cleaned.error && (
+        {!("text" in cleaned) && (
           <p role="alert" className="mt-4 text-xs font-medium text-destructive">
             {cleaned.error}
           </p>
         )}
 
-        {!cleaned.error && (
+        {"text" in cleaned && (
           <div className="mt-6 flex flex-col gap-5">
             <p className="text-xs text-muted-foreground">{note}</p>
 

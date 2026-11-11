@@ -41,7 +41,7 @@ import {
   ip2n,
   isL3,
   bundleState,
-} from "./netsim";
+} from "@/components/simulator/netsim";
 import {
   ipRoute,
   noRoute,
@@ -49,7 +49,7 @@ import {
   showRouteArg,
   globalX as routerGlobalX,
 } from "./Router";
-import { dhcpGlobalX, dhcpPoolX, dhcpPrivX, renderDhcp } from "./Dhcp";
+import { dhcpGlobalX, dhcpPoolX, dhcpPrivX, renderDhcp } from "@/components/labcp/Dhcp";
 import {
   routingGlobalX,
   routingPrivX,
@@ -59,9 +59,9 @@ import {
   ospfX,
   renderIfExtra,
   renderRouting,
-} from "./Routing";
-import { echIfX, echPrivX, ifEch } from "./EtherChannel";
-import { vtpGlobalX, vtpPrivX, renderVtp, vtpBlocked } from "./Vtp";
+} from "@/components/labcp/Routing";
+import { echIfX, echPrivX, ifEch } from "@/components/misc/EtherChannel";
+import { vtpGlobalX, vtpPrivX, renderVtp, vtpBlocked } from "@/components/labcp/Vtp";
 export function SwitchIcon({ size = 64 }: { size?: number }) {
   return (
     <svg width={size} height={size * 0.62} viewBox="0 0 64 40" aria-hidden>

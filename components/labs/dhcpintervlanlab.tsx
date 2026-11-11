@@ -15,10 +15,10 @@
  * MLS1 uses the Switch component: it must run a Layer 3 switch image (ip routing, interface vlan).
  * Device ids are unique across both labs because the "netlab:run" event is global.
  */
-import { NetLab, Cable, Note } from "./netsim";
-import Router from "./Router";
-import Switch from "./Switch";
-import VPC from "./VPC";
+import { NetLab, Cable, Note } from "@/components/simulator/netsim";
+import Router from "@/components/simulator/Router";
+import Switch from "@/components/simulator/Switch"; import VPC from "@/components/simulator/VPC";
+
 import { useState } from "react";
 import { Copy, Check, Play } from "lucide-react";
 

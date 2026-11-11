@@ -11,10 +11,10 @@
  * Click a device → console. Address everything, then steer the request over the top (R2)
  * and the reply along the bottom (R4).
  */
-import { NetLab, Cable, Note } from "./netsim";
-import Router from "./Router";
-import Switch from "./Switch";
-import VPC from "./VPC";
+import { NetLab, Cable, Note } from "@/components/simulator/netsim";
+import Router from "@/components/simulator/Router";
+import Switch from "@/components/simulator/Switch"; import VPC from "@/components/simulator/VPC";
+
 import { useState } from "react";
 import { Copy, Check, Play, Zap } from "lucide-react";
 

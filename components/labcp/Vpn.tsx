@@ -26,7 +26,7 @@ import {
   findIf,
   ifUp,
   isIp,
-} from "./netsim";
+} from "@/components/simulator/netsim";
 import { aclPermits } from "./Acl";
 
 const noop: H = () => {};

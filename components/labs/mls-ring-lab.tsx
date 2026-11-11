@@ -21,9 +21,8 @@
  * Needs NetLab / Cable / Note from netsim.tsx, plus Switch.
  */
 
-import { NetLab, Cable, Note } from "./netsim";
-import Switch from "./Switch";
-import { useState } from "react";
+import { NetLab, Cable, Note } from "@/components/simulator/netsim";
+import Switch from "@/components/simulator/Switch";import { useState } from "react";
 import { Copy, Check, Play, Zap } from "lucide-react";
 
 const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";

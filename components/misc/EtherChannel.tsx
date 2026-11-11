@@ -17,7 +17,7 @@ import {
   ifUp,
   peerOf,
   shortIf,
-} from "./netsim";
+} from "@/components/simulator/netsim";
 
 const MODES = ["active", "passive", "desirable", "auto", "on"] as const;
 const L2KEYS = ["mode", "vlan", "allowed", "native", "nonegotiate"] as const;
@@ -42,7 +42,8 @@ export const echIfX: E[] = [
         i.cg = n;
         i.cgMode = m;
         // members take over whatever switchport settings the port-channel already has
-        for (const k of L2KEYS) if (p[k] !== undefined) (i as Record<string, unknown>)[k] = p[k];
+        for (const k of L2KEYS)
+  if (p[k] !== undefined) (i as unknown as Record<string, unknown>)[k] = p[k];
       });
     },
     m === "on" ? "Join a static channel (no protocol)" : `Join a channel-group, ${m}`,

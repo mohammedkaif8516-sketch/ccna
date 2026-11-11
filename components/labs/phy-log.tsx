@@ -13,10 +13,9 @@
  * Every device starts in its factory state. Click a device in the PHYSICAL diagram → console.
  * Needs NetLab / Cable / Note from netsim.tsx, plus Router and Switch components.
  */
-import { NetLab, Cable, Note } from "./netsim";
-import Router from "./Router";
-import Switch from "./Switch";
-import { useState } from "react";
+import { NetLab, Cable, Note } from "@/components/simulator/netsim";
+import Router from "@/components/simulator/Router";
+import Switch from "@/components/simulator/Switch";import { useState } from "react";
 import { Copy, Check, Play, Zap } from "lucide-react";
 
 const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";

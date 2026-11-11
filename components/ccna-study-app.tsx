@@ -150,16 +150,15 @@ const SUMMARY_VIEWS: Record<string, ComponentType> = {
   switching: SwitchingVlanExplainer,
 };
 
-
 const THEMES = [
-  { id: "glass",     label: "Default Glass",   colors: ["#6D28D9", "#3B82F6"] },
-  { id: "synthwave", label: "Synthwave",       colors: ["#ff2e97", "#00f0ff"] },
-  { id: "terminal",  label: "Terminal",        colors: ["#39ff6a", "#ffb000"] },
-  { id: "deco",      label: "Art Deco",        colors: ["#d9b45a", "#0f5c4a"] },
-  { id: "biolum",    label: "Bioluminescent",  colors: ["#19e3d0", "#7dff9b"] },
-  { id: "ink",       label: "Japanese Ink",    colors: ["#c63d2f", "#2c4a6e"] },
-  { id: "forest",    label: "Autumn Forest",   colors: ["#c2571a", "#5b7a3a"] },
-  { id: "blueprint", label: "Blueprint",       colors: ["#1d4ed8", "#e8590c"] },
+  { id: "glass", label: "Default Glass", colors: ["#6D28D9", "#3B82F6"] },
+  { id: "synthwave", label: "Synthwave", colors: ["#ff2e97", "#00f0ff"] },
+  { id: "terminal", label: "Terminal", colors: ["#39ff6a", "#ffb000"] },
+  { id: "deco", label: "Art Deco", colors: ["#d9b45a", "#0f5c4a"] },
+  { id: "biolum", label: "Bioluminescent", colors: ["#19e3d0", "#7dff9b"] },
+  { id: "ink", label: "Japanese Ink", colors: ["#c63d2f", "#2c4a6e"] },
+  { id: "forest", label: "Autumn Forest", colors: ["#c2571a", "#5b7a3a"] },
+  { id: "blueprint", label: "Blueprint", colors: ["#1d4ed8", "#e8590c"] },
 ] as const;
 
 const STORAGE_KEY = "app-theme";
@@ -490,11 +489,11 @@ export function SubnetPlanner() {
             </p>
 
             <VerticalSubnetLine
-              blocks={result.blocks}
-              parentNetwork={result.parentNetwork}
-              parentSize={result.parentSize}
-              free={result.free}
-              basePrefix={result.basePrefix}
+              blocks={result.blocks!}
+              parentNetwork={result.parentNetwork!}
+              parentSize={result.parentSize!}
+              free={result.free!}
+              basePrefix={result.basePrefix!}
               colors={colors}
               intToIp={intToIp}
             />
@@ -518,7 +517,7 @@ export function SubnetPlanner() {
                   </tr>
                 </thead>
                 <tbody>
-                  {result.blocks.map((b, i) => (
+                                    {result.blocks!.map((b, i) => (
                     <tr key={b.label} className="border-t">
                       <td
                         className="px-3 py-2 font-semibold"
@@ -2272,9 +2271,7 @@ export default function CcnaStudyApp() {
               <TopicLanding
                 topic={{
                   ...selectedTopicOnly,
-                  icon:
-                    iconMap[selectedTopicOnly.icon as keyof typeof iconMap] ??
-                    BookOpen,
+                                  icon: (iconMap[selectedTopicOnly.icon as keyof typeof iconMap] ?? BookOpen) as any,
                 }}
                 completed={completed}
                 progressKey={progressKey}
