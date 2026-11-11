@@ -1,0 +1,460 @@
+diff --git a/components/labs/access-port-lab.tsx b/components/labs/access-port-lab.tsx
+index 7380a50..feed6ae 100644
+--- a/components/labs/access-port-lab.tsx
++++ b/components/labs/access-port-lab.tsx
+@@ -163,12 +163,12 @@ function Colored({ cmd }: { cmd: string }) {
+   const [first, ...rest] = cmd.trim().split(" ");
+   const color =
+     first === "interface" || first === "vlan"
+-      ? "#c084fc"
++      ? "var(--primary)"
+       : first === "switchport" ||
+           first === "no" ||
+           first === "name" ||
+           first === "ip"
+-        ? "#38bdf8"
++        ? "var(--accent)"
+         : "inherit";
+   return (
+     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
+@@ -204,7 +204,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
+         flash("ran");
+       }}
+       title="Click to run on this device"
+-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
++      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
+       style={{
+         background: state === "ran" ? "rgba(34,197,94,.18)" : undefined,
+       }}
+@@ -254,14 +254,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+   const [ran, setRan] = useState(false);
+   const [open, setOpen] = useState(false); // collapsed by default
+   return (
+-    <div
+-      style={{
+-        alignSelf: "start", border: "1px solid rgba(128,128,128,.25)",
+-        borderRadius: 10,
+-        overflow: "hidden",
+-      }}
+-    >
++    <div className="ccna-lab__device glass glass-hover">
+       <div
++        className="ccna-lab__device-header"
+         style={{
+           display: "flex",
+           alignItems: "center",
+@@ -293,13 +288,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
+             ran
+               ? "bg-green-600 hover:bg-green-500"
+-              : "bg-sky-600 hover:bg-sky-500"
++              : "bg-primary hover:bg-primary/90"
+           }`}
+         >
+           {ran ? "Ran ✓" : "Run all"}
+         </button>
+       </div>
+       <div
++        className="ccna-lab__device-commands"
+         style={{
+           padding: 6,
+           display: open ? "block" : "none",
+@@ -321,6 +317,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+ export function AccessPortLabS() {
+   return (
+     <div
++      className="ccna-lab"
+       style={{
+         display: "grid",
+         gap: 14,
+@@ -470,7 +467,7 @@ export function AccessPortLabS() {
+         </NetLab>
+       </div>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+           Objectives
+         </summary>
+@@ -522,7 +519,7 @@ export function AccessPortLabS() {
+         </ol>
+       </details>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+           What the network should look like
+         </summary>
+@@ -569,7 +566,7 @@ export function AccessPortLabS() {
+         </div>
+       </details>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+           Answer key (click a line to run it, or "Run all" per device)
+         </summary>
+diff --git a/components/labs/assymetric-lab-3.tsx b/components/labs/assymetric-lab-3.tsx
+index c195072..a77e04e 100644
+--- a/components/labs/assymetric-lab-3.tsx
++++ b/components/labs/assymetric-lab-3.tsx
+@@ -173,7 +173,7 @@ function Colored({ cmd }: { cmd: string }) {
+   const indent = cmd.length - cmd.trimStart().length;
+   const [first, ...rest] = cmd.trim().split(" ");
+   const color =
+-    first === "interface" ? "#c084fc" : first === "ip" || first === "no" ? "#38bdf8" : "inherit";
++    first === "interface" ? "var(--primary)" : first === "ip" || first === "no" ? "var(--accent)" : "inherit";
+   return (
+     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
+       {" ".repeat(indent)}
+@@ -210,7 +210,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
+         flash("ran");
+       }}
+       title="Click to run on this device"
+-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
++      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
+       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
+     >
+       <Colored cmd={cmd} />
+@@ -251,8 +251,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+   const [open, setOpen] = useState(false); // collapsed by default
+ 
+   return (
+-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
++    <div className="ccna-lab__device glass glass-hover">
+       <div
++        className="ccna-lab__device-header"
+         style={{
+           display: "flex",
+           alignItems: "center",
+@@ -283,13 +284,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
+             ran
+               ? "bg-green-600 hover:bg-green-500"
+-              : "bg-sky-600 hover:bg-sky-500"
++              : "bg-primary hover:bg-primary/90"
+           }`}
+         >
+           {ran ? "Ran ✓" : "Run all"}
+         </button>
+       </div>
+       <div
++        className="ccna-lab__device-commands"
+         style={{
+           padding: 6,
+           display: open ? "block" : "none",
+@@ -334,13 +336,13 @@ function PathRow({ label, color, hops }: { label: string; color: string; hops: s
+ /* ───────────────────────────── The lab ───────────────────────────── */
+ 
+ const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";
+-const SKY = "#38bdf8";
+-const AMBER = "#f59e0b";
+-const GREEN = "#22c55e";
++const SKY = "var(--primary)";
++const AMBER = "var(--accent)";
++const GREEN = "#16a34a";
+ 
+ export function AsymmetricRoutingLab3() {
+   return (
+-    <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
++    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%" }}> 
+   <div style={{ overflowX: "clip" }}>
+     <NetLab title="Asymmetric Routing Lab 3" width={1800} height={1180}>
+       <Note x={300} y={30}>192.168.10.XX/26 and 192.168.20.XX/26 LANs</Note>
+@@ -418,7 +420,7 @@ export function AsymmetricRoutingLab3() {
+   </div>
+ 
+ 
+-      <details style={{ font: FONT }}>
++      <details className="ccna-lab__panel" style={{ font: FONT }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
+         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
+           <li>Address every router interface and every PC from the diagram (each router takes the first usable address of its LAN, and each PC takes the next one).</li>
+@@ -444,7 +446,7 @@ export function AsymmetricRoutingLab3() {
+         </ol>
+       </details>
+ 
+-      <details style={{ font: FONT }}>
++      <details className="ccna-lab__panel" style={{ font: FONT }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What the paths should look like</summary>
+         <div style={{ marginTop: 8 }}>
+           <PathRow label="VPC13 → VPC15" color={SKY} hops={["VPC13", "R1", "R2", "R3", "VPC15"]} />
+@@ -468,7 +470,7 @@ export function AsymmetricRoutingLab3() {
+         </div>
+       </details>
+ 
+-      <details style={{ font: FONT }}>
++      <details className="ccna-lab__panel" style={{ font: FONT }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+           Answer key (click a line to run it, or "Run all" per device)
+         </summary>
+diff --git a/components/labs/assymetric-lab2.tsx b/components/labs/assymetric-lab2.tsx
+index f9dea98..401da31 100644
+--- a/components/labs/assymetric-lab2.tsx
++++ b/components/labs/assymetric-lab2.tsx
+@@ -115,7 +115,7 @@ function Colored({ cmd }: { cmd: string }) {
+   const indent = cmd.length - cmd.trimStart().length;
+   const [first, ...rest] = cmd.trim().split(" ");
+   const color =
+-    first === "interface" ? "#c084fc" : first === "ip" || first === "no" ? "#38bdf8" : "inherit";
++    first === "interface" ? "var(--primary)" : first === "ip" || first === "no" ? "var(--accent)" : "inherit";
+   return (
+     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
+       {" ".repeat(indent)}
+@@ -152,7 +152,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
+         flash("ran");
+       }}
+       title="Click to run on this device"
+-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
++      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
+       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
+     >
+       <Colored cmd={cmd} />
+@@ -193,8 +193,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+   const [open, setOpen] = useState(false); // collapsed by default
+ 
+   return (
+-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
++    <div className="ccna-lab__device glass glass-hover">
+       <div
++        className="ccna-lab__device-header"
+         style={{
+           display: "flex",
+           alignItems: "center",
+@@ -225,13 +226,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
+             ran
+               ? "bg-green-600 hover:bg-green-500"
+-              : "bg-sky-600 hover:bg-sky-500"
++              : "bg-primary hover:bg-primary/90"
+           }`}
+         >
+           {ran ? "Ran ✓" : "Run all"}
+         </button>
+       </div>
+       <div
++        className="ccna-lab__device-commands"
+         style={{
+           padding: 6,
+           display: open ? "block" : "none",
+@@ -279,7 +281,7 @@ const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";
+ 
+ export function AsymmetricRoutingLab() {
+   return (
+-    <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
++    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%" }}> 
+   <div style={{ overflowX: "clip" }}>
+     <NetLab title="Asymmetric Routing Lab 2" width={1560} height={1020}>
+       <Note x={200} y={30}>192.168.10.XX/26 LANs</Note>
+@@ -334,7 +336,7 @@ export function AsymmetricRoutingLab() {
+     </NetLab>
+   </div>
+ 
+-      <details style={{ font: FONT }}>
++      <details className="ccna-lab__panel" style={{ font: FONT }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
+         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
+           <li>Address every router interface and every PC from the diagram (each router takes the first usable address of its LAN).</li>
+@@ -354,11 +356,11 @@ export function AsymmetricRoutingLab() {
+         </ol>
+       </details>
+ 
+-      <details style={{ font: FONT }}>
++      <details className="ccna-lab__panel" style={{ font: FONT }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What asymmetric routing should look like</summary>
+         <div style={{ marginTop: 8 }}>
+-          <PathRow label="VPC9 → VPC11" color="#38bdf8" hops={["VPC9", "R1", "R2", "R3", "VPC11"]} />
+-          <PathRow label="VPC11 → VPC9" color="#f59e0b" hops={["VPC11", "R3", "R4", "R1", "VPC9"]} />
++          <PathRow label="VPC9 → VPC11" color="var(--primary)" hops={["VPC9", "R1", "R2", "R3", "VPC11"]} />
++          <PathRow label="VPC11 → VPC9" color="var(--accent)" hops={["VPC11", "R3", "R4", "R1", "VPC9"]} />
+           <p style={{ margin: "8px 0 0", opacity: 0.75 }}>
+             Static routes are stateless, so each router decides only where to send the next packet.
+             Nothing forces the reply to retrace the request, which is why both directions work even though
+@@ -368,7 +370,7 @@ export function AsymmetricRoutingLab() {
+         </div>
+       </details>
+ 
+-      <details style={{ font: FONT }}>
++      <details className="ccna-lab__panel" style={{ font: FONT }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+           Answer key (click a line to run it, or "Run all" per device)
+         </summary>
+diff --git a/components/labs/dhcpintervlanlab.tsx b/components/labs/dhcpintervlanlab.tsx
+index 950a8db..65231db 100644
+--- a/components/labs/dhcpintervlanlab.tsx
++++ b/components/labs/dhcpintervlanlab.tsx
+@@ -286,7 +286,7 @@ function Colored({ cmd }: { cmd: string }) {
+   const indent = cmd.length - cmd.trimStart().length;
+   const [first, ...rest] = cmd.trim().split(" ");
+   const isPool = first === "ip" && rest[0] === "dhcp" && rest[1] === "pool";
+-  const color = first === "interface" || first === "vlan" || isPool ? "#c084fc" : BLUE.has(first) ? "#38bdf8" : "inherit";
++  const color = first === "interface" || first === "vlan" || isPool ? "var(--primary)" : BLUE.has(first) ? "var(--accent)" : "inherit";
+   return (
+     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
+       {" ".repeat(indent)}
+@@ -321,7 +321,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
+         flash("ran");
+       }}
+       title="Click to run on this device"
+-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
++      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
+       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
+     >
+       <Colored cmd={cmd} />
+@@ -361,8 +361,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+   const [ran, setRan] = useState(false);
+   const [open, setOpen] = useState(false); // collapsed by default
+   return (
+-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
++    <div className="ccna-lab__device glass glass-hover">
+       <div
++        className="ccna-lab__device-header"
+         style={{
+           display: "flex",
+           alignItems: "center",
+@@ -391,13 +392,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+             setTimeout(() => setRan(false), 2500);
+           }}
+           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
+-            ran ? "bg-green-600 hover:bg-green-500" : "bg-sky-600 hover:bg-sky-500"
++            ran ? "bg-green-600 hover:bg-green-500" : "bg-primary hover:bg-primary/90"
+           }`}
+         >
+           {ran ? "Ran ✓" : "Run all"}
+         </button>
+       </div>
+       <div
++        className="ccna-lab__device-commands"
+         style={{
+           padding: 6,
+           display: open ? "block" : "none",
+@@ -432,7 +434,7 @@ function LabView({ lab }: { lab: Lab }) {
+   }));
+ 
+   return (
+-    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
++    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}> 
+       <div style={{ overflowX: "clip" }}>
+         <NetLab title={lab.title} width={lab.width} height={lab.height}>
+           <Note x={500} y={25} size={22}>{lab.site}</Note>
+@@ -486,7 +488,7 @@ function LabView({ lab }: { lab: Lab }) {
+         </NetLab>
+       </div>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
+         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
+           {lab.objectives.map((o, i) => (
+@@ -495,7 +497,7 @@ function LabView({ lab }: { lab: Lab }) {
+         </ol>
+       </details>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What the network should look like</summary>
+         <div style={{ marginTop: 8 }}>
+           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>{lab.explain}</p>
+@@ -550,7 +552,7 @@ function LabView({ lab }: { lab: Lab }) {
+         </div>
+       </details>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+           Answer key (click a line to run it, or "Run all" per device)
+         </summary>
+@@ -588,7 +590,7 @@ export function BrUsLab() {
+ export function DhcpInterVlanLabs() {
+   const H2: React.CSSProperties = { font: "600 18px ui-sans-serif,system-ui", margin: "0 0 10px" };
+   return (
+-    <div style={{ display: "grid", gap: 48, width: "100%" }}>
++    <div className="ccna-lab" style={{ display: "grid", gap: 48, width: "100%" }}> 
+       <section>
+         <h2 style={H2}>BR_BLR · 192.168.XX.0/24 · gateway .100 · Router-on-a-stick + DHCP</h2>
+         <BrBlrLab />
+diff --git a/components/labs/dhcpospflab.tsx b/components/labs/dhcpospflab.tsx
+index 7b6dc7b..e597e15 100644
+--- a/components/labs/dhcpospflab.tsx
++++ b/components/labs/dhcpospflab.tsx
+@@ -281,7 +281,7 @@ function Colored({ cmd }: { cmd: string }) {
+   const [first, ...rest] = cmd.trim().split(" ");
+   const isPool = first === "ip" && rest[0] === "dhcp" && rest[1] === "pool";
+   const color =
+-    first === "interface" || first === "vlan" || first === "router" || isPool ? "#c084fc" : BLUE.has(first) ? "#38bdf8" : "inherit";
++    first === "interface" || first === "vlan" || first === "router" || isPool ? "var(--primary)" : BLUE.has(first) ? "var(--accent)" : "inherit";
+   return (
+     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
+       {" ".repeat(indent)}
+@@ -316,7 +316,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
+         flash("ran");
+       }}
+       title="Click to run on this device"
+-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
++      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
+       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
+     >
+       <Colored cmd={cmd} />
+@@ -356,8 +356,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+   const [ran, setRan] = useState(false);
+   const [open, setOpen] = useState(false); // collapsed by default
+   return (
+-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
++    <div className="ccna-lab__device glass glass-hover">
+       <div
++        className="ccna-lab__device-header"
+         style={{
+           display: "flex",
+           alignItems: "center",
+@@ -386,13 +387,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
+             setTimeout(() => setRan(false), 2500);
+           }}
+           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
+-            ran ? "bg-green-600 hover:bg-green-500" : "bg-sky-600 hover:bg-sky-500"
++            ran ? "bg-green-600 hover:bg-green-500" : "bg-primary hover:bg-primary/90"
+           }`}
+         >
+           {ran ? "Ran ✓" : "Run all"}
+         </button>
+       </div>
+       <div
++        className="ccna-lab__device-commands"
+         style={{
+           padding: 6,
+           display: open ? "block" : "none",
+@@ -428,7 +430,7 @@ export function DhcpRelayOspfLab() {
+   const mls = US.switches[0];
+ 
+   return (
+-    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
++    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}> 
+       <div style={{ overflowX: "clip" }}>
+         <NetLab title="DHCP Relay + OSPF Lab" width={3000} height={1150}>
+           {/* branch titles */}
+@@ -506,7 +508,7 @@ export function DhcpRelayOspfLab() {
+         </NetLab>
+       </div>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
+         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
+           <li>
+@@ -572,7 +574,7 @@ export function DhcpRelayOspfLab() {
+         </ol>
+       </details>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What the network should look like</summary>
+         <div style={{ marginTop: 8 }}>
+           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>
+@@ -647,7 +649,7 @@ export function DhcpRelayOspfLab() {
+         </div>
+       </details>
+ 
+-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
++      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+           Answer key (click a line to run it, or "Run all" per device)
+         </summary>

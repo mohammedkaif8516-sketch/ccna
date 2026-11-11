@@ -135,9 +135,9 @@ function Colored({ cmd }: { cmd: string }) {
   const [first, ...rest] = cmd.trim().split(" ");
   const color =
     first === "interface" || first === "vlan" || first === "router"
-      ? "#c084fc"
+      ? "var(--primary)"
       : first === "switchport" || first === "no" || first === "name" || first === "ip" || first === "encapsulation" || first === "router-id" || first === "network" || first === "channel-group"
-        ? "#38bdf8"
+        ? "var(--accent)"
         : "inherit";
   return (
     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
@@ -173,7 +173,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
+      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
     >
       <Colored cmd={cmd} />
@@ -214,8 +214,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   const [open, setOpen] = useState(false); // collapsed by default
 
   return (
-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
+    <div className="ccna-lab__device glass glass-hover">
       <div
+        className="ccna-lab__device-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -247,13 +248,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
             ran
               ? "bg-green-600 hover:bg-green-500"
-              : "bg-sky-600 hover:bg-sky-500"
+              : "bg-primary hover:bg-primary/90"
           }`}
         >
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
       <div
+        className="ccna-lab__device-commands"
         style={{
           padding: 6,
           display: open ? "block" : "none",
@@ -310,7 +312,7 @@ function LogicalDiagram() {
         const dx = B.x - A.x, dy = B.y - A.y, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
         return (
           <g key={i}>
-            <line x1={A.x} y1={A.y} x2={B.x} y2={B.y} stroke="#38bdf8" strokeWidth={2.2} opacity={0.85} />
+            <line x1={A.x} y1={A.y} x2={B.x} y2={B.y} style={{ stroke: "var(--accent)" }} strokeWidth={2.2} opacity={0.85} />
             <text x={A.x + ux * 50} y={A.y + uy * 50 + 4} fontSize={13} fontWeight={700} fill="#22d3ee" textAnchor="middle">{ta}</text>
             {tb && <text x={B.x - ux * 50} y={B.y - uy * 50 + 4} fontSize={13} fontWeight={700} fill="#22d3ee" textAnchor="middle">{tb}</text>}
           </g>
@@ -348,7 +350,7 @@ const RPOS: Record<string, [number, number]> = {
 
 export function PhysicalLogicalLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
+    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
       <div style={{ minWidth: 0 }}>
         <div style={{ font: "600 13px ui-sans-serif,system-ui", margin: "0 0 6px" }}>
           Physical (what you build and configure: click a device)
@@ -378,7 +380,7 @@ export function PhysicalLogicalLab() {
         </div>
       </div>
 
-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
           <li>
@@ -428,7 +430,7 @@ export function PhysicalLogicalLab() {
         </ol>
       </details>
 
-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What the network should look like</summary>
         <div style={{ marginTop: 8 }}>
           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>
@@ -490,7 +492,7 @@ export function PhysicalLogicalLab() {
         </div>
       </details>
 
-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>

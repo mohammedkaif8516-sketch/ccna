@@ -252,7 +252,7 @@ function Colored({ cmd }: { cmd: string }) {
     first === "interface" ||
     first === "vlan" ||
     first === "router"
-      ? "#c084fc"
+      ? "var(--primary)"
       : first === "switchport" ||
           first === "no" ||
           first === "name" ||
@@ -261,7 +261,7 @@ function Colored({ cmd }: { cmd: string }) {
           first === "router-id" ||
           first === "network" ||
           first === "channel-group"
-        ? "#38bdf8"
+        ? "var(--accent)"
         : "inherit";
 
   return (
@@ -316,7 +316,7 @@ function KeyLine({
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
+      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
       style={{
         background:
           state === "ran"
@@ -374,8 +374,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   const [ran, setRan] = useState(false);
   const [open, setOpen] = useState(false); // collapsed by default
   return (
-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
+    <div className="ccna-lab__device glass glass-hover">
       <div
+        className="ccna-lab__device-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -408,7 +409,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
             ran
               ? "bg-green-600 hover:bg-green-500"
-              : "bg-sky-600 hover:bg-sky-500"
+              : "bg-primary hover:bg-primary/90"
           }`}
         >
           {ran ? "Ran ✓" : "Run all"}
@@ -416,6 +417,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
       </div>
 
       <div
+        className="ccna-lab__device-commands"
         style={{
           padding: 6,
           display: open ? "block" : "none",
@@ -467,7 +469,7 @@ function LogicalDiagram() {
         y1={90}
         x2={650}
         y2={330}
-        stroke="#38bdf8"
+        style={{ stroke: "var(--accent)" }}
         strokeWidth={3}
       />
 
@@ -476,7 +478,7 @@ function LogicalDiagram() {
         y={146}
         fontSize={14}
         fontWeight={700}
-        fill="#38bdf8"
+        style={{ fill: "var(--accent)" }}
         textAnchor="middle"
         transform="rotate(25.6 300 146)"
       >
@@ -590,7 +592,7 @@ function LogicalDiagram() {
 
 export function MlsRingLab() {
   return (
-    <div
+    <div className="ccna-lab"
       style={{
         display: "grid",
         gap: 14,
@@ -697,7 +699,7 @@ export function MlsRingLab() {
 
       {/* OBJECTIVES */}
 
-      <details
+      <details className="ccna-lab__panel"
         style={{
           font: FONT,
           minWidth: 0,
@@ -822,7 +824,7 @@ export function MlsRingLab() {
 
       {/* EXPECTED NETWORK BEHAVIOUR */}
 
-      <details
+      <details className="ccna-lab__panel"
         style={{
           font: FONT,
           minWidth: 0,
@@ -985,7 +987,7 @@ export function MlsRingLab() {
 
       {/* ANSWER KEY */}
 
-      <details
+      <details className="ccna-lab__panel"
         style={{
           font: FONT,
           minWidth: 0,

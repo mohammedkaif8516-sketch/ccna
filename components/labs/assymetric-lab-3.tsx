@@ -173,7 +173,7 @@ function Colored({ cmd }: { cmd: string }) {
   const indent = cmd.length - cmd.trimStart().length;
   const [first, ...rest] = cmd.trim().split(" ");
   const color =
-    first === "interface" ? "#c084fc" : first === "ip" || first === "no" ? "#38bdf8" : "inherit";
+    first === "interface" ? "var(--primary)" : first === "ip" || first === "no" ? "var(--accent)" : "inherit";
   return (
     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
       {" ".repeat(indent)}
@@ -210,7 +210,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
+      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
     >
       <Colored cmd={cmd} />
@@ -251,8 +251,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   const [open, setOpen] = useState(false); // collapsed by default
 
   return (
-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
+    <div className="ccna-lab__device glass glass-hover">
       <div
+        className="ccna-lab__device-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -283,13 +284,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
             ran
               ? "bg-green-600 hover:bg-green-500"
-              : "bg-sky-600 hover:bg-sky-500"
+              : "bg-primary hover:bg-primary/90"
           }`}
         >
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
       <div
+        className="ccna-lab__device-commands"
         style={{
           padding: 6,
           display: open ? "block" : "none",
@@ -334,13 +336,13 @@ function PathRow({ label, color, hops }: { label: string; color: string; hops: s
 /* ───────────────────────────── The lab ───────────────────────────── */
 
 const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";
-const SKY = "#38bdf8";
-const AMBER = "#f59e0b";
-const GREEN = "#22c55e";
+const SKY = "var(--primary)";
+const AMBER = "var(--accent)";
+const GREEN = "#16a34a";
 
 export function AsymmetricRoutingLab3() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
+    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%" }}> 
   <div style={{ overflowX: "clip" }}>
     <NetLab title="Asymmetric Routing Lab 3" width={1800} height={1180}>
       <Note x={300} y={30}>192.168.10.XX/26 and 192.168.20.XX/26 LANs</Note>
@@ -418,7 +420,7 @@ export function AsymmetricRoutingLab3() {
   </div>
 
 
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
           <li>Address every router interface and every PC from the diagram (each router takes the first usable address of its LAN, and each PC takes the next one).</li>
@@ -444,7 +446,7 @@ export function AsymmetricRoutingLab3() {
         </ol>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What the paths should look like</summary>
         <div style={{ marginTop: 8 }}>
           <PathRow label="VPC13 → VPC15" color={SKY} hops={["VPC13", "R1", "R2", "R3", "VPC15"]} />
@@ -468,7 +470,7 @@ export function AsymmetricRoutingLab3() {
         </div>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>

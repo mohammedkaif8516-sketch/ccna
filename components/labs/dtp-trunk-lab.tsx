@@ -128,9 +128,9 @@ function Colored({ cmd }: { cmd: string }) {
   const [first, ...rest] = cmd.trim().split(" ");
   const color =
     first === "interface" || first === "vlan"
-      ? "#c084fc"
+      ? "var(--primary)"
       : first === "switchport" || first === "no" || first === "name" || first === "ip"
-        ? "#38bdf8"
+        ? "var(--accent)"
         : "inherit";
   return (
     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
@@ -166,7 +166,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
+      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
     >
       <Colored cmd={cmd} />
@@ -206,8 +206,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   const [ran, setRan] = useState(false);
   const [open, setOpen] = useState(false); // collapsed by default
   return (
-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
+    <div className="ccna-lab__device glass glass-hover">
       <div
+        className="ccna-lab__device-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -239,13 +240,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
             ran
               ? "bg-green-600 hover:bg-green-500"
-              : "bg-sky-600 hover:bg-sky-500"
+              : "bg-primary hover:bg-primary/90"
           }`}
         >
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
       <div
+        className="ccna-lab__device-commands"
         style={{
           padding: 6,
           display: open ? "block" : "none",
@@ -266,7 +268,7 @@ function DeviceCard({ device }: { device: KeyDevice }) {
 
 export function DtpTrunkLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
+    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%", gridTemplateColumns: "minmax(0, 1fr)", width: "100%" }}>
       <div style={{ overflowX: "clip" }}>
         <NetLab title="Manual & DTP Trunking Lab" width={1000} height={1000}>
           <Note x={500} y={25} size={22}>LAB1 · Manual Trunking &amp; DTP Trunk</Note>
@@ -338,7 +340,7 @@ export function DtpTrunkLab() {
         </NetLab>
       </div>
 
-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
           <li>
@@ -385,7 +387,7 @@ export function DtpTrunkLab() {
         </ol>
       </details>
 
-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What the network should look like</summary>
         <div style={{ marginTop: 8 }}>
           <p style={{ margin: "0 0 8px", opacity: 0.75 }}>
@@ -425,7 +427,7 @@ export function DtpTrunkLab() {
         </div>
       </details>
 
-      <details style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
+      <details className="ccna-lab__panel" style={{ font: FONT, minWidth: 0, overflowWrap: "anywhere" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>

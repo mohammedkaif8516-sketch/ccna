@@ -85,9 +85,9 @@ function Colored({ line }: { line: string }) {
   const [first, ...rest] = line.trim().split(" ");
   const color =
     first === "interface"
-      ? "#c084fc"
+      ? "var(--primary)"
       : first === "ip" || first === "no"
-        ? "#38bdf8"
+        ? "var(--accent)"
         : "inherit";
   return (
     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
@@ -123,7 +123,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
+      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
       style={{
         background: state === "ran" ? "rgba(34,197,94,.18)" : undefined,
       }}
@@ -159,15 +159,8 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   const [ran, setRan] = useState(false);
   const [open, setOpen] = useState(false); // collapsed by default
   return (
-    <div
-      style={{
-        alignSelf: "start",
-        border: "1px solid rgba(128,128,128,.25)",
-        borderRadius: 10,
-        overflow: "hidden",
-      }}
-    >
-      <div
+    <div className="ccna-lab__device glass glass-hover">
+      <div className="ccna-lab__device-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -196,13 +189,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
             ran
               ? "bg-green-600 hover:bg-green-500"
-              : "bg-sky-600 hover:bg-sky-500"
+              : "bg-primary hover:bg-primary/90"
           }`}
         >
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
       <div
+        className="ccna-lab__device-commands"
         style={{
           padding: 6,
           display: open ? "block" : "none",
@@ -219,9 +213,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   );
 }
 const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";
-const SKY = "#38bdf8";
-const AMBER = "#f59e0b";
-const GREEN = "#22c55e";
+const SKY = "var(--primary)";
+const AMBER = "var(--accent)";
+const GREEN = "#16a34a";
 
 function PathRow({
   label,
@@ -266,7 +260,7 @@ function PathRow({
 }
 export function StaticRoutingLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
+    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
       <div style={{ overflowX: "clip" }}>
         <NetLab title="Static Routing Lab 1" width={1200} height={740}>
           <Note x={600} y={34} size={22}>
@@ -324,7 +318,7 @@ export function StaticRoutingLab() {
           <VPC id="VPC12" x={1110} y={600} />
         </NetLab>
       </div>
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Objectives
         </summary>
@@ -365,7 +359,7 @@ export function StaticRoutingLab() {
         </ol>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           What static routing should look like
         </summary>
@@ -401,7 +395,7 @@ export function StaticRoutingLab() {
         </div>
       </details>
 
-      <details style={{ font: "13px/1.5 ui-sans-serif,system-ui,sans-serif" }}>
+      <details className="ccna-lab__panel" style={{ font: "13px/1.5 ui-sans-serif,system-ui,sans-serif" }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>

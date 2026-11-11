@@ -115,7 +115,7 @@ function Colored({ cmd }: { cmd: string }) {
   const indent = cmd.length - cmd.trimStart().length;
   const [first, ...rest] = cmd.trim().split(" ");
   const color =
-    first === "interface" ? "#c084fc" : first === "ip" || first === "no" ? "#38bdf8" : "inherit";
+    first === "interface" ? "var(--primary)" : first === "ip" || first === "no" ? "var(--accent)" : "inherit";
   return (
     <span style={{ whiteSpace: "pre-wrap", flexShrink: 1, minWidth: 0 }}>
       {" ".repeat(indent)}
@@ -152,7 +152,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-sky-500/10"
+      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
     >
       <Colored cmd={cmd} />
@@ -193,8 +193,9 @@ function DeviceCard({ device }: { device: KeyDevice }) {
   const [open, setOpen] = useState(false); // collapsed by default
 
   return (
-    <div style={{ alignSelf: "start", border: "1px solid rgba(128,128,128,.25)", borderRadius: 10, overflow: "hidden" }}>
+    <div className="ccna-lab__device glass glass-hover">
       <div
+        className="ccna-lab__device-header"
         style={{
           display: "flex",
           alignItems: "center",
@@ -225,13 +226,14 @@ function DeviceCard({ device }: { device: KeyDevice }) {
           className={`ml-auto inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] text-white transition-colors ${
             ran
               ? "bg-green-600 hover:bg-green-500"
-              : "bg-sky-600 hover:bg-sky-500"
+              : "bg-primary hover:bg-primary/90"
           }`}
         >
           {ran ? "Ran ✓" : "Run all"}
         </button>
       </div>
       <div
+        className="ccna-lab__device-commands"
         style={{
           padding: 6,
           display: open ? "block" : "none",
@@ -279,7 +281,7 @@ const FONT = "13px/1.5 ui-sans-serif,system-ui,sans-serif";
 
 export function AsymmetricRoutingLab() {
   return (
-    <div style={{ display: "grid", gap: 14, maxWidth: "100%" }}>
+    <div className="ccna-lab" style={{ display: "grid", gap: 14, maxWidth: "100%" }}> 
   <div style={{ overflowX: "clip" }}>
     <NetLab title="Asymmetric Routing Lab 2" width={1560} height={1020}>
       <Note x={200} y={30}>192.168.10.XX/26 LANs</Note>
@@ -334,7 +336,7 @@ export function AsymmetricRoutingLab() {
     </NetLab>
   </div>
 
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>Objectives</summary>
         <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
           <li>Address every router interface and every PC from the diagram (each router takes the first usable address of its LAN).</li>
@@ -354,11 +356,11 @@ export function AsymmetricRoutingLab() {
         </ol>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>What asymmetric routing should look like</summary>
         <div style={{ marginTop: 8 }}>
-          <PathRow label="VPC9 → VPC11" color="#38bdf8" hops={["VPC9", "R1", "R2", "R3", "VPC11"]} />
-          <PathRow label="VPC11 → VPC9" color="#f59e0b" hops={["VPC11", "R3", "R4", "R1", "VPC9"]} />
+          <PathRow label="VPC9 → VPC11" color="var(--primary)" hops={["VPC9", "R1", "R2", "R3", "VPC11"]} />
+          <PathRow label="VPC11 → VPC9" color="var(--accent)" hops={["VPC11", "R3", "R4", "R1", "VPC9"]} />
           <p style={{ margin: "8px 0 0", opacity: 0.75 }}>
             Static routes are stateless, so each router decides only where to send the next packet.
             Nothing forces the reply to retrace the request, which is why both directions work even though
@@ -368,7 +370,7 @@ export function AsymmetricRoutingLab() {
         </div>
       </details>
 
-      <details style={{ font: FONT }}>
+      <details className="ccna-lab__panel" style={{ font: FONT }}>
         <summary style={{ cursor: "pointer", fontWeight: 600 }}>
           Answer key (click a line to run it, or "Run all" per device)
         </summary>
