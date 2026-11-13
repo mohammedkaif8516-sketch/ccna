@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * Router-on-a-Stick Lab — 3 switches, 12 VPCs, 1 router (R16), VLANs 10/20/30/40.
@@ -475,3 +476,4 @@ export function RouterOnAStickLab() {
 }
 
 export default RouterOnAStickLab;
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

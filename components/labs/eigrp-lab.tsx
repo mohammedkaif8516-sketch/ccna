@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * EIGRP 100 Lab — 8 routers: R3 and R6 are joined by a shared segment (SW9) together with R4 and R5,
@@ -441,3 +442,4 @@ export function EigrpLab() {
     </div>
   );
 }
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

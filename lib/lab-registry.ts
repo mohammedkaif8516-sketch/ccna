@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 export type LabKeyLine = { cmd: string; note?: string };
 export type LabKeyDevice = { id: string; title?: string; kind: string; lines: LabKeyLine[] };
 export type LabExport = { answerKey: LabKeyDevice[] };
-type LabModule = { default: ComponentType; LAB_EXPORT: LabExport };
+type LabModule = { LAB_EXPORT: LabExport; default?: ComponentType };
 
 export const LAB_LOADERS: Record<string, () => Promise<LabModule>> = {
   "static-routing-lab-1":     () => import("@/components/labs/static-routing-lab"),
@@ -21,9 +21,9 @@ export const LAB_LOADERS: Record<string, () => Promise<LabModule>> = {
   "ospf-lab":                 () => import("@/components/labs/ospf-lab"),
     "mls-ring-all-vlans":       () => import("@/components/labs/mls-ring-lab"),
   "physical-logical-lab":     () => import("@/components/labs/phy-log"),
-  "dhcp-intervlan-labs":      () => import("@/components/labs/dhcpintervlanlab"),
-  "dhcp-relay-ospf-lab":      () => import("@/components/labs/dhcpospflab"),
-  "vtp-labs":                 () => import("@/components/labs/vtp-labs"),
+//   "dhcp-intervlan-labs":      () => import("@/components/labs/dhcpintervlanlab"),
+//   "dhcp-relay-ospf-lab":      () => import("@/components/labs/dhcpospflab"),
+//   "vtp-labs":                 () => import("@/components/labs/vtp-labs"),
 };
   
 export const normalizeKey = (

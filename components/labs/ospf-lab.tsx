@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * OSPF 1024 Lab — 8 routers, multi-area (10 / 20 / 0 / 30), two shared segments (SW9 = 200.10.7.0/24,
@@ -375,3 +376,4 @@ export function OspfLab() {
     </div>
   );
 }
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

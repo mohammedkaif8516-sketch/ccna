@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * RIP v1 Lab — 5 routers in a ring (pentagon), a switch + 1 PC behind each, 192.168.XX.0/24 addressing.
@@ -462,3 +463,4 @@ export function RipV1Lab() {
     </div>
   );
 }
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

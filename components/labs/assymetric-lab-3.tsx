@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * Asymmetric Routing Lab 3 — Lab 2's ring (R1–R2–R3–R4) plus two stub routers:
@@ -491,3 +492,4 @@ export function AsymmetricRoutingLab3() {
     </div>
   );
 }
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

@@ -386,8 +386,7 @@ export function PdfDocument({
             <Text
               id={`t-${g.slug}`}
               style={s.topicTitle}
-              bookmark={{ title: `${g.number} ${g.title}`, expanded: true }}
-            >
+  {...({ bookmark: { title: `${g.number} ${g.title}`, expanded: true } } as object)}            >
               {g.title}
             </Text>
 
@@ -400,8 +399,7 @@ export function PdfDocument({
                 <Text
                   id={`s-${sub.slug}`}
                   style={s.h2}
-                  bookmark={{ title: sub.title }}
-                >
+  {...({ bookmark: { title: sub.title } } as object)}                >
                   {sub.title}
                 </Text>
                 {sub.description ? (

@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * Physical Works as Logical Lab — ONE switch (SW) and 8 routers, each router has a SINGLE cable (its e0/0) to SW.
@@ -515,3 +516,4 @@ export function PhysicalLogicalLab() {
 }
 
 export default PhysicalLogicalLab;
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

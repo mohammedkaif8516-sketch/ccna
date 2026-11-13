@@ -1,5 +1,6 @@
 
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * MLS Ring Lab — All VLANs Allowed on All Trunks.
@@ -1017,3 +1018,5 @@ export function MlsRingLab() {
 }
 
 export default MlsRingLab;
+
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

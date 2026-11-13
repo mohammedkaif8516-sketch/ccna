@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * Manual Trunking Lab (Intra-VLAN) — 3 switches, 12 VPCs, VLANs 10/20/30/40.
@@ -441,3 +442,4 @@ export function TrunkLab() {
 }
 
 export default TrunkLab;
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

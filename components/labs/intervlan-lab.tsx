@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * Inter-VLAN Lab — 3 switches, 12 VPCs, 1 router (R16), VLANs 10/20/30/40.
@@ -491,3 +492,4 @@ export function InterVlanLab() {
 }
 
 export default InterVlanLab;
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

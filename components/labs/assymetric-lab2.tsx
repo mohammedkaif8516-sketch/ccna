@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * Asymmetric Routing Lab 2 — 4 routers in a ring (R1–R2–R3–R4), a switch + 1 PC behind each.
@@ -391,3 +392,4 @@ export function AsymmetricRoutingLab() {
     </div>
   );
 }
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };

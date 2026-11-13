@@ -3337,7 +3337,8 @@ export function NetLab({
   return (
     <Lab.Provider value={{ store, open, active, w: width, h: height }}>
       <style>{CSS}</style>
-      <section
+            <section
+        data-netlab
         className="ns-lab"
         aria-label={title}
         style={{ position: "relative" }}

@@ -1,4 +1,5 @@
 "use client";
+import { normalizeKey, type LabExport } from "@/lib/lab-registry";
 
 /**
  * Static Routing Lab 1 — 3 routers in a line, a switch + 2 PCs behind each, 192.168.XX.0/24 addressing.
@@ -424,3 +425,5 @@ export function StaticRoutingLab() {
     </div>
   );
 }
+
+export const LAB_EXPORT: LabExport = { answerKey: normalizeKey(ANSWER_KEY) };
