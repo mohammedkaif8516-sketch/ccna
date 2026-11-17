@@ -3110,6 +3110,11 @@
   font-weight: 700;
 }
 
+/* Fix for themes like blueprint where --primary is white */
+.ccna-lab__device button.bg-primary {
+  color: var(--primary-foreground);
+}
+
 .ccna-lab :where(table) {
   width: 100%;
   color: var(--foreground);
