@@ -5679,6 +5679,526 @@ export const topics: Topic[] = [
           { label: 'Run from', value: 'Privileged EXEC mode (#)' },
         ],
       },
+            {
+        slug: 'acl-introduction-purpose-and-rules',
+        title: 'ACL Introduction (Purpose, Rules, Sequence Numbers)',
+        group: 'ACL',
+        description: 'An Access Control List (ACL) is an ordered set of permit/deny rules used to filter traffic or to identify traffic for other features.',
+        blocks: [
+          { type: 'heading', text: 'Purposes of an ACL' },
+          {
+            type: 'bullets', items: [
+              'Traffic filtering - control which traffic is allowed or blocked on an interface.',
+              'Traffic identification - select traffic for manipulation, condition based routing and Quality of Service (QoS) configuration.',
+            ]
+          },
+          { type: 'heading', text: 'How an ACL works' },
+          {
+            type: 'bullets', items: [
+              'An ACL is a set of rules organised in a rule table, in order.',
+              'Every rule (statement) has one of two conditions: permit or deny.',
+              'Every rule has a sequence number, assigned in increments of 10 (10, 20, 30...).',
+              'Traffic is checked from the lowest sequence number to the highest.',
+            ]
+          },
+          { type: 'heading', text: 'Permit and deny meaning' },
+          {
+            type: 'bullets', items: [
+              'Traffic filtering on an interface: permit allows the traffic, deny blocks it.',
+              'Traffic identification: permit includes the traffic, deny excludes it.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Purposes', value: 'Filtering and Identification' },
+          { label: 'Conditions', value: 'permit / deny' },
+          { label: 'Sequence step', value: '10, 20, 30...' },
+          { label: 'Check order', value: 'Lowest to highest sequence number' },
+        ],
+      },
+
+      {
+        slug: 'acl-rule-processing-and-implicit-deny',
+        title: 'ACL Rule Processing and Implicit Deny',
+        group: 'ACL',
+        description: 'Traffic is matched against ACL rules from top to bottom, and every ACL ends with a hidden implicit deny that blocks everything not matched.',
+        blocks: [
+          { type: 'heading', text: 'Processing order' },
+          {
+            type: 'bullets', items: [
+              'Traffic moves from the lowest sequence number to the highest.',
+              'The first matching rule is applied and the remaining rules are not checked.',
+              'At the bottom of every ACL (standard and extended) there is an implicit deny that blocks all traffic not matched above.',
+            ]
+          },
+          { type: 'heading', text: 'Example rule table' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `Seq no   Rule
+10       Rule 1
+20       Rule 2
+30       Rule 3
+(hidden) Implicit Deny`
+          },
+          { type: 'heading', text: 'Important notes' },
+          {
+            type: 'bullets', items: [
+              'The implicit deny does not need to be written in the rulebook.',
+              'To allow the remaining traffic, add an explicit permit any at the end.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Match type', value: 'First match wins' },
+          { label: 'Last rule', value: 'Implicit deny (hidden)' },
+          { label: 'Allow the rest', value: 'permit any' },
+        ],
+      },
+
+      {
+        slug: 'acl-types-ip-based-and-mac-based',
+        title: 'ACL Types (IP Based and MAC Based)',
+        group: 'ACL',
+        description: 'ACLs are divided by scope into IP based ACLs, which check Layer 3 and Layer 4 headers, and MAC based ACLs, which check the Layer 2 header.',
+        blocks: [
+          { type: 'heading', text: 'IP based ACL' },
+          {
+            type: 'bullets', items: [
+              'Used on routers, firewalls and Layer 3 switches.',
+              'Checks the IP header and the TCP/UDP header.',
+              'Filters or identifies traffic using: source IP address, destination IP address, source port number, destination port number and protocol.',
+            ]
+          },
+          { type: 'heading', text: 'MAC based ACL' },
+          {
+            type: 'bullets', items: [
+              'Used on Layer 2 switches.',
+              'Checks the Layer 2 (MAC) header.',
+              'Filters or identifies traffic using: source MAC address and destination MAC address.',
+            ]
+          },
+        ],
+        diagrams: [
+  {
+    src: '/diagrams/acl_types_ip_mac_wide.png',
+    alt: 'ACL types: IP based ACL checks the IP header and TCP/UDP header on routers, firewalls and L3 switches; MAC based ACL checks the L2 header on L2 switches',
+    caption: 'IP based ACL vs MAC based ACL',
+  },
+],
+        quickReference: [
+          { label: 'IP based', value: 'Routers / Firewalls / L3 switches' },
+          { label: 'MAC based', value: 'L2 switches' },
+          { label: 'IP ACL checks', value: 'Src/Dst IP, Src/Dst port, protocol' },
+          { label: 'MAC ACL checks', value: 'Src/Dst MAC' },
+        ],
+        
+      },
+
+      {
+        slug: 'acl-numbered-vs-named-and-number-ranges',
+        title: 'Numbered vs Named ACL and Number Ranges',
+        group: 'ACL',
+        description: 'IP ACLs are either numbered (identified by a number range) or named (identified by any name or number), each available as standard or extended.',
+        blocks: [
+          { type: 'heading', text: 'Numbered ACL' },
+          {
+            type: 'bullets', items: [
+              'Uses a range of numbers to represent the ACL type.',
+              'Standard ACL: 1-99 (old range) and 1300-1999 (new range).',
+              'Extended ACL: 100-199 (old range) and 2000-2699 (new range).',
+              'Example: 50 is a standard ACL and 150 is an extended ACL.',
+            ]
+          },
+          { type: 'heading', text: 'Named ACL' },
+          {
+            type: 'bullets', items: [
+              'Uses any name or number to represent the ACL, with no limit on how many can be created.',
+              'Available as standard and extended.',
+              'Examples: ACL-RP, TELNET, BL_UDP, HTTP, NL_TCP-SSH.',
+            ]
+          },
+          { type: 'heading', text: 'ACL number ranges by type' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `1-99       => IP standard ACL
+100-199    => IP extended ACL
+200-299    => Protocol type-code ACL
+300-399    => DECnet ACL
+400-499    => XNS standard ACL
+500-599    => XNS extended ACL
+600-699    => AppleTalk ACL
+700-799    => MAC ACL
+800-899    => IPX standard ACL
+900-999    => IPX extended ACL
+1000-1099  => IPX SAP ACL
+1100-1199  => MAC extended ACL
+1200-1299  => IPX summary ACL
+1300-1999  => IP standard ACL (new range)
+2000-2699  => IP extended ACL (new range)`
+          },
+        ],
+        quickReference: [
+          { label: 'Standard', value: '1-99, 1300-1999' },
+          { label: 'Extended', value: '100-199, 2000-2699' },
+          { label: 'MAC ACL', value: '700-799, 1100-1199' },
+          { label: 'Named ACL', value: 'Any name or number' },
+        ],
+      },
+
+      {
+        slug: 'acl-applying-on-interfaces',
+        title: 'Applying ACL on Interfaces (Inbound / Outbound)',
+        group: 'ACL',
+        description: 'Traffic filtering with an ACL needs three steps: configure the ACL, identify the interface, and apply the ACL in the correct direction.',
+        blocks: [
+          { type: 'heading', text: 'Steps for traffic filtering' },
+          {
+            type: 'bullets', items: [
+              'Step 1: Configure the ACL.',
+              'Step 2: Identify the interface to apply the ACL on.',
+              'Step 3: Apply the ACL on the interface in the correct direction (inbound or outbound) according to the traffic flow.',
+            ]
+          },
+          { type: 'heading', text: 'Direction' },
+          {
+            type: 'bullets', items: [
+              'Inbound - traffic entering the router through the interface.',
+              'Outbound - traffic leaving the router through the interface.',
+            ]
+          },
+          { type: 'heading', text: 'Apply command' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# interface f0/0
+(config-if)# ip access-group <acl-number | acl-name> <in | out>`
+          },
+        ],
+        diagrams: [
+  {
+    src: '/diagrams/acl_interface_direction_wide.png',
+    alt: 'A router with an ACL applied on interface f0/0: inbound traffic enters the router through the ACL and outbound traffic leaves through it; permit allows traffic and deny blocks it',
+    caption: 'ACL on a router interface: inbound and outbound direction',
+  },
+],
+        quickReference: [
+          { label: 'Apply', value: 'ip access-group <no|name> <in|out>' },
+          { label: 'Inbound', value: 'Traffic entering the interface' },
+          { label: 'Outbound', value: 'Traffic leaving the interface' },
+        ],
+      },
+
+      {
+        slug: 'numbered-standard-acl',
+        title: 'Numbered Standard ACL',
+        group: 'ACL',
+        description: 'A standard ACL is source based: it checks only the source IP address of the traffic to permit or deny it.',
+        blocks: [
+          { type: 'heading', text: 'Key points' },
+          {
+            type: 'bullets', items: [
+              'Standard ACL is a source based ACL - only the source IP address is checked.',
+              'Each rule gets a sequence number automatically, in increments of 10.',
+              'Traffic is checked from the lowest to the highest sequence number.',
+              'An implicit deny sits at the bottom of the ACL.',
+            ]
+          },
+          { type: 'heading', text: 'Configuration syntax' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# access-list <1-99> <permit | deny> host <ip-address>
+(config)# access-list <1-99> <permit | deny> <network> <wildcard-mask>
+(config)# access-list <1-99> <permit | deny> any`
+          },
+          { type: 'heading', text: 'Examples' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# access-list 1 deny host 192.168.10.1
+(config)# access-list 1 permit 192.168.10.0 0.0.0.255
+(config)# access-list 1 permit any`
+          },
+        ],
+        quickReference: [
+          { label: 'Range', value: '1-99, 1300-1999' },
+          { label: 'Checks', value: 'Source IP only' },
+          { label: 'Single host', value: 'host <ip>' },
+          { label: 'All traffic', value: 'any' },
+          { label: 'Network', value: '<network> <wildcard-mask>' },
+        ],
+      },
+
+      {
+        slug: 'numbered-standard-acl-examples',
+        title: 'Numbered Standard ACL Examples',
+        group: 'ACL',
+        description: 'Worked examples showing why rule order matters: specific deny rules must be placed before the broader permit rules.',
+        blocks: [
+          { type: 'heading', text: 'Requirement 1' },
+          {
+            type: 'bullets', items: [
+              'Block 192.168.10.1 and 192.168.10.10, allow the rest of 192.168.10.0/24.',
+              'Allow only 192.168.20.1, 192.168.20.2 and 192.168.20.200 from 192.168.20.0/24.',
+              'Everything else (for example 192.168.20.30 or 100.x.x.x) is blocked by the implicit deny.',
+            ]
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# access-list 1 deny host 192.168.10.1
+(config)# access-list 1 deny host 192.168.10.10
+(config)# access-list 1 permit 192.168.10.0 0.0.0.255
+(config)# access-list 1 permit host 192.168.20.1
+(config)# access-list 1 permit host 192.168.20.2
+(config)# access-list 1 permit host 192.168.20.200`
+          },
+          { type: 'heading', text: 'Resulting rule table' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `Seq no   Rule
+10       deny host 192.168.10.1
+20       deny host 192.168.10.10
+30       permit 192.168.10.0 0.0.0.255
+40       permit host 192.168.20.1
+50       permit host 192.168.20.2
+60       permit host 192.168.20.200
+70       deny any (implicit - not written)`
+          },
+          { type: 'heading', text: 'Requirement 2' },
+          {
+            type: 'bullets', items: [
+              'Block 192.168.100.1 and 192.168.100.2 and allow all other traffic.',
+              'The permit any rule must come last, after the specific deny rules.',
+            ]
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# access-list 9 deny host 192.168.100.1
+(config)# access-list 9 deny host 192.168.100.2
+(config)# access-list 9 permit any`
+          },
+        ],
+        quickReference: [
+          { label: 'Rule order', value: 'Specific deny first, broad permit later' },
+          { label: 'Allow the rest', value: 'permit any (last rule)' },
+          { label: 'Unlisted traffic', value: 'Blocked by implicit deny' },
+        ],
+      },
+
+      {
+        slug: 'acl-modification-numbered-vs-named',
+        title: 'Modifying ACLs (Numbered vs Named)',
+        group: 'ACL',
+        description: 'Numbered ACLs are hard to modify because new rules land at the bottom, while named ACLs let you choose the sequence number of each rule.',
+        blocks: [
+          { type: 'heading', text: 'Numbered ACL limitation' },
+          {
+            type: 'bullets', items: [
+              'Modification is extremely difficult.',
+              'A new or modified rule is added at the bottom of the ACL, so it may not work as expected because earlier rules are matched first.',
+            ]
+          },
+          { type: 'heading', text: 'Named ACL advantage' },
+          {
+            type: 'bullets', items: [
+              'You can specify the sequence number of the rule when configuring it, so a rule can be inserted at any position.',
+              'If no sequence number is given, one is assigned automatically.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Numbered ACL', value: 'New rule goes to the bottom' },
+          { label: 'Named ACL', value: 'Rule position set by sequence number' },
+          { label: 'No sequence given', value: 'Assigned automatically' },
+        ],
+      },
+
+      {
+        slug: 'numbered-extended-acl',
+        title: 'Numbered Extended ACL',
+        group: 'ACL',
+        description: 'An extended ACL filters on protocol, source and destination IP address, and source and destination port, giving much finer control than a standard ACL.',
+        blocks: [
+          { type: 'heading', text: 'Standard vs Extended (interview question)' },
+          {
+            type: 'bullets', items: [
+              'Standard ACL: checks only the source IP address; range 1-99 and 1300-1999.',
+              'Extended ACL: checks protocol, source IP, destination IP, source port and destination port; range 100-199 and 2000-2699.',
+            ]
+          },
+          { type: 'heading', text: 'IP protocol hierarchy and ports' },
+          
+          { type: 'heading', text: 'Configuration syntax' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# access-list <100-199> <permit | deny> <protocol> <source> <destination> [eq <port>]
+
+# Network to network
+(config)# access-list 150 permit tcp 192.168.1.0 0.0.0.255 192.168.2.0 0.0.0.255 eq 443
+
+# Host to host
+(config)# access-list 150 permit tcp host 192.168.1.1 host 192.168.2.1 eq 443
+
+# Any source to any destination
+(config)# access-list 150 permit tcp any any eq 443`
+          },
+          { type: 'heading', text: 'Port keyword options' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `eq 80
+eq 22
+eq 443
+eq www
+eq ftp`
+          },
+        ],
+        diagrams: [
+  {
+    src: '/diagrams/acl_ip_protocol_hierarchy_wide.png',
+    alt: 'IP protocol hierarchy: IP splits into TCP (SSH 22, HTTP 80, HTTPS 443, FTP 20/21, TELNET 23), UDP (DHCP 67/68, DNS 53, TFTP 69) and ICMP (echo request, echo reply)',
+    caption: 'IP protocol hierarchy with common port numbers used in extended ACLs',
+  },
+],
+        quickReference: [
+          { label: 'Range', value: '100-199, 2000-2699' },
+          { label: 'Checks', value: 'Protocol, Src/Dst IP, Src/Dst port' },
+          { label: 'Port match', value: 'eq <port | keyword>' },
+          { label: 'Single host', value: 'host <ip>' },
+          { label: 'All traffic', value: 'any' },
+        ],
+      },
+
+      {
+        slug: 'extended-acl-task-example',
+        title: 'Extended ACL Task Example (Web, Telnet, SSH, FTP, TFTP)',
+        group: 'ACL',
+        description: 'A worked task that creates one extended ACL to permit and deny web, Telnet, SSH, FTP and TFTP access from host 192.168.10.10 to several servers.',
+        blocks: [
+          { type: 'heading', text: 'Task' },
+          {
+            type: 'bullets', items: [
+              'Allow web access from 192.168.10.10 to 192.168.20.20.',
+              'Allow Telnet access from 192.168.10.10 to 192.168.30.30.',
+              'Deny SSH access from 192.168.10.10 to 192.168.30.30.',
+              'Deny FTP access from 192.168.10.10 to 192.168.50.100.',
+              'Allow TFTP access from 192.168.10.10 to 192.168.50.100.',
+              'Allow the rest of all traffic from 192.168.10.10 to 192.168.30.0/24.',
+            ]
+          },
+          { type: 'heading', text: 'Solution' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# access-list 150 permit tcp host 192.168.10.10 host 192.168.20.20 eq www
+(config)# access-list 150 permit tcp host 192.168.10.10 host 192.168.30.30 eq 23
+(config)# access-list 150 deny tcp host 192.168.10.10 host 192.168.30.30 eq 22
+(config)# access-list 150 deny tcp host 192.168.10.10 host 192.168.50.100 eq 21
+(config)# access-list 150 permit udp host 192.168.10.10 host 192.168.50.100 eq 69
+(config)# access-list 150 permit ip host 192.168.10.10 192.168.30.0 0.0.0.255`
+          },
+          { type: 'heading', text: 'Important notes' },
+          {
+            type: 'bullets', items: [
+              'FTP uses TCP port 21 for control (and 20 for data); TFTP uses UDP port 69.',
+              'The SSH deny rule must come before the permit ip rule for 192.168.30.0/24, otherwise SSH to 192.168.30.30 would be allowed.',
+              'Optimization: rules already covered by the implicit deny or by a later broader permit can be removed to shorten the ACL.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Web', value: 'tcp eq www (80)' },
+          { label: 'Telnet', value: 'tcp eq 23' },
+          { label: 'SSH', value: 'tcp eq 22' },
+          { label: 'FTP', value: 'tcp eq 21 (20 data)' },
+          { label: 'TFTP', value: 'udp eq 69' },
+          { label: 'Rest of traffic', value: 'permit ip ... (last)' },
+        ],
+      },
+
+      {
+        slug: 'named-acl-configuration',
+        title: 'Named ACL Configuration (Standard and Extended)',
+        group: 'ACL',
+        description: 'Named ACLs are configured in ACL configuration mode and allow each rule to be given an optional sequence number.',
+        blocks: [
+          { type: 'heading', text: 'Named standard ACL' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# ip access-list standard <name | number>
+(config-std-nacl)# <permit | deny> <network> <wildcard-mask>
+(config-std-nacl)# <permit | deny> host <ip-address>
+(config-std-nacl)# <permit | deny> any
+
+# With a sequence number
+(config-std-nacl)# <seq-no> <permit | deny> <network> | host <ip> | any
+(config-std-nacl)# exit`
+          },
+          { type: 'heading', text: 'Named extended ACL' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# ip access-list extended <name | number>
+(config-ext-nacl)# <permit | deny> <protocol> <source> <destination> [eq <port>]
+
+# With a sequence number
+(config-ext-nacl)# <seq-no> <permit | deny> <protocol> <source> <destination> [eq <port>]
+(config-ext-nacl)# exit`
+          },
+          { type: 'heading', text: 'Important note' },
+          {
+            type: 'bullets', items: [
+              'If the sequence number is not mentioned, it is assigned automatically.',
+              'Using a sequence number lets you insert a rule at any position in the ACL.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Standard', value: 'ip access-list standard <name|no>' },
+          { label: 'Extended', value: 'ip access-list extended <name|no>' },
+          { label: 'Insert a rule', value: '<seq-no> <permit|deny> ...' },
+          { label: 'Leave mode', value: 'exit' },
+        ],
+      },
+
+      {
+        slug: 'acl-verification-commands',
+        title: 'ACL Verification Commands',
+        group: 'ACL',
+        description: 'Use the show commands to view the configured ACLs, their rules and sequence numbers.',
+        blocks: [
+          { type: 'heading', text: 'Verification commands' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `# show ip access-list
+# show ip access-list <name | number>
+# show run | include <ACL name | number>
+# show run | section access-list`
+          },
+          { type: 'heading', text: 'What to check' },
+          {
+            type: 'bullets', items: [
+              'show ip access-list displays all IP ACLs with their rules and sequence numbers.',
+              'show ip access-list <name|number> displays one specific ACL.',
+              'show run | include and show run | section filter the running configuration for ACL entries.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'All ACLs', value: 'show ip access-list' },
+          { label: 'One ACL', value: 'show ip access-list <name|no>' },
+          { label: 'Config filter', value: 'show run | section access-list' },
+          { label: 'Run from', value: 'Privileged EXEC mode (#)' },
+        ],
+      },
 
     ],
   },
