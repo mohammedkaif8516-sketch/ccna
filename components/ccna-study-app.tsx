@@ -133,6 +133,7 @@ import MlsRingLab from "@/components/labs/mls-ring-lab";
 import RouterOnAStickLab from "@/components/labs/inter-vlan-sticl-subinterface";
 import DhcpInterVlanLabs from "@/components/labs/dhcpintervlanlab";
 import DhcpRelayOspfLab from "@/components/labs/dhcpospflab";
+import DhcpRelayOspfLabAcl from "@/components/labs/dhcpospflabacl";
 import VtpLabs from "@/components/labs/vtp-labs";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
@@ -2456,6 +2457,8 @@ export default function CcnaStudyApp() {
                 {current.slug === "dtp-trunk-lab" && <DtpTrunkLab />}
                 {current.slug === "etherchannel-lab" && <EtherChannelLab />}
                 {current.slug === "intervlan-lab" && <InterVlanLab />}
+                
+                {current.slug === "dhcp-relay-ospf-lab-acl" && <DhcpRelayOspfLabAcl />}
 
                 {current.slug === "physical-logical-lab" && (
                   <PhysicalLogicalLab />
