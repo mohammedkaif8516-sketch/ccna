@@ -7461,6 +7461,97 @@ eq ftp`
         ],
       },
       {
+        slug: 'dhcp-server-labs',
+        title: 'DHCP Server Labs: Router-on-a-Stick and MLS with SVIs',
+        group: 'Switching Labs',
+        description:
+          'Company BSOFT with three departments (Sales, HR, IT), each in its own VLAN with two hosts. In the first lab a router (R1) uses sub-interfaces as gateway and DHCP server. In the second lab a multilayer switch (MLS1) uses SVIs as gateway and DHCP server. Each department has its own pool and lease time, and every VPC gets its address with ip dhcp.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'The company BSOFT has three departments: Sales (VLAN 10), HR (VLAN 20) and IT (VLAN 30). Each department has two VPCs. The hosts have no static addresses: every VPC must get its address, mask, gateway, DNS server and domain name from a DHCP server with the command ip dhcp. You build the same design twice, to see the two ways of giving a VLAN its gateway. In Lab 1 (router-on-a-stick), the router R1 is connected to the access switch SW1 with one trunk cable and uses one sub-interface per VLAN. R1 is the default gateway and the DHCP server. In Lab 2 (MLS with SVIs), the multilayer switch MLS1 replaces R1. It is connected to the access switch SW2 with one trunk cable and routes with one SVI (switch virtual interface) per VLAN. MLS1 is the default gateway and the DHCP server, and no separate router is needed. In both labs the DHCP pool commands are exactly the same. The departments have different lease times: Sales keeps an address for 2 days, HR for 1 day and IT for 8 hours. Every device starts in its factory state: no VLANs, all ports in VLAN 1, no addresses and no DHCP pools.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Lab 1 (router-on-a-stick) uses 192.168.XX.0/24 with the gateway .1 in every VLAN: 192.168.10.0/24 Sales, 192.168.20.0/24 HR and 192.168.30.0/24 IT. The gateways are the sub-interfaces R1 e0/0.10, e0/0.20 and e0/0.30.',
+              'Lab 2 (MLS with SVIs) uses 10.10.XX.0/24 with the gateway .1 in every VLAN: 10.10.10.0/24 Sales, 10.10.20.0/24 HR and 10.10.30.0/24 IT. The gateways are the SVIs Vlan10, Vlan20 and Vlan30 on MLS1.',
+              'Lab 1 devices: R1 (router, gateway and DHCP server), SW1 (access switch) and VPC1 to VPC6. Lab 2 devices: MLS1 (gateway and DHCP server), SW2 (access switch) and VPC7 to VPC12.',
+              'Lab 1 hosts: VPC1 and VPC2 in Sales, VPC3 and VPC4 in HR, VPC5 and VPC6 in IT. Lab 2 hosts: VPC7 and VPC8 in Sales, VPC9 and VPC10 in HR, VPC11 and VPC12 in IT.',
+              'Host ports on the access switch (SW1 in Lab 1, SW2 in Lab 2): e0/1 and e0/2 VLAN 10, e0/3 and e1/0 VLAN 20, e1/1 and e1/2 VLAN 30. The VPCs of a lab are cabled in order to these ports.',
+              'Trunk link: e0/0 on the gateway device (R1 or MLS1) to e0/0 on the access switch. A single cable carries VLANs 10, 20 and 30.',
+              'Excluded from every pool: .1 to .10 of each network, kept for the gateway, servers and printers. The first leased address is therefore .11.',
+              'DHCP settings in both labs: DNS server 8.8.8.8 and domain name bsoft.com. Lease times: Sales lease 2 0 (2 days), HR lease 1 (1 day), IT lease 0 8 (8 hours).',
+              'Pool names: VLAN10, VLAN20 and VLAN30. The name is only a label. What matters is that the network command matches the sub-interface or SVI network.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10 (Sales), 20 (HR) and 30 (IT) with names on the access switch. In Lab 2 create them on MLS1 as well.',
+              'Put every VPC-facing port of the access switch into its VLAN with switchport mode access and switchport access vlan.',
+              'Make e0/0 a trunk with switchport trunk encapsulation dot1q first, then switchport mode trunk, and allow VLANs 10,20,30. Lab 1: only on SW1 (R1 uses sub-interfaces). Lab 2: on both MLS1 and SW2.',
+              'Lab 1: on R1 bring up the physical e0/0 without an IP address, then create the sub-interfaces e0/0.10, e0/0.20 and e0/0.30, each with encapsulation dot1Q and the .1 gateway address of its VLAN.',
+              'Lab 2: on MLS1 enable ip routing, then create the SVIs interface vlan 10, interface vlan 20 and interface vlan 30 with the .1 gateway address of each VLAN and no shutdown.',
+              'Configure the DHCP server (R1 in Lab 1, MLS1 in Lab 2). First exclude .1 to .10 of every network with ip dhcp excluded-address. Do this before the pools, or you may get address conflicts.',
+              'For every VLAN create a pool: ip dhcp pool VLANx, then network, default-router, dns-server, domain-name and the lease of the department.',
+              'On every VPC type ip dhcp and confirm with show ip that it received an address of its own VLAN (starting at .11) and the gateway .1.',
+              'Verify on the DHCP server with show ip dhcp pool, show ip dhcp binding, show ip dhcp conflict, show ip dhcp server statistics, show ip interface brief and show ip route. On the switches use show vlan brief and show interfaces trunk.',
+              'Ping the gateway from a host, then ping a host of the same VLAN, then a host of a different VLAN. All should succeed. Run trace and read the first hop.',
+              'Break something: shut down the gateway of VLAN 20 (R1 e0/0.20 or MLS1 interface vlan 20), run ip dhcp again on an HR host and see that it gets no address. Restore it. Then move one host port into the wrong VLAN and see which pool it gets.',
+              'Save with write memory (or copy running-config startup-config), then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'DHCP lets a host ask for its network settings instead of having them typed in. It takes four messages, called D-O-R-A: the host broadcasts a Discover, the server sends an Offer, the host broadcasts a Request for that address, and the server sends an Acknowledgment and starts the lease. Because the first message is a broadcast, it only reaches devices in the same VLAN. Here the DHCP server is also the gateway of every VLAN, so it has an interface in each VLAN and receives the broadcast directly. No ip helper-address is needed. The server decides which pool to use by looking at the interface where the request arrived: the pool whose network matches that interface answers. That is why the network command of a pool must match the sub-interface or SVI network. In Lab 1 that interface is a sub-interface of R1, which receives tagged frames over the single trunk. This design is called router-on-a-stick: one cable and one router port for any number of VLANs, but all routed traffic shares that one link. In Lab 2 the interface is the SVI of the VLAN. An SVI is only up when its VLAN exists and at least one port of that VLAN is up, which the trunk guarantees. The MLS also needs ip routing, otherwise it only switches. The addresses .1 to .10 are excluded from the pools, otherwise the server could hand the gateway address to a host. A DHCP pool needs five things: a network, a default router, a DNS server, a domain name and a lease time. The default router is always the address of the gateway interface, never the address of a PC. The lease format is days, then hours, then minutes, so lease 2 0 is 2 days and lease 0 8 is 8 hours. The pool must be built for every VLAN, because every VLAN is a different subnet. The VPCS hosts never ask for DHCP by themselves, so you must type ip dhcp on each one. On this switch image the command switchport trunk encapsulation dot1q must be typed before switchport mode trunk. Every VLAN must exist on every switch of the lab, MLS1 included, because VLANs are local to each switch.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief: VLANs 10, 20 and 30 are listed on the access switch with the right host ports under them (e0/1 and e0/2, e0/3 and e1/0, e1/1 and e1/2). The trunk port e0/0 does not appear in the list.',
+              'show interfaces trunk: e0/0 is trunking with VLANs 10,20,30 allowed and forwarding, on SW1 in Lab 1 and on both MLS1 and SW2 in Lab 2.',
+              'Lab 1, show ip interface brief on R1: e0/0 has no address but is up/up, and e0/0.10, e0/0.20 and e0/0.30 have their .1 address and are up/up.',
+              'Lab 2, show ip interface brief on MLS1: Vlan10, Vlan20 and Vlan30 have their .1 address and are up/up.',
+              'show ip route on the gateway: three connected (C) networks and the matching local (L) routes.',
+              'show ip dhcp pool: three pools, VLAN10, VLAN20 and VLAN30, with the correct network and a growing number of leased addresses.',
+              'show ip dhcp binding: one lease per VPC, in the subnet of its VLAN, starting at .11. The gateway address and .1 to .10 are never leased.',
+              'show ip dhcp server statistics: the Discover, Offer, Request and Acknowledgment counters grow after every ip dhcp on a VPC.',
+              'show ip on each VPC: address, mask, gateway, DNS server and domain come from DHCP and match its VLAN.',
+              'ping and trace: replies to the gateway, inside a VLAN and between VLANs. From a host in another VLAN, the first hop is the gateway (.1) and the second hop is the destination.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Lab 1', value: '192.168.XX.0/24, gateway .1, router-on-a-stick, R1 is DHCP server' },
+          { label: 'Lab 2', value: '10.10.XX.0/24, gateway .1, MLS1 with SVIs is DHCP server' },
+          { label: 'VLANs', value: '10 Sales, 20 HR, 30 IT' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Access port', value: 'switchport mode access, switchport access vlan <id>' },
+          { label: 'Trunk', value: 'switchport trunk encapsulation dot1q, switchport mode trunk, switchport trunk allowed vlan 10,20,30' },
+          { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
+          { label: 'SVI', value: 'ip routing, then interface vlan <id>, ip address <ip> <mask>, no shutdown' },
+          { label: 'Exclude addresses', value: 'ip dhcp excluded-address <first> <last>' },
+          { label: 'DHCP pool', value: 'ip dhcp pool <name>, network <net> <mask>, default-router <ip>' },
+          { label: 'Pool options', value: 'dns-server <ip>, domain-name <name>, lease <days> <hours>' },
+          { label: 'VPC DHCP', value: 'ip dhcp (release with ip dhcp -r)' },
+          { label: 'Check DHCP', value: 'show ip dhcp pool, show ip dhcp binding, show ip dhcp conflict, show ip dhcp server statistics' },
+          { label: 'Check switch', value: 'show vlan brief, show interfaces trunk' },
+          { label: 'Check gateway', value: 'show ip interface brief, show ip route' },
+        ],
+      },
+      {
         slug: 'dhcp-relay-ospf-lab',
         title: 'DHCP Relay Lab: Two Branches, an OSPF Core and One DHCP Server',
         group: 'Switching Labs',
