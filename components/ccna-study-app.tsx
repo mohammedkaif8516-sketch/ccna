@@ -2456,6 +2456,8 @@ export default function CcnaStudyApp() {
                 {current.slug === "dtp-trunk-lab" && <DtpTrunkLab />}
                 {current.slug === "etherchannel-lab" && <EtherChannelLab />}
                 {current.slug === "intervlan-lab" && <InterVlanLab />}
+                
+                {current.slug === "dhcp-relay-ospf-lab-acl" && <InterVlanLab />}
 
                 {current.slug === "physical-logical-lab" && (
                   <PhysicalLogicalLab />
