@@ -454,7 +454,7 @@ const posOf = (id: string) => {
   return { x: f.br.cx, y: f.s.y };
 };
 
-export function DhcpRelayOspfLab() {
+export function DhcpRelayOspfLabAcl() {
   const key = buildKey();
   const mls = US.switches[0];
 
@@ -757,4 +757,4 @@ export function DhcpRelayOspfLab() {
   );
 }
 
-export default DhcpRelayOspfLab;
+export default DhcpRelayOspfLabAcl;
