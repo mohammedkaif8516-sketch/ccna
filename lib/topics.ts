@@ -5073,10 +5073,6 @@ export const topics: Topic[] = [
           { label: 'APIPA range', value: '169.254.0.0/16' },
           { label: 'Server options', value: 'Windows/Linux/cloud server, or L3 device (MLS/router/firewall)' },
         ],
-        diagrams: [
-          { src: '/diagrams/dhcp-ports67-68-architecture1_wide.png', alt: 'DHCP server-client architecture with UDP ports 67 and 68', caption: 'DHCP server-client architecture — UDP 67 (server) / 68 (client)' },
-          { src: '/diagrams/dhcp-apipa-fallback1_wide.png', alt: 'Windows machine with no DHCP falling back to APIPA 169.254.0.0/16', caption: 'No DHCP server: Windows autoconfigures from APIPA (169.254.0.0/16)' },
-        ],
       },
       {
         slug: 'dhcp-dora-process-frame-structure',

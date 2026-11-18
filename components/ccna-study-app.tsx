@@ -135,6 +135,7 @@ import DhcpInterVlanLabs from "@/components/labs/dhcpintervlanlab";
 import DhcpRelayOspfLab from "@/components/labs/dhcpospflab";
 import DhcpRelayOspfLabAcl from "@/components/labs/dhcpospflabacl";
 import VtpLabs from "@/components/labs/vtp-labs";
+import DoraExplorer from "@/components/extras/dhcp-dora";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2404,6 +2405,9 @@ export default function CcnaStudyApp() {
                 )}
                 {current.slug === "packet-flow-between-networks-reply-path" && (
                   <ReplyPacketFlow />
+                )}
+                {current.slug === "dhcp-dora-process-frame-structure" && (
+                  <DoraExplorer />
                 )}
                 {current.slug === "static-routing-lab-1" && (
                   <StaticRoutingLab />
