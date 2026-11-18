@@ -2458,7 +2458,7 @@ export default function CcnaStudyApp() {
                 {current.slug === "etherchannel-lab" && <EtherChannelLab />}
                 {current.slug === "intervlan-lab" && <InterVlanLab />}
                 
-                {current.slug === "dhcp-relay-ospf-lab-acl" && <InterVlanLab />}
+                {current.slug === "dhcp-relay-ospf-lab-acl" && <DhcpRelayOspfLabAcl />}
 
                 {current.slug === "physical-logical-lab" && (
                   <PhysicalLogicalLab />
@@ -2467,7 +2467,7 @@ export default function CcnaStudyApp() {
                 {current.slug === "router-on-a-stick-lab" && (
                   <RouterOnAStickLab />
                 )}
-                {current.slug === "dhcp-relay-ospf-lab" && <DhcpRelayOspfLabAcl />}
+                {current.slug === "dhcp-relay-ospf-lab" && <DhcpRelayOspfLab />}
                 {current.slug === "vtp-labs" && <VtpLabs />}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
