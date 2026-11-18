@@ -7637,7 +7637,7 @@ eq ftp`
 },
       {
         slug: 'dhcp-relay-ospf-lab-acl',
-        title: 'DHCP Relay Lab: Two Branches, an OSPF Core and One DHCP Server',
+        title: 'DHCP Relay Lab: Two Branches, an OSPF Core , One DHCP Server and Vlan Restriciton ACL',
         group: 'Switching Labs',
         description:
           'Connect two branches, BR_BLR (router-on-a-stick) and BR_US (multilayer switch with SVIs), through an OSPF core, serve all hosts from one central DHCP server with ip helper-address on every gateway, and then restrict traffic between VLANs with extended ACLs.',
