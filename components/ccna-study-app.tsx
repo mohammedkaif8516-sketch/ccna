@@ -136,6 +136,7 @@ import DhcpRelayOspfLab from "@/components/labs/dhcpospflab";
 import DhcpRelayOspfLabAcl from "@/components/labs/dhcpospflabacl";
 import VtpLabs from "@/components/labs/vtp-labs";
 import DoraExplorer from "@/components/extras/dhcp-dora";
+import DhcpServerConfig from "@/components/extras/dhcp-conf";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2408,6 +2409,9 @@ export default function CcnaStudyApp() {
                 )}
                 {current.slug === "dhcp-dora-process-frame-structure" && (
                   <DoraExplorer />
+                )}
+                {current.slug === "dhcp-configuration-on-cisco-router-mls" && (
+                  <DhcpServerConfig />
                 )}
                 {current.slug === "static-routing-lab-1" && (
                   <StaticRoutingLab />
