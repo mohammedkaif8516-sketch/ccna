@@ -8563,6 +8563,610 @@ export const quizzes: Quiz[] = [
       }
     ]
   },
+  {
+  id: "acl",
+  topicSlug: "switching-vlans-and-trunking",
+  group: "ACL",
+  title: "ACL Quiz",
+  questions: [
+    {
+      id: "q1",
+      prompt: "What are the two primary purposes of an Access Control List (ACL)?",
+      options: [
+        "Traffic filtering and traffic identification",
+        "Packet encryption and address translation",
+        "Dynamic routing and VLAN trunking",
+        "Loop prevention and port security"
+      ],
+      answer: 0,
+      explanation: "ACLs are used either to filter traffic (allow or block packets on an interface) or to identify traffic for features like QoS and condition-based routing."
+    },
+    {
+      id: "q2",
+      prompt: "When an ACL is used for traffic identification rather than interface filtering, what do the `permit` and `deny` conditions mean?",
+      options: [
+        "Permit encrypts the traffic; deny drops the traffic.",
+        "Permit includes the traffic; deny excludes the traffic.",
+        "Permit routes the traffic; deny switches the traffic.",
+        "Permit logs the traffic; deny ignores the traffic."
+      ],
+      answer: 1,
+      explanation: "In traffic identification (such as for QoS or policy-based routing), `permit` selects/includes the traffic for the feature while `deny` excludes it."
+    },
+    {
+      id: "q3",
+      prompt: "How are sequence numbers automatically assigned to rules in an ACL?",
+      options: [
+        "In increments of 1 (1, 2, 3...)",
+        "In increments of 5 (5, 10, 15...)",
+        "In increments of 10 (10, 20, 30...)",
+        "In increments of 100 (100, 200, 300...)"
+      ],
+      answer: 2,
+      explanation: "ACL rules are assigned sequence numbers in increments of 10 (10, 20, 30...), leaving room to insert additional rules between them."
+    },
+    {
+      id: "q4",
+      prompt: "How does a router process traffic against an ACL rule table?",
+      options: [
+        "From highest sequence number to lowest, applying the most specific rule.",
+        "From lowest sequence number to highest, applying the first matching rule.",
+        "It evaluates all rules first and applies the most restrictive action.",
+        "It checks all permit rules first and then evaluates all deny rules."
+      ],
+      answer: 1,
+      explanation: "ACLs use top-down, first-match processing from the lowest sequence number to the highest; once a rule matches, the remaining rules are not checked."
+    },
+    {
+      id: "q5",
+      prompt: "What happens to a packet that does not match any explicit rule in a standard or extended ACL?",
+      options: [
+        "It is permitted by default and forwarded out the interface.",
+        "It is sent back to the source with a warning header.",
+        "It is blocked by the hidden implicit deny at the bottom.",
+        "It is placed in a queue until an administrator reviews it."
+      ],
+      answer: 2,
+      explanation: "Every standard and extended ACL ends with a hidden implicit deny that blocks all traffic not explicitly matched above."
+    },
+    {
+      id: "q6",
+      prompt: "Which headers and fields does an IP-based ACL inspect?",
+      options: [
+        "Only the Layer 2 source and destination MAC addresses",
+        "The IP header and TCP/UDP header (IPs, ports, and protocol)",
+        "Only the Layer 3 destination IP address and TTL field",
+        "The VLAN tag and Layer 2 frame check sequence"
+      ],
+      answer: 1,
+      explanation: "IP-based ACLs run on routers, firewalls, and Layer 3 switches, checking the IP and TCP/UDP headers for source/destination IP, source/destination port, and protocol."
+    },
+    {
+      id: "q7",
+      prompt: "On which type of network device is a MAC-based ACL typically used?",
+      options: [
+        "Layer 2 switches",
+        "Core routing engines",
+        "Edge NAT gateways",
+        "WAN serial routers"
+      ],
+      answer: 0,
+      explanation: "MAC-based ACLs inspect the Layer 2 header (source and destination MAC addresses) and are used on Layer 2 switches."
+    },
+    {
+      id: "q8",
+      prompt: "Which number ranges are reserved for IP Standard ACLs?",
+      options: [
+        "1-99 and 1300-1999",
+        "100-199 and 2000-2699",
+        "700-799 and 1100-1199",
+        "200-299 and 800-899"
+      ],
+      answer: 0,
+      explanation: "IP Standard ACLs use the old range 1-99 and the expanded range 1300-1999, whereas 100-199 and 2000-2699 are for IP Extended ACLs."
+    },
+    {
+      id: "q9",
+      prompt: "An administrator creates `access-list 150`. Based on the ACL number range, what type of ACL is this?",
+      options: [
+        "IP Standard ACL",
+        "IP Extended ACL",
+        "MAC Standard ACL",
+        "Protocol type-code ACL"
+      ],
+      answer: 1,
+      explanation: "Numbers 100-199 (and 2000-2699) identify IP Extended ACLs, so 150 is an IP Extended ACL."
+    },
+    {
+      id: "q10",
+      prompt: "Which command correctly applies ACL 10 to filter traffic entering router interface f0/0?",
+      options: [
+        "ip access-list 10 in",
+        "access-group 10 inbound",
+        "ip access-group 10 in",
+        "ip filter-group 10 in"
+      ],
+      answer: 2,
+      explanation: "In interface configuration mode, `ip access-group <acl-number | acl-name> <in | out>` binds the ACL to the interface in the chosen direction."
+    },
+    {
+      id: "q11",
+      prompt: "What is the key limitation of a Standard IP ACL compared to an Extended IP ACL?",
+      options: [
+        "It can only be applied in the outbound direction.",
+        "It cannot use wildcard masks to match subnets.",
+        "It only checks the source IP address of the traffic.",
+        "It does not include an implicit deny at the end."
+      ],
+      answer: 2,
+      explanation: "A Standard ACL is strictly source-based and can only inspect the source IP address, whereas an Extended ACL checks protocol, source/destination IP, and ports."
+    },
+    {
+      id: "q12",
+      prompt: "Which numbered Standard ACL statement permits all hosts in the 192.168.10.0/24 network?",
+      options: [
+        "access-list 1 permit 192.168.10.0 255.255.255.0",
+        "access-list 1 permit 192.168.10.0 0.0.0.255",
+        "access-list 101 permit 192.168.10.0 0.0.0.255",
+        "access-list 1 permit host 192.168.10.0"
+      ],
+      answer: 1,
+      explanation: "Standard ACLs use numbers 1-99 and require a wildcard mask (`0.0.0.255` for a /24 network) rather than a subnet mask."
+    },
+    {
+      id: "q13",
+      prompt: "You need to block host 192.168.100.1 and allow all other traffic using Standard ACL 9. Which rule order is correct?",
+      options: [
+        "`access-list 9 permit any` followed by `access-list 9 deny host 192.168.100.1`",
+        "`access-list 9 deny host 192.168.100.1` followed by `access-list 9 permit any`",
+        "`access-list 9 deny host 192.168.100.1` alone without a permit statement",
+        "`access-list 9 permit host 192.168.100.1` followed by `access-list 9 deny any`"
+      ],
+      answer: 1,
+      explanation: "Specific deny rules must come before broad permit rules. If `permit any` is placed first, it matches 192.168.100.1 immediately and the deny rule is never reached."
+    },
+    {
+      id: "q14",
+      prompt: "Why are Named ACLs generally preferred over Numbered ACLs when modifications are needed?",
+      options: [
+        "Named ACLs automatically reorder rules from most specific to least specific.",
+        "Named ACLs allow inserting a rule at any position using a sequence number.",
+        "Named ACLs do not have an implicit deny at the bottom of the list.",
+        "Named ACLs can be applied to multiple directions with a single command."
+      ],
+      answer: 1,
+      explanation: "In a Numbered ACL, newly added rules always go to the bottom. Named ACLs let you specify a sequence number to insert a rule at any exact position."
+    },
+    {
+      id: "q15",
+      prompt: "Which Extended ACL statement allows HTTPS (port 443) traffic from host 192.168.1.1 to host 192.168.2.1?",
+      options: [
+        "access-list 150 permit udp host 192.168.1.1 host 192.168.2.1 eq 443",
+        "access-list 50 permit tcp host 192.168.1.1 host 192.168.2.1 eq 443",
+        "access-list 150 permit tcp host 192.168.1.1 host 192.168.2.1 eq 443",
+        "access-list 150 permit ip host 192.168.1.1 host 192.168.2.1 eq 443"
+      ],
+      answer: 2,
+      explanation: "Extended ACLs use numbers 100-199, and matching port 443 requires specifying the transport protocol `tcp` rather than `ip` or `udp`."
+    },
+    {
+      id: "q16",
+      prompt: "Which protocol and port combination is correct for permitting TFTP traffic in an Extended ACL?",
+      options: [
+        "tcp eq 21",
+        "udp eq 69",
+        "tcp eq 23",
+        "udp eq 53"
+      ],
+      answer: 1,
+      explanation: "TFTP operates over UDP port 69, whereas FTP control uses TCP port 21, Telnet uses TCP port 23, and DNS uses UDP port 53."
+    },
+    {
+      id: "q17",
+      prompt: "Consider this ACL:\n`10 permit ip host 192.168.10.10 192.168.30.0 0.0.0.255`\n`20 deny tcp host 192.168.10.10 host 192.168.30.30 eq 22`\nWhat happens when 192.168.10.10 initiates SSH to 192.168.30.30?",
+      options: [
+        "SSH is denied because sequence 20 is more specific than sequence 10.",
+        "SSH is permitted because sequence 10 matches first and stops processing.",
+        "SSH is denied by the implicit deny at the end of the ACL.",
+        "The router rejects the configuration due to overlapping rules."
+      ],
+      answer: 1,
+      explanation: "Because ACLs evaluate top-down and stop at the first match, `permit ip` at sequence 10 matches all IP traffic to 192.168.30.0/24, so the SSH deny at sequence 20 is never reached."
+    },
+    {
+      id: "q18",
+      prompt: "Which command enters configuration mode to create a Named Extended ACL called `WEB-FILTER`?",
+      options: [
+        "access-list extended WEB-FILTER",
+        "ip access-list extended WEB-FILTER",
+        "ip access-group extended WEB-FILTER",
+        "ip extended access-list WEB-FILTER"
+      ],
+      answer: 1,
+      explanation: "Named ACLs are created in global configuration mode using `ip access-list <standard | extended> <name | number>`."
+    },
+    {
+      id: "q19",
+      prompt: "Inside Named Standard ACL configuration mode `(config-std-nacl)#`, how do you insert a rule specifically at sequence number 15 to deny host 10.1.1.5?",
+      options: [
+        "sequence 15 deny host 10.1.1.5",
+        "insert 15 deny host 10.1.1.5",
+        "15 deny host 10.1.1.5",
+        "deny host 10.1.1.5 seq 15"
+      ],
+      answer: 2,
+      explanation: "In named ACL configuration mode, simply prefix the rule with the desired sequence number: `<seq-no> <permit | deny> ...`."
+    },
+    {
+      id: "q20",
+      prompt: "Which privileged EXEC command displays all configured IP ACLs along with their rules and sequence numbers?",
+      options: [
+        "show ip access-list",
+        "show ip interface brief",
+        "show access-group all",
+        "show ip filter table"
+      ],
+      answer: 0,
+      explanation: "`show ip access-list` (or `show ip access-lists`) displays every configured IP ACL, including each rule and its sequence number."
+    },
+    {
+      id: "q21",
+      prompt: "How many IPv4 ACLs can be applied to a single router interface at the same time?",
+      options: [
+        "Only one ACL total per interface, regardless of direction",
+        "One ACL per direction (one inbound and one outbound)",
+        "Up to ten ACLs inbound and ten ACLs outbound",
+        "Unlimited ACLs as long as they have different sequence numbers"
+      ],
+      answer: 1,
+      explanation: "Cisco IOS allows at most one ACL per protocol, per direction, per interface (so one inbound IPv4 ACL and one outbound IPv4 ACL on a given interface)."
+    },
+    {
+      id: "q22",
+      prompt: "Which command is most useful to check whether an ACL is actually applied to interface `g0/1` and in which direction?",
+      options: [
+        "show ip access-list",
+        "show ip interface brief",
+        "show running-config interface g0/1",
+        "show interfaces status"
+      ],
+      answer: 2,
+      explanation: "`show running-config interface <interface-name>` shows the `ip access-group` line applied to that specific interface and its direction (`in` or `out`)."
+    },
+    {
+      id: "q23",
+      prompt: "An engineer applies an outbound Extended ACL on router interface g0/0 that denies all ICMP traffic (`deny icmp any any`). When the engineer runs `ping 8.8.8.8` directly from that router's CLI, the ping still succeeds. Why?",
+      options: [
+        "ICMP traffic cannot be blocked by Extended ACLs.",
+        "Outbound interface ACLs do not filter traffic locally generated by the router itself.",
+        "The router automatically bypasses ACLs when pinging public DNS servers.",
+        "The ACL must be applied inbound on g0/0 to block pings from the router."
+      ],
+      answer: 1,
+      explanation: "Standard and extended interface ACLs only filter transit traffic passing through the router; outbound ACLs do not filter packets originated locally by the router itself."
+    },
+    {
+      id: "q24",
+      prompt: "According to Cisco best practices, where should Standard ACLs and Extended ACLs be placed in a network?",
+      options: [
+        "Standard ACLs close to the source; Extended ACLs close to the destination.",
+        "Standard ACLs close to the destination; Extended ACLs close to the source.",
+        "Both Standard and Extended ACLs should always be placed on the core router.",
+        "Both Standard and Extended ACLs should always be applied outbound."
+      ],
+      answer: 1,
+      explanation: "Because Standard ACLs only filter by source IP, placing them near the source would block that host from reaching all destinations; placing them near the destination limits the impact. Extended ACLs are placed near the source to drop unwanted traffic early."
+    },
+    {
+      id: "q25",
+      prompt: "You want to restrict which admin subnet can SSH into a router's VTY lines using Standard ACL 10. Which command applies the ACL under `line vty 0 4`?",
+      options: [
+        "ip access-group 10 in",
+        "access-class 10 in",
+        "ip access-list 10 in",
+        "transport input access-list 10"
+      ],
+      answer: 1,
+      explanation: "While `ip access-group` applies ACLs to router interfaces, VTY lines use the `access-class <acl> in` command to restrict remote management access."
+    }
+  ]
+},
+{
+  id: "nat",
+  topicSlug: "switching-vlans-and-trunking",
+  group: "NAT",
+  title: "NAT Quiz",
+  questions: [
+    {
+      id: "q1",
+      prompt: "Why is NAT required for internal hosts using private IPv4 addresses to communicate with the public internet?",
+      options: [
+        "Private IP addresses cannot be routed across the public internet and are commonly filtered by ISPs.",
+        "Private IP addresses do not support TCP or UDP transport-layer port numbers.",
+        "Public internet servers reject any packet that originates from a Layer 3 switch.",
+        "Private IP addresses lack a valid subnet mask for external routing tables."
+      ],
+      answer: 0,
+      explanation: "Private IPv4 addresses are not globally routable and ISPs commonly filter them, so NAT translates them into globally routable public IP addresses."
+    },
+    {
+      id: "q2",
+      prompt: "Which of the following correctly lists the three RFC 1918 private IPv4 address ranges?",
+      options: [
+        "10.0.0.0/8, 172.16.0.0/16, and 192.168.0.0/24",
+        "10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16",
+        "10.0.0.0/16, 172.16.0.0/12, and 192.168.1.0/24",
+        "11.0.0.0/8, 172.32.0.0/12, and 192.168.0.0/16"
+      ],
+      answer: 1,
+      explanation: "The three private IPv4 ranges are Class A 10.0.0.0/8 (1 /8 block), Class B 172.16.0.0/12 (16 /16 blocks), and Class C 192.168.0.0/16 (256 /24 blocks)."
+    },
+    {
+      id: "q3",
+      prompt: "How does NAT differ from routing and firewalling on a network edge device?",
+      options: [
+        "NAT replaces the need for a routing table and automatically blocks all unsolicited inbound traffic.",
+        "NAT determines the best path to a destination while routing translates private addresses.",
+        "NAT translates IP addresses, whereas routing forwards packets and NAT does not automatically provide firewall protection.",
+        "NAT operates exclusively at Layer 2, while routing and firewalling operate at Layer 3."
+      ],
+      answer: 2,
+      explanation: "NAT only handles address translation; routing still determines where packets are forwarded, and NAT alone should not be treated as automatic firewall protection."
+    },
+    {
+      id: "q4",
+      prompt: "What is a key difference between public IPv4 addresses and private IPv4 addresses?",
+      options: [
+        "Public IPs can be reused across unrelated LANs, while private IPs must be globally unique.",
+        "Public IPs are allocated through registries and ISPs and are globally routable, while private IPs can be freely reused internally.",
+        "Private IPs are only used on WAN links, while public IPs are used on internal host interfaces.",
+        "Private IPs require ISP registration before being assigned to internal devices."
+      ],
+      answer: 1,
+      explanation: "Public IPs are globally unique and routable through ISP/registry allocation, whereas private IPs are not globally routable and can be reused in separate private networks."
+    },
+    {
+      id: "q5",
+      prompt: "What is the difference between Source NAT and Destination NAT?",
+      options: [
+        "Source NAT changes the source IP (typically LAN to WAN); Destination NAT changes the destination IP (typically WAN to LAN).",
+        "Source NAT changes the destination IP (typically WAN to LAN); Destination NAT changes the source IP (typically LAN to WAN).",
+        "Source NAT translates MAC addresses; Destination NAT translates IP addresses.",
+        "Source NAT is only used with Static NAT; Destination NAT is only used with PAT."
+      ],
+      answer: 0,
+      explanation: "Source NAT modifies the source IP address on outbound LAN-to-WAN traffic, while Destination NAT modifies the destination IP address on inbound WAN-to-LAN traffic."
+    },
+    {
+      id: "q6",
+      prompt: "Which statement accurately describes Static NAT?",
+      options: [
+        "It dynamically assigns public IPs from a pool only when internal hosts initiate traffic.",
+        "It allows hundreds of internal devices to share a single public IP using port numbers.",
+        "It creates a fixed one-to-one mapping between a private IP and a public IP that remains configured even without active traffic.",
+        "It automatically rotates the public IP assigned to an internal server every 24 hours."
+      ],
+      answer: 2,
+      explanation: "Static NAT binds one private IP to one public IP permanently, making it useful for internal servers that need to be reachable through a consistent public address."
+    },
+    {
+      id: "q7",
+      prompt: "A company configures Dynamic NAT (without overload) using a pool of 10 public IP addresses. If 15 internal users attempt to access the internet at the exact same time, what happens?",
+      options: [
+        "All 15 users succeed because Dynamic NAT automatically translates ports when the pool fills up.",
+        "Only 10 users can be translated simultaneously because mappings are limited by the available pool addresses.",
+        "The router drops all 15 sessions until the pool is expanded to match the subnet size.",
+        "The remaining 5 users are automatically assigned APIPA addresses to reach the internet."
+      ],
+      answer: 1,
+      explanation: "In ordinary Dynamic NAT, each active internal host requires its own public IP from the pool, so simultaneous translations cannot exceed the number of available pool addresses."
+    },
+    {
+      id: "q8",
+      prompt: "How does PAT (Port Address Translation) allow multiple internal sessions to share a single public IP address?",
+      options: [
+        "By assigning each internal host a unique VLAN ID in the IP header.",
+        "By using transport-layer port numbers to distinguish sessions in the translation table.",
+        "By encapsulating multiple private packets into a single GRE tunnel.",
+        "By alternating the public IP address between devices every millisecond."
+      ],
+      answer: 1,
+      explanation: "PAT (also called NAT Overload) tracks unique source port numbers in its translation table so returning traffic can be mapped back to the exact internal host and session."
+    },
+    {
+      id: "q9",
+      prompt: "Examine the PAT translation below:\n`Before NAT: 192.168.1.1:45000 -> 160.10.10.10:443`\n`After NAT: 150.10.1.100:30100 -> 160.10.10.10:443`\nWhat did the NAT router modify on this outbound packet?",
+      options: [
+        "The destination IP address and destination port number",
+        "The source IP address only, leaving all port numbers unchanged",
+        "The source IP address and the source port number",
+        "Both the source and destination IP addresses"
+      ],
+      answer: 2,
+      explanation: "PAT translated the private source IP (192.168.1.1) to the public IP (150.10.1.100) and translated the source port (45000 to 30100) while keeping the destination 160.10.10.10:443 intact."
+    },
+    {
+      id: "q10",
+      prompt: "In Cisco NAT terminology, what does the term \"Inside Local\" refer to?",
+      options: [
+        "The translated public IP address representing an internal host to external networks",
+        "The original IP address assigned to an internal host on the inside network",
+        "The actual public IP address of an external web server",
+        "The IP address assigned to the router's WAN interface"
+      ],
+      answer: 1,
+      explanation: "Inside Local is the actual address configured on the internal host (typically a private IP like 192.168.1.1) before NAT translates it."
+    },
+    {
+      id: "q11",
+      prompt: "An internal PC (`192.168.1.1`) is translated to `150.10.10.100` when accessing an external server at `160.10.10.10`. What is `150.10.10.100` called in Cisco NAT terminology?",
+      options: [
+        "Inside Local",
+        "Outside Local",
+        "Outside Global",
+        "Inside Global"
+      ],
+      answer: 3,
+      explanation: "Inside Global is the translated address that represents the inside host to the outside network."
+    },
+    {
+      id: "q12",
+      prompt: "When are the \"Outside Local\" and \"Outside Global\" addresses identical?",
+      options: [
+        "Whenever Static NAT is configured on the inside interface",
+        "Whenever the outside destination address is not being translated",
+        "Whenever PAT overload is enabled on the WAN interface",
+        "They can never be identical because Outside Local is always a private IP"
+      ],
+      answer: 1,
+      explanation: "Outside Local does not have to be a private IP; when the external host's address is not translated, Outside Local and Outside Global are the same address."
+    },
+    {
+      id: "q13",
+      prompt: "Which global configuration command creates a Static NAT mapping for internal host `192.168.1.1` to public IP `150.10.10.100`?",
+      options: [
+        "ip nat outside source static 192.168.1.1 150.10.10.100",
+        "ip nat inside source static 192.168.1.1 150.10.10.100",
+        "ip nat static 192.168.1.1 150.10.10.100",
+        "ip nat inside source static 150.10.10.100 192.168.1.1"
+      ],
+      answer: 1,
+      explanation: "The correct Cisco IOS syntax for Static NAT is `ip nat inside source static <private-IP> <public-IP>`."
+    },
+    {
+      id: "q14",
+      prompt: "What is the role of the standard ACL referenced in a Dynamic NAT or PAT configuration (e.g. `ip nat inside source list NAT_ACL ...`)?",
+      options: [
+        "It blocks all external traffic from entering the WAN interface.",
+        "It identifies which inside addresses are eligible for NAT translation.",
+        "It defines the range of public IP addresses available in the NAT pool.",
+        "It assigns the `ip nat inside` and `ip nat outside` roles to interfaces."
+      ],
+      answer: 1,
+      explanation: "In NAT configuration, the ACL is used solely for traffic identification to specify which internal addresses should be translated; it does not filter or block traffic by itself."
+    },
+    {
+      id: "q15",
+      prompt: "Which command correctly configures interface-based PAT using ACL `NAT_ACL` and WAN interface `g0/1`?",
+      options: [
+        "ip nat inside source list NAT_ACL interface g0/1",
+        "ip nat inside source list NAT_ACL pool g0/1 overload",
+        "ip nat inside source list NAT_ACL interface g0/1 overload",
+        "ip nat outside source list NAT_ACL interface g0/1 overload"
+      ],
+      answer: 2,
+      explanation: "Interface-based PAT uses `ip nat inside source list <ACL> interface <WAN-interface> overload`, where the `overload` keyword enables PAT."
+    },
+    {
+      id: "q16",
+      prompt: "How do you enable PAT (NAT Overload) while using a configured public IP pool named `NAT_POOL`?",
+      options: [
+        "ip nat inside source list NAT_ACL pool NAT_POOL overload",
+        "ip nat pool NAT_POOL overload",
+        "ip nat inside source pool NAT_POOL list NAT_ACL",
+        "ip nat overload pool NAT_POOL list NAT_ACL"
+      ],
+      answer: 0,
+      explanation: "Appending the `overload` keyword to the Dynamic NAT command (`ip nat inside source list NAT_ACL pool NAT_POOL overload`) enables PAT across the pool."
+    },
+    {
+      id: "q17",
+      prompt: "A router has `g0/0` connected to the internal LAN and `g0/1` connected to the ISP. Which interface commands are required for NAT to function?",
+      options: [
+        "`ip nat outside` on g0/0 and `ip nat inside` on g0/1",
+        "`ip nat inside` on g0/0 and `ip nat outside` on g0/1",
+        "`ip nat enable` on both g0/0 and g0/1",
+        "`ip nat inside` on g0/0 only; the WAN interface is detected automatically"
+      ],
+      answer: 1,
+      explanation: "The LAN-facing interface must be marked with `ip nat inside` and the WAN-facing interface must be marked with `ip nat outside`."
+    },
+    {
+      id: "q18",
+      prompt: "Which privileged EXEC command displays the active NAT translation table, including Inside Local, Inside Global, Outside Local, and Outside Global entries?",
+      options: [
+        "show ip nat statistics",
+        "show ip nat translations",
+        "show ip nat pool",
+        "show ip interface nat"
+      ],
+      answer: 1,
+      explanation: "`show ip nat translations` displays all active static and dynamic NAT/PAT mappings currently in the router's translation table."
+    },
+    {
+      id: "q19",
+      prompt: "Which command helps you verify which interfaces are configured as `ip nat inside` and `ip nat outside` along with pool usage and translation counts?",
+      options: [
+        "show ip nat statistics",
+        "show ip access-lists",
+        "show ip route nat",
+        "show ip nat translations"
+      ],
+      answer: 0,
+      explanation: "`show ip nat statistics` shows active translation counts, which interfaces are designated inside and outside, and NAT pool allocation details."
+    },
+    {
+      id: "q20",
+      prompt: "Why should `debug ip nat` be used with caution on a production router?",
+      options: [
+        "It clears all active NAT translations when enabled.",
+        "It temporarily disables the `overload` keyword until turned off.",
+        "It can consume significant CPU and generate large amounts of output.",
+        "It automatically shuts down the WAN interface if an error is detected."
+      ],
+      answer: 2,
+      explanation: "Debugging NAT logs every translation in real time, which can overload CPU resources and flood the console; always stop it with `undebug all`."
+    },
+    {
+      id: "q21",
+      prompt: "Users on `192.168.1.0/24` cannot reach the internet through a PAT router. `show ip nat translations` is completely empty while users generate traffic. Which is the most likely configuration error?",
+      options: [
+        "The router is missing `debug ip nat` in global configuration mode.",
+        "The `ip nat inside` / `ip nat outside` interface commands are missing or reversed, or the NAT ACL does not match `192.168.1.0/24`.",
+        "The internal hosts are using private IP addresses instead of public IP addresses.",
+        "The router needs a Static NAT entry for every external website."
+      ],
+      answer: 1,
+      explanation: "If no translations are being created at all during active traffic, the most common causes are missing/swapped `ip nat inside`/`outside` interface roles or a misconfigured NAT ACL."
+    },
+    {
+      id: "q22",
+      prompt: "In Cisco IOS NAT order of operations, how are routing and NAT sequenced for outbound (inside-to-outside) versus return (outside-to-inside) traffic?",
+      options: [
+        "Both inside-to-outside and outside-to-inside packets are routed first, then translated.",
+        "Both inside-to-outside and outside-to-inside packets are translated first, then routed.",
+        "Inside-to-outside packets are routed first then translated; outside-to-inside packets are translated first then routed.",
+        "Inside-to-outside packets are translated first then routed; outside-to-inside packets are routed first then translated."
+      ],
+      answer: 2,
+      explanation: "For inside-to-outside traffic, the router performs a route lookup first to confirm the packet exits an outside interface before applying NAT; for outside-to-inside return traffic, NAT translates the destination back to the Inside Local IP first so the router can route it internally."
+    },
+    {
+      id: "q23",
+      prompt: "An administrator runs `clear ip nat translation *` on a router configured with both Static NAT and Dynamic PAT, then immediately runs `show ip nat translations`. What will still appear in the output?",
+      options: [
+        "All Dynamic PAT entries, because `*` only clears Static NAT entries",
+        "The Static NAT entries, because `clear ip nat translation *` only clears dynamic translations",
+        "Nothing, because `*` removes both static and dynamic entries from the table and running-config",
+        "Only ICMP translations, while TCP and UDP entries are cleared"
+      ],
+      answer: 1,
+      explanation: "`clear ip nat translation *` clears all dynamic NAT/PAT entries, but Static NAT mappings remain in the translation table until their configuration lines are removed from the running-config."
+    },
+    {
+      id: "q24",
+      prompt: "You want to apply an inbound ACL on a router's `ip nat inside` interface to block host `192.168.1.10` (which translates to `150.10.10.100`) from reaching the internet. Which source IP must the ACL match?",
+      options: [
+        "The Inside Local IP (`192.168.1.10`), because inbound ACLs are evaluated before NAT",
+        "The Inside Global IP (`150.10.10.100`), because NAT always runs before inbound ACLs",
+        "Either IP address, because the router checks both automatically",
+        "The Outside Global IP of the destination server"
+      ],
+      answer: 0,
+      explanation: "An inbound ACL on an inside interface is processed before routing and NAT occur, so the packet still carries its original Inside Local source address (`192.168.1.10`)."
+    }
+  ]
+},
 ]
 
 

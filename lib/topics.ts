@@ -6311,24 +6311,7 @@ eq ftp`
               'This allows internal devices to communicate with external internet hosts.'
             ]
           },
-          { type: 'heading', text: 'Example of NAT' },
-          {
-            type: 'code',
-            language: 'text',
-            code: `Internal Client:
-IP Address: 192.168.10.1
-
-Public Server:
-IP Address: 160.10.10.10
-
-Before NAT:
-Source IP      : 192.168.10.1
-Destination IP : 160.10.10.10
-
-After NAT:
-Source IP      : 150.10.1.100
-Destination IP : 160.10.10.10`
-          },
+          
           { type: 'heading', text: 'Important note' },
           {
             type: 'bullets',

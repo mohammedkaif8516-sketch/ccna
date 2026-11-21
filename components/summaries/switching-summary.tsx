@@ -69,6 +69,8 @@ const TABS = [
   { id: "tier", label: "13 · 3-tier design" },
   { id: "dhcp", label: "14 · DHCP" },
   { id: "dhcpcfg", label: "15 · DHCP config" },
+  { id: "acl", label: "16 · ACL" },
+  { id: "nat", label: "17 · NAT" },
   // ▲ ADD NEW TABS ABOVE THIS LINE, for example: { id: "vtp", label: "10 · VTP" },
   { id: "cmds", label: "Commands" },
   { id: "myths", label: "Common mistakes" },
@@ -3697,6 +3699,19 @@ const CMD_ROWS: string[][] = [
   ["DHCP", "Verify pools", "show ip dhcp pool"],
   ["DHCP", "Verify leases", "show ip dhcp binding  |  show ip dhcp binding | include <IP/MAC>"],
   ["DHCP", "Clear a lease", "clear ip dhcp binding *   (lab only)"],
+  ["ACL", "Create numbered standard ACL", "access-list 10 permit 192.168.10.0 0.0.0.255"],
+  ["ACL", "Create numbered extended ACL", "access-list 110 permit tcp any any eq 443"],
+  ["ACL", "Create named standard ACL", "ip access-list standard USERS"],
+  ["ACL", "Create named extended ACL", "ip access-list extended WEB_ONLY"],
+  ["ACL", "Apply ACL inbound/outbound", "ip access-group <name|number> <in|out>"],
+  ["ACL", "Verify ACLs", "show ip access-lists  |  show ip interface g0/0"],
+  ["NAT", "Mark inside interface", "ip nat inside"],
+  ["NAT", "Mark outside interface", "ip nat outside"],
+  ["NAT", "Static NAT", "ip nat inside source static <inside-local> <inside-global>"],
+  ["NAT", "Create dynamic pool", "ip nat pool <name> <start-ip> <end-ip> netmask <mask>"],
+  ["NAT", "Bind ACL to dynamic pool", "ip nat inside source list <acl> pool <name>"],
+  ["NAT", "PAT using outside interface", "ip nat inside source list <acl> interface g0/1 overload"],
+  ["NAT", "Verify translations", "show ip nat translations  |  show ip nat statistics"],
   // ▲ ADD NEW ROWS ABOVE THIS LINE
 ];
 /* ▼▼▼ (4/5) NOTES DATA: when you add a subtopic, add its name here so the filter pills show it ▼▼▼ */
@@ -3712,7 +3727,9 @@ const GROUPS = [
   "EtherChannel",
   "Inter-VLAN",
   "3-Tier",
-  "DHCP"
+  "DHCP",
+  "ACL",
+  "NAT"
 ];
 
 function CmdsSection() {
@@ -3931,6 +3948,13 @@ const MYTHS: Myth[] = [
     wrong: "Inter-VLAN routing normally happens at the access layer.",
     right: "It typically lives at the distribution layer (SVIs on MLS).",
   },
+  { g: "ACL", wrong: "ACL rules are checked randomly or all rules are evaluated.", right: "Rules are checked in order. The first matching rule decides the result; the rest are skipped." },
+  { g: "ACL", wrong: "An ACL ends with an implicit permit.", right: "IPv4 ACLs have an implicit deny any at the end. Add an explicit permit if other traffic should pass." },
+  { g: "ACL", wrong: "A standard ACL checks source and destination IPs and ports.", right: "A standard IPv4 ACL checks the source IP address only. Extended ACLs can match protocol, source/destination IPs and ports." },
+  { g: "ACL", wrong: "Creating an ACL automatically filters traffic.", right: "For interface filtering, apply it with ip access-group on the interface in the intended direction." },
+  { g: "NAT", wrong: "NAT and ACLs always have the same purpose.", right: "An ACL can filter traffic or identify traffic for NAT. In a NAT match ACL, permit means the source is selected for translation; it does not itself grant network access." },
+  { g: "NAT", wrong: "PAT needs one public IP for every inside host.", right: "PAT lets many inside hosts share one public IPv4 address by tracking transport-layer port numbers." },
+  { g: "NAT", wrong: "ip nat inside and ip nat outside are interchangeable.", right: "Mark the LAN-facing interface ip nat inside and the Internet-facing interface ip nat outside." },
   // ▲ ADD NEW CARDS ABOVE THIS LINE
 ];
 
@@ -4274,6 +4298,15 @@ const QA: QAi[] = [
       "The router/MLS converts the local broadcast to a unicast toward the DHCP server, and forwards the reply back.",
     ],
   },
+  { g: "ACL", q: "What is an ACL and what are its two main purposes?", a: ["An ordered set of permit/deny statements.", "It can filter traffic on an interface or identify traffic for features such as NAT and QoS."] },
+  { g: "ACL", q: "How does an ACL process traffic?", a: ["It checks statements from the lowest sequence number to the highest.", "The first match wins. If no statement matches, the implicit deny applies."] },
+  { g: "ACL", q: "Standard ACL vs extended ACL?", a: ["Standard ACLs check the source IP address only.", "Extended ACLs can check protocol, source/destination IP addresses and TCP/UDP ports."] },
+  { g: "ACL", q: "What is the difference between inbound and outbound ACLs?", a: ["Inbound checks packets as they enter the interface.", "Outbound checks packets as they leave the interface."] },
+  { g: "ACL", q: "How do you apply and verify an ACL?", a: ["Apply with ip access-group <ACL> in|out under the interface.", "Verify with show ip access-lists and show ip interface <interface>."] },
+  { g: "NAT", q: "What are inside local and inside global addresses?", a: ["Inside local is the inside host address as used on the inside network.", "Inside global is the address representing that inside host to the outside network."] },
+  { g: "NAT", q: "Compare static NAT, dynamic NAT and PAT.", a: ["Static NAT uses a fixed one-to-one mapping.", "Dynamic NAT allocates an address from a configured public pool.", "PAT lets multiple inside hosts share an address by tracking transport ports."] },
+  { g: "NAT", q: "What must be configured for basic NAT?", a: ["Mark the LAN-facing interface ip nat inside and the WAN-facing interface ip nat outside.", "Configure the translation rule or pool, and ensure routing works in both directions."] },
+  { g: "NAT", q: "How do you verify NAT?", a: ["Use show ip nat translations to inspect mappings.", "Use show ip nat statistics to inspect hits, misses and interface roles."] },
   // ▲ ADD NEW QUESTIONS ABOVE THIS LINE
 ];
 
@@ -4359,6 +4392,298 @@ function InterviewSection() {
   );
 }
 
+/* ───────────────────────── 16 · ACL ───────────────────────── */
+
+function AclSection() {
+  const [kind, setKind] = useState<"standard" | "extended">("standard");
+  const [style, setStyle] = useState<"numbered" | "named">("numbered");
+  const [direction, setDirection] = useState<"in" | "out">("in");
+  const [scenario, setScenario] = useState<"blocked" | "allowed" | "other">("blocked");
+
+  const aclResult = scenario === "blocked"
+    ? { result: "DENY", reason: "The source matches the specific deny rule before the broader permit rule.", color: RED }
+    : scenario === "allowed"
+      ? { result: "PERMIT", reason: "The source matches the subnet permit rule. The ACL stops at the first match.", color: GREEN }
+      : { result: "DENY", reason: "No configured rule matches, so the hidden implicit deny is applied.", color: RED };
+
+  const standardRules = [
+    ["10", "deny", "host 192.168.10.1"],
+    ["20", "deny", "host 192.168.10.10"],
+    ["30", "permit", "192.168.10.0 0.0.0.255"],
+    ["40", "permit", "host 192.168.20.1"],
+    ["50", "permit", "host 192.168.20.2"],
+    ["60", "permit", "host 192.168.20.200"],
+    ["—", "deny", "any (implicit, hidden)"],
+  ];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">ACL = Access Control List</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          An ACL is an ordered list of permit and deny statements. It can filter traffic on an interface, or identify traffic for features such as NAT, QoS and policy-based routing. The meaning of permit/deny depends on the feature using the ACL.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Mini k="Rule order" v="Top to bottom" color={BLUE} />
+          <Mini k="Matching" v="First match wins" color={GREEN} />
+          <Mini k="End of every ACL" v="Implicit deny any" color={RED} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">How ACL processing works</p>
+        <div className="mt-3">
+          <SimpleTable
+            head={["Sequence", "Action", "Match"]}
+            rows={standardRules}
+          />
+        </div>
+        <div className="mt-3">
+          <Tip title="Remember">
+            The router checks the lowest sequence number first. Once a statement matches, later statements are ignored. If nothing matches, the implicit deny blocks the traffic.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Try the first-match rule flow</p>
+        <p className="mt-1 text-xs text-muted-foreground">Choose a source and see which rule decides its fate.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={scenario === "blocked"} onClick={() => setScenario("blocked")}>192.168.10.1</Pick>
+          <Pick active={scenario === "allowed"} onClick={() => setScenario("allowed")}>192.168.10.50</Pick>
+          <Pick active={scenario === "other"} onClick={() => setScenario("other")}>192.168.30.5</Pick>
+        </div>
+        <div key={scenario} className="n10-fade mt-3 rounded-lg border p-3">
+          <p className="text-sm font-bold" style={{ color: aclResult.color }}>{aclResult.result}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{aclResult.reason}</p>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">ACL types and what they inspect</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={kind === "standard"} onClick={() => setKind("standard")}>Standard</Pick>
+          <Pick active={kind === "extended"} onClick={() => setKind("extended")}>Extended</Pick>
+        </div>
+        {kind === "standard" ? (
+          <div key="std" className="n10-fade mt-3 flex flex-col gap-2">
+            <Mini k="Checks" v="Source IPv4 address only" color={BLUE} />
+            <Mini k="Number ranges" v="1–99 and 1300–1999" />
+            <Code lines={[
+              "(config)# access-list 10 deny host 192.168.10.1",
+              "(config)# access-list 10 permit 192.168.10.0 0.0.0.255",
+              "(config)# access-list 10 permit any",
+            ]} />
+          </div>
+        ) : (
+          <div key="ext" className="n10-fade mt-3 flex flex-col gap-2">
+            <Mini k="Checks" v="Protocol, source/destination IP, and TCP/UDP ports" color={PURPLE} />
+            <Mini k="Number ranges" v="100–199 and 2000–2699" />
+            <Code lines={[
+              "(config)# access-list 110 permit tcp host 192.168.10.10 host 192.168.20.20 eq 443",
+              "(config)# access-list 110 deny tcp host 192.168.10.10 any eq 22",
+              "(config)# access-list 110 permit ip any any",
+            ]} />
+          </div>
+        )}
+        <div className="mt-3">
+          <Tip title="Placement">
+            Standard ACLs match only the source, so they are commonly placed closer to the destination. Extended ACLs can match source and destination details, so they are commonly placed closer to the source.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Numbered vs named ACL</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={style === "numbered"} onClick={() => setStyle("numbered")}>Numbered</Pick>
+          <Pick active={style === "named"} onClick={() => setStyle("named")}>Named</Pick>
+        </div>
+        {style === "numbered" ? (
+          <div key="numbered" className="n10-fade mt-3">
+            <p className="mb-2 text-xs text-muted-foreground">Identified by a number that indicates the ACL type.</p>
+            <Code lines={[
+              "(config)# access-list 15 permit 192.168.10.0 0.0.0.255",
+              "(config)# access-list 115 permit tcp any any eq 443",
+            ]} />
+          </div>
+        ) : (
+          <div key="named" className="n10-fade mt-3">
+            <p className="mb-2 text-xs text-muted-foreground">Uses a descriptive name and supports sequence-number editing.</p>
+            <Code lines={[
+              "(config)# ip access-list standard USERS",
+              "(config-std-nacl)# 10 deny host 192.168.10.1",
+              "(config-std-nacl)# 20 permit 192.168.10.0 0.0.0.255",
+              "",
+              "(config)# ip access-list extended WEB_ONLY",
+              "(config-ext-nacl)# 10 permit tcp any any eq 443",
+            ]} />
+          </div>
+        )}
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Apply an ACL to an interface</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={direction === "in"} onClick={() => setDirection("in")}>Inbound</Pick>
+          <Pick active={direction === "out"} onClick={() => setDirection("out")}>Outbound</Pick>
+        </div>
+        <div key={direction} className="n10-fade mt-3">
+          <Mini k={direction === "in" ? "Inbound" : "Outbound"} v={direction === "in" ? "Packets entering this interface are checked." : "Packets leaving this interface are checked."} color={direction === "in" ? BLUE : AMBER} />
+          <div className="mt-2">
+            <Code lines={[
+              "(config)# interface g0/0",
+              ` (config-if)# ip access-group 110 ${direction}`,
+              "(config-if)# no shutdown",
+              "",
+              "! remove the applied ACL",
+              ` (config-if)# no ip access-group 110 ${direction}`,
+            ]} />
+          </div>
+        </div>
+        <div className="mt-3">
+          <Tip title="Important">
+            One IPv4 ACL can be applied per interface, per direction. Creating an ACL does not activate it; it must be applied to an interface to filter interface traffic.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Verification and useful commands</p>
+        <Code lines={[
+          "# show ip access-lists",
+          "# show ip access-lists 110",
+          "# show running-config | section access-list",
+          "# show running-config interface g0/0",
+          "# show ip interface g0/0",
+        ]} />
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 17 · NAT ───────────────────────── */
+
+function NatSection() {
+  const [mode, setMode] = useState<"static" | "dynamic" | "pat">("pat");
+  const [flow, setFlow] = useState(0);
+  const natSteps = [
+    { title: "Inside host sends a packet", src: "192.168.10.10", dst: "198.51.100.20", note: "The packet leaves the private LAN and reaches the NAT router's inside interface." },
+    { title: "NAT translates the source", src: "203.0.113.5", dst: "198.51.100.20", note: "The router replaces the inside-local source address with its configured inside-global address. With PAT, it also tracks a transport-layer port." },
+    { title: "Reply returns to the public address", src: "198.51.100.20", dst: "203.0.113.10", note: "The remote server replies to the translated public address (and translated port, when PAT is used)." },
+    { title: "NAT translates back to the inside host", src: "198.51.100.20", dst: "192.168.10.10", note: "The NAT table identifies the matching translation and forwards the reply to the original inside host." },
+  ];
+  const step = natSteps[flow];
+
+  const config: Record<typeof mode, string[]> = {
+    static: [
+      "(config)# interface g0/0",
+      "(config-if)# ip nat inside",
+      "(config)# interface g0/1",
+      "(config-if)# ip nat outside",
+      "(config)# ip nat inside source static 192.168.10.10 203.0.113.10",
+    ],
+    dynamic: [
+      "(config)# access-list 1 permit 192.168.10.0 0.0.0.255",
+      "(config)# ip nat pool PUBLIC 203.0.113.10 203.0.113.20 netmask 255.255.255.0",
+      "(config)# interface g0/0",
+      "(config-if)# ip nat inside",
+      "(config)# interface g0/1",
+      "(config-if)# ip nat outside",
+      "(config)# ip nat inside source list 1 pool PUBLIC",
+    ],
+    pat: [
+      "(config)# access-list 1 permit 192.168.10.0 0.0.0.255",
+      "(config)# interface g0/0",
+      "(config-if)# ip nat inside",
+      "(config)# interface g0/1",
+      "(config-if)# ip nat outside",
+      "(config)# ip nat inside source list 1 interface g0/1 overload",
+    ],
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">NAT — Network Address Translation</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          NAT changes IP address information in packet headers as traffic crosses a router or firewall. It commonly lets private IPv4 hosts communicate with public networks using one or more public addresses.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Mini k="Private IPv4" v="10.0.0.0/8" color={BLUE} />
+          <Mini k="Private IPv4" v="172.16.0.0/12" color={BLUE} />
+          <Mini k="Private IPv4" v="192.168.0.0/16" color={BLUE} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">NAT terminology</p>
+        <div className="mt-3">
+          <SimpleTable head={["Term", "Meaning"]} rows={[
+            ["Inside local", "Address of an inside host as seen on the inside network (often private)."],
+            ["Inside global", "Address representing the inside host to the outside network (often public)."],
+            ["Outside global", "Real address assigned to the outside destination."],
+            ["Outside local", "Address of the outside destination as it appears to the inside network; often the same as outside global."],
+          ]} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Follow a packet through NAT</p>
+        <p className="mt-1 text-xs text-muted-foreground">Step through the outgoing packet, translation, reply and reverse translation.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {natSteps.map((x, i) => <Pick key={x.title} active={flow === i} onClick={() => setFlow(i)}>{i + 1}. {x.title}</Pick>)}
+        </div>
+        <div key={flow} className="n10-fade mt-3 rounded-lg border p-3">
+          <p className="text-sm font-semibold">{step.title}</p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <Mini k="Source IP" v={step.src} color={BLUE} />
+            <Mini k="Destination IP" v={step.dst} color={PURPLE} />
+          </div>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">{step.note}</p>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button size="sm" variant="outline" disabled={flow === 0} onClick={() => setFlow(v => v - 1)}>Previous</Button>
+          <Button size="sm" disabled={flow === natSteps.length - 1} onClick={() => setFlow(v => v + 1)}>Next step</Button>
+          <Button size="sm" variant="ghost" onClick={() => setFlow(0)}>Reset</Button>
+        </div>
+        <Tip title="Address example">
+          The documentation addresses in this animation are examples only. On a real router, use the public address and interface assigned by your ISP.
+        </Tip>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Three common NAT methods</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={mode === "static"} onClick={() => setMode("static")}>Static NAT</Pick>
+          <Pick active={mode === "dynamic"} onClick={() => setMode("dynamic")}>Dynamic NAT</Pick>
+          <Pick active={mode === "pat"} onClick={() => setMode("pat")}>PAT / Overload</Pick>
+        </div>
+        {mode === "static" && <div key="static" className="n10-fade mt-3"><Mini k="Mapping" v="One inside-local address ↔ one inside-global address" color={BLUE} /><p className="mt-2 text-xs text-muted-foreground">A fixed one-to-one mapping. Common when an internal service must be reachable through a consistent public address.</p></div>}
+        {mode === "dynamic" && <div key="dynamic" className="n10-fade mt-3"><Mini k="Mapping" v="An inside-local address temporarily receives an available address from a public pool" color={AMBER} /><p className="mt-2 text-xs text-muted-foreground">Mappings are allocated from a configured pool. If the pool has no free addresses, additional inside hosts cannot obtain a translation.</p></div>}
+        {mode === "pat" && <div key="pat" className="n10-fade mt-3"><Mini k="Mapping" v="Many inside hosts share one public IP by using different TCP/UDP port numbers" color={GREEN} /><p className="mt-2 text-xs text-muted-foreground">Port Address Translation (PAT), also called NAT overload, is widely used for home and enterprise Internet access.</p></div>}
+        <div className="mt-3"><Code lines={config[mode]} /></div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">NAT verification and troubleshooting</p>
+        <Code lines={[
+          "# show ip nat translations",
+          "# show ip nat statistics",
+          "# show running-config | include ip nat",
+          "# show access-lists",
+          "# clear ip nat translation *   ! use carefully in a lab",
+        ]} />
+        <div className="mt-3">
+          <Tip title="Troubleshooting checklist">
+            Check that the inside and outside interfaces are marked correctly, the ACL matches the intended inside source subnet, the NAT pool has free addresses (for dynamic NAT), and routing exists in both directions. For PAT, verify the overload statement and interface address.
+          </Tip>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
 /* ▼▼▼ (2/5) NEW SECTION COMPONENTS GO HERE: function XxxSection() { ... } (copy any section above as a template) ▼▼▼ */
 
 /* ───────────────────────── main component ───────────────────────── */
@@ -4391,11 +4716,10 @@ export function SwitchingVlanExplainer() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base">
-              Topic 10: Switching, VLANs and trunking
+              CCNA: Switching, VLANs, ACL and NAT
             </CardTitle>
             <CardDescription className="mt-1">
-              Forwarding, VLANs, access and trunk ports, native VLAN and DTP.
-              Tap through the sections in any order.
+              Switching, VLANs, trunking, DHCP, ACL and NAT. Tap through the sections in any order.
             </CardDescription>
           </div>
           <Badge variant="secondary">Interactive</Badge>
@@ -4427,6 +4751,8 @@ export function SwitchingVlanExplainer() {
           {tab === "tier" && <TierSection />}
           {tab === "dhcp" && <DhcpSection />}
           {tab === "dhcpcfg" && <DhcpCfgSection />}
+          {tab === "acl" && <AclSection />}
+          {tab === "nat" && <NatSection />}
           {/* ▼▼▼ (3/5) RENDER: add new sections here, for example {tab === "vtp" && <VtpSection />} ▼▼▼ */}
           {tab === "cmds" && <CmdsSection />}
           {tab === "myths" && <MythsSection />}
