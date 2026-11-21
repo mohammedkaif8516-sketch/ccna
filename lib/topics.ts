@@ -5675,7 +5675,7 @@ export const topics: Topic[] = [
           { label: 'Run from', value: 'Privileged EXEC mode (#)' },
         ],
       },
-            {
+      {
         slug: 'acl-introduction-purpose-and-rules',
         title: 'ACL Introduction (Purpose, Rules, Sequence Numbers)',
         group: 'ACL',
@@ -5776,19 +5776,19 @@ export const topics: Topic[] = [
           },
         ],
         diagrams: [
-  {
-    src: '/diagrams/acl_types_ip_mac_wide.png',
-    alt: 'ACL types: IP based ACL checks the IP header and TCP/UDP header on routers, firewalls and L3 switches; MAC based ACL checks the L2 header on L2 switches',
-    caption: 'IP based ACL vs MAC based ACL',
-  },
-],
+          {
+            src: '/diagrams/acl_types_ip_mac_wide.png',
+            alt: 'ACL types: IP based ACL checks the IP header and TCP/UDP header on routers, firewalls and L3 switches; MAC based ACL checks the L2 header on L2 switches',
+            caption: 'IP based ACL vs MAC based ACL',
+          },
+        ],
         quickReference: [
           { label: 'IP based', value: 'Routers / Firewalls / L3 switches' },
           { label: 'MAC based', value: 'L2 switches' },
           { label: 'IP ACL checks', value: 'Src/Dst IP, Src/Dst port, protocol' },
           { label: 'MAC ACL checks', value: 'Src/Dst MAC' },
         ],
-        
+
       },
 
       {
@@ -5873,12 +5873,12 @@ export const topics: Topic[] = [
           },
         ],
         diagrams: [
-  {
-    src: '/diagrams/acl_interface_direction_wide.png',
-    alt: 'A router with an ACL applied on interface f0/0: inbound traffic enters the router through the ACL and outbound traffic leaves through it; permit allows traffic and deny blocks it',
-    caption: 'ACL on a router interface: inbound and outbound direction',
-  },
-],
+          {
+            src: '/diagrams/acl_interface_direction_wide.png',
+            alt: 'A router with an ACL applied on interface f0/0: inbound traffic enters the router through the ACL and outbound traffic leaves through it; permit allows traffic and deny blocks it',
+            caption: 'ACL on a router interface: inbound and outbound direction',
+          },
+        ],
         quickReference: [
           { label: 'Apply', value: 'ip access-group <no|name> <in|out>' },
           { label: 'Inbound', value: 'Traffic entering the interface' },
@@ -6028,7 +6028,7 @@ export const topics: Topic[] = [
             ]
           },
           { type: 'heading', text: 'IP protocol hierarchy and ports' },
-          
+
           { type: 'heading', text: 'Configuration syntax' },
           {
             type: 'code',
@@ -6056,12 +6056,12 @@ eq ftp`
           },
         ],
         diagrams: [
-  {
-    src: '/diagrams/acl_ip_protocol_hierarchy_wide.png',
-    alt: 'IP protocol hierarchy: IP splits into TCP (SSH 22, HTTP 80, HTTPS 443, FTP 20/21, TELNET 23), UDP (DHCP 67/68, DNS 53, TFTP 69) and ICMP (echo request, echo reply)',
-    caption: 'IP protocol hierarchy with common port numbers used in extended ACLs',
-  },
-],
+          {
+            src: '/diagrams/acl_ip_protocol_hierarchy_wide.png',
+            alt: 'IP protocol hierarchy: IP splits into TCP (SSH 22, HTTP 80, HTTPS 443, FTP 20/21, TELNET 23), UDP (DHCP 67/68, DNS 53, TFTP 69) and ICMP (echo request, echo reply)',
+            caption: 'IP protocol hierarchy with common port numbers used in extended ACLs',
+          },
+        ],
         quickReference: [
           { label: 'Range', value: '100-199, 2000-2699' },
           { label: 'Checks', value: 'Protocol, Src/Dst IP, Src/Dst port' },
@@ -6195,6 +6195,567 @@ eq ftp`
           { label: 'Run from', value: 'Privileged EXEC mode (#)' },
         ],
       },
+
+      {
+        slug: 'acl-interface-implementation',
+        title: 'ACL Interface Implementation and Verification',
+        group: 'ACL',
+        description: 'Apply standard or extended ACLs to router interfaces or subinterfaces using ip access-group to control traffic entering or leaving an interface.',
+        blocks: [
+          { type: 'heading', text: 'Applying an ACL to an interface' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(config)# interface <interface-name | vlan-number | subinterface>
+(config-if)# ip access-group <ACL-name | ACL-number> <in | out>
+(config-if)# no shutdown
+(config-if)# exit`
+          },
+          { type: 'heading', text: 'Direction of ACL filtering' },
+          {
+            type: 'bullets',
+            items: [
+              'in — Filters packets as they enter the interface.',
+              'out — Filters packets as they leave the interface.',
+              'An ACL must be applied to an interface before it filters traffic.',
+              'An ACL can be applied inbound or outbound, but only one ACL per protocol, per direction, per interface.',
+              'ACLs end with an implicit deny any. Add an explicit permit statement if other traffic must be allowed.'
+            ]
+          },
+          { type: 'heading', text: 'Verification commands' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `# show running-config interface <interface-name>
+# show ip interface brief
+# show interfaces <interface-name>
+# show ip access-lists`
+          },
+          { type: 'heading', text: 'Practical task — Branch ACL requirements' },
+          {
+            type: 'bullets',
+            items: [
+              'VLAN 10 must not access any other VLAN, except host 10.1 (gateway IP ending in .100).',
+              'VLAN 10 and VLAN 20 must not access VLAN 40.',
+              'VLAN 30 is allowed to access VLAN 40 on both branches.',
+              'VLAN 10 hosts, except host 10.1, must not access VLAN 20 or VLAN 30 on either branch.'
+            ]
+          },
+          { type: 'heading', text: 'Important design considerations' },
+          {
+            type: 'bullets',
+            items: [
+              'Use extended ACLs when filtering based on source and destination networks.',
+              'Use host <ip-address> to identify a specific device.',
+              'Place extended ACLs close to the traffic source where practical.',
+              'Account for return traffic when designing ACL rules.',
+              'Apply equivalent policy on both branches if the requirements specify both branches.'
+            ]
+          }
+        ],
+        diagrams: [],
+        quickReference: [
+          { label: 'Enter interface', value: 'interface <name>' },
+          { label: 'Apply inbound', value: 'ip access-group <ACL> in' },
+          { label: 'Apply outbound', value: 'ip access-group <ACL> out' },
+          { label: 'Show ACLs', value: 'show ip access-lists' },
+          { label: 'Show interface ACL', value: 'show running-config interface <name>' },
+          { label: 'Interface status', value: 'show ip interface brief' }
+        ]
+      },
+      {
+        slug: 'nat-fundamentals-private-public-ip',
+        title: 'NAT Fundamentals (Public vs Private IP Addresses)',
+        group: 'NAT',
+        description: 'Understand Network Address Translation, private IPv4 address ranges, public addressing, and why NAT is required for internet connectivity.',
+        blocks: [
+          { type: 'heading', text: 'What is NAT?' },
+          {
+            type: 'bullets',
+            items: [
+              'NAT stands for Network Address Translation.',
+              'NAT translates IP addresses as packets move between networks.',
+              'It commonly allows devices using private IP addresses to communicate with the public internet.',
+              'A NAT-enabled router translates the private source address into a public address for outbound communication.',
+              'The router maintains translation information so returning traffic can reach the correct internal device.'
+            ]
+          },
+          { type: 'heading', text: 'Private IPv4 address ranges' },
+          {
+            type: 'table',
+            headers: ['Classful range', 'Private range', 'Number of /8 blocks'],
+            rows: [
+              ['Class A', '10.0.0.0/8', '1'],
+              ['Class B', '172.16.0.0/12', '16'],
+              ['Class C', '192.168.0.0/16', '256']
+            ]
+          },
+          { type: 'heading', text: 'Public vs Private IP addresses' },
+          {
+            type: 'table',
+            headers: ['Public IP', 'Private IP'],
+            rows: [
+              ['Globally routable on the public internet', 'Not globally routable on the public internet'],
+              ['Allocated through address registries and ISPs', 'Can be freely reused in different private networks'],
+              ['Used for public internet communication', 'Used inside LANs and private networks'],
+              ['Must be globally unique within its routing scope', 'Can exist in multiple unrelated networks']
+            ]
+          },
+          { type: 'heading', text: 'Why do we need NAT?' },
+          {
+            type: 'bullets',
+            items: [
+              'Private IP addresses cannot be routed across the public internet.',
+              'ISPs commonly filter packets carrying private source addresses.',
+              'NAT translates private addresses into public addresses.',
+              'This allows internal devices to communicate with external internet hosts.'
+            ]
+          },
+          { type: 'heading', text: 'Example of NAT' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `Internal Client:
+IP Address: 192.168.10.1
+
+Public Server:
+IP Address: 160.10.10.10
+
+Before NAT:
+Source IP      : 192.168.10.1
+Destination IP : 160.10.10.10
+
+After NAT:
+Source IP      : 150.10.1.100
+Destination IP : 160.10.10.10`
+          },
+          { type: 'heading', text: 'Important note' },
+          {
+            type: 'bullets',
+            items: [
+              'NAT is not the same thing as routing.',
+              'NAT translates addresses, whereas routing determines where packets should be forwarded.',
+              'NAT does not automatically provide firewall protection.'
+            ]
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/nat_packet_flow_wide.png',
+            alt: 'Private LAN connected through a CE router to the internet and a public server, illustrating source NAT.',
+            caption: 'NAT allows private-addressed clients to communicate with public internet servers.'
+          }
+        ],
+        quickReference: [
+          { label: 'NAT', value: 'Network Address Translation' },
+          { label: 'Private Class A', value: '10.0.0.0/8' },
+          { label: 'Private Class B', value: '172.16.0.0/12' },
+          { label: 'Private Class C', value: '192.168.0.0/16' },
+          { label: 'Main purpose', value: 'Translate private and public addresses' }
+        ]
+      },
+      {
+        slug: 'nat-types-static-dynamic-pat',
+        title: 'Types of NAT (Static, Dynamic and PAT)',
+        group: 'NAT',
+        description: 'Understand Source NAT, Destination NAT, Static NAT, Dynamic NAT, and Port Address Translation with practical examples.',
+        blocks: [
+          { type: 'heading', text: 'Source NAT vs Destination NAT' },
+          {
+            type: 'table',
+            headers: ['Type', 'What changes?', 'Typical direction'],
+            rows: [
+              ['Source NAT', 'Source IP address', 'LAN to WAN'],
+              ['Destination NAT', 'Destination IP address', 'WAN to LAN']
+            ]
+          },
+          { type: 'heading', text: '1. Static NAT' },
+          {
+            type: 'bullets',
+            items: [
+              'Creates a fixed one-to-one IP address mapping.',
+              'One private IP is mapped to one public IP.',
+              'The mapping remains configured even when no traffic is flowing.',
+              'Can be used to make an internal server reachable through a public address when routing and filtering permit it.'
+            ]
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: `Private IP        Public IP
+192.168.1.1   <->  150.10.10.100
+
+One-to-one mapping`
+          },
+          { type: 'heading', text: '2. Dynamic NAT' },
+          {
+            type: 'bullets',
+            items: [
+              'Uses a pool of public IP addresses.',
+              'Inside devices are dynamically mapped to available public addresses.',
+              'Translations are created when traffic requires them.',
+              'The number of simultaneous mappings is limited by the available pool addresses.'
+            ]
+          },
+          {
+            type: 'code',
+            language: 'text',
+            code: `Private IP       Public IP
+192.168.1.1  ->  150.10.10.1
+192.168.1.2  ->  150.10.10.2
+192.168.1.3  ->  150.10.10.3
+
+Public IPs are allocated from a configured pool.`
+          },
+          { type: 'heading', text: '3. PAT (Port Address Translation)' },
+          {
+            type: 'bullets',
+            items: [
+              'Also called NAT Overload in Cisco terminology.',
+              'Allows multiple internal devices or sessions to share one public IP address.',
+              'Uses transport-layer port numbers to distinguish sessions.',
+              'The NAT router maintains translation entries to identify the correct internal device for returning traffic.',
+              'PAT is widely used in home and enterprise internet connections.'
+            ]
+          },
+          { type: 'heading', text: 'PAT example — Two simultaneous sessions' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `SESSION 1:
+Before NAT:
+192.168.1.1:45000 -> 160.10.10.10:443
+
+After NAT:
+150.10.1.100:30100 -> 160.10.10.10:443
+
+SESSION 2:
+Before NAT:
+192.168.1.1:46000 -> 160.10.10.10:443
+
+After NAT:
+150.10.1.100:30200 -> 160.10.10.10:443
+
+TRANSLATION TABLE:
+192.168.1.1:45000 -> 150.10.1.100:30100
+192.168.1.1:46000 -> 150.10.1.100:30200`
+          },
+          { type: 'heading', text: 'Comparison of NAT types' },
+          {
+            type: 'table',
+            headers: ['Feature', 'Static NAT', 'Dynamic NAT', 'PAT'],
+            rows: [
+              ['Mapping', 'Fixed', 'Dynamic', 'Dynamic'],
+              ['Public IP requirement', 'One per mapping', 'Pool of IPs', 'Can share one IP'],
+              ['Port translation', 'Not normally required', 'Not normally required', 'Yes'],
+              ['Multiple devices sharing one IP', 'No', 'No, not in ordinary Dynamic NAT', 'Yes'],
+              ['Common use', 'Fixed address mapping', 'Public IP pool allocation', 'Internet access']
+            ]
+          },
+          { type: 'heading', text: 'Important note' },
+          {
+            type: 'bullets',
+            items: [
+              'Static NAT is a fixed mapping.',
+              'Dynamic NAT selects addresses from a pool.',
+              'PAT distinguishes sessions using transport-layer ports.',
+              'PAT is configured using the overload keyword in Cisco IOS.',
+              'Dynamic NAT can also use overload to support PAT.'
+            ]
+          }
+        ],
+        diagrams: [],
+        quickReference: [
+          { label: 'Static NAT', value: 'Fixed one-to-one mapping' },
+          { label: 'Dynamic NAT', value: 'Public IP pool' },
+          { label: 'PAT', value: 'Multiple sessions share an IP' },
+          { label: 'Cisco PAT keyword', value: 'overload' },
+          { label: 'Source NAT', value: 'Changes source IP' },
+          { label: 'Destination NAT', value: 'Changes destination IP' }
+        ]
+      },
+      {
+        slug: 'nat-inside-outside-terminology',
+        title: 'NAT Terminology (Inside Local, Inside Global and Outside Addresses)',
+        group: 'NAT',
+        description: 'Learn the four NAT address categories used in Cisco networking: Inside Local, Inside Global, Outside Local, and Outside Global.',
+        blocks: [
+          { type: 'heading', text: 'Four NAT address categories' },
+          {
+            type: 'table',
+            headers: ['Term', 'Meaning', 'Example'],
+            rows: [
+              ['Inside Local', 'Address assigned to the inside host on the internal network.', '192.168.1.1'],
+              ['Inside Global', 'Address representing the inside host to the outside network.', '150.10.10.100'],
+              ['Outside Global', 'Actual address of the external destination host.', '160.10.10.10'],
+              ['Outside Local', 'Address representing the outside host to the inside network.', '10.10.10.10']
+            ]
+          },
+          { type: 'heading', text: 'Understanding each term' },
+          {
+            type: 'bullets',
+            items: [
+              'Inside Local — The original address of an internal device, usually a private IP.',
+              'Inside Global — The translated address representing the internal device to external networks.',
+              'Outside Global — The actual address assigned to the external destination.',
+              'Outside Local — The address by which the external destination is represented to the internal network.'
+            ]
+          },
+          
+          { type: 'heading', text: 'Important note' },
+          {
+            type: 'bullets',
+            items: [
+              'Inside and outside identify which side of the NAT device the host belongs to.',
+              'Local and global distinguish the address representation on the inside and outside networks.',
+              'Outside Local does not necessarily mean a private IP address.',
+              'Outside Local and Outside Global may be identical when the outside address is not translated.'
+            ]
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/nat_terminology_wide.png',
+            alt: 'NAT topology showing internal client, NAT router, internet and external server with the four NAT address categories.',
+            caption: 'Understanding the four NAT address categories.'
+          }
+        ],
+        quickReference: [
+          { label: 'Inside Local', value: 'Original inside host address' },
+          { label: 'Inside Global', value: 'Translated inside host address' },
+          { label: 'Outside Global', value: 'Actual outside host address' },
+          { label: 'Outside Local', value: 'Outside host address as seen internally' }
+        ]
+      },
+      {
+        slug: 'nat-static-dynamic-pat-configuration',
+        title: 'NAT Configuration (Static, Dynamic and PAT)',
+        group: 'NAT',
+        description: 'Configure Static NAT, Dynamic NAT and PAT on Cisco routers using NAT rules, access lists, public IP pools and inside/outside interface designation.',
+        blocks: [
+          { type: 'heading', text: '1. Static NAT configuration' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! Step 1: Configure static translation
+(config)# ip nat inside source static <private-IP> <public-IP>
+
+! Example
+(config)# ip nat inside source static 192.168.1.1 150.10.10.100
+
+! Step 2: Configure LAN interface
+(config)# interface <LAN-interface>
+(config-if)# ip nat inside
+(config-if)# no shutdown
+(config-if)# exit
+
+! Step 3: Configure WAN interface
+(config)# interface <WAN-interface>
+(config-if)# ip nat outside
+(config-if)# no shutdown
+(config-if)# exit`
+          },
+          { type: 'heading', text: '2. Dynamic NAT configuration' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! Step 1: Create a public IP pool
+(config)# ip nat pool <pool-name> <start-IP> <end-IP> netmask <mask>
+
+! Example
+(config)# ip nat pool NAT_POOL 150.10.10.1 150.10.10.10 netmask 255.255.255.0
+
+! Step 2: Identify internal addresses using an ACL
+(config)# ip access-list standard NAT_ACL
+(config-std-nacl)# permit 192.168.1.0 0.0.0.255
+(config-std-nacl)# exit
+
+! Step 3: Configure Dynamic NAT
+(config)# ip nat inside source list NAT_ACL pool NAT_POOL
+
+! Step 4: Configure LAN interface
+(config)# interface <LAN-interface>
+(config-if)# ip nat inside
+(config-if)# exit
+
+! Step 5: Configure WAN interface
+(config)# interface <WAN-interface>
+(config-if)# ip nat outside
+(config-if)# exit`
+          },
+          { type: 'heading', text: '3. PAT configuration using WAN interface' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! Step 1: Identify private addresses
+(config)# ip access-list standard NAT_ACL
+(config-std-nacl)# permit 192.168.1.0 0.0.0.255
+(config-std-nacl)# exit
+
+! Step 2: Configure PAT
+(config)# ip nat inside source list NAT_ACL interface <WAN-interface> overload
+
+! Step 3: Configure LAN interface
+(config)# interface <LAN-interface>
+(config-if)# ip nat inside
+(config-if)# exit
+
+! Step 4: Configure WAN interface
+(config)# interface <WAN-interface>
+(config-if)# ip nat outside
+(config-if)# exit`
+          },
+          { type: 'heading', text: '4. Dynamic NAT with PAT' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! Configure a public IP pool
+(config)# ip nat pool NAT_POOL <start-IP> <end-IP> netmask <mask>
+
+! Identify internal addresses
+(config)# ip access-list standard NAT_ACL
+(config-std-nacl)# permit 192.168.1.0 0.0.0.255
+(config-std-nacl)# exit
+
+! Enable PAT using the pool
+(config)# ip nat inside source list NAT_ACL pool NAT_POOL overload`
+          },
+          { type: 'heading', text: 'NAT interface roles' },
+          {
+            type: 'table',
+            headers: ['Interface', 'Command', 'Purpose'],
+            rows: [
+              ['LAN interface', 'ip nat inside', 'Identifies the internal network side.'],
+              ['WAN interface', 'ip nat outside', 'Identifies the external network side.']
+            ]
+          },
+          { type: 'heading', text: 'Important notes' },
+          {
+            type: 'bullets',
+            items: [
+              'The ACL identifies which inside addresses are eligible for translation.',
+              'The ACL used for NAT identifies traffic; it does not itself filter or block traffic.',
+              'The overload keyword enables PAT.',
+              'Interface-based PAT uses the IP address configured on the WAN interface.',
+              'Ensure the router has appropriate routing and a return path.',
+              'A NAT pool must contain valid and usable addresses for the intended design.'
+            ]
+          }
+        ],
+        diagrams: [],
+        quickReference: [
+          { label: 'Static NAT', value: 'ip nat inside source static <local> <global>' },
+          { label: 'Create pool', value: 'ip nat pool <name> <start> <end> netmask <mask>' },
+          { label: 'Dynamic NAT', value: 'ip nat inside source list <ACL> pool <name>' },
+          { label: 'PAT', value: 'ip nat inside source list <ACL> interface <WAN> overload' },
+          { label: 'Dynamic PAT', value: 'ip nat inside source list <ACL> pool <name> overload' },
+          { label: 'Inside', value: 'ip nat inside' },
+          { label: 'Outside', value: 'ip nat outside' },
+          { label: 'PAT keyword', value: 'overload' }
+        ]
+      },
+      {
+        slug: 'nat-verification-troubleshooting',
+        title: 'NAT Verification and Troubleshooting',
+        group: 'NAT',
+        description: 'Verify NAT translations, inspect NAT statistics, troubleshoot access lists and interface roles, and monitor translation activity using Cisco IOS commands.',
+        blocks: [
+          { type: 'heading', text: 'NAT verification commands' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! Display NAT translations
+# show ip nat translations
+
+! Display NAT statistics
+# show ip nat statistics
+
+! Display NAT configuration
+# show running-config | section ip nat
+
+! Display access lists
+# show ip access-lists
+
+! Display interface configuration
+# show running-config interface <interface-name>
+
+! Display interface status
+# show ip interface brief`
+          },
+          { type: 'heading', text: 'Understanding NAT translation output' },
+          {
+            type: 'table',
+            headers: ['Field', 'Meaning'],
+            rows: [
+              ['Inside local', 'Original internal device address'],
+              ['Inside global', 'Translated address of the internal device'],
+              ['Outside local', 'Outside host address as represented internally'],
+              ['Outside global', 'Actual outside host address']
+            ]
+          },
+          { type: 'heading', text: 'NAT statistics' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip nat statistics displays active translations and NAT interface information.',
+              'It helps verify whether the router is configured with inside and outside interfaces.',
+              'It also displays information about translation activity and pool usage.'
+            ]
+          },
+          { type: 'heading', text: 'Debugging NAT' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! Monitor NAT translation activity
+# debug ip nat
+
+! Stop debugging
+# undebug all`
+          },
+          {
+            type: 'bullets', items: [
+              'Use debug commands carefully because they can consume CPU and generate large amounts of output.',
+              'Prefer controlled lab environments when learning debugging commands.'
+            ]
+          },
+          { type: 'heading', text: 'Clearing NAT translations' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! Clear dynamic translations
+# clear ip nat translation *
+
+! Clear a specific dynamic translation
+# clear ip nat translation <inside-local> <inside-global> <outside-local> <outside-global>`
+          },
+          { type: 'heading', text: 'Troubleshooting checklist' },
+          {
+            type: 'bullets',
+            items: [
+              'Verify that the correct interfaces have ip nat inside and ip nat outside.',
+              'Verify that the NAT ACL matches the intended private network.',
+              'Verify that the public IP pool has available addresses.',
+              'Verify that the WAN interface has a valid address when using interface-based PAT.',
+              'Verify that the router has a valid route to the external destination.',
+              'Verify that return traffic can reach the NAT router.',
+              'Check whether another ACL or firewall is blocking the traffic.',
+              'Check NAT translations while generating test traffic.'
+            ]
+          }
+        ],
+        diagrams: [],
+        quickReference: [
+          { label: 'Translations', value: 'show ip nat translations' },
+          { label: 'Statistics', value: 'show ip nat statistics' },
+          { label: 'NAT configuration', value: 'show running-config | section ip nat' },
+          { label: 'ACL verification', value: 'show ip access-lists' },
+          { label: 'Debug NAT', value: 'debug ip nat' },
+          { label: 'Stop debugging', value: 'undebug all' },
+          { label: 'Clear translations', value: 'clear ip nat translation *' }
+        ]
+      },
+
+
 
     ],
   },
@@ -7648,80 +8209,80 @@ eq ftp`
         ],
       },
       {
-  slug: 'vtp-labs',
-  title: 'VTP Labs (Server, Client & Transparent)',
-  group: 'Switching Labs',
-  description:
-    'Explore VLAN Trunking Protocol (VTP) across three scenarios: multi-server synchronization, server-client updates, and transparent mode forwarding. Each scenario uses a router-on-a-stick for inter-VLAN routing.',
-  blocks: [
-    { type: 'heading', text: 'Scenario' },
-    {
-      type: 'paragraph',
-      text:
-        'This lab is divided into three parts to demonstrate how VTP manages the VLAN database across a network. In LAB-1, three switches act as VTP Servers (SW1, SW2, SW3), where any switch can create or modify VLANs and synchronize the domain. In LAB-2, a VTP Server (SW4) distributes VLANs to two VTP Clients (SW5, SW6), which can only listen and apply changes. In LAB-3, a Transparent switch (SW8) sits between a Server (SW7) and a Client (SW9); it forwards VTP advertisements to the client without applying them locally, while maintaining its own isolated VLAN database. In all three parts, a single router (R1, R2, R3) provides inter-VLAN routing using a router-on-a-stick configuration over a trunk link.'
-    },
+        slug: 'vtp-labs',
+        title: 'VTP Labs (Server, Client & Transparent)',
+        group: 'Switching Labs',
+        description:
+          'Explore VLAN Trunking Protocol (VTP) across three scenarios: multi-server synchronization, server-client updates, and transparent mode forwarding. Each scenario uses a router-on-a-stick for inter-VLAN routing.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'This lab is divided into three parts to demonstrate how VTP manages the VLAN database across a network. In LAB-1, three switches act as VTP Servers (SW1, SW2, SW3), where any switch can create or modify VLANs and synchronize the domain. In LAB-2, a VTP Server (SW4) distributes VLANs to two VTP Clients (SW5, SW6), which can only listen and apply changes. In LAB-3, a Transparent switch (SW8) sits between a Server (SW7) and a Client (SW9); it forwards VTP advertisements to the client without applying them locally, while maintaining its own isolated VLAN database. In all three parts, a single router (R1, R2, R3) provides inter-VLAN routing using a router-on-a-stick configuration over a trunk link.'
+          },
 
-    { type: 'heading', text: 'Addressing Plan' },
-    {
-      type: 'bullets',
-      items: [
-        'VLANs map to subnets using the formula 192.168.N.0/24, where N is the VLAN ID divided by 100.',
-        'LAB-1: R1 uses subnets 192.168.1.0 (VLAN 100), 192.168.2.0 (VLAN 200), and 192.168.3.0 (VLAN 300).',
-        'LAB-2: R2 uses subnet 192.168.4.0 (VLAN 400).',
-        'LAB-3: R3 uses subnet 192.168.6.0 (VLAN 600). VLAN 700 remains local to SW8 with no gateway.',
-        'The gateway is always the .254 address on the respective router sub-interface.',
-        'Trunk ports interconnect the switches (e1/3 to e2/0, and e2/3 to e1/3) and connect the first switch of each lab to the router (e2/0 to e0/0).',
-      ]
-    },
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'VLANs map to subnets using the formula 192.168.N.0/24, where N is the VLAN ID divided by 100.',
+              'LAB-1: R1 uses subnets 192.168.1.0 (VLAN 100), 192.168.2.0 (VLAN 200), and 192.168.3.0 (VLAN 300).',
+              'LAB-2: R2 uses subnet 192.168.4.0 (VLAN 400).',
+              'LAB-3: R3 uses subnet 192.168.6.0 (VLAN 600). VLAN 700 remains local to SW8 with no gateway.',
+              'The gateway is always the .254 address on the respective router sub-interface.',
+              'Trunk ports interconnect the switches (e1/3 to e2/0, and e2/3 to e1/3) and connect the first switch of each lab to the router (e2/0 to e0/0).',
+            ]
+          },
 
-    { type: 'heading', text: 'Objectives' },
-    {
-      type: 'bullets',
-      items: [
-        'Configure VTP with domain BSOFT, version 2, and password cisco123 on all switches.',
-        'Set VTP modes to match the specific lab requirements: Server, Client, or Transparent.',
-        'Configure the inter-switch and switch-to-router links as 802.1Q trunks.',
-        'Create the required sub-interfaces on the routers with dot1Q encapsulation and IP addresses.',
-        'Verify VTP synchronization using show vtp status and confirm VLAN propagation with show vlan brief.',
-        'Assign host ports to their VLANs only after the VLANs have arrived via VTP.',
-        'In LAB-2, attempt to create a VLAN on a client switch to verify that the action is rejected.',
-        'In LAB-3, observe that VLAN 600 passes through the Transparent switch to the Client, but is not added to the Transparent switch\'s database.',
-        'In LAB-3, manually create VLAN 600 on the Transparent switch to allow user data traffic to cross it successfully.',
-      ]
-    },
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Configure VTP with domain BSOFT, version 2, and password cisco123 on all switches.',
+              'Set VTP modes to match the specific lab requirements: Server, Client, or Transparent.',
+              'Configure the inter-switch and switch-to-router links as 802.1Q trunks.',
+              'Create the required sub-interfaces on the routers with dot1Q encapsulation and IP addresses.',
+              'Verify VTP synchronization using show vtp status and confirm VLAN propagation with show vlan brief.',
+              'Assign host ports to their VLANs only after the VLANs have arrived via VTP.',
+              'In LAB-2, attempt to create a VLAN on a client switch to verify that the action is rejected.',
+              'In LAB-3, observe that VLAN 600 passes through the Transparent switch to the Client, but is not added to the Transparent switch\'s database.',
+              'In LAB-3, manually create VLAN 600 on the Transparent switch to allow user data traffic to cross it successfully.',
+            ]
+          },
 
-    { type: 'heading', text: 'Think Before You Type' },
-    {
-      type: 'paragraph',
-      text:
-        'VTP copies the VLAN database from switch to switch over trunk links, preventing you from having to create VLANs manually on every device. A switch only accepts a VTP advertisement if it matches the domain name and password, and carries a higher configuration revision number. Server mode allows full control, while Client mode only listens and forwards. Transparent mode ignores VTP updates entirely—keeping its revision at 0 and storing VLANs in its local running configuration—but still forwards the advertisements downstream. Keep in mind that VTP only distributes the VLAN definitions; it does not assign host ports. Furthermore, while a transparent switch will forward a VTP update for a VLAN, user traffic for that VLAN cannot pass through the transparent switch unless the VLAN is also created locally on it.'
-    },
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'VTP copies the VLAN database from switch to switch over trunk links, preventing you from having to create VLANs manually on every device. A switch only accepts a VTP advertisement if it matches the domain name and password, and carries a higher configuration revision number. Server mode allows full control, while Client mode only listens and forwards. Transparent mode ignores VTP updates entirely—keeping its revision at 0 and storing VLANs in its local running configuration—but still forwards the advertisements downstream. Keep in mind that VTP only distributes the VLAN definitions; it does not assign host ports. Furthermore, while a transparent switch will forward a VTP update for a VLAN, user traffic for that VLAN cannot pass through the transparent switch unless the VLAN is also created locally on it.'
+          },
 
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'bullets',
-      items: [
-        'show vtp status: Confirms the VTP Operating Mode, Domain Name (BSOFT), and Configuration Revision. Servers and Clients in the same domain should share the same revision number.',
-        'show vlan brief: Confirms that VLANs created on the server have successfully populated the database of other switches (excluding Transparent switches).',
-        'show ip route: On the routers, confirms the connected (C) subnets on the respective sub-interfaces.',
-        'ping: Verifies connectivity within the same VLAN across different switches, and between different VLANs via the router gateways.',
-      ]
-    }
-  ],
-  quickReference: [
-    { label: 'VTP Domain', value: 'vtp domain <name>' },
-    { label: 'VTP Password', value: 'vtp password <password>' },
-    { label: 'VTP Version', value: 'vtp version 2' },
-    { label: 'VTP Mode', value: 'vtp mode [server | client | transparent]' },
-    { label: 'Show VTP', value: 'show vtp status' },
-    { label: 'Trunk port', value: 'switchport trunk encapsulation dot1q, then switchport mode trunk' },
-    { label: 'Sub-interface', value: 'interface e0/0.<id>' },
-    { label: 'Tag match', value: 'encapsulation dot1Q <id>' },
-    { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
-    { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
-    { label: 'Show VLANs', value: 'show vlan brief' },
-  ],
-},
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vtp status: Confirms the VTP Operating Mode, Domain Name (BSOFT), and Configuration Revision. Servers and Clients in the same domain should share the same revision number.',
+              'show vlan brief: Confirms that VLANs created on the server have successfully populated the database of other switches (excluding Transparent switches).',
+              'show ip route: On the routers, confirms the connected (C) subnets on the respective sub-interfaces.',
+              'ping: Verifies connectivity within the same VLAN across different switches, and between different VLANs via the router gateways.',
+            ]
+          }
+        ],
+        quickReference: [
+          { label: 'VTP Domain', value: 'vtp domain <name>' },
+          { label: 'VTP Password', value: 'vtp password <password>' },
+          { label: 'VTP Version', value: 'vtp version 2' },
+          { label: 'VTP Mode', value: 'vtp mode [server | client | transparent]' },
+          { label: 'Show VTP', value: 'show vtp status' },
+          { label: 'Trunk port', value: 'switchport trunk encapsulation dot1q, then switchport mode trunk' },
+          { label: 'Sub-interface', value: 'interface e0/0.<id>' },
+          { label: 'Tag match', value: 'encapsulation dot1Q <id>' },
+          { label: 'Create VLAN', value: 'vlan <id> then name <text>' },
+          { label: 'Assign VLAN', value: 'switchport access vlan <id>' },
+          { label: 'Show VLANs', value: 'show vlan brief' },
+        ],
+      },
       {
         slug: 'dhcp-relay-ospf-lab-acl',
         title: 'DHCP Relay Lab: Two Branches, an OSPF Core , One DHCP Server and Vlan Restriciton ACL',
