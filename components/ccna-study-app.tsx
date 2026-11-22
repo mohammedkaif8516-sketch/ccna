@@ -138,6 +138,7 @@ import VtpLabs from "@/components/labs/vtp-labs";
 import DoraExplorer from "@/components/extras/dhcp-dora";
 import DhcpServerConfig from "@/components/extras/dhcp-conf";
 import DhcpServerLabs from "@/components/labs/dhcp-server-lab";
+import NatOspfDiamondLab from "@/components/labs/nat-ospf-lab";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -521,7 +522,7 @@ export function SubnetPlanner() {
                   </tr>
                 </thead>
                 <tbody>
-                                    {result.blocks!.map((b, i) => (
+                  {result.blocks!.map((b, i) => (
                     <tr key={b.label} className="border-t">
                       <td
                         className="px-3 py-2 font-semibold"
@@ -2275,7 +2276,9 @@ export default function CcnaStudyApp() {
               <TopicLanding
                 topic={{
                   ...selectedTopicOnly,
-                                  icon: (iconMap[selectedTopicOnly.icon as keyof typeof iconMap] ?? BookOpen) as any,
+                  icon: (iconMap[
+                    selectedTopicOnly.icon as keyof typeof iconMap
+                  ] ?? BookOpen) as any,
                 }}
                 completed={completed}
                 progressKey={progressKey}
@@ -2446,9 +2449,7 @@ export default function CcnaStudyApp() {
                 {current.slug === "dhcp-intervlan-labs" && (
                   <DhcpInterVlanLabs />
                 )}
-                 {current.slug === "dhcp-server-labs" && (
-                  <DhcpServerLabs />
-                )}
+                {current.slug === "dhcp-server-labs" && <DhcpServerLabs />}
 
                 {current.slug === "inter-vlan-routing-mls-and-svi" && (
                   <InterVlanRoutingLab />
@@ -2469,8 +2470,10 @@ export default function CcnaStudyApp() {
                 {current.slug === "dtp-trunk-lab" && <DtpTrunkLab />}
                 {current.slug === "etherchannel-lab" && <EtherChannelLab />}
                 {current.slug === "intervlan-lab" && <InterVlanLab />}
-                
-                {current.slug === "dhcp-relay-ospf-lab-acl" && <DhcpRelayOspfLabAcl />}
+
+                {current.slug === "dhcp-relay-ospf-lab-acl" && (
+                  <DhcpRelayOspfLabAcl />
+                )}
 
                 {current.slug === "physical-logical-lab" && (
                   <PhysicalLogicalLab />
@@ -2481,6 +2484,9 @@ export default function CcnaStudyApp() {
                 )}
                 {current.slug === "dhcp-relay-ospf-lab" && <DhcpRelayOspfLab />}
                 {current.slug === "vtp-labs" && <VtpLabs />}
+                {current.slug === "nat-ospf-diamond-lab" && (
+                  <NatOspfDiamondLab />
+                )}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
                     type="button"

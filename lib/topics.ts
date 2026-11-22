@@ -8378,6 +8378,117 @@ TRANSLATION TABLE:
           { label: 'Check ACL', value: 'show access-lists, show ip interface <int> | include access list' },
         ],
       },
+      {
+        slug: 'nat-ospf-diamond-lab',
+        title: 'NAT Lab: Two CE Branches, a Four-Router OSPF Diamond Core, Default Routes and Local DHCP',
+        group: 'Switching Labs',
+        description:
+          'Connect two branches, BR_BLR (CE router with router-on-a-stick) and BR_US (CE multilayer switch with SVIs), through a four-router OSPF core in a diamond shape. Each CE uses a default route towards the core, translates its private subnets with NAT overload and is the DHCP server of its own branch.',
+        blocks: [
+          { type: 'heading', text: 'Scenario' },
+          {
+            type: 'paragraph',
+            text:
+              'Two branches are connected through a service provider core. BR_BLR uses 192.168.XX.0/24 with the gateway .100, and its gateway is the CE router RBLR, which is connected to SW1 with one trunk and uses sub-interfaces (router on a stick). BR_US uses 10.10.XX.0/24 with the gateway .100, and its gateway is the CE multilayer switch MLS1 with SVIs. In each branch, three devices sit in a line (SW1, SW2 and SW3 in BR_BLR, MLS1, SW4 and SW5 in BR_US), every device has four hosts, one per VLAN (10 HR, 20 IT, 30 Marketing, 40 Management), and each connection between two switches is four cables bundled into an LACP port-channel. The core has four routers, R1, R2, R3 and R4, connected in a diamond: R1 is the left corner and connects to RBLR, R2 is the top corner, R3 is the right corner and connects to MLS1, and R4 is the bottom corner. Their loopbacks are 1.1.1.1, 2.2.2.1, 3.3.3.1 and 4.4.4.1. All core links use 200.10.XX.0/24 and run OSPF process 100 in area 0. The two CE devices do not run OSPF. Each of them has a default route towards the core and uses NAT overload to hide its private subnets behind the address of its core-facing interface. Each CE is also the DHCP server of its own branch. Every device starts in its factory state.'
+          },
+
+          { type: 'heading', text: 'Addressing Plan' },
+          {
+            type: 'bullets',
+            items: [
+              'Loopback 0 (/32): R1 1.1.1.1, R2 2.2.2.1, R3 3.3.3.1 and R4 4.4.4.1. The CE devices have no loopback.',
+              'Link 1, 200.10.1.0/24: R1 e0/1 is .1 and R2 e0/0 is .2.',
+              'Link 2, 200.10.2.0/24: R2 e0/1 is .1 and R3 e0/0 is .2.',
+              'Link 3, 200.10.3.0/24: R1 e0/2 is .1 and R4 e0/0 is .2.',
+              'Link 4, 200.10.4.0/24: R4 e0/1 is .1 and R3 e0/1 is .2.',
+              'Link 5, 200.10.5.0/24: R1 e0/0 is .1 and RBLR e0/1 is .2. This is the NAT outside interface of RBLR.',
+              'Link 6, 200.10.6.0/24: R3 e0/2 is .1 and MLS1 e2/0 is .2. On MLS1 this is a routed port (no switchport) and the NAT outside interface.',
+              'BR_BLR VLANs: 192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24 and 192.168.40.0/24, all with the gateway .100 on RBLR e0/0.10 to e0/0.40. Hosts: VPC1 to VPC4 on SW1, VPC5 to VPC8 on SW2 and VPC9 to VPC12 on SW3, in VLAN order 10, 20, 30, 40.',
+              'BR_US VLANs: 10.10.10.0/24, 10.10.20.0/24, 10.10.30.0/24 and 10.10.40.0/24, all with the gateway .100 on MLS1 Vlan10 to Vlan40. Hosts: VPC13 to VPC16 on MLS1, VPC17 to VPC20 on SW4 and VPC21 to VPC24 on SW5, in VLAN order 10, 20, 30, 40.',
+              'BR_BLR host ports: SW1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW2 e0/2, e0/3, e1/0, e1/1. SW3 e0/1, e0/2, e0/3, e1/0.',
+              'BR_US host ports: MLS1 e0/3, e1/0, e0/0, e0/2 for VLAN 10, 20, 30, 40. SW4 e0/2, e0/3, e1/0, e1/1. SW5 e0/1, e0/2, e0/3, e1/0.',
+              'BR_BLR bundles (LACP): Po1 SW1 (active) e1/3, e1/2, e1/1, e0/1 to SW2 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW2 (active) e2/3, e2/2, e2/1, e0/0 to SW3 (passive) e1/3, e1/2, e1/1, e0/0. SW1 e2/0 is the single trunk to RBLR e0/0.',
+              'BR_US bundles (LACP): Po1 MLS1 (active) e1/3, e1/2, e1/1, e0/1 to SW4 (passive) e2/0, e1/3, e1/2, e0/1. Po2 SW4 (active) e2/3, e2/2, e2/1, e0/0 to SW5 (passive) e1/3, e1/2, e1/1, e0/0.',
+              'DHCP on each CE: DNS server 8.8.8.8, domain name www.BSOFT.com, lease 2 days 0 hours. RBLR has the pools BR_BLR_VLAN10 to BR_BLR_VLAN40 and MLS1 has BR_US_VLAN10 to BR_US_VLAN40. The four gateway addresses (.100) of each branch are excluded.',
+              'NAT on each CE: ip nat inside on every sub-interface (RBLR) or SVI (MLS1), ip nat outside on the core-facing port, access-list 1 permitting 192.168.0.0 0.0.255.255 on RBLR and 10.10.0.0 0.0.255.255 on MLS1, and ip nat inside source list 1 interface <outside port> overload.',
+              'Default routes: RBLR ip route 0.0.0.0 0.0.0.0 200.10.5.1 and MLS1 ip route 0.0.0.0 0.0.0.0 200.10.6.1.',
+            ]
+          },
+
+          { type: 'heading', text: 'Objectives' },
+          {
+            type: 'bullets',
+            items: [
+              'Create VLANs 10, 20, 30 and 40 with names on all six switches: SW1, SW2, SW3, MLS1, SW4 and SW5.',
+              'Put every VPC-facing port into its VLAN with switchport mode access and switchport access vlan.',
+              'Bundle each switch-to-switch connection with LACP (active on the upper device, passive on the lower one) and configure the trunk only on the port-channel interface. Make SW1 e2/0 a trunk to RBLR.',
+              'Configure a loopback 0 on R1, R2, R3 and R4 and address the six links. On MLS1 make the port to R3 a routed port with no switchport.',
+              'Configure OSPF process 100 in area 0 on R1, R2, R3 and R4 only. Advertise 200.10.0.0 0.0.255.255 and the loopback. RBLR and MLS1 do not run OSPF.',
+              'Verify with show ip ospf neighbor and show ip route ospf. Every core router must have two FULL neighbours and must know all four loopbacks and all six links.',
+              'On RBLR create the sub-interfaces e0/0.10 to e0/0.40 (encapsulation dot1Q, gateway .100). On MLS1 enable ip routing and create the SVIs (gateway .100).',
+              'Configure the DHCP server on RBLR and on MLS1: exclude the four gateway addresses and create four pools on each, with network, default-router, dns-server, domain-name and lease 2 0.',
+              'Configure the default route on RBLR (next hop 200.10.5.1) and on MLS1 (next hop 200.10.6.1). Verify with show ip route and ping 4.4.4.1 from the CE.',
+              'Configure NAT overload on both CEs as described in the addressing plan.',
+              'On all 24 VPCs type ip dhcp and confirm with show ip that the address, gateway (.100) and DNS server are correct.',
+              'From VPC1 and VPC13 ping all four loopbacks and the far CE link address (200.10.6.2 from BR_BLR, 200.10.5.2 from BR_US). Check show ip nat translations and show ip nat statistics on the CE. Then ping VPC1 to VPC13 and explain why it fails.',
+              'Shut down R1 e0/1 (link 1) and see that OSPF reroutes through R4 and R3 and the loopback pings still work. Restore it. Then remove the default route from RBLR, see that BR_BLR loses the core, and restore it.',
+              'Save with copy running-config startup-config on every device, then test with reload.',
+            ]
+          },
+
+          { type: 'heading', text: 'Think Before You Type' },
+          {
+            type: 'paragraph',
+            text:
+              'The core belongs to the provider, and the two CE devices belong to the customer. A customer device does not need to run the routing protocol of the core. It only needs one answer to the question "where do I send everything I do not know?", and that answer is a default route towards the core router it is connected to. This is why RBLR points to 200.10.5.1 (R1) and MLS1 points to 200.10.6.1 (R3), and why neither of them has a router ospf section. The core, on the other hand, must know how to come back. The network statement 200.10.0.0 0.0.255.255 on R1, R2, R3 and R4 also covers link 5 and link 6, so the link addresses of both CE devices are known in the whole diamond. The diamond gives every router two paths to every other router: R1 reaches R3 through R2 or through R4, so if one link fails OSPF simply takes the other.'
+          },
+          {
+            type: 'paragraph',
+            text:
+              'The private subnets 192.168.X.0 and 10.10.X.0 must never enter the core, because the core has no routes for them and private addresses can overlap with other customers. NAT solves this. The CE marks its LAN-facing interfaces as inside and the core-facing interface as outside, and the line ip nat inside source list 1 interface <outside port> overload rewrites the source address of every packet that matches access-list 1 to the address of the outside interface, using a different source port for every host (PAT). The core only ever sees 200.10.5.2 or 200.10.6.2, and OSPF can already route to them, so the replies come back to the CE, which translates them to the right host. One consequence is that a host in BR_BLR cannot ping a private address in BR_US. The destination 10.10.10.x is not in any core routing table, so the packet is dropped. This is the expected result of NAT and not a fault. Each CE is also the DHCP server of its branch, so the client broadcast reaches its own gateway directly and no ip helper-address is needed. The gateway .100 of each VLAN must still be excluded from the pools, otherwise the server could lease it to a host.'
+          },
+
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'bullets',
+            items: [
+              'show vlan brief and show etherchannel summary on the switches: all VLANs exist, Po1 and Po2 have the flags SU, and the four members of each bundle are flagged P.',
+              'show ip ospf neighbor: R1, R2, R3 and R4 each have 2 neighbors in state FULL. RBLR and MLS1 have none.',
+              'show ip route ospf on R2: routes to 1.1.1.1, 3.3.3.1 and 4.4.4.1 and to the links 200.10.3.0, 200.10.4.0, 200.10.5.0 and 200.10.6.0. There are no 192.168.X.0 or 10.10.X.0 routes anywhere in the core.',
+              'show ip route on RBLR and MLS1: a static default route S* 0.0.0.0/0 via 200.10.5.1 and 200.10.6.1.',
+              'ping 1.1.1.1, 2.2.2.1, 3.3.3.1 and 4.4.4.1 from RBLR and MLS1: replies.',
+              'show ip dhcp pool and show ip dhcp binding on RBLR and MLS1: four pools each and 12 leases each, and never a .100 address.',
+              'show ip on each VPC: address, mask, gateway .100 and DNS server match its VLAN and branch.',
+              'ping 4.4.4.1 from VPC1 and VPC13: replies. ping 200.10.6.2 from VPC1 and 200.10.5.2 from VPC13: replies.',
+              'show ip nat translations on the CE: the VPC address (inside local) is shown translated to the link address (inside global), 200.10.5.2 on RBLR and 200.10.6.2 on MLS1. show ip nat statistics shows the inside and outside interfaces.',
+              'ping VPC1 to VPC13: fails, because the private subnets are hidden behind NAT and the core has no route to them.',
+              'After shutting R1 e0/1: show ip route 2.2.2.1 on R1 shows the path through R4 and R3, and the pings from the VPCs still work.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'BR_BLR', value: '192.168.XX.0/24, gateway .100, RBLR CE router on a stick' },
+          { label: 'BR_US', value: '10.10.XX.0/24, gateway .100, MLS1 CE with SVIs' },
+          { label: 'Core', value: 'OSPF 100, area 0, R1 R2 R3 R4 in a diamond, links 200.10.XX.0/24' },
+          { label: 'Loopbacks', value: 'R1 1.1.1.1, R2 2.2.2.1, R3 3.3.3.1, R4 4.4.4.1 (/32)' },
+          { label: 'Loopback', value: 'interface loopback 0, ip address <ip> 255.255.255.255' },
+          { label: 'Routed port', value: 'no switchport, then ip address <ip> <mask>' },
+          { label: 'OSPF', value: 'router ospf 100, network <net> <wildcard> area 0' },
+          { label: 'Default route', value: 'ip route 0.0.0.0 0.0.0.0 <next hop>' },
+          { label: 'NAT inside', value: 'ip nat inside (on every sub-interface or SVI)' },
+          { label: 'NAT outside', value: 'ip nat outside (on the core-facing port)' },
+          { label: 'NAT overload', value: 'access-list 1 permit <net> <wildcard>, then ip nat inside source list 1 interface <port> overload' },
+          { label: 'Sub-interface', value: 'interface e0/0.<id>, encapsulation dot1Q <id>, ip address <ip> <mask>' },
+          { label: 'SVI', value: 'ip routing, interface vlan <id>, ip address <ip> <mask>' },
+          { label: 'Exclude address', value: 'ip dhcp excluded-address <ip>' },
+          { label: 'DHCP pool', value: 'ip dhcp pool <name>, network, default-router, dns-server, domain-name, lease' },
+          { label: 'LACP member', value: 'channel-group <n> mode active | passive' },
+          { label: 'VPC DHCP', value: 'ip dhcp (release with ip dhcp -r)' },
+          { label: 'Check OSPF', value: 'show ip ospf neighbor, show ip route ospf' },
+          { label: 'Check NAT', value: 'show ip nat translations, show ip nat statistics' },
+          { label: 'Check DHCP', value: 'show ip dhcp binding, show ip dhcp pool' },
+        ],
+      }
       //   {
       // slug: 'mls-eigrp-ospf-lab',
       // title: 'Four MLS: LACP, STP, EIGRP and OSPF',
