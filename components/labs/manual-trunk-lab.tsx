@@ -165,7 +165,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
         flash("ran");
       }}
       title="Click to run on this device"
-      className="group flex items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
+      className="group flex flex-wrap items-center rounded-md px-2 py-[3px] cursor-pointer transition-colors hover:bg-primary/10"
       style={{ background: state === "ran" ? "rgba(34,197,94,.18)" : undefined }}
     >
       <Colored cmd={cmd} />
@@ -177,7 +177,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
             opacity: 0.55,
             whiteSpace: "normal",
             minWidth: 0,
-            flex: "1 1 0%",
+            flex: "1 1 140px",
           }}
         >
           {note}

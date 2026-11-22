@@ -359,7 +359,7 @@ function KeyLine({ device, index }: { device: KeyDevice; index: number }) {
             opacity: 0.55,
             whiteSpace: "normal",
             minWidth: 0,
-            flex: "1 1 0%",
+            flex: "1 1 140px",
           }}
         >
           {note}
