@@ -1034,130 +1034,130 @@ export const topics: Topic[] = [
         ],
       },
       {
-  slug: 'ip-address-classes-a-b-c-d-e-and-default-subnet-masks',
-  title: 'IP Address Classes (A, B, C, D, E) and Default Subnet Masks',
-  description: 'Classful addressing divides the IPv4 space into five classes, each with a defined range, default mask, and purpose.',
-  blocks: [
-    { type: 'heading', text: 'Overview of Classful Addressing' },
-    {
-      type: 'bullets', items: [
-        'An IPv4 address is 32 bits long, written as four octets (e.g., 192.168.10.1).',
-        'Classful addressing was the original scheme: the class is decided by the first octet (or the leading bits of the first octet).',
-        'N = Network bits, H = Host bits. The default subnet mask marks the boundary between them.',
-        'Leading bits identify the class: A = 0, B = 10, C = 110, D = 1110, E = 1111.',
-        'Classful addressing has been replaced by CIDR / classless addressing (VLSM), but classes are still used for exams, defaults, and general terminology.',
-      ]
-    },
+        slug: 'ip-address-classes-a-b-c-d-e-and-default-subnet-masks',
+        title: 'IP Address Classes (A, B, C, D, E) and Default Subnet Masks',
+        description: 'Classful addressing divides the IPv4 space into five classes, each with a defined range, default mask, and purpose.',
+        blocks: [
+          { type: 'heading', text: 'Overview of Classful Addressing' },
+          {
+            type: 'bullets', items: [
+              'An IPv4 address is 32 bits long, written as four octets (e.g., 192.168.10.1).',
+              'Classful addressing was the original scheme: the class is decided by the first octet (or the leading bits of the first octet).',
+              'N = Network bits, H = Host bits. The default subnet mask marks the boundary between them.',
+              'Leading bits identify the class: A = 0, B = 10, C = 110, D = 1110, E = 1111.',
+              'Classful addressing has been replaced by CIDR / classless addressing (VLSM), but classes are still used for exams, defaults, and general terminology.',
+            ]
+          },
 
-    { type: 'heading', text: 'Class A' },
-    {
-      type: 'bullets', items: [
-        'Range: 1 – 126 → total range 1.0.0.0 – 126.255.255.255 (first bit is 0).',
-        'Structure: N | H | H | H — subnet mask 255.0.0.0 (/8).',
-        'Number of networks: 2^7 − 2 = 126 (0 and 127 are reserved).',
-        'Usable host IPs per network: 2^24 − 2 = 16,777,214.',
-        'Example: 10.1.1.1 → network 10.0.0.0, broadcast 10.255.255.255.',
-        '10.0.0.0/8 is a private network (RFC 1918).',
-        '127.0.0.0/8 is the Loopback range (127.0.0.1 – 127.255.255.255), used for testing the local TCP/IP stack.',
-        '0.0.0.0/8 is reserved (0.0.0.0 means "this host" or the default route).',
-        'The rest of Class A is public.',
-      ]
-    },
+          { type: 'heading', text: 'Class A' },
+          {
+            type: 'bullets', items: [
+              'Range: 1 – 126 → total range 1.0.0.0 – 126.255.255.255 (first bit is 0).',
+              'Structure: N | H | H | H — subnet mask 255.0.0.0 (/8).',
+              'Number of networks: 2^7 − 2 = 126 (0 and 127 are reserved).',
+              'Usable host IPs per network: 2^24 − 2 = 16,777,214.',
+              'Example: 10.1.1.1 → network 10.0.0.0, broadcast 10.255.255.255.',
+              '10.0.0.0/8 is a private network (RFC 1918).',
+              '127.0.0.0/8 is the Loopback range (127.0.0.1 – 127.255.255.255), used for testing the local TCP/IP stack.',
+              '0.0.0.0/8 is reserved (0.0.0.0 means "this host" or the default route).',
+              'The rest of Class A is public.',
+            ]
+          },
 
-    { type: 'heading', text: 'Class B' },
-    {
-      type: 'bullets', items: [
-        'Range: 128 – 191 → total range 128.0.0.0 – 191.255.255.255 (first two bits are 10).',
-        'Structure: N | N | H | H — subnet mask 255.255.0.0 (/16).',
-        'Number of networks: 2^14 = 16,384.',
-        'Usable host IPs per network: 2^16 − 2 = 65,536 − 2 = 65,534.',
-        'Example: 150.10.10.10, mask 255.255.0.0.',
-        'Example network: 150.10.0.0/16 → network address; hosts 150.10.0.1 – 150.10.255.254; broadcast 150.10.255.255.',
-        'Private range: 172.16.0.0 – 172.31.255.255 (172.16.0.0/12).',
-        'APIPA (link-local) range: 169.254.0.0/16, self-assigned when no DHCP server responds.',
-      ]
-    },
+          { type: 'heading', text: 'Class B' },
+          {
+            type: 'bullets', items: [
+              'Range: 128 – 191 → total range 128.0.0.0 – 191.255.255.255 (first two bits are 10).',
+              'Structure: N | N | H | H — subnet mask 255.255.0.0 (/16).',
+              'Number of networks: 2^14 = 16,384.',
+              'Usable host IPs per network: 2^16 − 2 = 65,536 − 2 = 65,534.',
+              'Example: 150.10.10.10, mask 255.255.0.0.',
+              'Example network: 150.10.0.0/16 → network address; hosts 150.10.0.1 – 150.10.255.254; broadcast 150.10.255.255.',
+              'Private range: 172.16.0.0 – 172.31.255.255 (172.16.0.0/12).',
+              'APIPA (link-local) range: 169.254.0.0/16, self-assigned when no DHCP server responds.',
+            ]
+          },
 
-    { type: 'heading', text: 'Class C' },
-    {
-      type: 'bullets', items: [
-        'Range: 192 – 223 → total range 192.0.0.0 – 223.255.255.255 (first three bits are 110).',
-        'Structure: N | N | N | H — subnet mask 255.255.255.0 (/24).',
-        'Number of networks: 2^21 = 2,097,152.',
-        'Usable host IPs per network: 2^8 − 2 = 256 − 2 = 254.',
-        'Example: 192.168.10.0/24 → network address; hosts 192.168.10.1 – 192.168.10.254; broadcast 192.168.10.255.',
-        'Private range: 192.168.0.0 – 192.168.255.255 (192.168.0.0/16).',
-        'Most common class for small LANs, home networks, and offices.',
-      ]
-    },
+          { type: 'heading', text: 'Class C' },
+          {
+            type: 'bullets', items: [
+              'Range: 192 – 223 → total range 192.0.0.0 – 223.255.255.255 (first three bits are 110).',
+              'Structure: N | N | N | H — subnet mask 255.255.255.0 (/24).',
+              'Number of networks: 2^21 = 2,097,152.',
+              'Usable host IPs per network: 2^8 − 2 = 256 − 2 = 254.',
+              'Example: 192.168.10.0/24 → network address; hosts 192.168.10.1 – 192.168.10.254; broadcast 192.168.10.255.',
+              'Private range: 192.168.0.0 – 192.168.255.255 (192.168.0.0/16).',
+              'Most common class for small LANs, home networks, and offices.',
+            ]
+          },
 
-    { type: 'heading', text: 'Class D' },
-    {
-      type: 'bullets', items: [
-        'Reserved for multicasting purposes.',
-        'Range: 224 – 239 → total range 224.0.0.0 – 239.255.255.255 (first four bits are 1110, i.e. 224.0.0.0/4).',
-        'No network address, broadcast address, usable IP address, or subnet mask in this range — each IP represents a multicast group.',
-        'Used as a destination address only; it is never assigned to a host interface as a source address.',
-        'Well-known examples: 224.0.0.1 (all hosts), 224.0.0.2 (all routers), 224.0.0.5 / 224.0.0.6 (OSPF), 224.0.0.9 (RIPv2), 224.0.0.10 (EIGRP).',
-      ]
-    },
+          { type: 'heading', text: 'Class D' },
+          {
+            type: 'bullets', items: [
+              'Reserved for multicasting purposes.',
+              'Range: 224 – 239 → total range 224.0.0.0 – 239.255.255.255 (first four bits are 1110, i.e. 224.0.0.0/4).',
+              'No network address, broadcast address, usable IP address, or subnet mask in this range — each IP represents a multicast group.',
+              'Used as a destination address only; it is never assigned to a host interface as a source address.',
+              'Well-known examples: 224.0.0.1 (all hosts), 224.0.0.2 (all routers), 224.0.0.5 / 224.0.0.6 (OSPF), 224.0.0.9 (RIPv2), 224.0.0.10 (EIGRP).',
+            ]
+          },
 
-    { type: 'heading', text: 'Class E' },
-    {
-      type: 'bullets', items: [
-        'Reserved for scientific, experimental, and research purposes.',
-        'Range: 240 – 255 → total range 240.0.0.0 – 255.255.255.255 (first four bits are 1111).',
-        'No network address, no broadcast address, no usable IP, no subnetting, and no subnet mask.',
-        '255.255.255.255 is the limited broadcast address (sent to all hosts on the local network, not forwarded by routers).',
-        'Not used on the public internet and not supported for normal host assignment.',
-      ]
-    },
+          { type: 'heading', text: 'Class E' },
+          {
+            type: 'bullets', items: [
+              'Reserved for scientific, experimental, and research purposes.',
+              'Range: 240 – 255 → total range 240.0.0.0 – 255.255.255.255 (first four bits are 1111).',
+              'No network address, no broadcast address, no usable IP, no subnetting, and no subnet mask.',
+              '255.255.255.255 is the limited broadcast address (sent to all hosts on the local network, not forwarded by routers).',
+              'Not used on the public internet and not supported for normal host assignment.',
+            ]
+          },
 
-    { type: 'heading', text: 'Private vs Public Address Ranges (RFC 1918)' },
-    {
-      type: 'bullets', items: [
-        'Class A private: 10.0.0.0 – 10.255.255.255 (10.0.0.0/8).',
-        'Class B private: 172.16.0.0 – 172.31.255.255 (172.16.0.0/12).',
-        'Class C private: 192.168.0.0 – 192.168.255.255 (192.168.0.0/16).',
-        'Private addresses are not routable on the internet; NAT is used to translate them to public addresses.',
-        'All other unicast addresses in Classes A, B, and C are public.',
-      ]
-    },
+          { type: 'heading', text: 'Private vs Public Address Ranges (RFC 1918)' },
+          {
+            type: 'bullets', items: [
+              'Class A private: 10.0.0.0 – 10.255.255.255 (10.0.0.0/8).',
+              'Class B private: 172.16.0.0 – 172.31.255.255 (172.16.0.0/12).',
+              'Class C private: 192.168.0.0 – 192.168.255.255 (192.168.0.0/16).',
+              'Private addresses are not routable on the internet; NAT is used to translate them to public addresses.',
+              'All other unicast addresses in Classes A, B, and C are public.',
+            ]
+          },
 
-    { type: 'heading', text: 'Special Reserved Addresses' },
-    {
-      type: 'bullets', items: [
-        '0.0.0.0 — default route / unspecified address.',
-        '127.0.0.0/8 — loopback.',
-        '169.254.0.0/16 — APIPA / link-local.',
-        '255.255.255.255 — limited broadcast.',
-        'Network address — all host bits set to 0 (identifies the network).',
-        'Broadcast address — all host bits set to 1 (reaches every host in the network).',
-      ]
-    },
+          { type: 'heading', text: 'Special Reserved Addresses' },
+          {
+            type: 'bullets', items: [
+              '0.0.0.0 — default route / unspecified address.',
+              '127.0.0.0/8 — loopback.',
+              '169.254.0.0/16 — APIPA / link-local.',
+              '255.255.255.255 — limited broadcast.',
+              'Network address — all host bits set to 0 (identifies the network).',
+              'Broadcast address — all host bits set to 1 (reaches every host in the network).',
+            ]
+          },
 
-    { type: 'heading', text: 'Key Points to Remember' },
-    {
-      type: 'bullets', items: [
-        'Only Classes A, B, and C are used for normal host (unicast) addressing.',
-        'Usable hosts formula: 2^H − 2 (subtract the network and broadcast addresses).',
-        'The first octet decides the class: 1–126 = A, 128–191 = B, 192–223 = C, 224–239 = D, 240–255 = E.',
-        '127 is skipped between Class A and Class B because it is reserved for loopback.',
-        'Classful addressing wasted many addresses, which led to subnetting, VLSM, CIDR, and NAT.',
-      ]
-    },
-  ],
-  quickReference: [
-    { label: 'Class A', value: '1–126 · /8 · 255.0.0.0 · 126 networks · 16,777,214 hosts' },
-    { label: 'Class B', value: '128–191 · /16 · 255.255.0.0 · 16,384 networks · 65,534 hosts' },
-    { label: 'Class C', value: '192–223 · /24 · 255.255.255.0 · 2,097,152 networks · 254 hosts' },
-    { label: 'Class D', value: '224–239 · Multicast, no mask' },
-    { label: 'Class E', value: '240–255 · Research, no mask' },
-    { label: 'Leading Bits', value: 'A = 0 · B = 10 · C = 110 · D = 1110 · E = 1111' },
-    { label: 'Private Ranges', value: '10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16' },
-    { label: 'Special', value: '127.0.0.0/8 loopback · 169.254.0.0/16 APIPA' },
-  ],
-},
+          { type: 'heading', text: 'Key Points to Remember' },
+          {
+            type: 'bullets', items: [
+              'Only Classes A, B, and C are used for normal host (unicast) addressing.',
+              'Usable hosts formula: 2^H − 2 (subtract the network and broadcast addresses).',
+              'The first octet decides the class: 1–126 = A, 128–191 = B, 192–223 = C, 224–239 = D, 240–255 = E.',
+              '127 is skipped between Class A and Class B because it is reserved for loopback.',
+              'Classful addressing wasted many addresses, which led to subnetting, VLSM, CIDR, and NAT.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Class A', value: '1–126 · /8 · 255.0.0.0 · 126 networks · 16,777,214 hosts' },
+          { label: 'Class B', value: '128–191 · /16 · 255.255.0.0 · 16,384 networks · 65,534 hosts' },
+          { label: 'Class C', value: '192–223 · /24 · 255.255.255.0 · 2,097,152 networks · 254 hosts' },
+          { label: 'Class D', value: '224–239 · Multicast, no mask' },
+          { label: 'Class E', value: '240–255 · Research, no mask' },
+          { label: 'Leading Bits', value: 'A = 0 · B = 10 · C = 110 · D = 1110 · E = 1111' },
+          { label: 'Private Ranges', value: '10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16' },
+          { label: 'Special', value: '127.0.0.0/8 loopback · 169.254.0.0/16 APIPA' },
+        ],
+      },
       {
         slug: 'public-vs-private-ip-addresses',
         title: 'Public vs. Private IP Addresses',
@@ -6378,7 +6378,7 @@ eq ftp`
               'This allows internal devices to communicate with external internet hosts.'
             ]
           },
-          
+
           { type: 'heading', text: 'Important note' },
           {
             type: 'bullets',
@@ -6551,7 +6551,7 @@ TRANSLATION TABLE:
               'Outside Local — The address by which the external destination is represented to the internal network.'
             ]
           },
-          
+
           { type: 'heading', text: 'Important note' },
           {
             type: 'bullets',
@@ -6772,546 +6772,546 @@ TRANSLATION TABLE:
         ],
       },
       {
-  slug: 'stp-fundamentals-switching-loops-bpdu-bridge-id',
-  title: 'STP Fundamentals: Switching Loops, BPDUs & Bridge ID',
-  group: 'STP',
-  description: 'Understand switching loops, broadcast storms, STP basics (802.1D), BPDUs, and the Bridge ID (Switch Priority + MAC Address).',
-  blocks: [
-    { type: 'heading', text: 'Spanning Tree Protocol (STP)' },
-    {
-      type: 'bullets',
-      items: [
-        'A switch is a broadcasting device and it will broadcast traffic inside the broadcast domain / VLAN.',
-        'It will broadcast to every port except the incoming port.',
-        'If switches are connected in a closed-circuit method, this broadcasting behaviour can create a traffic loop.',
-        'This infinite traffic loop is a destructive storm of traffic which can consume all the bandwidth and CPU resources within minutes or even seconds.',
-        'These traffic loops can choke real-time data traffic and bring the whole production network down.'
-      ]
-    },
-    {
-      type: 'bullets',
-      items: [
-        'To solve this problem, we have STP.',
-        'STP is a Layer 2 technology designed by IEEE (802.1D).',
-        'It is enabled by default in switches.',
-        'STP will identify the loop and block ports to eliminate the loop.',
-        'STP messages are called BPDUs (Bridge Protocol Data Units).',
-        'When switches are connected, they will periodically send out BPDUs between each other and map the topology.',
-        'BPDUs are exchanged every 2-second interval and use an L2 multicast MAC address (0180.c200.0000).',
-        'Every switch generates its own BPDU, which will be unique in the topology.',
-        'Once the BPDUs are exchanged, switches perform several elections and identify the blocking port.',
-        'Once the blocking port is identified, real-time data traffic will not be forwarded or received on this port, but BPDUs will.'
-      ]
-    },
-    { type: 'heading', text: 'BPDU (Bridge Protocol Data Unit)' },
-    {
-      type: 'bullets',
-      items: [
-        'Apart from L2 header information, the main content of a BPDU is the Bridge ID.'
-      ]
-    },
-    { type: 'heading', text: 'Bridge ID' },
-    {
-      type: 'bullets',
-      items: [
-        'Bridge ID consists of two components: Switch Priority Value and Switch MAC Address.'
-      ]
-    },
-    { type: 'heading', text: '1. Switch Priority Value' },
-    {
-      type: 'bullets',
-      items: [
-        '16-bit value (0–65535).',
-        'Default priority of the switch is 32768 (same across every vendor).',
-        'Lowest will be preferred.'
-      ]
-    },
-    { type: 'heading', text: '2. Switch MAC Address' },
-    {
-      type: 'bullets',
-      items: [
-        '48-bit address.',
-        'Lowest will be preferred.'
-      ]
-    }
-  ],
-  diagrams: [
-    {
-      src: '/diagrams/stp_switching_loop.png',
-      alt: 'SW1, SW2, SW3 in a triangle showing broadcast loop and an STP Blocking Port on SW3.',
-      caption: 'Switching loop diagram: broadcast loop in a triangle topology with a blocking port on SW3.'
-    }
-  ],
-  quickReference: [
-    { label: 'STP Standard', value: 'IEEE 802.1D' },
-    { label: 'BPDU Multicast MAC', value: '0180.c200.0000' },
-    { label: 'BPDU Interval', value: '2 seconds' },
-    { label: 'Default Switch Priority', value: '32768' },
-    { label: 'Bridge ID', value: 'Priority (16-bit) + MAC (48-bit)' }
-  ]
-}
-,
-{
-  slug: 'stp-elections-root-bridge-root-port-designated-blocking',
-  title: 'STP Elections: Root Bridge, Root Port, Designated Port & Blocking Port',
-  group: 'STP',
-  description: 'Learn the four STP elections: Root Bridge election, Root Port election, Designated Port election, and Blocking Port election, including default interface costs and Port-ID tie-breaking.',
-  blocks: [
-    { type: 'heading', text: 'Spanning Tree Elections' },
-    {
-      type: 'bullets',
-      items: [
-        'There are 4 elections that take place in the STP process:',
-        '1. Root Bridge election',
-        '2. Root Port election',
-        '3. Designated Port election',
-        '4. Blocking Port election'
-      ]
-    },
-    { type: 'heading', text: '1. Root Bridge Election' },
-    {
-      type: 'bullets',
-      items: [
-        'First step in the STP process.',
-        'Root Bridge acts as a reference point / leader for the spanning tree process in the topology.',
-        'Root Bridge is elected based on the lowest Bridge ID.',
-        'First, switches check the lowest priority (default is 32768 on every switch).',
-        'If there is a tie in priority, the switch with the lowest MAC address wins the election and becomes the Root Bridge.',
-        'This causes a vulnerability, as the lowest MAC address will be the oldest switch in the topology.',
-        'To solve this, we can manipulate the priority value to control the election.',
-        'The lowest Bridge ID BPDU is called a Superior BPDU, and the other BPDUs are Inferior BPDUs.'
-      ]
-    },
-    { type: 'heading', text: '2. Root Port Election' },
-    {
-      type: 'bullets',
-      items: [
-        'Second step in the STP process is identifying the Root Port on every switch except the Root Bridge.',
-        'The Root Port of a switch will have the lowest path cost / interface cost to reach the Root Bridge.',
-        'Only one port will be elected as the Root Port per switch, and the Root Bridge will not have any Root Port.',
-        'Purpose of the Root Port is to identify the best path to reach the Root Bridge from other switches.'
-      ]
-    },
-    { type: 'heading', text: 'Interfaces & Default Cost Values' },
-    {
-      type: 'bullets',
-      items: [
-        'Ethernet — 100',
-        'Fast Ethernet — 19',
-        'Gigabit Ethernet — 4',
-        '10 Gigabit Ethernet — 2'
-      ]
-    },
-    { type: 'heading', text: '3. Designated Port Election' },
-    {
-      type: 'bullets',
-      items: [
-        'Third step in the STP process: a single Designated Port is elected in each segment / connection between switches.',
-        'Designated Port is elected based on the lowest cost value to reach other switches from the Root Bridge.',
-        'All ports of the Root Bridge become Designated Ports.',
-        'If two Designated Ports are elected in a segment (same cost), it means there is a loop (e.g., segment between SW4 and SW5), so one port must be placed in the Blocking state to eliminate the loop.',
-        'A port cannot become a Root Port and a Designated Port at the same time.'
-      ]
-    },
-    { type: 'heading', text: '4. Blocking Port Election' },
-    {
-      type: 'bullets',
-      items: [
-        'If there are two DPs in a segment, one needs to be placed as a Blocking Port (BP).',
-        'Another election is conducted between the switches:',
-        'First, they check the cost (if same, move to next).',
-        'Next, they check the Bridge ID — the lowest wins the election (stays DP) and the other becomes the Blocking Port (e.g., SW4 has a lower Bridge ID than SW5, so SW5\'s port becomes BP).',
-        'If Bridge ID is also the same, Port-ID is used.'
-      ]
-    },
-    { type: 'heading', text: 'Port-ID' },
-    {
-      type: 'bullets',
-      items: [
-        'When electing a Root Port or Designated Port, it is possible to have a tie in both path cost and Bridge ID.',
-        'Port-ID is the final tie-breaker in the STP process.',
-        'Consists of two components: Port-Priority and Port Number.'
-      ]
-    },
-    { type: 'heading', text: '1. Port-Priority' },
-    {
-      type: 'bullets',
-      items: [
-        '8-bit value (0–255), default is 128, lowest priority is preferred.'
-      ]
-    },
-    { type: 'heading', text: '2. Port Number' },
-    {
-      type: 'bullets',
-      items: [
-        'If there is a tie in priority, the lowest port number of the neighbour switch is used to break the tie.'
-      ]
-    }
-  ],
-  diagrams: [
-    {
-      src: '/diagrams/stp_election_topology_wide.png',
-      alt: 'SW1 (Root Bridge, 32768/aaa) connected to SW2 (bbb), SW3 (ccc), SW4 (ddd), and SW5 (eee) with DP, RP, and BP roles marked.',
-      caption: 'STP election topology diagram with Root Bridge, Root Ports, Designated Ports, and Blocking Ports.'
-    },
-    {
-      src: '/diagrams/stp_port_id_tie_breaker_wide.png',
-      alt: 'SW1 (32768/aaa) connected to SW2 (32768/bbb) via dual links showing Port Priority (100 vs 128) and Port Number (e0/0 vs e0/1) tie-breaking.',
-      caption: 'Port-ID tie-breaker diagrams showing Port Priority and Port Number used to break ties.'
-    }
-  ],
-  quickReference: [
-    { label: 'Root Bridge Election', value: 'Lowest Bridge ID' },
-    { label: 'Root Port Election', value: 'Lowest path cost to Root Bridge' },
-    { label: 'Designated Port Election', value: 'Lowest cost to reach from Root Bridge' },
-    { label: 'Blocking Port Tie-Breaker', value: 'Cost -> Bridge ID -> Port-ID' },
-    { label: 'Port-ID', value: 'Port-Priority (8-bit, default 128) + Port Number' },
-    { label: 'Ethernet Cost', value: '100' },
-    { label: 'Fast Ethernet Cost', value: '19' },
-    { label: 'Gigabit Ethernet Cost', value: '4' },
-    { label: '10 Gigabit Ethernet Cost', value: '2' }
-  ]
-}
-,
-{
-  slug: 'stp-types-cst-pvst-pvst-plus-rst-rpvst-rpvst-plus-mst',
-  title: 'Types of Spanning Tree: CST, PVST, PVST+, RST, RPVST, RPVST+ & MST',
-  group: 'STP',
-  description: 'Understand the 7 types of Spanning Tree: open-source CST, RST, MST and Cisco proprietary PVST, PVST+, RPVST, RPVST+, including standards and compatibility.',
-  blocks: [
-    { type: 'heading', text: 'Types of Spanning Tree' },
-    {
-      type: 'bullets',
-      items: [
-        'There are 7 types of Spanning Tree:',
-        'Open Source: CST, RST, MST',
-        'Cisco Proprietary: PVST, PVST+, RPVST, RPVST+'
-      ]
-    },
-    { type: 'heading', text: '1. CST (Common Spanning Tree)' },
-    {
-      type: 'bullets',
-      items: [
-        'Open-source, developed by IEEE (802.1D).',
-        'Single STP instance for every VLAN (one Root Bridge, one RP, one DP, one BP for all VLANs).',
-        'Default STP in non-Cisco vendor switches.'
-      ]
-    },
-    { type: 'heading', text: '2. PVST (Per-VLAN Spanning Tree)' },
-    {
-      type: 'bullets',
-      items: [
-        'Cisco proprietary; each VLAN has its own STP instance (own Root Bridge, RP, DP, and BP).',
-        'Only supports ISL trunking and the old VLAN range.',
-        'Not compatible with open-source STPs.'
-      ]
-    },
-    { type: 'heading', text: '3. PVST+' },
-    {
-      type: 'bullets',
-      items: [
-        'Cisco proprietary; each VLAN has its own STP instance.',
-        'Supports both ISL & dot1q, and the new VLAN range.',
-        'Compatible with open-source STPs (except MST).',
-        'Default STP in Cisco switches.'
-      ]
-    },
-    { type: 'heading', text: '4. RST (Rapid Spanning Tree)' },
-    {
-      type: 'bullets',
-      items: [
-        'Open-source, developed by IEEE (802.1w).',
-        'Single STP for all VLANs; faster convergence as Listening & Learning states are bypassed.',
-        'Supports new VLAN range & dot1q; widely used in real-time.'
-      ]
-    },
-    { type: 'heading', text: '5. RPVST (Rapid PVST)' },
-    {
-      type: 'bullets',
-      items: [
-        'Cisco proprietary; same features as PVST with rapid convergence (bypasses Listening & Learning states).'
-      ]
-    },
-    { type: 'heading', text: '6. RPVST+' },
-    {
-      type: 'bullets',
-      items: [
-        'Cisco proprietary; same features as PVST+ with rapid convergence capability.'
-      ]
-    },
-    { type: 'heading', text: '7. MST (Multiple Spanning Tree)' },
-    {
-      type: 'bullets',
-      items: [
-        'Open-source, developed by IEEE (802.1s).',
-        'Custom-built STP where we manually configure STP instances and map VLANs into instances as per requirement.'
-      ]
-    }
-  ],
-  diagrams: [
-    {
-      src: '/diagrams/stp_pvst_load_balancing.png',
-      alt: 'SW1 (Root VLAN 10), SW2 (Root VLAN 20), SW3 (Root VLAN 30) with blocked ports distributed per VLAN.',
-      caption: 'PVST load-balancing diagram with blocked ports distributed per VLAN.'
-    }
-  ],
-  quickReference: [
-    { label: 'CST Standard', value: '802.1D' },
-    { label: 'RST Standard', value: '802.1w' },
-    { label: 'MST Standard', value: '802.1s' },
-    { label: 'Cisco Default STP', value: 'PVST+' },
-    { label: 'Open Source Types', value: 'CST, RST, MST' },
-    { label: 'Cisco Proprietary Types', value: 'PVST, PVST+, RPVST, RPVST+' }
-  ]
-}
-,
-{
-  slug: 'stp-spine-leaf-architecture',
-  title: 'Spine and Leaf Architecture',
-  group: 'STP',
-  description: 'Understand Spine and Leaf architecture, why STP can be disabled, and how device clustering and link bundling provide High Availability in data centres.',
-  blocks: [
-    { type: 'heading', text: 'Spine and Leaf Architecture' },
-    {
-      type: 'bullets',
-      items: [
-        'In Spine & Leaf architecture, we can disable STP as we use device clustering and link bundling technologies to provide High Availability (HA) for devices and links.',
-        'Widely used in data centres.'
-      ]
-    }
-  ],
-  diagrams: [
-    {
-      src: '/diagrams/stp_spine_leaf_architecture.png',
-      alt: 'Spine 1 & Spine 2 clustered and connected via bundled links to Leaf Switch 1–4.',
-      caption: 'Spine and Leaf architecture diagram with clustered spines and bundled links to leaf switches.'
-    }
-  ],
-  quickReference: [
-    { label: 'STP in Spine-Leaf', value: 'Can be disabled' },
-    { label: 'HA Mechanism', value: 'Device clustering and link bundling' },
-    { label: 'Common Use', value: 'Data centres' }
-  ]
-}
-,
-{
-  slug: 'stp-switchport-states-and-verification',
-  title: 'STP Switchport States & Verification',
-  group: 'STP',
-  description: 'Learn the 5 STP switchport states (Disabled, Blocking, Listening, Learning, Forwarding) and the Cisco IOS verification commands.',
-  blocks: [
-    { type: 'heading', text: 'Spanning Tree Switchport States' },
-    {
-      type: 'bullets',
-      items: [
-        'As STP converges, switchports transition through 5 states:',
-        '1. Disabled State',
-        '2. Blocking State',
-        '3. Listening State',
-        '4. Learning State',
-        '5. Forwarding State'
-      ]
-    },
-    { type: 'heading', text: '1. Disabled State' },
-    {
-      type: 'bullets',
-      items: [
-        'Switchport is administratively disabled (shutdown) or err-disabled due to an error/violation. No traffic or BPDUs are transmitted.'
-      ]
-    },
-    { type: 'heading', text: '2. Blocking State' },
-    {
-      type: 'bullets',
-      items: [
-        'Initial state when a switchport is enabled (no shutdown).',
-        'Does not forward/receive data frames or learn MAC addresses, but sends/receives STP BPDUs to track topology changes.'
-      ]
-    },
-    { type: 'heading', text: '3. Listening State (Orange/Amber — 15 sec)' },
-    {
-      type: 'bullets',
-      items: [
-        'Transitions from Blocking.',
-        'Does not send/receive data frames or learn MACs.',
-        'Exchanges BPDUs and runs Root Bridge, RP, DP, and BP elections.',
-        'Takes 15 seconds (Forward Delay timer).',
-        'Elected BPs return to Blocking; other ports move to Learning.'
-      ]
-    },
-    { type: 'heading', text: '4. Learning State (Orange/Amber — 15 sec)' },
-    {
-      type: 'bullets',
-      items: [
-        'Transitions from Listening.',
-        'Continues sending/receiving BPDUs and begins learning MAC addresses of connected devices.',
-        'Consumes 15 seconds (Forward Delay timer).',
-        'Not yet ready to forward data frames.'
-      ]
-    },
-    { type: 'heading', text: '5. Forwarding State (Green)' },
-    {
-      type: 'bullets',
-      items: [
-        'Transitions from Learning.',
-        'Fully functional state; forwards both data frames and BPDUs.',
-        'All RPs and DPs eventually reach this state.'
-      ]
-    },
-    { type: 'heading', text: 'Verification' },
-    {
-      type: 'code',
-      language: 'text',
-      code: `# show spanning-tree
+        slug: 'stp-fundamentals-switching-loops-bpdu-bridge-id',
+        title: 'STP Fundamentals: Switching Loops, BPDUs & Bridge ID',
+        group: 'STP',
+        description: 'Understand switching loops, broadcast storms, STP basics (802.1D), BPDUs, and the Bridge ID (Switch Priority + MAC Address).',
+        blocks: [
+          { type: 'heading', text: 'Spanning Tree Protocol (STP)' },
+          {
+            type: 'bullets',
+            items: [
+              'A switch is a broadcasting device and it will broadcast traffic inside the broadcast domain / VLAN.',
+              'It will broadcast to every port except the incoming port.',
+              'If switches are connected in a closed-circuit method, this broadcasting behaviour can create a traffic loop.',
+              'This infinite traffic loop is a destructive storm of traffic which can consume all the bandwidth and CPU resources within minutes or even seconds.',
+              'These traffic loops can choke real-time data traffic and bring the whole production network down.'
+            ]
+          },
+          {
+            type: 'bullets',
+            items: [
+              'To solve this problem, we have STP.',
+              'STP is a Layer 2 technology designed by IEEE (802.1D).',
+              'It is enabled by default in switches.',
+              'STP will identify the loop and block ports to eliminate the loop.',
+              'STP messages are called BPDUs (Bridge Protocol Data Units).',
+              'When switches are connected, they will periodically send out BPDUs between each other and map the topology.',
+              'BPDUs are exchanged every 2-second interval and use an L2 multicast MAC address (0180.c200.0000).',
+              'Every switch generates its own BPDU, which will be unique in the topology.',
+              'Once the BPDUs are exchanged, switches perform several elections and identify the blocking port.',
+              'Once the blocking port is identified, real-time data traffic will not be forwarded or received on this port, but BPDUs will.'
+            ]
+          },
+          { type: 'heading', text: 'BPDU (Bridge Protocol Data Unit)' },
+          {
+            type: 'bullets',
+            items: [
+              'Apart from L2 header information, the main content of a BPDU is the Bridge ID.'
+            ]
+          },
+          { type: 'heading', text: 'Bridge ID' },
+          {
+            type: 'bullets',
+            items: [
+              'Bridge ID consists of two components: Switch Priority Value and Switch MAC Address.'
+            ]
+          },
+          { type: 'heading', text: '1. Switch Priority Value' },
+          {
+            type: 'bullets',
+            items: [
+              '16-bit value (0–65535).',
+              'Default priority of the switch is 32768 (same across every vendor).',
+              'Lowest will be preferred.'
+            ]
+          },
+          { type: 'heading', text: '2. Switch MAC Address' },
+          {
+            type: 'bullets',
+            items: [
+              '48-bit address.',
+              'Lowest will be preferred.'
+            ]
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/stp_switching_loop.png',
+            alt: 'SW1, SW2, SW3 in a triangle showing broadcast loop and an STP Blocking Port on SW3.',
+            caption: 'Switching loop diagram: broadcast loop in a triangle topology with a blocking port on SW3.'
+          }
+        ],
+        quickReference: [
+          { label: 'STP Standard', value: 'IEEE 802.1D' },
+          { label: 'BPDU Multicast MAC', value: '0180.c200.0000' },
+          { label: 'BPDU Interval', value: '2 seconds' },
+          { label: 'Default Switch Priority', value: '32768' },
+          { label: 'Bridge ID', value: 'Priority (16-bit) + MAC (48-bit)' }
+        ]
+      }
+      ,
+      {
+        slug: 'stp-elections-root-bridge-root-port-designated-blocking',
+        title: 'STP Elections: Root Bridge, Root Port, Designated Port & Blocking Port',
+        group: 'STP',
+        description: 'Learn the four STP elections: Root Bridge election, Root Port election, Designated Port election, and Blocking Port election, including default interface costs and Port-ID tie-breaking.',
+        blocks: [
+          { type: 'heading', text: 'Spanning Tree Elections' },
+          {
+            type: 'bullets',
+            items: [
+              'There are 4 elections that take place in the STP process:',
+              '1. Root Bridge election',
+              '2. Root Port election',
+              '3. Designated Port election',
+              '4. Blocking Port election'
+            ]
+          },
+          { type: 'heading', text: '1. Root Bridge Election' },
+          {
+            type: 'bullets',
+            items: [
+              'First step in the STP process.',
+              'Root Bridge acts as a reference point / leader for the spanning tree process in the topology.',
+              'Root Bridge is elected based on the lowest Bridge ID.',
+              'First, switches check the lowest priority (default is 32768 on every switch).',
+              'If there is a tie in priority, the switch with the lowest MAC address wins the election and becomes the Root Bridge.',
+              'This causes a vulnerability, as the lowest MAC address will be the oldest switch in the topology.',
+              'To solve this, we can manipulate the priority value to control the election.',
+              'The lowest Bridge ID BPDU is called a Superior BPDU, and the other BPDUs are Inferior BPDUs.'
+            ]
+          },
+          { type: 'heading', text: '2. Root Port Election' },
+          {
+            type: 'bullets',
+            items: [
+              'Second step in the STP process is identifying the Root Port on every switch except the Root Bridge.',
+              'The Root Port of a switch will have the lowest path cost / interface cost to reach the Root Bridge.',
+              'Only one port will be elected as the Root Port per switch, and the Root Bridge will not have any Root Port.',
+              'Purpose of the Root Port is to identify the best path to reach the Root Bridge from other switches.'
+            ]
+          },
+          { type: 'heading', text: 'Interfaces & Default Cost Values' },
+          {
+            type: 'bullets',
+            items: [
+              'Ethernet — 100',
+              'Fast Ethernet — 19',
+              'Gigabit Ethernet — 4',
+              '10 Gigabit Ethernet — 2'
+            ]
+          },
+          { type: 'heading', text: '3. Designated Port Election' },
+          {
+            type: 'bullets',
+            items: [
+              'Third step in the STP process: a single Designated Port is elected in each segment / connection between switches.',
+              'Designated Port is elected based on the lowest cost value to reach other switches from the Root Bridge.',
+              'All ports of the Root Bridge become Designated Ports.',
+              'If two Designated Ports are elected in a segment (same cost), it means there is a loop (e.g., segment between SW4 and SW5), so one port must be placed in the Blocking state to eliminate the loop.',
+              'A port cannot become a Root Port and a Designated Port at the same time.'
+            ]
+          },
+          { type: 'heading', text: '4. Blocking Port Election' },
+          {
+            type: 'bullets',
+            items: [
+              'If there are two DPs in a segment, one needs to be placed as a Blocking Port (BP).',
+              'Another election is conducted between the switches:',
+              'First, they check the cost (if same, move to next).',
+              'Next, they check the Bridge ID — the lowest wins the election (stays DP) and the other becomes the Blocking Port (e.g., SW4 has a lower Bridge ID than SW5, so SW5\'s port becomes BP).',
+              'If Bridge ID is also the same, Port-ID is used.'
+            ]
+          },
+          { type: 'heading', text: 'Port-ID' },
+          {
+            type: 'bullets',
+            items: [
+              'When electing a Root Port or Designated Port, it is possible to have a tie in both path cost and Bridge ID.',
+              'Port-ID is the final tie-breaker in the STP process.',
+              'Consists of two components: Port-Priority and Port Number.'
+            ]
+          },
+          { type: 'heading', text: '1. Port-Priority' },
+          {
+            type: 'bullets',
+            items: [
+              '8-bit value (0–255), default is 128, lowest priority is preferred.'
+            ]
+          },
+          { type: 'heading', text: '2. Port Number' },
+          {
+            type: 'bullets',
+            items: [
+              'If there is a tie in priority, the lowest port number of the neighbour switch is used to break the tie.'
+            ]
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/stp_election_topology_wide.png',
+            alt: 'SW1 (Root Bridge, 32768/aaa) connected to SW2 (bbb), SW3 (ccc), SW4 (ddd), and SW5 (eee) with DP, RP, and BP roles marked.',
+            caption: 'STP election topology diagram with Root Bridge, Root Ports, Designated Ports, and Blocking Ports.'
+          },
+          {
+            src: '/diagrams/stp_port_id_tie_breaker_wide.png',
+            alt: 'SW1 (32768/aaa) connected to SW2 (32768/bbb) via dual links showing Port Priority (100 vs 128) and Port Number (e0/0 vs e0/1) tie-breaking.',
+            caption: 'Port-ID tie-breaker diagrams showing Port Priority and Port Number used to break ties.'
+          }
+        ],
+        quickReference: [
+          { label: 'Root Bridge Election', value: 'Lowest Bridge ID' },
+          { label: 'Root Port Election', value: 'Lowest path cost to Root Bridge' },
+          { label: 'Designated Port Election', value: 'Lowest cost to reach from Root Bridge' },
+          { label: 'Blocking Port Tie-Breaker', value: 'Cost -> Bridge ID -> Port-ID' },
+          { label: 'Port-ID', value: 'Port-Priority (8-bit, default 128) + Port Number' },
+          { label: 'Ethernet Cost', value: '100' },
+          { label: 'Fast Ethernet Cost', value: '19' },
+          { label: 'Gigabit Ethernet Cost', value: '4' },
+          { label: '10 Gigabit Ethernet Cost', value: '2' }
+        ]
+      }
+      ,
+      {
+        slug: 'stp-types-cst-pvst-pvst-plus-rst-rpvst-rpvst-plus-mst',
+        title: 'Types of Spanning Tree: CST, PVST, PVST+, RST, RPVST, RPVST+ & MST',
+        group: 'STP',
+        description: 'Understand the 7 types of Spanning Tree: open-source CST, RST, MST and Cisco proprietary PVST, PVST+, RPVST, RPVST+, including standards and compatibility.',
+        blocks: [
+          { type: 'heading', text: 'Types of Spanning Tree' },
+          {
+            type: 'bullets',
+            items: [
+              'There are 7 types of Spanning Tree:',
+              'Open Source: CST, RST, MST',
+              'Cisco Proprietary: PVST, PVST+, RPVST, RPVST+'
+            ]
+          },
+          { type: 'heading', text: '1. CST (Common Spanning Tree)' },
+          {
+            type: 'bullets',
+            items: [
+              'Open-source, developed by IEEE (802.1D).',
+              'Single STP instance for every VLAN (one Root Bridge, one RP, one DP, one BP for all VLANs).',
+              'Default STP in non-Cisco vendor switches.'
+            ]
+          },
+          { type: 'heading', text: '2. PVST (Per-VLAN Spanning Tree)' },
+          {
+            type: 'bullets',
+            items: [
+              'Cisco proprietary; each VLAN has its own STP instance (own Root Bridge, RP, DP, and BP).',
+              'Only supports ISL trunking and the old VLAN range.',
+              'Not compatible with open-source STPs.'
+            ]
+          },
+          { type: 'heading', text: '3. PVST+' },
+          {
+            type: 'bullets',
+            items: [
+              'Cisco proprietary; each VLAN has its own STP instance.',
+              'Supports both ISL & dot1q, and the new VLAN range.',
+              'Compatible with open-source STPs (except MST).',
+              'Default STP in Cisco switches.'
+            ]
+          },
+          { type: 'heading', text: '4. RST (Rapid Spanning Tree)' },
+          {
+            type: 'bullets',
+            items: [
+              'Open-source, developed by IEEE (802.1w).',
+              'Single STP for all VLANs; faster convergence as Listening & Learning states are bypassed.',
+              'Supports new VLAN range & dot1q; widely used in real-time.'
+            ]
+          },
+          { type: 'heading', text: '5. RPVST (Rapid PVST)' },
+          {
+            type: 'bullets',
+            items: [
+              'Cisco proprietary; same features as PVST with rapid convergence (bypasses Listening & Learning states).'
+            ]
+          },
+          { type: 'heading', text: '6. RPVST+' },
+          {
+            type: 'bullets',
+            items: [
+              'Cisco proprietary; same features as PVST+ with rapid convergence capability.'
+            ]
+          },
+          { type: 'heading', text: '7. MST (Multiple Spanning Tree)' },
+          {
+            type: 'bullets',
+            items: [
+              'Open-source, developed by IEEE (802.1s).',
+              'Custom-built STP where we manually configure STP instances and map VLANs into instances as per requirement.'
+            ]
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/stp_pvst_load_balancing.png',
+            alt: 'SW1 (Root VLAN 10), SW2 (Root VLAN 20), SW3 (Root VLAN 30) with blocked ports distributed per VLAN.',
+            caption: 'PVST load-balancing diagram with blocked ports distributed per VLAN.'
+          }
+        ],
+        quickReference: [
+          { label: 'CST Standard', value: '802.1D' },
+          { label: 'RST Standard', value: '802.1w' },
+          { label: 'MST Standard', value: '802.1s' },
+          { label: 'Cisco Default STP', value: 'PVST+' },
+          { label: 'Open Source Types', value: 'CST, RST, MST' },
+          { label: 'Cisco Proprietary Types', value: 'PVST, PVST+, RPVST, RPVST+' }
+        ]
+      }
+      ,
+      {
+        slug: 'stp-spine-leaf-architecture',
+        title: 'Spine and Leaf Architecture',
+        group: 'STP',
+        description: 'Understand Spine and Leaf architecture, why STP can be disabled, and how device clustering and link bundling provide High Availability in data centres.',
+        blocks: [
+          { type: 'heading', text: 'Spine and Leaf Architecture' },
+          {
+            type: 'bullets',
+            items: [
+              'In Spine & Leaf architecture, we can disable STP as we use device clustering and link bundling technologies to provide High Availability (HA) for devices and links.',
+              'Widely used in data centres.'
+            ]
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/stp_spine_leaf_architecture.png',
+            alt: 'Spine 1 & Spine 2 clustered and connected via bundled links to Leaf Switch 1–4.',
+            caption: 'Spine and Leaf architecture diagram with clustered spines and bundled links to leaf switches.'
+          }
+        ],
+        quickReference: [
+          { label: 'STP in Spine-Leaf', value: 'Can be disabled' },
+          { label: 'HA Mechanism', value: 'Device clustering and link bundling' },
+          { label: 'Common Use', value: 'Data centres' }
+        ]
+      }
+      ,
+      {
+        slug: 'stp-switchport-states-and-verification',
+        title: 'STP Switchport States & Verification',
+        group: 'STP',
+        description: 'Learn the 5 STP switchport states (Disabled, Blocking, Listening, Learning, Forwarding) and the Cisco IOS verification commands.',
+        blocks: [
+          { type: 'heading', text: 'Spanning Tree Switchport States' },
+          {
+            type: 'bullets',
+            items: [
+              'As STP converges, switchports transition through 5 states:',
+              '1. Disabled State',
+              '2. Blocking State',
+              '3. Listening State',
+              '4. Learning State',
+              '5. Forwarding State'
+            ]
+          },
+          { type: 'heading', text: '1. Disabled State' },
+          {
+            type: 'bullets',
+            items: [
+              'Switchport is administratively disabled (shutdown) or err-disabled due to an error/violation. No traffic or BPDUs are transmitted.'
+            ]
+          },
+          { type: 'heading', text: '2. Blocking State' },
+          {
+            type: 'bullets',
+            items: [
+              'Initial state when a switchport is enabled (no shutdown).',
+              'Does not forward/receive data frames or learn MAC addresses, but sends/receives STP BPDUs to track topology changes.'
+            ]
+          },
+          { type: 'heading', text: '3. Listening State (Orange/Amber — 15 sec)' },
+          {
+            type: 'bullets',
+            items: [
+              'Transitions from Blocking.',
+              'Does not send/receive data frames or learn MACs.',
+              'Exchanges BPDUs and runs Root Bridge, RP, DP, and BP elections.',
+              'Takes 15 seconds (Forward Delay timer).',
+              'Elected BPs return to Blocking; other ports move to Learning.'
+            ]
+          },
+          { type: 'heading', text: '4. Learning State (Orange/Amber — 15 sec)' },
+          {
+            type: 'bullets',
+            items: [
+              'Transitions from Listening.',
+              'Continues sending/receiving BPDUs and begins learning MAC addresses of connected devices.',
+              'Consumes 15 seconds (Forward Delay timer).',
+              'Not yet ready to forward data frames.'
+            ]
+          },
+          { type: 'heading', text: '5. Forwarding State (Green)' },
+          {
+            type: 'bullets',
+            items: [
+              'Transitions from Learning.',
+              'Fully functional state; forwards both data frames and BPDUs.',
+              'All RPs and DPs eventually reach this state.'
+            ]
+          },
+          { type: 'heading', text: 'Verification' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `# show spanning-tree
 # show spanning-tree interface
 # show spanning-tree interface <name>   (e.g., f0/0)`
-    }
-  ],
-  diagrams: [
-    {
-      src: '/diagrams/stp_port_state_transition_timeline.png',
-      alt: 'Blocking -> Listening (15s, STP process) -> Learning (15s, MAC learning) [30s Orange] -> Forwarding (Data & BPDUs, Green).',
-      caption: 'STP port state transition timeline from Blocking to Forwarding.'
-    }
-  ],
-  quickReference: [
-    { label: 'Disabled State', value: 'Shutdown or err-disabled' },
-    { label: 'Blocking State', value: 'BPDUs only, no data' },
-    { label: 'Listening State', value: '15 seconds (Forward Delay)' },
-    { label: 'Learning State', value: '15 seconds (Forward Delay)' },
-    { label: 'Forwarding State', value: 'Data & BPDUs' },
-    { label: 'Total Convergence (STP)', value: '30 seconds (Listening + Learning)' },
-    { label: 'Verify STP', value: 'show spanning-tree' }
-  ]
-}
-,
-{
-  slug: 'stp-timers-hello-forward-delay-max-age',
-  title: 'Spanning Tree Timers: Hello, Forward Delay & Max-Age',
-  group: 'STP',
-  description: 'Understand the three STP timers: Hello Timer (2s), Forward Delay Timer (15s per state / 30s total), and Max-Age Timer (20s).',
-  blocks: [
-    { type: 'heading', text: 'Spanning Tree Timers' },
-    {
-      type: 'bullets',
-      items: [
-        'Switches running STP exchange BPDUs periodically to build and converge the topology database using three timers.',
-        'The three timers are: Hello Timer, Forward Delay Timer, and Max-Age Timer.'
-      ]
-    },
-    { type: 'heading', text: 'Hello Timer' },
-    {
-      type: 'bullets',
-      items: [
-        'Indicates how often the switches share BPDUs periodically between each other.',
-        'Default Hello Timer is 2 seconds.'
-      ]
-    },
-    { type: 'heading', text: 'Forward Delay Timer' },
-    {
-      type: 'bullets',
-      items: [
-        'Indicates how long a switchport must spend in Listening & Learning states.',
-        'Ensures Spanning Tree has enough time to converge the topology, identify, and eliminate loops.',
-        'Default Forward Delay Timer is 15 seconds per state (30 seconds total):',
-        '(i) Listening -> Learning = 15 seconds',
-        '(ii) Learning -> Forwarding = 15 seconds'
-      ]
-    },
-    { type: 'heading', text: 'Max-Age Timer' },
-    {
-      type: 'bullets',
-      items: [
-        'Indicates how long a switch will keep BPDU information from a neighbour switch before discarding it.',
-        'BPDUs are sent every 2-second interval; if a switch fails to receive a BPDU from the neighbour before the Max-Age timer expires, it assumes there is a change in the topology.',
-        'Default Max-Age Timer is 20 seconds.'
-      ]
-    }
-  ],
-  diagrams: [],
-  quickReference: [
-    { label: 'Hello Timer', value: '2 seconds (BPDU interval)' },
-    { label: 'Forward Delay Timer', value: '15 seconds per state (30 seconds total)' },
-    { label: 'Max-Age Timer', value: '20 seconds' }
-  ]
-}
-,
-{
-  slug: 'stp-bpdu-types-tcn-and-disabling-stp',
-  title: 'Types of BPDUs (Configuration & TCN) and Disabling STP',
-  group: 'STP',
-  description: 'Understand Configuration BPDU (Superior vs Inferior) and TCN BPDU, TCN flag mechanics (0 -> Root Bridge -> 1), and how to disable STP globally and per switchport.',
-  blocks: [
-    { type: 'heading', text: 'Types of BPDUs' },
-    {
-      type: 'bullets',
-      items: [
-        'There are two types of BPDUs: Configuration BPDU and TCN BPDU.'
-      ]
-    },
-    { type: 'heading', text: '1. Configuration BPDU' },
-    {
-      type: 'bullets',
-      items: [
-        'Normal BPDU sent between switches periodically at every 2-second interval.',
-        'Responsible for Spanning Tree calculations, convergence, and maintenance.'
-      ]
-    },
-    { type: 'heading', text: '2. TCN BPDU (Topology Change Notification)' },
-    {
-      type: 'bullets',
-      items: [
-        'When a topology change happens, the switch generates a TCN BPDU and sends it out through its Root Port towards the Root Bridge.',
-        'It does not contain details about the topology change—only that a change has occurred.',
-        'When sent to the Root Bridge, the TCN flag is set to 0.',
-        'Once it reaches the Root Bridge, the Root Bridge acknowledges the TCN by changing the flag to 1 and shares it with the rest of the switches through its Designated Ports.',
-        'When other switches receive this acknowledged TCN, they restart the Spanning Tree process.'
-      ]
-    },
-    { type: 'heading', text: 'Spanning Tree Manipulations' },
-    { type: 'heading', text: '(i) Disabling STP (Globally per VLAN)' },
-    {
-      type: 'code',
-      language: 'text',
-      code: `(conf)# no spanning-tree vlan 1-4094          ! All VLANs
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/stp_port_state_transition_timeline.png',
+            alt: 'Blocking -> Listening (15s, STP process) -> Learning (15s, MAC learning) [30s Orange] -> Forwarding (Data & BPDUs, Green).',
+            caption: 'STP port state transition timeline from Blocking to Forwarding.'
+          }
+        ],
+        quickReference: [
+          { label: 'Disabled State', value: 'Shutdown or err-disabled' },
+          { label: 'Blocking State', value: 'BPDUs only, no data' },
+          { label: 'Listening State', value: '15 seconds (Forward Delay)' },
+          { label: 'Learning State', value: '15 seconds (Forward Delay)' },
+          { label: 'Forwarding State', value: 'Data & BPDUs' },
+          { label: 'Total Convergence (STP)', value: '30 seconds (Listening + Learning)' },
+          { label: 'Verify STP', value: 'show spanning-tree' }
+        ]
+      }
+      ,
+      {
+        slug: 'stp-timers-hello-forward-delay-max-age',
+        title: 'Spanning Tree Timers: Hello, Forward Delay & Max-Age',
+        group: 'STP',
+        description: 'Understand the three STP timers: Hello Timer (2s), Forward Delay Timer (15s per state / 30s total), and Max-Age Timer (20s).',
+        blocks: [
+          { type: 'heading', text: 'Spanning Tree Timers' },
+          {
+            type: 'bullets',
+            items: [
+              'Switches running STP exchange BPDUs periodically to build and converge the topology database using three timers.',
+              'The three timers are: Hello Timer, Forward Delay Timer, and Max-Age Timer.'
+            ]
+          },
+          { type: 'heading', text: 'Hello Timer' },
+          {
+            type: 'bullets',
+            items: [
+              'Indicates how often the switches share BPDUs periodically between each other.',
+              'Default Hello Timer is 2 seconds.'
+            ]
+          },
+          { type: 'heading', text: 'Forward Delay Timer' },
+          {
+            type: 'bullets',
+            items: [
+              'Indicates how long a switchport must spend in Listening & Learning states.',
+              'Ensures Spanning Tree has enough time to converge the topology, identify, and eliminate loops.',
+              'Default Forward Delay Timer is 15 seconds per state (30 seconds total):',
+              '(i) Listening -> Learning = 15 seconds',
+              '(ii) Learning -> Forwarding = 15 seconds'
+            ]
+          },
+          { type: 'heading', text: 'Max-Age Timer' },
+          {
+            type: 'bullets',
+            items: [
+              'Indicates how long a switch will keep BPDU information from a neighbour switch before discarding it.',
+              'BPDUs are sent every 2-second interval; if a switch fails to receive a BPDU from the neighbour before the Max-Age timer expires, it assumes there is a change in the topology.',
+              'Default Max-Age Timer is 20 seconds.'
+            ]
+          }
+        ],
+        diagrams: [],
+        quickReference: [
+          { label: 'Hello Timer', value: '2 seconds (BPDU interval)' },
+          { label: 'Forward Delay Timer', value: '15 seconds per state (30 seconds total)' },
+          { label: 'Max-Age Timer', value: '20 seconds' }
+        ]
+      }
+      ,
+      {
+        slug: 'stp-bpdu-types-tcn-and-disabling-stp',
+        title: 'Types of BPDUs (Configuration & TCN) and Disabling STP',
+        group: 'STP',
+        description: 'Understand Configuration BPDU (Superior vs Inferior) and TCN BPDU, TCN flag mechanics (0 -> Root Bridge -> 1), and how to disable STP globally and per switchport.',
+        blocks: [
+          { type: 'heading', text: 'Types of BPDUs' },
+          {
+            type: 'bullets',
+            items: [
+              'There are two types of BPDUs: Configuration BPDU and TCN BPDU.'
+            ]
+          },
+          { type: 'heading', text: '1. Configuration BPDU' },
+          {
+            type: 'bullets',
+            items: [
+              'Normal BPDU sent between switches periodically at every 2-second interval.',
+              'Responsible for Spanning Tree calculations, convergence, and maintenance.'
+            ]
+          },
+          { type: 'heading', text: '2. TCN BPDU (Topology Change Notification)' },
+          {
+            type: 'bullets',
+            items: [
+              'When a topology change happens, the switch generates a TCN BPDU and sends it out through its Root Port towards the Root Bridge.',
+              'It does not contain details about the topology change—only that a change has occurred.',
+              'When sent to the Root Bridge, the TCN flag is set to 0.',
+              'Once it reaches the Root Bridge, the Root Bridge acknowledges the TCN by changing the flag to 1 and shares it with the rest of the switches through its Designated Ports.',
+              'When other switches receive this acknowledged TCN, they restart the Spanning Tree process.'
+            ]
+          },
+          { type: 'heading', text: 'Spanning Tree Manipulations' },
+          { type: 'heading', text: '(i) Disabling STP (Globally per VLAN)' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(conf)# no spanning-tree vlan 1-4094          ! All VLANs
 (conf)# no spanning-tree vlan 10,20,30-40     ! Range of VLANs
 (conf)# no spanning-tree vlan 10              ! A single VLAN`
-    },
-    { type: 'heading', text: '(ii) Disabling Spanning Tree on a Switchport' },
-    {
-      type: 'code',
-      language: 'text',
-      code: `(conf)# interface <name>                      ! e.g., f0/0
+          },
+          { type: 'heading', text: '(ii) Disabling Spanning Tree on a Switchport' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(conf)# interface <name>                      ! e.g., f0/0
 (conf-if)# no spanning-tree vlan 1-4094       ! All VLANs
 (conf-if)# no spanning-tree vlan 10,20,30-40  ! Range of VLANs
 (conf-if)# no spanning-tree vlan 10           ! A specific VLAN
 (conf-if)# no sh
 (conf-if)# exit`
-    }
-  ],
-  diagrams: [
-    {
-      src: '/diagrams/stp_bpdu_hierarchy_tree_wide.png',
-      alt: 'BPDU branches into Configuration BPDU (which splits into Superior BPDU [Lowest Bridge-ID] and Inferior BPDU) and TCN BPDU.',
-      caption: 'BPDU hierarchy tree: Configuration BPDU (Superior/Inferior) and TCN BPDU.'
-    },
-    {
-      src: '/diagrams/stp_tcn_bpdu_flow_wide.png',
-      alt: 'SW (change occurred) sends TCN with flag=0 via RP to Root Bridge; Root Bridge floods TCN with flag=1 out all DPs.',
-      caption: 'TCN BPDU flow diagram: switch sends TCN (flag=0) to Root Bridge, which floods acknowledged TCN (flag=1) out all Designated Ports.'
-    }
-  ],
-  quickReference: [
-    { label: 'Configuration BPDU', value: 'Sent every 2 seconds for STP calculations' },
-    { label: 'Superior BPDU', value: 'Lowest Bridge ID' },
-    { label: 'Inferior BPDU', value: 'Higher Bridge ID' },
-    { label: 'TCN BPDU', value: 'Topology Change Notification' },
-    { label: 'TCN Flag (towards Root)', value: '0' },
-    { label: 'TCN Flag (from Root)', value: '1' },
-    { label: 'Disable STP Globally', value: 'no spanning-tree vlan <vlan-list>' },
-    { label: 'Disable STP on Port', value: 'no spanning-tree vlan <vlan-list> (interface config)' }
-  ]
-},
-      
+          }
+        ],
+        diagrams: [
+          {
+            src: '/diagrams/stp_bpdu_hierarchy_tree_wide.png',
+            alt: 'BPDU branches into Configuration BPDU (which splits into Superior BPDU [Lowest Bridge-ID] and Inferior BPDU) and TCN BPDU.',
+            caption: 'BPDU hierarchy tree: Configuration BPDU (Superior/Inferior) and TCN BPDU.'
+          },
+          {
+            src: '/diagrams/stp_tcn_bpdu_flow_wide.png',
+            alt: 'SW (change occurred) sends TCN with flag=0 via RP to Root Bridge; Root Bridge floods TCN with flag=1 out all DPs.',
+            caption: 'TCN BPDU flow diagram: switch sends TCN (flag=0) to Root Bridge, which floods acknowledged TCN (flag=1) out all Designated Ports.'
+          }
+        ],
+        quickReference: [
+          { label: 'Configuration BPDU', value: 'Sent every 2 seconds for STP calculations' },
+          { label: 'Superior BPDU', value: 'Lowest Bridge ID' },
+          { label: 'Inferior BPDU', value: 'Higher Bridge ID' },
+          { label: 'TCN BPDU', value: 'Topology Change Notification' },
+          { label: 'TCN Flag (towards Root)', value: '0' },
+          { label: 'TCN Flag (from Root)', value: '1' },
+          { label: 'Disable STP Globally', value: 'no spanning-tree vlan <vlan-list>' },
+          { label: 'Disable STP on Port', value: 'no spanning-tree vlan <vlan-list> (interface config)' }
+        ]
+      },
+
 
 
 
@@ -7377,20 +7377,70 @@ TRANSLATION TABLE:
       },
     ],
   },
-
   // ─────────────────────────────────────────────────────────────
-  // 13 · ANIMATED · LAYER 1: THE PHYSICAL LAYER
+  // ANIMATED NETWORKING FUNDAMENTALS — SINGLE TOPIC
+  // All original subtopic slugs are preserved.
   // ─────────────────────────────────────────────────────────────
   {
-    slug: 'animated-layer-1-the-physical-layer',
-    number: '13',
-    title: 'Animated: Layer 1 — The Physical Layer',
+    slug: 'animated-networking-fundamentals',
+    number: '12',
+    title: 'Animated Networking Fundamentals',
     icon: 'orbit',
     summary: 'animated',
-    description: 'How zeros and ones become physical signals over copper, fiber, and radio waves.',
+    description: 'An animated, ground-up introduction to networking: MAC addresses, physical and data-link communication, VLANs, STP, IP addressing, routing, DHCP, DNS, NAT, transport protocols, and network security.',
     subtopics: [
       {
+        slug: 'mac-address-the-foundation-of-networking',
+        group: 'MAC Addresses & Networking Layers',
+        title: 'The MAC address: the foundation of networking',
+        description: 'A MAC address is a unique identifier burned into every networked device, and no device can communicate without one.',
+        blocks: [
+          { type: 'heading', text: 'What a MAC address is' },
+          { type: 'paragraph', text: 'A MAC address is a unique identifier burned into every networked device — phones, PCs, even an internet-connected fridge. None of these devices can communicate without one, which makes it the foundation of every networking concept that follows.' },
+          { type: 'heading', text: 'How it is written' },
+          {
+            type: 'bullets', items: [
+              'Six bytes written as hex pairs, for example A4:83:E7:2F:19:C0.',
+              'The first half identifies the manufacturer; the second half identifies the device.',
+              '1 byte = 8 bits.',
+              'Technically it can be changed, but treat it as permanent and unique to the device.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'MAC address', value: 'Unique, burned-in device identifier' },
+          { label: 'Format', value: 'Six hex pairs, e.g. A4:83:E7:2F:19:C0' },
+          { label: 'Halves', value: 'Manufacturer + device' },
+        ],
+      },
+      {
+        slug: 'the-four-layers-from-the-ground-up',
+        group: 'MAC Addresses & Networking Layers',
+        title: 'The four layers, from the ground up',
+        description: 'The internet is easier to follow as four layers, from the physical cable up to the transport of data between applications.',
+        blocks: [
+          { type: 'heading', text: 'The journey' },
+          { type: 'paragraph', text: 'Following the data from the physical cables plugged into the wall all the way to a server on the other side of the world is easiest when the internet is split into four layers.' },
+          { type: 'heading', text: 'The layers' },
+          {
+            type: 'bullets', items: [
+              'Layer 1 — Physical: cables, light, and radio waves.',
+              'Layer 2 — Data link: MAC addresses, switches, frames, VLANs.',
+              'Layer 3 — Network: IP addresses, routers, ARP, NAT.',
+              'Layer 4 — Transport: ports, TCP, and UDP.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Layer 1', value: 'Physical' },
+          { label: 'Layer 2', value: 'Data link' },
+          { label: 'Layer 3', value: 'Network' },
+          { label: 'Layer 4', value: 'Transport' },
+        ],
+      },
+      {
         slug: 'bits-bytes-and-point-to-point-networks',
+        group: 'Layer 1 — Physical Layer',
         title: 'Bits, bytes, and point-to-point networks',
         description: 'Computers only understand zeros and ones, and the physical layer turns them into signals that cross a cable.',
         blocks: [
@@ -7414,6 +7464,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'copper-fiber-and-wi-fi',
+        group: 'Layer 1 — Physical Layer',
         title: 'Copper, fiber, and Wi-Fi',
         description: 'Ethernet uses electricity, fiber uses light, and Wi-Fi uses radio waves; each has different range and speed.',
         blocks: [
@@ -7443,6 +7494,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'why-you-cannot-cable-every-device',
+        group: 'Layer 1 — Physical Layer',
         title: 'Why you cannot cable every device to every other',
         description: 'Cabling every pair of devices does not scale, which is the problem layer 2 solves.',
         blocks: [
@@ -7451,22 +7503,9 @@ TRANSLATION TABLE:
         ],
         quickReference: [{ label: 'Full-mesh cables', value: 'n × (n − 1) ÷ 2' }],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 14 · ANIMATED · LAYER 2: SWITCHES, FRAMES, AND THE MAC TABLE
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-layer-2-switches-frames-and-the-mac-table',
-    number: '14',
-    title: 'Animated: Layer 2 — Switches, Frames, and the MAC Table',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'How a switch connects many devices, wraps data in frames, and learns where every MAC address lives.',
-    subtopics: [
       {
         slug: 'switches-and-frames',
+        group: 'Layer 2 — Switching & MAC Address Tables',
         title: 'Switches and frames',
         description: 'A switch connects many devices, and layer 2 wraps raw bits into frames carrying source and destination MAC addresses.',
         blocks: [
@@ -7487,6 +7526,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'unicast-broadcast-and-multicast',
+        group: 'Layer 2 — Switching & MAC Address Tables',
         title: 'Unicast, broadcast, and multicast',
         description: 'Three types of destination traffic: one to one, one to everyone, and one to many.',
         blocks: [
@@ -7506,6 +7546,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'mac-address-table-learning-forwarding-and-flooding',
+        group: 'Layer 2 — Switching & MAC Address Tables',
         title: 'The MAC address table: learning, forwarding, and flooding',
         description: 'A switch learns source MACs, forwards to known destinations, and floods unknown ones.',
         blocks: [
@@ -7530,22 +7571,9 @@ TRANSLATION TABLE:
           { label: 'Unknown destination', value: 'Flood all ports except the incoming one' },
         ],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 15 · ANIMATED · VLANS AND TRUNKS
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-vlans-and-trunks',
-    number: '15',
-    title: 'Animated: VLANs and Trunks',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'How VLANs split one switch into isolated networks, and how trunks carry several VLANs over one cable.',
-    subtopics: [
       {
         slug: 'why-vlans-exist',
+        group: 'VLANs & Trunking',
         title: 'Why VLANs exist',
         description: 'Everyone on one switch means flooded noise and a security problem; VLANs fix it without buying a switch per department.',
         blocks: [
@@ -7556,6 +7584,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'assigning-ports-to-vlans',
+        group: 'VLANs & Trunking',
         title: 'Assigning ports to VLANs',
         description: 'You set different ports to different VLANs on the switch.',
         blocks: [
@@ -7573,6 +7602,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'trunk-ports-and-vlan-tags',
+        group: 'VLANs & Trunking',
         title: 'Trunk ports and VLAN tags',
         description: 'A trunk is a port that can carry multiple VLANs by adding a small VLAN ID tag to each frame.',
         blocks: [
@@ -7581,22 +7611,9 @@ TRANSLATION TABLE:
         ],
         quickReference: [{ label: 'Trunk', value: 'Carries many VLANs; frames get a VLAN ID tag' }],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 16 · ANIMATED · LOOPS, STP, AND LACP
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-loops-stp-and-lacp',
-    number: '16',
-    title: 'Animated: Loops, STP, and LACP',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'Why redundant switch links cause broadcast storms, how Spanning Tree stops them, and how LACP bundles cables.',
-    subtopics: [
       {
         slug: 'switch-loops-and-broadcast-storms',
+        group: 'STP & Link Aggregation',
         title: 'Switch loops and broadcast storms',
         description: 'A redundant link plus unknown unicast flooding creates a loop that never ends.',
         blocks: [
@@ -7617,6 +7634,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'spanning-tree-protocol',
+        group: 'STP & Link Aggregation',
         title: 'Spanning Tree Protocol (STP)',
         description: 'STP blocks a redundant interface so the loop never happens.',
         blocks: [
@@ -7627,6 +7645,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'bottlenecks-and-lacp',
+        group: 'STP & Link Aggregation',
         title: 'Bottlenecks, redundancy, and LACP',
         description: 'One cable between switches is a bottleneck and a single point of failure; LACP bundles several into one logical link.',
         blocks: [
@@ -7652,22 +7671,9 @@ TRANSLATION TABLE:
           { label: 'Benefit', value: 'More bandwidth and redundancy; not blocked by STP' },
         ],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 17 · ANIMATED · LAYER 3: IP ADDRESSES, SUBNETS, AND ARP
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-layer-3-ip-addresses-subnets-and-arp',
-    number: '17',
-    title: 'Animated: Layer 3 — IP Addresses, Subnets, and ARP',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'Why layer 3 needs IP addresses, how subnet masks split network from host, and how ARP finds a MAC address.',
-    subtopics: [
       {
         slug: 'why-ip-addresses',
+        group: 'Layer 3 — IP Addressing, Subnets & ARP',
         title: 'Why we need IP addresses',
         description: 'MAC addresses alone would force switches to flood the whole world; IP addresses say where a network is.',
         blocks: [
@@ -7687,6 +7693,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'subnet-masks-network-and-host-portions',
+        group: 'Layer 3 — IP Addressing, Subnets & ARP',
         title: 'Subnet masks: network and host portions',
         description: 'A subnet mask tells a computer which part of an IP address is the network and which is the host.',
         blocks: [
@@ -7700,6 +7707,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'arp-and-the-arp-table',
+        group: 'Layer 3 — IP Addressing, Subnets & ARP',
         title: 'ARP and the ARP table',
         description: 'ARP asks the network for the MAC address that belongs to an IP address.',
         blocks: [
@@ -7721,6 +7729,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'life-of-a-packet-on-one-network',
+        group: 'Layer 3 — IP Addressing, Subnets & ARP',
         title: 'Life of a packet on one network',
         description: 'Packet, ARP lookup, frame, bits, switch — the full path for same-network traffic.',
         blocks: [
@@ -7736,22 +7745,9 @@ TRANSLATION TABLE:
         ],
         quickReference: [{ label: 'Order', value: 'Packet → ARP → frame → bits → switch' }],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 18 · ANIMATED · ROUTERS AND ROUTING
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-routers-and-routing',
-    number: '18',
-    title: 'Animated: Routers and Routing',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'How routers connect different networks using the default gateway and routing tables, including static, dynamic, and default routes.',
-    subtopics: [
       {
         slug: 'routers-and-the-default-gateway',
+        group: 'Routers & Routing',
         title: 'Routers and the default gateway',
         description: 'Traffic for another network goes to the default gateway, which is usually the router.',
         blocks: [
@@ -7771,6 +7767,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'routing-tables',
+        group: 'Routers & Routing',
         title: 'Routing tables',
         description: 'The routing table is the layer 3 version of the MAC address table.',
         blocks: [
@@ -7787,6 +7784,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'static-dynamic-and-default-routes',
+        group: 'Routers & Routing',
         title: 'Static, dynamic, and default routes',
         description: 'Routes teach the router about networks that are not directly connected.',
         blocks: [
@@ -7803,22 +7801,9 @@ TRANSLATION TABLE:
           { label: 'Default route', value: 'No match → forward to the ISP' },
         ],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 19 · ANIMATED · DHCP AND DNS
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-dhcp-and-dns',
-    number: '19',
-    title: 'Animated: DHCP and DNS',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'How devices get an IP address automatically with DHCP and find websites by name with DNS.',
-    subtopics: [
       {
         slug: 'dhcp-and-the-dora-process',
+        group: 'DHCP & DNS',
         title: 'DHCP and the DORA process',
         description: 'A DHCP server leases IP addresses and other settings so you never configure them by hand.',
         blocks: [
@@ -7837,6 +7822,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'dns-names-to-ip-addresses',
+        group: 'DHCP & DNS',
         title: 'DNS: names to IP addresses',
         description: 'DNS maps domain names to IP addresses because people remember names better than numbers.',
         blocks: [
@@ -7855,22 +7841,9 @@ TRANSLATION TABLE:
           { label: 'DNS cache', value: 'Locally stored answers' },
         ],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 20 · ANIMATED · PRIVATE IPS, IPV6, NAT, AND PAT
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-private-ips-ipv6-nat-and-pat',
-    number: '20',
-    title: 'Animated: Private IPs, IPv6, NAT, and PAT',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'Why private addresses cannot cross the internet, why IPv4 ran out, and how NAT and PAT let many devices share one public IP.',
-    subtopics: [
       {
         slug: 'private-and-public-ip-addresses',
+        group: 'Private/Public IPs, IPv6 & NAT',
         title: 'Private and public IP addresses',
         description: 'Private ranges are reused by millions of networks and are not globally routable; public addresses are unique.',
         blocks: [
@@ -7885,6 +7858,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'ipv4-exhaustion-and-ipv6',
+        group: 'Private/Public IPs, IPv6 & NAT',
         title: 'IPv4 exhaustion and IPv6',
         description: 'About 4.3 billion IPv4 addresses cannot cover roughly 30 billion devices; IPv6 is the long-term fix.',
         blocks: [
@@ -7897,6 +7871,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'nat-and-pat',
+        group: 'Private/Public IPs, IPv6 & NAT',
         title: 'NAT and PAT',
         description: 'NAT swaps a private source IP for the router public IP; PAT adds a port number so many PCs can share it.',
         blocks: [
@@ -7910,22 +7885,9 @@ TRANSLATION TABLE:
           { label: 'PAT', value: 'NAT + a unique port per connection' },
         ],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 21 · ANIMATED · LAYER 4: PORTS, TCP, AND UDP
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-layer-4-ports-tcp-and-udp',
-    number: '21',
-    title: 'Animated: Layer 4 — Ports, TCP, and UDP',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'How ports pick the right application, how data becomes a segment, and when to choose TCP or UDP.',
-    subtopics: [
       {
         slug: 'ports-and-common-services',
+        group: 'Layer 4 — Ports, TCP & UDP',
         title: 'Ports and common services',
         description: 'The IP address is the house number; the port says which application inside the computer the data is for.',
         blocks: [
@@ -7939,6 +7901,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'segments',
+        group: 'Layer 4 — Ports, TCP & UDP',
         title: 'Segments',
         description: 'Layer 4 wraps a packet into a segment that adds a source port and a destination port.',
         blocks: [
@@ -7948,6 +7911,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'tcp-vs-udp',
+        group: 'Layer 4 — Ports, TCP & UDP',
         title: 'TCP vs UDP',
         description: 'TCP is reliable and resends lost data; UDP is unreliable but faster.',
         blocks: [
@@ -7961,22 +7925,9 @@ TRANSLATION TABLE:
           { label: 'UDP', value: 'Unreliable, faster, real time' },
         ],
       },
-    ],
-  },
-
-  // ─────────────────────────────────────────────────────────────
-  // 22 · ANIMATED · SECURITY: ACLS AND FIREWALLS
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-security-acls-and-firewalls',
-    number: '22',
-    title: 'Animated: Security — ACLs and Firewalls',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'How access control lists filter traffic on a router interface, and what firewalls add at the edge of the network.',
-    subtopics: [
       {
         slug: 'access-control-lists',
+        group: 'Network Security',
         title: 'Access control lists (ACLs)',
         description: 'An ACL is a list of permit and deny statements checked against each packet from top to bottom.',
         blocks: [
@@ -7991,6 +7942,7 @@ TRANSLATION TABLE:
       },
       {
         slug: 'firewalls',
+        group: 'Network Security',
         title: 'Firewalls',
         description: 'Modern firewalls control and inspect traffic, can prevent intrusions, and can do everything a router can.',
         blocks: [
@@ -8008,7 +7960,7 @@ TRANSLATION TABLE:
           { label: 'Placement', value: 'Exterior of the network' },
           { label: 'Tracks', value: 'Sessions in and out' },
         ],
-      },
+      }
     ],
   },
   {
