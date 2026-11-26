@@ -7318,68 +7318,7 @@ TRANSLATION TABLE:
     ],
   },
   // ─────────────────────────────────────────────────────────────
-  // 12 · ANIMATED · THE MAC ADDRESS AND THE FOUR LAYERS
-  // ─────────────────────────────────────────────────────────────
-  {
-    slug: 'animated-mac-address-and-the-four-layers',
-    number: '12',
-    title: 'Animated: The MAC Address and the Four Layers',
-    icon: 'orbit',
-    summary: 'animated',
-    description: 'An animated walkthrough that starts with the MAC address and builds the internet from the ground up in four layers.',
-    subtopics: [
-      {
-        slug: 'mac-address-the-foundation-of-networking',
-        title: 'The MAC address: the foundation of networking',
-        description: 'A MAC address is a unique identifier burned into every networked device, and no device can communicate without one.',
-        blocks: [
-          { type: 'heading', text: 'What a MAC address is' },
-          { type: 'paragraph', text: 'A MAC address is a unique identifier burned into every networked device — phones, PCs, even an internet-connected fridge. None of these devices can communicate without one, which makes it the foundation of every networking concept that follows.' },
-          { type: 'heading', text: 'How it is written' },
-          {
-            type: 'bullets', items: [
-              'Six bytes written as hex pairs, for example A4:83:E7:2F:19:C0.',
-              'The first half identifies the manufacturer; the second half identifies the device.',
-              '1 byte = 8 bits.',
-              'Technically it can be changed, but treat it as permanent and unique to the device.',
-            ]
-          },
-        ],
-        quickReference: [
-          { label: 'MAC address', value: 'Unique, burned-in device identifier' },
-          { label: 'Format', value: 'Six hex pairs, e.g. A4:83:E7:2F:19:C0' },
-          { label: 'Halves', value: 'Manufacturer + device' },
-        ],
-      },
-      {
-        slug: 'the-four-layers-from-the-ground-up',
-        title: 'The four layers, from the ground up',
-        description: 'The internet is easier to follow as four layers, from the physical cable up to the transport of data between applications.',
-        blocks: [
-          { type: 'heading', text: 'The journey' },
-          { type: 'paragraph', text: 'Following the data from the physical cables plugged into the wall all the way to a server on the other side of the world is easiest when the internet is split into four layers.' },
-          { type: 'heading', text: 'The layers' },
-          {
-            type: 'bullets', items: [
-              'Layer 1 — Physical: cables, light, and radio waves.',
-              'Layer 2 — Data link: MAC addresses, switches, frames, VLANs.',
-              'Layer 3 — Network: IP addresses, routers, ARP, NAT.',
-              'Layer 4 — Transport: ports, TCP, and UDP.',
-            ]
-          },
-        ],
-        quickReference: [
-          { label: 'Layer 1', value: 'Physical' },
-          { label: 'Layer 2', value: 'Data link' },
-          { label: 'Layer 3', value: 'Network' },
-          { label: 'Layer 4', value: 'Transport' },
-        ],
-      },
-    ],
-  },
-  // ─────────────────────────────────────────────────────────────
   // ANIMATED NETWORKING FUNDAMENTALS — SINGLE TOPIC
-  // All original subtopic slugs are preserved.
   // ─────────────────────────────────────────────────────────────
   {
     slug: 'animated-networking-fundamentals',
