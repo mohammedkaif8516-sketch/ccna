@@ -1367,6 +1367,7 @@ function Sidebar({
   completed,
   bestFor,
   mobile = false,
+  isOpen = false,
 }: {
   selected?: string;
   selectedQuizId?: string;
@@ -1384,6 +1385,7 @@ function Sidebar({
   completed: Set<string>;
   bestFor: (quizId: string) => QuizScore | undefined;
   mobile?: boolean;
+  isOpen?: boolean;
 }) {
   const activeRef = useRef<HTMLButtonElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -1409,7 +1411,8 @@ function Sidebar({
     );
   }, [topicWithActive]);
 
-  const activeKey = selected ?? selectedQuizId ?? selectedSummary;
+  const activeKey =
+    selectedExtra ?? selected ?? selectedQuizId ?? selectedSummary ?? selectedTopic;
 
   // Sort topics so the LABS topic is always last
   const sortedTopics = useMemo(() => {
@@ -1421,10 +1424,8 @@ function Sidebar({
   }, []);
 
   useEffect(() => {
-    if (!mobile) return;
+    if (mobile && !isOpen) return;
     if (!activeKey) return;
-    const container = scrollRef.current;
-    if (!container) return;
 
     let attempts = 0;
     let raf = 0;
@@ -1432,36 +1433,47 @@ function Sidebar({
     const tryScroll = () => {
       attempts++;
       const el = activeRef.current;
-      if (el && el.offsetParent !== null) {
-        const elRect = el.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
-        const target =
-          container.scrollTop +
-          (elRect.top - containerRect.top) -
-          container.clientHeight / 2 +
-          elRect.height / 2;
-        container.scrollTo({
-          top: Math.max(0, target),
-          behavior: "instant" as ScrollBehavior,
-        });
+      const container = scrollRef.current;
+
+      if (el && container && el.offsetParent !== null) {
+        if (container.scrollHeight > container.clientHeight) {
+          const elRect = el.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          const target =
+            container.scrollTop +
+            (elRect.top - containerRect.top) -
+            container.clientHeight / 2 +
+            elRect.height / 2;
+          container.scrollTo({
+            top: Math.max(0, target),
+            behavior: "instant" as ScrollBehavior,
+          });
+        } else {
+          el.scrollIntoView({ block: "center", behavior: "instant" });
+        }
         return;
       }
-      if (attempts < 10) raf = requestAnimationFrame(tryScroll);
+
+      if (attempts < 15) raf = requestAnimationFrame(tryScroll);
     };
 
-    raf = requestAnimationFrame(tryScroll);
+    // Wait for Sheet portal & expanded topic layout to settle
+    raf = requestAnimationFrame(() => {
+      raf = requestAnimationFrame(tryScroll);
+    });
+
     return () => cancelAnimationFrame(raf);
-  }, [activeKey, mobile]);
+  }, [activeKey, mobile, isOpen]);
 
   return (
     <aside
       className={
         mobile
-          ? "flex h-full flex-col bg-background"
-          : "hidden h-full w-72 shrink-0 flex-col border-r bg-sidebar/40 lg:flex"
+          ? "flex h-full min-h-0 flex-col overflow-hidden bg-background"
+          : "hidden h-full min-h-0 w-72 shrink-0 flex-col overflow-hidden border-r bg-sidebar/40 lg:flex"
       }
     >
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-5">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-3 py-5">
         <h2 className="px-3 pb-4 text-sm font-semibold tracking-tight">
           Curriculum
         </h2>
@@ -1502,6 +1514,7 @@ function Sidebar({
                 {/* topic header: title navigates, chevron expands */}
                 <div className="flex items-center gap-0.5">
                   <button
+                    ref={isTopicActive ? activeRef : null}
                     type="button"
                     onClick={() =>
                       onSelectTopic ? onSelectTopic(topic) : toggle()
@@ -1583,11 +1596,7 @@ function Sidebar({
                                 return (
                                   <div key={`${subtopic.slug}-${index}`}>
                                     <button
-                                      ref={
-                                        selected === subtopic.slug
-                                          ? activeRef
-                                          : null
-                                      }
+                                      ref={isActive ? activeRef : null}
                                       onClick={() => onSelect(topic, subtopic)}
                                       className={`${ROW} ${rowTone(isActive)}`}
                                     >
@@ -1603,6 +1612,7 @@ function Sidebar({
                                     {/* Only exists while the Extra page is open */}
                                     {openedExtras.has(subtopic.slug) && (
                                       <button
+                                        ref={isExtraActive ? activeRef : null}
                                         onClick={() =>
                                           onSelectExtra(topic, subtopic)
                                         }
@@ -2147,7 +2157,11 @@ export default function CcnaStudyApp() {
               >
                 <Menu />
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 p-0">
+              <SheetContent
+                side="left"
+                className="w-80 overflow-hidden p-0"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
                 <SheetTitle className="sr-only">CCNA curriculum</SheetTitle>
                 <Sidebar
                   selected={current?.slug}
@@ -2164,6 +2178,7 @@ export default function CcnaStudyApp() {
                   completed={completed}
                   bestFor={bestFor}
                   mobile
+                  isOpen={mobileOpen}
                 />
               </SheetContent>
             </Sheet>
