@@ -151,7 +151,7 @@ export const topics: Topic[] = [
           { label: 'SAN', value: 'Storage-only, high capacity, low loss' },
           { label: 'VPN types', value: 'Site-to-site, Remote access (SSL VPN)' },
         ],
-        diagrams: [{ src: '/diagrams/wan1.png', alt: 'WAN ISP topology', caption: 'WAN (ISP) topology' }, { src: '/diagrams/vpn1.png', alt: 'Site-to-site VPN tunnel', caption: 'Internet site-to-site VPN' },],
+        diagrams: [{ src: '/diagrams/wan1_wide.png', alt: 'WAN ISP topology', caption: 'WAN (ISP) topology' }, { src: '/diagrams/vpn1_wide.png', alt: 'Site-to-site VPN tunnel', caption: 'Internet site-to-site VPN' },],
       },
       {
         slug: 'host-devices-client-server-peer',
@@ -1034,63 +1034,130 @@ export const topics: Topic[] = [
         ],
       },
       {
-        slug: 'ip-address-classes-a-b-c-d-e-and-default-subnet-masks',
-        title: 'IP Address Classes (A, B, C, D, E) and Default Subnet Masks',
-        description: 'Classful addressing divides the IPv4 space into five classes, each with a defined range, default mask, and purpose.',
-        blocks: [
-          { type: 'heading', text: 'Class A' },
-          {
-            type: 'bullets', items: [
-              'Structure: N | H | H | H — subnet mask 255.0.0.0 (/8).',
-              '10.0.0.0/8 is a private network.',
-              '127.0.0.0/8 is the Loopback range (127.0.0.1 – 127.255.255.255).',
-              'The rest of Class A is public.',
-            ]
-          },
-          { type: 'heading', text: 'Class B' },
-          {
-            type: 'bullets', items: [
-              'Range: 128 – 191 → total range 128.0.0.0 – 191.255.255.255.',
-              'Structure: N | N | H | H — subnet mask 255.255.0.0 (/16).',
-              'Example: 150.10.10.10, mask 255.255.0.0.',
-              'Example network: 150.10.0.0/16 → network address; hosts 150.10.0.1 – 150.10.255.254; broadcast 150.10.255.255.',
-              'Usable host IPs: 2^16 − 2 = 65536 − 2 = 65534.',
-            ]
-          },
-          { type: 'heading', text: 'Class C' },
-          {
-            type: 'bullets', items: [
-              'Range: 192 – 223 → total range 192.0.0.0 – 223.255.255.255.',
-              'Structure: N | N | N | H — subnet mask 255.255.255.0 (/24).',
-              'Example: 192.168.10.0/24 → network address; hosts 192.168.10.1 – 192.168.10.254; broadcast 192.168.10.255.',
-              'Usable host IPs: 2^8 − 2 = 256 − 2 = 254.',
-            ]
-          },
-          { type: 'heading', text: 'Class D' },
-          {
-            type: 'bullets', items: [
-              'Reserved for multicasting purposes.',
-              'Range: 224 – 239 → total range 224.0.0.0 – 239.255.255.255.',
-              'No network address, broadcast address, usable IP address, or subnet mask in this range — each IP represents a multicast group.',
-            ]
-          },
-          { type: 'heading', text: 'Class E' },
-          {
-            type: 'bullets', items: [
-              'Reserved for scientific and research purposes.',
-              'Range: 240 – 255 → total range 240.0.0.0 – 255.255.255.255.',
-              'No network address, no broadcast address, no usable IP, no subnetting, and no subnet mask.',
-            ]
-          },
-        ],
-        quickReference: [
-          { label: 'Class A', value: '1–126 · /8 · 255.0.0.0' },
-          { label: 'Class B', value: '128–191 · /16 · 255.255.0.0' },
-          { label: 'Class C', value: '192–223 · /24 · 255.255.255.0' },
-          { label: 'Class D', value: '224–239 · Multicast, no mask' },
-          { label: 'Class E', value: '240–255 · Research, no mask' },
-        ],
-      },
+  slug: 'ip-address-classes-a-b-c-d-e-and-default-subnet-masks',
+  title: 'IP Address Classes (A, B, C, D, E) and Default Subnet Masks',
+  description: 'Classful addressing divides the IPv4 space into five classes, each with a defined range, default mask, and purpose.',
+  blocks: [
+    { type: 'heading', text: 'Overview of Classful Addressing' },
+    {
+      type: 'bullets', items: [
+        'An IPv4 address is 32 bits long, written as four octets (e.g., 192.168.10.1).',
+        'Classful addressing was the original scheme: the class is decided by the first octet (or the leading bits of the first octet).',
+        'N = Network bits, H = Host bits. The default subnet mask marks the boundary between them.',
+        'Leading bits identify the class: A = 0, B = 10, C = 110, D = 1110, E = 1111.',
+        'Classful addressing has been replaced by CIDR / classless addressing (VLSM), but classes are still used for exams, defaults, and general terminology.',
+      ]
+    },
+
+    { type: 'heading', text: 'Class A' },
+    {
+      type: 'bullets', items: [
+        'Range: 1 – 126 → total range 1.0.0.0 – 126.255.255.255 (first bit is 0).',
+        'Structure: N | H | H | H — subnet mask 255.0.0.0 (/8).',
+        'Number of networks: 2^7 − 2 = 126 (0 and 127 are reserved).',
+        'Usable host IPs per network: 2^24 − 2 = 16,777,214.',
+        'Example: 10.1.1.1 → network 10.0.0.0, broadcast 10.255.255.255.',
+        '10.0.0.0/8 is a private network (RFC 1918).',
+        '127.0.0.0/8 is the Loopback range (127.0.0.1 – 127.255.255.255), used for testing the local TCP/IP stack.',
+        '0.0.0.0/8 is reserved (0.0.0.0 means "this host" or the default route).',
+        'The rest of Class A is public.',
+      ]
+    },
+
+    { type: 'heading', text: 'Class B' },
+    {
+      type: 'bullets', items: [
+        'Range: 128 – 191 → total range 128.0.0.0 – 191.255.255.255 (first two bits are 10).',
+        'Structure: N | N | H | H — subnet mask 255.255.0.0 (/16).',
+        'Number of networks: 2^14 = 16,384.',
+        'Usable host IPs per network: 2^16 − 2 = 65,536 − 2 = 65,534.',
+        'Example: 150.10.10.10, mask 255.255.0.0.',
+        'Example network: 150.10.0.0/16 → network address; hosts 150.10.0.1 – 150.10.255.254; broadcast 150.10.255.255.',
+        'Private range: 172.16.0.0 – 172.31.255.255 (172.16.0.0/12).',
+        'APIPA (link-local) range: 169.254.0.0/16, self-assigned when no DHCP server responds.',
+      ]
+    },
+
+    { type: 'heading', text: 'Class C' },
+    {
+      type: 'bullets', items: [
+        'Range: 192 – 223 → total range 192.0.0.0 – 223.255.255.255 (first three bits are 110).',
+        'Structure: N | N | N | H — subnet mask 255.255.255.0 (/24).',
+        'Number of networks: 2^21 = 2,097,152.',
+        'Usable host IPs per network: 2^8 − 2 = 256 − 2 = 254.',
+        'Example: 192.168.10.0/24 → network address; hosts 192.168.10.1 – 192.168.10.254; broadcast 192.168.10.255.',
+        'Private range: 192.168.0.0 – 192.168.255.255 (192.168.0.0/16).',
+        'Most common class for small LANs, home networks, and offices.',
+      ]
+    },
+
+    { type: 'heading', text: 'Class D' },
+    {
+      type: 'bullets', items: [
+        'Reserved for multicasting purposes.',
+        'Range: 224 – 239 → total range 224.0.0.0 – 239.255.255.255 (first four bits are 1110, i.e. 224.0.0.0/4).',
+        'No network address, broadcast address, usable IP address, or subnet mask in this range — each IP represents a multicast group.',
+        'Used as a destination address only; it is never assigned to a host interface as a source address.',
+        'Well-known examples: 224.0.0.1 (all hosts), 224.0.0.2 (all routers), 224.0.0.5 / 224.0.0.6 (OSPF), 224.0.0.9 (RIPv2), 224.0.0.10 (EIGRP).',
+      ]
+    },
+
+    { type: 'heading', text: 'Class E' },
+    {
+      type: 'bullets', items: [
+        'Reserved for scientific, experimental, and research purposes.',
+        'Range: 240 – 255 → total range 240.0.0.0 – 255.255.255.255 (first four bits are 1111).',
+        'No network address, no broadcast address, no usable IP, no subnetting, and no subnet mask.',
+        '255.255.255.255 is the limited broadcast address (sent to all hosts on the local network, not forwarded by routers).',
+        'Not used on the public internet and not supported for normal host assignment.',
+      ]
+    },
+
+    { type: 'heading', text: 'Private vs Public Address Ranges (RFC 1918)' },
+    {
+      type: 'bullets', items: [
+        'Class A private: 10.0.0.0 – 10.255.255.255 (10.0.0.0/8).',
+        'Class B private: 172.16.0.0 – 172.31.255.255 (172.16.0.0/12).',
+        'Class C private: 192.168.0.0 – 192.168.255.255 (192.168.0.0/16).',
+        'Private addresses are not routable on the internet; NAT is used to translate them to public addresses.',
+        'All other unicast addresses in Classes A, B, and C are public.',
+      ]
+    },
+
+    { type: 'heading', text: 'Special Reserved Addresses' },
+    {
+      type: 'bullets', items: [
+        '0.0.0.0 — default route / unspecified address.',
+        '127.0.0.0/8 — loopback.',
+        '169.254.0.0/16 — APIPA / link-local.',
+        '255.255.255.255 — limited broadcast.',
+        'Network address — all host bits set to 0 (identifies the network).',
+        'Broadcast address — all host bits set to 1 (reaches every host in the network).',
+      ]
+    },
+
+    { type: 'heading', text: 'Key Points to Remember' },
+    {
+      type: 'bullets', items: [
+        'Only Classes A, B, and C are used for normal host (unicast) addressing.',
+        'Usable hosts formula: 2^H − 2 (subtract the network and broadcast addresses).',
+        'The first octet decides the class: 1–126 = A, 128–191 = B, 192–223 = C, 224–239 = D, 240–255 = E.',
+        '127 is skipped between Class A and Class B because it is reserved for loopback.',
+        'Classful addressing wasted many addresses, which led to subnetting, VLSM, CIDR, and NAT.',
+      ]
+    },
+  ],
+  quickReference: [
+    { label: 'Class A', value: '1–126 · /8 · 255.0.0.0 · 126 networks · 16,777,214 hosts' },
+    { label: 'Class B', value: '128–191 · /16 · 255.255.0.0 · 16,384 networks · 65,534 hosts' },
+    { label: 'Class C', value: '192–223 · /24 · 255.255.255.0 · 2,097,152 networks · 254 hosts' },
+    { label: 'Class D', value: '224–239 · Multicast, no mask' },
+    { label: 'Class E', value: '240–255 · Research, no mask' },
+    { label: 'Leading Bits', value: 'A = 0 · B = 10 · C = 110 · D = 1110 · E = 1111' },
+    { label: 'Private Ranges', value: '10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16' },
+    { label: 'Special', value: '127.0.0.0/8 loopback · 169.254.0.0/16 APIPA' },
+  ],
+},
       {
         slug: 'public-vs-private-ip-addresses',
         title: 'Public vs. Private IP Addresses',
@@ -6511,232 +6578,740 @@ TRANSLATION TABLE:
         ]
       },
       {
-        slug: 'nat-static-dynamic-pat-configuration',
-        title: 'NAT Configuration (Static, Dynamic and PAT)',
+        slug: 'nat-static-configuration',
+        title: 'Static NAT Configuration',
         group: 'NAT',
-        description: 'Configure Static NAT, Dynamic NAT and PAT on Cisco routers using NAT rules, access lists, public IP pools and inside/outside interface designation.',
+        description: 'Configure one-to-one Static NAT rules and apply inside/outside roles on Cisco IOS interfaces.',
         blocks: [
-          { type: 'heading', text: '1. Static NAT configuration' },
+          { type: 'heading', text: 'Step 1: NAT rule configuration' },
           {
             type: 'code',
             language: 'text',
-            code: `! Step 1: Configure static translation
-(config)# ip nat inside source static <private-IP> <public-IP>
-
-! Example
-(config)# ip nat inside source static 192.168.1.1 150.10.10.100
-
-! Step 2: Configure LAN interface
-(config)# interface <LAN-interface>
-(config-if)# ip nat inside
-(config-if)# no shutdown
-(config-if)# exit
-
-! Step 3: Configure WAN interface
-(config)# interface <WAN-interface>
-(config-if)# ip nat outside
-(config-if)# no shutdown
-(config-if)# exit`
+            code: `(conf)# ip nat inside source static <private IP> <public IP>
+! Example:
+(conf)# ip nat inside source static 192.168.1.1 150.10.10.100`
           },
-          { type: 'heading', text: '2. Dynamic NAT configuration' },
+          { type: 'heading', text: 'Step 2: Apply NAT translation on interfaces' },
           {
             type: 'code',
             language: 'text',
-            code: `! Step 1: Create a public IP pool
-(config)# ip nat pool <pool-name> <start-IP> <end-IP> netmask <mask>
+            code: `! LAN Interface
+# interface <name>
+# ip nat inside
+# no sh
+# exit
 
-! Example
-(config)# ip nat pool NAT_POOL 150.10.10.1 150.10.10.10 netmask 255.255.255.0
-
-! Step 2: Identify internal addresses using an ACL
-(config)# ip access-list standard NAT_ACL
-(config-std-nacl)# permit 192.168.1.0 0.0.0.255
-(config-std-nacl)# exit
-
-! Step 3: Configure Dynamic NAT
-(config)# ip nat inside source list NAT_ACL pool NAT_POOL
-
-! Step 4: Configure LAN interface
-(config)# interface <LAN-interface>
-(config-if)# ip nat inside
-(config-if)# exit
-
-! Step 5: Configure WAN interface
-(config)# interface <WAN-interface>
-(config-if)# ip nat outside
-(config-if)# exit`
+! WAN Interface
+# interface <name>
+# ip nat outside
+# no sh
+# exit`
           },
-          { type: 'heading', text: '3. PAT configuration using WAN interface' },
+          { type: 'heading', text: 'Static NAT + PAT (Overload)' },
           {
             type: 'code',
             language: 'text',
-            code: `! Step 1: Identify private addresses
-(config)# ip access-list standard NAT_ACL
-(config-std-nacl)# permit 192.168.1.0 0.0.0.255
-(config-std-nacl)# exit
-
-! Step 2: Configure PAT
-(config)# ip nat inside source list NAT_ACL interface <WAN-interface> overload
-
-! Step 3: Configure LAN interface
-(config)# interface <LAN-interface>
-(config-if)# ip nat inside
-(config-if)# exit
-
-! Step 4: Configure WAN interface
-(config)# interface <WAN-interface>
-(config-if)# ip nat outside
-(config-if)# exit`
+            code: `(conf)# ip nat inside source static <private IP> <public IP> overload
+! Example:
+(conf)# ip nat inside source static 192.168.1.1 150.10.10.10 overload`
           },
-          { type: 'heading', text: '4. Dynamic NAT with PAT' },
-          {
-            type: 'code',
-            language: 'text',
-            code: `! Configure a public IP pool
-(config)# ip nat pool NAT_POOL <start-IP> <end-IP> netmask <mask>
-
-! Identify internal addresses
-(config)# ip access-list standard NAT_ACL
-(config-std-nacl)# permit 192.168.1.0 0.0.0.255
-(config-std-nacl)# exit
-
-! Enable PAT using the pool
-(config)# ip nat inside source list NAT_ACL pool NAT_POOL overload`
-          },
-          { type: 'heading', text: 'NAT interface roles' },
-          {
-            type: 'table',
-            headers: ['Interface', 'Command', 'Purpose'],
-            rows: [
-              ['LAN interface', 'ip nat inside', 'Identifies the internal network side.'],
-              ['WAN interface', 'ip nat outside', 'Identifies the external network side.']
-            ]
-          },
-          { type: 'heading', text: 'Important notes' },
-          {
-            type: 'bullets',
-            items: [
-              'The ACL identifies which inside addresses are eligible for translation.',
-              'The ACL used for NAT identifies traffic; it does not itself filter or block traffic.',
-              'The overload keyword enables PAT.',
-              'Interface-based PAT uses the IP address configured on the WAN interface.',
-              'Ensure the router has appropriate routing and a return path.',
-              'A NAT pool must contain valid and usable addresses for the intended design.'
-            ]
-          }
         ],
-        diagrams: [],
         quickReference: [
-          { label: 'Static NAT', value: 'ip nat inside source static <local> <global>' },
-          { label: 'Create pool', value: 'ip nat pool <name> <start> <end> netmask <mask>' },
-          { label: 'Dynamic NAT', value: 'ip nat inside source list <ACL> pool <name>' },
-          { label: 'PAT', value: 'ip nat inside source list <ACL> interface <WAN> overload' },
-          { label: 'Dynamic PAT', value: 'ip nat inside source list <ACL> pool <name> overload' },
-          { label: 'Inside', value: 'ip nat inside' },
-          { label: 'Outside', value: 'ip nat outside' },
-          { label: 'PAT keyword', value: 'overload' }
-        ]
+          { label: 'Static rule', value: 'ip nat inside source static <priv> <pub>' },
+          { label: 'LAN interface', value: 'ip nat inside' },
+          { label: 'WAN interface', value: 'ip nat outside' },
+          { label: 'Enable PAT', value: 'Append overload keyword' },
+        ],
       },
       {
-        slug: 'nat-verification-troubleshooting',
-        title: 'NAT Verification and Troubleshooting',
+        slug: 'nat-dynamic-configuration',
+        title: 'Dynamic NAT Configuration',
         group: 'NAT',
-        description: 'Verify NAT translations, inspect NAT statistics, troubleshoot access lists and interface roles, and monitor translation activity using Cisco IOS commands.',
+        description: 'Configure a public IP pool, standard ACL, and Dynamic NAT rule on Cisco IOS routers.',
         blocks: [
-          { type: 'heading', text: 'NAT verification commands' },
+          { type: 'heading', text: 'Step 1: Create a pool for public addresses' },
           {
             type: 'code',
             language: 'text',
-            code: `! Display NAT translations
-# show ip nat translations
-
-! Display NAT statistics
-# show ip nat statistics
-
-! Display NAT configuration
-# show running-config | section ip nat
-
-! Display access lists
-# show ip access-lists
-
-! Display interface configuration
-# show running-config interface <interface-name>
-
-! Display interface status
-# show ip interface brief`
+            code: `(conf)# ip nat pool <pool name> <starting IP> <ending IP> netmask <mask>
+! Example:
+(conf)# ip nat pool NAT_POOL 150.10.10.1 150.10.10.10 netmask 255.255.255.0`
           },
-          { type: 'heading', text: 'Understanding NAT translation output' },
-          {
-            type: 'table',
-            headers: ['Field', 'Meaning'],
-            rows: [
-              ['Inside local', 'Original internal device address'],
-              ['Inside global', 'Translated address of the internal device'],
-              ['Outside local', 'Outside host address as represented internally'],
-              ['Outside global', 'Actual outside host address']
-            ]
-          },
-          { type: 'heading', text: 'NAT statistics' },
-          {
-            type: 'bullets',
-            items: [
-              'show ip nat statistics displays active translations and NAT interface information.',
-              'It helps verify whether the router is configured with inside and outside interfaces.',
-              'It also displays information about translation activity and pool usage.'
-            ]
-          },
-          { type: 'heading', text: 'Debugging NAT' },
+          { type: 'heading', text: 'Step 2: Create an ACL to identify private networks' },
           {
             type: 'code',
             language: 'text',
-            code: `! Monitor NAT translation activity
-# debug ip nat
-
-! Stop debugging
-# undebug all`
+            code: `(conf)# ip access-list standard NAT_ACL
+(conf-acl)# permit 192.168.1.0 0.0.0.255
+# exit`
           },
-          {
-            type: 'bullets', items: [
-              'Use debug commands carefully because they can consume CPU and generate large amounts of output.',
-              'Prefer controlled lab environments when learning debugging commands.'
-            ]
-          },
-          { type: 'heading', text: 'Clearing NAT translations' },
+          { type: 'heading', text: 'Step 3: Dynamic NAT rule configuration' },
           {
             type: 'code',
             language: 'text',
-            code: `! Clear dynamic translations
-# clear ip nat translation *
-
-! Clear a specific dynamic translation
-# clear ip nat translation <inside-local> <inside-global> <outside-local> <outside-global>`
+            code: `(conf)# ip nat inside source list <ACL> pool <pool name>
+! Example:
+(conf)# ip nat inside source list NAT_ACL pool NAT_POOL`
           },
-          { type: 'heading', text: 'Troubleshooting checklist' },
+          { type: 'heading', text: 'Step 4: Apply translation on interfaces' },
           {
-            type: 'bullets',
-            items: [
-              'Verify that the correct interfaces have ip nat inside and ip nat outside.',
-              'Verify that the NAT ACL matches the intended private network.',
-              'Verify that the public IP pool has available addresses.',
-              'Verify that the WAN interface has a valid address when using interface-based PAT.',
-              'Verify that the router has a valid route to the external destination.',
-              'Verify that return traffic can reach the NAT router.',
-              'Check whether another ACL or firewall is blocking the traffic.',
-              'Check NAT translations while generating test traffic.'
-            ]
-          }
+            type: 'code',
+            language: 'text',
+            code: `! LAN Interface (<f0/0>, <f0/0.10>, or vlan<no>)
+# interface <name>
+# ip nat inside
+# no sh
+# exit
+
+! WAN Interface (<f0/0>, <f0/0.10>, or vlan<no>)
+# interface <name>
+# ip nat outside
+# no sh
+# exit`
+          },
+          { type: 'heading', text: 'Dynamic NAT + PAT (Overload)' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(conf)# ip nat inside source list <ACL> pool <pool name> overload`
+          },
         ],
-        diagrams: [],
         quickReference: [
-          { label: 'Translations', value: 'show ip nat translations' },
-          { label: 'Statistics', value: 'show ip nat statistics' },
-          { label: 'NAT configuration', value: 'show running-config | section ip nat' },
-          { label: 'ACL verification', value: 'show ip access-lists' },
-          { label: 'Debug NAT', value: 'debug ip nat' },
-          { label: 'Stop debugging', value: 'undebug all' },
-          { label: 'Clear translations', value: 'clear ip nat translation *' }
-        ]
+          { label: 'Create pool', value: 'ip nat pool <name> <start> <end> netmask <mask>' },
+          { label: 'Match LAN', value: 'ip access-list standard <name>' },
+          { label: 'Bind rule', value: 'ip nat inside source list <ACL> pool <pool>' },
+          { label: 'Add PAT', value: 'Append overload keyword' },
+        ],
       },
+      {
+        slug: 'nat-pat-configuration',
+        title: 'PAT (NAT Overload) Configuration',
+        group: 'NAT',
+        description: 'Configure Port Address Translation using the WAN interface IP and the overload keyword.',
+        blocks: [
+          { type: 'heading', text: 'Step 1: Identify private network using an ACL' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `# ip access-list standard NAT_ACL
+# permit 192.168.1.0 0.0.0.255
+# exit`
+          },
+          { type: 'heading', text: 'Step 2: Configure the NAT rule with overload' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `(conf)# ip nat inside source list <ACL> interface <WAN interface name> overload
+! Example:
+(conf)# ip nat inside source list NAT_ACL interface fastEthernet 0/0 overload`
+          },
+          { type: 'heading', text: 'Step 3: Apply NAT translation on interfaces' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `! LAN Interface
+# int <name>
+# ip nat inside
+
+! WAN Interface
+# int <name>
+# ip nat outside`
+          },
+          { type: 'heading', text: 'Notes' },
+          {
+            type: 'bullets',
+            items: [
+              'The overload keyword enables PAT and can also be used with Static NAT and Dynamic NAT rules.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'PAT rule', value: 'ip nat inside source list <ACL> interface <WAN> overload' },
+          { label: 'Key parameter', value: 'overload' },
+          { label: 'LAN side', value: 'ip nat inside' },
+          { label: 'WAN side', value: 'ip nat outside' },
+        ],
+      },
+      {
+        slug: 'nat-verification-commands',
+        title: 'NAT Verification & Troubleshooting Commands',
+        group: 'NAT',
+        description: 'Inspect active NAT translation tables, verify NAT configuration, and clear or debug translations.',
+        blocks: [
+          { type: 'heading', text: 'Verification commands' },
+          {
+            type: 'code',
+            language: 'text',
+            code: `# show ip nat translations
+# show run | section nat
+# show ip access-list
+# show run interface <name>
+# debug ip nat translations
+# clear ip nat translation *
+# clear ip nat translation`
+          },
+          { type: 'heading', text: 'What each command does' },
+          {
+            type: 'bullets',
+            items: [
+              'show ip nat translations: Displays the active NAT translation table.',
+              'show run | section nat: Displays NAT configuration from the running configuration.',
+              'show ip access-list: Displays the configured ACLs used by NAT.',
+              'show run interface <name>: Displays the interface configuration (inside/outside).',
+              'debug ip nat translations: Live troubleshooting — do not use in production, only in a lab environment.',
+              'clear ip nat translation *: Refreshes all dynamic NAT translation entries.',
+              'clear ip nat translation: Resets NAT translations.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'NAT table', value: 'show ip nat translations' },
+          { label: 'NAT config', value: 'show run | section nat' },
+          { label: 'Refresh table', value: 'clear ip nat translation *' },
+          { label: 'Lab debug', value: 'debug ip nat translations' },
+        ],
+      },
+      {
+  slug: 'stp-fundamentals-switching-loops-bpdu-bridge-id',
+  title: 'STP Fundamentals: Switching Loops, BPDUs & Bridge ID',
+  group: 'STP',
+  description: 'Understand switching loops, broadcast storms, STP basics (802.1D), BPDUs, and the Bridge ID (Switch Priority + MAC Address).',
+  blocks: [
+    { type: 'heading', text: 'Spanning Tree Protocol (STP)' },
+    {
+      type: 'bullets',
+      items: [
+        'A switch is a broadcasting device and it will broadcast traffic inside the broadcast domain / VLAN.',
+        'It will broadcast to every port except the incoming port.',
+        'If switches are connected in a closed-circuit method, this broadcasting behaviour can create a traffic loop.',
+        'This infinite traffic loop is a destructive storm of traffic which can consume all the bandwidth and CPU resources within minutes or even seconds.',
+        'These traffic loops can choke real-time data traffic and bring the whole production network down.'
+      ]
+    },
+    {
+      type: 'bullets',
+      items: [
+        'To solve this problem, we have STP.',
+        'STP is a Layer 2 technology designed by IEEE (802.1D).',
+        'It is enabled by default in switches.',
+        'STP will identify the loop and block ports to eliminate the loop.',
+        'STP messages are called BPDUs (Bridge Protocol Data Units).',
+        'When switches are connected, they will periodically send out BPDUs between each other and map the topology.',
+        'BPDUs are exchanged every 2-second interval and use an L2 multicast MAC address (0180.c200.0000).',
+        'Every switch generates its own BPDU, which will be unique in the topology.',
+        'Once the BPDUs are exchanged, switches perform several elections and identify the blocking port.',
+        'Once the blocking port is identified, real-time data traffic will not be forwarded or received on this port, but BPDUs will.'
+      ]
+    },
+    { type: 'heading', text: 'BPDU (Bridge Protocol Data Unit)' },
+    {
+      type: 'bullets',
+      items: [
+        'Apart from L2 header information, the main content of a BPDU is the Bridge ID.'
+      ]
+    },
+    { type: 'heading', text: 'Bridge ID' },
+    {
+      type: 'bullets',
+      items: [
+        'Bridge ID consists of two components: Switch Priority Value and Switch MAC Address.'
+      ]
+    },
+    { type: 'heading', text: '1. Switch Priority Value' },
+    {
+      type: 'bullets',
+      items: [
+        '16-bit value (0–65535).',
+        'Default priority of the switch is 32768 (same across every vendor).',
+        'Lowest will be preferred.'
+      ]
+    },
+    { type: 'heading', text: '2. Switch MAC Address' },
+    {
+      type: 'bullets',
+      items: [
+        '48-bit address.',
+        'Lowest will be preferred.'
+      ]
+    }
+  ],
+  diagrams: [
+    {
+      src: '/diagrams/stp_switching_loop.png',
+      alt: 'SW1, SW2, SW3 in a triangle showing broadcast loop and an STP Blocking Port on SW3.',
+      caption: 'Switching loop diagram: broadcast loop in a triangle topology with a blocking port on SW3.'
+    }
+  ],
+  quickReference: [
+    { label: 'STP Standard', value: 'IEEE 802.1D' },
+    { label: 'BPDU Multicast MAC', value: '0180.c200.0000' },
+    { label: 'BPDU Interval', value: '2 seconds' },
+    { label: 'Default Switch Priority', value: '32768' },
+    { label: 'Bridge ID', value: 'Priority (16-bit) + MAC (48-bit)' }
+  ]
+}
+,
+{
+  slug: 'stp-elections-root-bridge-root-port-designated-blocking',
+  title: 'STP Elections: Root Bridge, Root Port, Designated Port & Blocking Port',
+  group: 'STP',
+  description: 'Learn the four STP elections: Root Bridge election, Root Port election, Designated Port election, and Blocking Port election, including default interface costs and Port-ID tie-breaking.',
+  blocks: [
+    { type: 'heading', text: 'Spanning Tree Elections' },
+    {
+      type: 'bullets',
+      items: [
+        'There are 4 elections that take place in the STP process:',
+        '1. Root Bridge election',
+        '2. Root Port election',
+        '3. Designated Port election',
+        '4. Blocking Port election'
+      ]
+    },
+    { type: 'heading', text: '1. Root Bridge Election' },
+    {
+      type: 'bullets',
+      items: [
+        'First step in the STP process.',
+        'Root Bridge acts as a reference point / leader for the spanning tree process in the topology.',
+        'Root Bridge is elected based on the lowest Bridge ID.',
+        'First, switches check the lowest priority (default is 32768 on every switch).',
+        'If there is a tie in priority, the switch with the lowest MAC address wins the election and becomes the Root Bridge.',
+        'This causes a vulnerability, as the lowest MAC address will be the oldest switch in the topology.',
+        'To solve this, we can manipulate the priority value to control the election.',
+        'The lowest Bridge ID BPDU is called a Superior BPDU, and the other BPDUs are Inferior BPDUs.'
+      ]
+    },
+    { type: 'heading', text: '2. Root Port Election' },
+    {
+      type: 'bullets',
+      items: [
+        'Second step in the STP process is identifying the Root Port on every switch except the Root Bridge.',
+        'The Root Port of a switch will have the lowest path cost / interface cost to reach the Root Bridge.',
+        'Only one port will be elected as the Root Port per switch, and the Root Bridge will not have any Root Port.',
+        'Purpose of the Root Port is to identify the best path to reach the Root Bridge from other switches.'
+      ]
+    },
+    { type: 'heading', text: 'Interfaces & Default Cost Values' },
+    {
+      type: 'bullets',
+      items: [
+        'Ethernet — 100',
+        'Fast Ethernet — 19',
+        'Gigabit Ethernet — 4',
+        '10 Gigabit Ethernet — 2'
+      ]
+    },
+    { type: 'heading', text: '3. Designated Port Election' },
+    {
+      type: 'bullets',
+      items: [
+        'Third step in the STP process: a single Designated Port is elected in each segment / connection between switches.',
+        'Designated Port is elected based on the lowest cost value to reach other switches from the Root Bridge.',
+        'All ports of the Root Bridge become Designated Ports.',
+        'If two Designated Ports are elected in a segment (same cost), it means there is a loop (e.g., segment between SW4 and SW5), so one port must be placed in the Blocking state to eliminate the loop.',
+        'A port cannot become a Root Port and a Designated Port at the same time.'
+      ]
+    },
+    { type: 'heading', text: '4. Blocking Port Election' },
+    {
+      type: 'bullets',
+      items: [
+        'If there are two DPs in a segment, one needs to be placed as a Blocking Port (BP).',
+        'Another election is conducted between the switches:',
+        'First, they check the cost (if same, move to next).',
+        'Next, they check the Bridge ID — the lowest wins the election (stays DP) and the other becomes the Blocking Port (e.g., SW4 has a lower Bridge ID than SW5, so SW5\'s port becomes BP).',
+        'If Bridge ID is also the same, Port-ID is used.'
+      ]
+    },
+    { type: 'heading', text: 'Port-ID' },
+    {
+      type: 'bullets',
+      items: [
+        'When electing a Root Port or Designated Port, it is possible to have a tie in both path cost and Bridge ID.',
+        'Port-ID is the final tie-breaker in the STP process.',
+        'Consists of two components: Port-Priority and Port Number.'
+      ]
+    },
+    { type: 'heading', text: '1. Port-Priority' },
+    {
+      type: 'bullets',
+      items: [
+        '8-bit value (0–255), default is 128, lowest priority is preferred.'
+      ]
+    },
+    { type: 'heading', text: '2. Port Number' },
+    {
+      type: 'bullets',
+      items: [
+        'If there is a tie in priority, the lowest port number of the neighbour switch is used to break the tie.'
+      ]
+    }
+  ],
+  diagrams: [
+    {
+      src: '/diagrams/stp_election_topology_wide.png',
+      alt: 'SW1 (Root Bridge, 32768/aaa) connected to SW2 (bbb), SW3 (ccc), SW4 (ddd), and SW5 (eee) with DP, RP, and BP roles marked.',
+      caption: 'STP election topology diagram with Root Bridge, Root Ports, Designated Ports, and Blocking Ports.'
+    },
+    {
+      src: '/diagrams/stp_port_id_tie_breaker_wide.png',
+      alt: 'SW1 (32768/aaa) connected to SW2 (32768/bbb) via dual links showing Port Priority (100 vs 128) and Port Number (e0/0 vs e0/1) tie-breaking.',
+      caption: 'Port-ID tie-breaker diagrams showing Port Priority and Port Number used to break ties.'
+    }
+  ],
+  quickReference: [
+    { label: 'Root Bridge Election', value: 'Lowest Bridge ID' },
+    { label: 'Root Port Election', value: 'Lowest path cost to Root Bridge' },
+    { label: 'Designated Port Election', value: 'Lowest cost to reach from Root Bridge' },
+    { label: 'Blocking Port Tie-Breaker', value: 'Cost -> Bridge ID -> Port-ID' },
+    { label: 'Port-ID', value: 'Port-Priority (8-bit, default 128) + Port Number' },
+    { label: 'Ethernet Cost', value: '100' },
+    { label: 'Fast Ethernet Cost', value: '19' },
+    { label: 'Gigabit Ethernet Cost', value: '4' },
+    { label: '10 Gigabit Ethernet Cost', value: '2' }
+  ]
+}
+,
+{
+  slug: 'stp-types-cst-pvst-pvst-plus-rst-rpvst-rpvst-plus-mst',
+  title: 'Types of Spanning Tree: CST, PVST, PVST+, RST, RPVST, RPVST+ & MST',
+  group: 'STP',
+  description: 'Understand the 7 types of Spanning Tree: open-source CST, RST, MST and Cisco proprietary PVST, PVST+, RPVST, RPVST+, including standards and compatibility.',
+  blocks: [
+    { type: 'heading', text: 'Types of Spanning Tree' },
+    {
+      type: 'bullets',
+      items: [
+        'There are 7 types of Spanning Tree:',
+        'Open Source: CST, RST, MST',
+        'Cisco Proprietary: PVST, PVST+, RPVST, RPVST+'
+      ]
+    },
+    { type: 'heading', text: '1. CST (Common Spanning Tree)' },
+    {
+      type: 'bullets',
+      items: [
+        'Open-source, developed by IEEE (802.1D).',
+        'Single STP instance for every VLAN (one Root Bridge, one RP, one DP, one BP for all VLANs).',
+        'Default STP in non-Cisco vendor switches.'
+      ]
+    },
+    { type: 'heading', text: '2. PVST (Per-VLAN Spanning Tree)' },
+    {
+      type: 'bullets',
+      items: [
+        'Cisco proprietary; each VLAN has its own STP instance (own Root Bridge, RP, DP, and BP).',
+        'Only supports ISL trunking and the old VLAN range.',
+        'Not compatible with open-source STPs.'
+      ]
+    },
+    { type: 'heading', text: '3. PVST+' },
+    {
+      type: 'bullets',
+      items: [
+        'Cisco proprietary; each VLAN has its own STP instance.',
+        'Supports both ISL & dot1q, and the new VLAN range.',
+        'Compatible with open-source STPs (except MST).',
+        'Default STP in Cisco switches.'
+      ]
+    },
+    { type: 'heading', text: '4. RST (Rapid Spanning Tree)' },
+    {
+      type: 'bullets',
+      items: [
+        'Open-source, developed by IEEE (802.1w).',
+        'Single STP for all VLANs; faster convergence as Listening & Learning states are bypassed.',
+        'Supports new VLAN range & dot1q; widely used in real-time.'
+      ]
+    },
+    { type: 'heading', text: '5. RPVST (Rapid PVST)' },
+    {
+      type: 'bullets',
+      items: [
+        'Cisco proprietary; same features as PVST with rapid convergence (bypasses Listening & Learning states).'
+      ]
+    },
+    { type: 'heading', text: '6. RPVST+' },
+    {
+      type: 'bullets',
+      items: [
+        'Cisco proprietary; same features as PVST+ with rapid convergence capability.'
+      ]
+    },
+    { type: 'heading', text: '7. MST (Multiple Spanning Tree)' },
+    {
+      type: 'bullets',
+      items: [
+        'Open-source, developed by IEEE (802.1s).',
+        'Custom-built STP where we manually configure STP instances and map VLANs into instances as per requirement.'
+      ]
+    }
+  ],
+  diagrams: [
+    {
+      src: '/diagrams/stp_pvst_load_balancing.png',
+      alt: 'SW1 (Root VLAN 10), SW2 (Root VLAN 20), SW3 (Root VLAN 30) with blocked ports distributed per VLAN.',
+      caption: 'PVST load-balancing diagram with blocked ports distributed per VLAN.'
+    }
+  ],
+  quickReference: [
+    { label: 'CST Standard', value: '802.1D' },
+    { label: 'RST Standard', value: '802.1w' },
+    { label: 'MST Standard', value: '802.1s' },
+    { label: 'Cisco Default STP', value: 'PVST+' },
+    { label: 'Open Source Types', value: 'CST, RST, MST' },
+    { label: 'Cisco Proprietary Types', value: 'PVST, PVST+, RPVST, RPVST+' }
+  ]
+}
+,
+{
+  slug: 'stp-spine-leaf-architecture',
+  title: 'Spine and Leaf Architecture',
+  group: 'STP',
+  description: 'Understand Spine and Leaf architecture, why STP can be disabled, and how device clustering and link bundling provide High Availability in data centres.',
+  blocks: [
+    { type: 'heading', text: 'Spine and Leaf Architecture' },
+    {
+      type: 'bullets',
+      items: [
+        'In Spine & Leaf architecture, we can disable STP as we use device clustering and link bundling technologies to provide High Availability (HA) for devices and links.',
+        'Widely used in data centres.'
+      ]
+    }
+  ],
+  diagrams: [
+    {
+      src: '/diagrams/stp_spine_leaf_architecture.png',
+      alt: 'Spine 1 & Spine 2 clustered and connected via bundled links to Leaf Switch 1–4.',
+      caption: 'Spine and Leaf architecture diagram with clustered spines and bundled links to leaf switches.'
+    }
+  ],
+  quickReference: [
+    { label: 'STP in Spine-Leaf', value: 'Can be disabled' },
+    { label: 'HA Mechanism', value: 'Device clustering and link bundling' },
+    { label: 'Common Use', value: 'Data centres' }
+  ]
+}
+,
+{
+  slug: 'stp-switchport-states-and-verification',
+  title: 'STP Switchport States & Verification',
+  group: 'STP',
+  description: 'Learn the 5 STP switchport states (Disabled, Blocking, Listening, Learning, Forwarding) and the Cisco IOS verification commands.',
+  blocks: [
+    { type: 'heading', text: 'Spanning Tree Switchport States' },
+    {
+      type: 'bullets',
+      items: [
+        'As STP converges, switchports transition through 5 states:',
+        '1. Disabled State',
+        '2. Blocking State',
+        '3. Listening State',
+        '4. Learning State',
+        '5. Forwarding State'
+      ]
+    },
+    { type: 'heading', text: '1. Disabled State' },
+    {
+      type: 'bullets',
+      items: [
+        'Switchport is administratively disabled (shutdown) or err-disabled due to an error/violation. No traffic or BPDUs are transmitted.'
+      ]
+    },
+    { type: 'heading', text: '2. Blocking State' },
+    {
+      type: 'bullets',
+      items: [
+        'Initial state when a switchport is enabled (no shutdown).',
+        'Does not forward/receive data frames or learn MAC addresses, but sends/receives STP BPDUs to track topology changes.'
+      ]
+    },
+    { type: 'heading', text: '3. Listening State (Orange/Amber — 15 sec)' },
+    {
+      type: 'bullets',
+      items: [
+        'Transitions from Blocking.',
+        'Does not send/receive data frames or learn MACs.',
+        'Exchanges BPDUs and runs Root Bridge, RP, DP, and BP elections.',
+        'Takes 15 seconds (Forward Delay timer).',
+        'Elected BPs return to Blocking; other ports move to Learning.'
+      ]
+    },
+    { type: 'heading', text: '4. Learning State (Orange/Amber — 15 sec)' },
+    {
+      type: 'bullets',
+      items: [
+        'Transitions from Listening.',
+        'Continues sending/receiving BPDUs and begins learning MAC addresses of connected devices.',
+        'Consumes 15 seconds (Forward Delay timer).',
+        'Not yet ready to forward data frames.'
+      ]
+    },
+    { type: 'heading', text: '5. Forwarding State (Green)' },
+    {
+      type: 'bullets',
+      items: [
+        'Transitions from Learning.',
+        'Fully functional state; forwards both data frames and BPDUs.',
+        'All RPs and DPs eventually reach this state.'
+      ]
+    },
+    { type: 'heading', text: 'Verification' },
+    {
+      type: 'code',
+      language: 'text',
+      code: `# show spanning-tree
+# show spanning-tree interface
+# show spanning-tree interface <name>   (e.g., f0/0)`
+    }
+  ],
+  diagrams: [
+    {
+      src: '/diagrams/stp_port_state_transition_timeline.png',
+      alt: 'Blocking -> Listening (15s, STP process) -> Learning (15s, MAC learning) [30s Orange] -> Forwarding (Data & BPDUs, Green).',
+      caption: 'STP port state transition timeline from Blocking to Forwarding.'
+    }
+  ],
+  quickReference: [
+    { label: 'Disabled State', value: 'Shutdown or err-disabled' },
+    { label: 'Blocking State', value: 'BPDUs only, no data' },
+    { label: 'Listening State', value: '15 seconds (Forward Delay)' },
+    { label: 'Learning State', value: '15 seconds (Forward Delay)' },
+    { label: 'Forwarding State', value: 'Data & BPDUs' },
+    { label: 'Total Convergence (STP)', value: '30 seconds (Listening + Learning)' },
+    { label: 'Verify STP', value: 'show spanning-tree' }
+  ]
+}
+,
+{
+  slug: 'stp-timers-hello-forward-delay-max-age',
+  title: 'Spanning Tree Timers: Hello, Forward Delay & Max-Age',
+  group: 'STP',
+  description: 'Understand the three STP timers: Hello Timer (2s), Forward Delay Timer (15s per state / 30s total), and Max-Age Timer (20s).',
+  blocks: [
+    { type: 'heading', text: 'Spanning Tree Timers' },
+    {
+      type: 'bullets',
+      items: [
+        'Switches running STP exchange BPDUs periodically to build and converge the topology database using three timers.',
+        'The three timers are: Hello Timer, Forward Delay Timer, and Max-Age Timer.'
+      ]
+    },
+    { type: 'heading', text: 'Hello Timer' },
+    {
+      type: 'bullets',
+      items: [
+        'Indicates how often the switches share BPDUs periodically between each other.',
+        'Default Hello Timer is 2 seconds.'
+      ]
+    },
+    { type: 'heading', text: 'Forward Delay Timer' },
+    {
+      type: 'bullets',
+      items: [
+        'Indicates how long a switchport must spend in Listening & Learning states.',
+        'Ensures Spanning Tree has enough time to converge the topology, identify, and eliminate loops.',
+        'Default Forward Delay Timer is 15 seconds per state (30 seconds total):',
+        '(i) Listening -> Learning = 15 seconds',
+        '(ii) Learning -> Forwarding = 15 seconds'
+      ]
+    },
+    { type: 'heading', text: 'Max-Age Timer' },
+    {
+      type: 'bullets',
+      items: [
+        'Indicates how long a switch will keep BPDU information from a neighbour switch before discarding it.',
+        'BPDUs are sent every 2-second interval; if a switch fails to receive a BPDU from the neighbour before the Max-Age timer expires, it assumes there is a change in the topology.',
+        'Default Max-Age Timer is 20 seconds.'
+      ]
+    }
+  ],
+  diagrams: [],
+  quickReference: [
+    { label: 'Hello Timer', value: '2 seconds (BPDU interval)' },
+    { label: 'Forward Delay Timer', value: '15 seconds per state (30 seconds total)' },
+    { label: 'Max-Age Timer', value: '20 seconds' }
+  ]
+}
+,
+{
+  slug: 'stp-bpdu-types-tcn-and-disabling-stp',
+  title: 'Types of BPDUs (Configuration & TCN) and Disabling STP',
+  group: 'STP',
+  description: 'Understand Configuration BPDU (Superior vs Inferior) and TCN BPDU, TCN flag mechanics (0 -> Root Bridge -> 1), and how to disable STP globally and per switchport.',
+  blocks: [
+    { type: 'heading', text: 'Types of BPDUs' },
+    {
+      type: 'bullets',
+      items: [
+        'There are two types of BPDUs: Configuration BPDU and TCN BPDU.'
+      ]
+    },
+    { type: 'heading', text: '1. Configuration BPDU' },
+    {
+      type: 'bullets',
+      items: [
+        'Normal BPDU sent between switches periodically at every 2-second interval.',
+        'Responsible for Spanning Tree calculations, convergence, and maintenance.'
+      ]
+    },
+    { type: 'heading', text: '2. TCN BPDU (Topology Change Notification)' },
+    {
+      type: 'bullets',
+      items: [
+        'When a topology change happens, the switch generates a TCN BPDU and sends it out through its Root Port towards the Root Bridge.',
+        'It does not contain details about the topology change—only that a change has occurred.',
+        'When sent to the Root Bridge, the TCN flag is set to 0.',
+        'Once it reaches the Root Bridge, the Root Bridge acknowledges the TCN by changing the flag to 1 and shares it with the rest of the switches through its Designated Ports.',
+        'When other switches receive this acknowledged TCN, they restart the Spanning Tree process.'
+      ]
+    },
+    { type: 'heading', text: 'Spanning Tree Manipulations' },
+    { type: 'heading', text: '(i) Disabling STP (Globally per VLAN)' },
+    {
+      type: 'code',
+      language: 'text',
+      code: `(conf)# no spanning-tree vlan 1-4094          ! All VLANs
+(conf)# no spanning-tree vlan 10,20,30-40     ! Range of VLANs
+(conf)# no spanning-tree vlan 10              ! A single VLAN`
+    },
+    { type: 'heading', text: '(ii) Disabling Spanning Tree on a Switchport' },
+    {
+      type: 'code',
+      language: 'text',
+      code: `(conf)# interface <name>                      ! e.g., f0/0
+(conf-if)# no spanning-tree vlan 1-4094       ! All VLANs
+(conf-if)# no spanning-tree vlan 10,20,30-40  ! Range of VLANs
+(conf-if)# no spanning-tree vlan 10           ! A specific VLAN
+(conf-if)# no sh
+(conf-if)# exit`
+    }
+  ],
+  diagrams: [
+    {
+      src: '/diagrams/stp_bpdu_hierarchy_tree_wide.png',
+      alt: 'BPDU branches into Configuration BPDU (which splits into Superior BPDU [Lowest Bridge-ID] and Inferior BPDU) and TCN BPDU.',
+      caption: 'BPDU hierarchy tree: Configuration BPDU (Superior/Inferior) and TCN BPDU.'
+    },
+    {
+      src: '/diagrams/stp_tcn_bpdu_flow_wide.png',
+      alt: 'SW (change occurred) sends TCN with flag=0 via RP to Root Bridge; Root Bridge floods TCN with flag=1 out all DPs.',
+      caption: 'TCN BPDU flow diagram: switch sends TCN (flag=0) to Root Bridge, which floods acknowledged TCN (flag=1) out all Designated Ports.'
+    }
+  ],
+  quickReference: [
+    { label: 'Configuration BPDU', value: 'Sent every 2 seconds for STP calculations' },
+    { label: 'Superior BPDU', value: 'Lowest Bridge ID' },
+    { label: 'Inferior BPDU', value: 'Higher Bridge ID' },
+    { label: 'TCN BPDU', value: 'Topology Change Notification' },
+    { label: 'TCN Flag (towards Root)', value: '0' },
+    { label: 'TCN Flag (from Root)', value: '1' },
+    { label: 'Disable STP Globally', value: 'no spanning-tree vlan <vlan-list>' },
+    { label: 'Disable STP on Port', value: 'no spanning-tree vlan <vlan-list> (interface config)' }
+  ]
+},
+      
 
 
 

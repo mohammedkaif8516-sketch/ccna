@@ -12,37 +12,47 @@ import {
 } from "@/components/ui/card";
 
 /**
- * SwitchingVlanExplainer  (CCNA Topic 10, ongoing)
+- SwitchingVlanExplainer  (CCNA Topic 10, ongoing)
  *
- * ┌──────────────────────────────────────────────────────────────────────────┐
- * │ HOW TO ADD THE NEXT SUBTOPIC (search for the numbered markers below)     │
- * │                                                                          │
- * │  (1/5) TABS            add { id, label } to the TABS array               │
- * │  (2/5) SECTION         write a new <XxxSection /> function. Copy any     │
- * │                        existing section as a template. Each section is   │
- * │                        a self-contained function with its own state.     │
- * │  (3/5) RENDER          render it in the tab switch in the main component │
- * │  (4/5) NOTES DATA      add rows to CMD_ROWS, MYTHS and QA, and add the   │
- * │                        new subtopic name to GROUPS (the filter pills)    │
- * │  (5/5) CSS             new animations go in the <style> block at the end │
- * │                                                                          │
- * │ Likely next subtopics: VTP, STP, EtherChannel, inter-VLAN routing        │
- * │ (router-on-a-stick, SVI), voice VLAN, port security.                     │
- * └──────────────────────────────────────────────────────────────────────────┘
+- ┌──────────────────────────────────────────────────────────────────────────┐
+- │ HOW TO ADD THE NEXT SUBTOPIC (search for the numbered markers below)     │
+- │                                                                          │
+- │  (1/5) TABS            add { id, label } to the TABS array               │
+- │  (2/5) SECTION         write a new <XxxSection /> function. Copy any     │
+- │                        existing section as a template. Each section is   │
+- │                        a self-contained function with its own state.     │
+- │  (3/5) RENDER          render it in the tab switch in the main component │
+- │  (4/5) NOTES DATA      add rows to CMD_ROWS, MYTHS and QA, and add the   │
+- │                        new subtopic name to GROUPS (the filter pills)    │
+- │  (5/5) CSS             new animations go in the <style> block at the end │
+- │                                                                          │
+- │ Likely next subtopics: VTP, voice VLAN, port security, HSRP/FHRP.        │
+- └──────────────────────────────────────────────────────────────────────────┘
  *
- * Current sections
- *   1 Forwarding      : store and forward, fragment-free, cut-through (animated race)
- *   2 MLS and ports   : ip routing, switchport vs routed port, default interface
- *   3 VLAN basics     : broadcast domains, ranges, advantages, static vs dynamic (VMPS)
- *   4 VLAN config     : create, delete, vlan.dat, show vlan brief (live switch)
- *   5 Access ports    : one VLAN per port, the missing-VLAN-on-a-transit-switch case
- *   6 Trunks, tagging : ISL vs 802.1Q, tag anatomy, tagged vs untagged hops
- *   7 Trunk config    : allowed VLAN list builder, trunk troubleshooting checklist
- *   8 Native VLAN     : default vs native, double tagging attack and fixes
- *   9 DTP             : mode combination matrix, timers, disabling negotiation
- *  10 Commands        : searchable cheat sheet
- *  11 Common mistakes : wrong belief on the front, the truth on the back
- *  12 Interview prep  : 30-second answer and the usual questions
+- Current sections
+-   1 Forwarding         : store and forward, fragment-free, cut-through (animated race)
+-   2 MLS and ports      : ip routing, switchport vs routed port, default interface
+-   3 VLAN basics        : broadcast domains, ranges, advantages, static vs dynamic (VMPS)
+-   4 VLAN config        : create, delete, vlan.dat, show vlan brief (live switch)
+-   5 Access ports       : one VLAN per port, the missing-VLAN-on-a-transit-switch case
+-   6 Trunks, tagging    : ISL vs 802.1Q, tag anatomy, tagged vs untagged hops
+-   7 Trunk config       : allowed VLAN list builder, trunk troubleshooting checklist
+-   8 Native VLAN        : default vs native, double tagging attack and fixes
+-   9 DTP                : mode combination matrix, timers, disabling negotiation
+-  10 EtherChannel       : bundling, LACP vs PAgP, mode compatibility
+-  11 EtherChannel cfg   : 2-step config, formation conditions, verification
+-  12 Inter-VLAN routing : router-on-a-stick vs SVI on MLS
+-  13 3-tier design      : Core, Distribution, Access
+-  14 DHCP               : DORA process, lease timeline, APIPA
+-  15 DHCP config        : router/MLS pool config, exclusions, relay
+-  16 ACL                : standard vs extended, numbered vs named, first-match flow
+-  17 NAT                : terminology, static/dynamic/PAT, packet flow
+-  18 STP & elections    : switching loops, BPDUs, Bridge ID, 4 elections, costs, Port-ID
+-  19 STP types & states : 7 STP flavours, Spine & Leaf, 5 port states, 3 timers
+-  20 STP BPDUs & config : Configuration vs TCN BPDU flow, disabling STP globally/per-port
+-  Commands              : searchable cheat sheet
+-  Common mistakes       : wrong belief on the front, the truth on the back
+-  Interview prep        : 30-second answer and the usual questions
  */
 
 const RED = "#c92a2a";
@@ -71,7 +81,10 @@ const TABS = [
   { id: "dhcpcfg", label: "15 · DHCP config" },
   { id: "acl", label: "16 · ACL" },
   { id: "nat", label: "17 · NAT" },
-  // ▲ ADD NEW TABS ABOVE THIS LINE, for example: { id: "vtp", label: "10 · VTP" },
+  { id: "stp", label: "18 · STP & elections" },
+  { id: "stptypes", label: "19 · STP types & states" },
+  { id: "stpbpdu", label: "20 · STP BPDUs & config" },
+  // ▲ ADD NEW TABS ABOVE THIS LINE, for example: { id: "vtp", label: "21 · VTP" },
   { id: "cmds", label: "Commands" },
   { id: "myths", label: "Common mistakes" },
   { id: "interview", label: "Interview prep" },
@@ -2494,6 +2507,7 @@ function DtpSection() {
     </div>
   );
 }
+
 /* ───────────────────────── 10 · EtherChannel ───────────────────────── */
 
 type EProto = "lacp" | "pagp" | "on";
@@ -3180,6 +3194,7 @@ function TierSection() {
     </div>
   );
 }
+
 /* ───────────────────────── 14 · DHCP ───────────────────────── */
 
 const DHCP_STEPS = [
@@ -3398,10 +3413,7 @@ function DhcpSection() {
             v={`DHCP ${s.name} (${step + 1}) — ${s.from} → ${s.to}`}
             color={s.c}
           />
-          <Mini
-            k="UDP ports"
-            v={`Src ${s.sport} → Dst ${s.dport}`}
-          />
+          <Mini k="UDP ports" v={`Src ${s.sport} → Dst ${s.dport}`} />
           <Mini k="IP source" v={s.sip} />
           <Mini k="IP destination" v={s.dip} />
           <Mini k="MAC source" v={s.smac} />
@@ -3446,11 +3458,7 @@ function DhcpSection() {
         </p>
         <div className="mt-3 flex gap-2">
           {LEASE_POINTS.map((x, i) => (
-            <Pick
-              key={x.pct}
-              active={lease === i}
-              onClick={() => setLease(i)}
-            >
+            <Pick key={x.pct} active={lease === i} onClick={() => setLease(i)}>
               {x.pct} · {x.t}
             </Pick>
           ))}
@@ -3470,7 +3478,10 @@ function DhcpSection() {
           ))}
         </div>
         <div key={lease} className="n10-fade mt-3">
-          <p className="text-sm font-semibold" style={{ color: LEASE_POINTS[lease].c }}>
+          <p
+            className="text-sm font-semibold"
+            style={{ color: LEASE_POINTS[lease].c }}
+          >
             {LEASE_POINTS[lease].t}
           </p>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -3558,18 +3569,36 @@ function DhcpCfgSection() {
       </Panel>
 
       <Panel>
-        <p className="text-sm font-semibold">Common options and where DHCP fits</p>
+        <p className="text-sm font-semibold">
+          Common options and where DHCP fits
+        </p>
         <div className="mt-3">
           <SimpleTable
             head={["Setting", "Command", "Notes"]}
             rows={[
               ["Pool name", "ip dhcp pool <name>", "Usually the VLAN name"],
               ["Network", "network <nw> <mask>", "One pool per subnet"],
-              ["Gateway", "default-router <ip>", "The SVI or router interface IP"],
+              [
+                "Gateway",
+                "default-router <ip>",
+                "The SVI or router interface IP",
+              ],
               ["DNS", "dns-server <ip> [ip2]", "Up to 8 IPs"],
-              ["Domain", "domain-name <name>", "Appends to unqualified hostnames"],
-              ["Lease", "lease <d> <h> <m>", "Default 1 day on most platforms; 8 days on many vendors"],
-              ["Exclusion", "ip dhcp excluded-address <ip> [end-ip]", "Protects static addresses (gateway, printers, servers)"],
+              [
+                "Domain",
+                "domain-name <name>",
+                "Appends to unqualified hostnames",
+              ],
+              [
+                "Lease",
+                "lease <d> <h> <m>",
+                "Default 1 day on most platforms; 8 days on many vendors",
+              ],
+              [
+                "Exclusion",
+                "ip dhcp excluded-address <ip> [end-ip]",
+                "Protects static addresses (gateway, printers, servers)",
+              ],
             ]}
           />
         </div>
@@ -3614,7 +3643,1218 @@ function DhcpCfgSection() {
   );
 }
 
-/* ───────────────────────── 10 · commands cheat sheet ───────────────────────── */
+/* ───────────────────────── 16 · ACL ───────────────────────── */
+
+function AclSection() {
+  const [kind, setKind] = useState<"standard" | "extended">("standard");
+  const [style, setStyle] = useState<"numbered" | "named">("numbered");
+  const [direction, setDirection] = useState<"in" | "out">("in");
+  const [scenario, setScenario] = useState<"blocked" | "allowed" | "other">(
+    "blocked",
+  );
+
+  const aclResult =
+    scenario === "blocked"
+      ? {
+          result: "DENY",
+          reason:
+            "The source matches the specific deny rule before the broader permit rule.",
+          color: RED,
+        }
+      : scenario === "allowed"
+        ? {
+            result: "PERMIT",
+            reason:
+              "The source matches the subnet permit rule. The ACL stops at the first match.",
+            color: GREEN,
+          }
+        : {
+            result: "DENY",
+            reason:
+              "No configured rule matches, so the hidden implicit deny is applied.",
+            color: RED,
+          };
+
+  const standardRules = [
+    ["10", "deny", "host 192.168.10.1"],
+    ["20", "deny", "host 192.168.10.10"],
+    ["30", "permit", "192.168.10.0 0.0.0.255"],
+    ["40", "permit", "host 192.168.20.1"],
+    ["50", "permit", "host 192.168.20.2"],
+    ["60", "permit", "host 192.168.20.200"],
+    ["—", "deny", "any (implicit, hidden)"],
+  ];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">ACL = Access Control List</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          An ACL is an ordered list of permit and deny statements. It can filter
+          traffic on an interface, or identify traffic for features such as NAT,
+          QoS and policy-based routing. The meaning of permit/deny depends on
+          the feature using the ACL.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Mini k="Rule order" v="Top to bottom" color={BLUE} />
+          <Mini k="Matching" v="First match wins" color={GREEN} />
+          <Mini k="End of every ACL" v="Implicit deny any" color={RED} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">How ACL processing works</p>
+        <div className="mt-3">
+          <SimpleTable
+            head={["Sequence", "Action", "Match"]}
+            rows={standardRules}
+          />
+        </div>
+        <div className="mt-3">
+          <Tip title="Remember">
+            The router checks the lowest sequence number first. Once a statement
+            matches, later statements are ignored. If nothing matches, the
+            implicit deny blocks the traffic.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Try the first-match rule flow</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Choose a source and see which rule decides its fate.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick
+            active={scenario === "blocked"}
+            onClick={() => setScenario("blocked")}
+          >
+            192.168.10.1
+          </Pick>
+          <Pick
+            active={scenario === "allowed"}
+            onClick={() => setScenario("allowed")}
+          >
+            192.168.10.50
+          </Pick>
+          <Pick
+            active={scenario === "other"}
+            onClick={() => setScenario("other")}
+          >
+            192.168.30.5
+          </Pick>
+        </div>
+        <div key={scenario} className="n10-fade mt-3 rounded-lg border p-3">
+          <p className="text-sm font-bold" style={{ color: aclResult.color }}>
+            {aclResult.result}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {aclResult.reason}
+          </p>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">ACL types and what they inspect</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={kind === "standard"} onClick={() => setKind("standard")}>
+            Standard
+          </Pick>
+          <Pick active={kind === "extended"} onClick={() => setKind("extended")}>
+            Extended
+          </Pick>
+        </div>
+        {kind === "standard" ? (
+          <div key="std" className="n10-fade mt-3 flex flex-col gap-2">
+            <Mini k="Checks" v="Source IPv4 address only" color={BLUE} />
+            <Mini k="Number ranges" v="1–99 and 1300–1999" />
+            <Code
+              lines={[
+                "(config)# access-list 10 deny host 192.168.10.1",
+                "(config)# access-list 10 permit 192.168.10.0 0.0.0.255",
+                "(config)# access-list 10 permit any",
+              ]}
+            />
+          </div>
+        ) : (
+          <div key="ext" className="n10-fade mt-3 flex flex-col gap-2">
+            <Mini
+              k="Checks"
+              v="Protocol, source/destination IP, and TCP/UDP ports"
+              color={PURPLE}
+            />
+            <Mini k="Number ranges" v="100–199 and 2000–2699" />
+            <Code
+              lines={[
+                "(config)# access-list 110 permit tcp host 192.168.10.10 host 192.168.20.20 eq 443",
+                "(config)# access-list 110 deny tcp host 192.168.10.10 any eq 22",
+                "(config)# access-list 110 permit ip any any",
+              ]}
+            />
+          </div>
+        )}
+        <div className="mt-3">
+          <Tip title="Placement">
+            Standard ACLs match only the source, so they are commonly placed
+            closer to the destination. Extended ACLs can match source and
+            destination details, so they are commonly placed closer to the
+            source.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Numbered vs named ACL</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick
+            active={style === "numbered"}
+            onClick={() => setStyle("numbered")}
+          >
+            Numbered
+          </Pick>
+          <Pick active={style === "named"} onClick={() => setStyle("named")}>
+            Named
+          </Pick>
+        </div>
+        {style === "numbered" ? (
+          <div key="numbered" className="n10-fade mt-3">
+            <p className="mb-2 text-xs text-muted-foreground">
+              Identified by a number that indicates the ACL type.
+            </p>
+            <Code
+              lines={[
+                "(config)# access-list 15 permit 192.168.10.0 0.0.0.255",
+                "(config)# access-list 115 permit tcp any any eq 443",
+              ]}
+            />
+          </div>
+        ) : (
+          <div key="named" className="n10-fade mt-3">
+            <p className="mb-2 text-xs text-muted-foreground">
+              Uses a descriptive name and supports sequence-number editing.
+            </p>
+            <Code
+              lines={[
+                "(config)# ip access-list standard USERS",
+                "(config-std-nacl)# 10 deny host 192.168.10.1",
+                "(config-std-nacl)# 20 permit 192.168.10.0 0.0.0.255",
+                "",
+                "(config)# ip access-list extended WEB_ONLY",
+                "(config-ext-nacl)# 10 permit tcp any any eq 443",
+              ]}
+            />
+          </div>
+        )}
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Apply an ACL to an interface</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick
+            active={direction === "in"}
+            onClick={() => setDirection("in")}
+          >
+            Inbound
+          </Pick>
+          <Pick
+            active={direction === "out"}
+            onClick={() => setDirection("out")}
+          >
+            Outbound
+          </Pick>
+        </div>
+        <div key={direction} className="n10-fade mt-3">
+          <Mini
+            k={direction === "in" ? "Inbound" : "Outbound"}
+            v={
+              direction === "in"
+                ? "Packets entering this interface are checked."
+                : "Packets leaving this interface are checked."
+            }
+            color={direction === "in" ? BLUE : AMBER}
+          />
+          <div className="mt-2">
+            <Code
+              lines={[
+                "(config)# interface g0/0",
+                ` (config-if)# ip access-group 110 ${direction}`,
+                "(config-if)# no shutdown",
+                "",
+                "! remove the applied ACL",
+                ` (config-if)# no ip access-group 110 ${direction}`,
+              ]}
+            />
+          </div>
+        </div>
+        <div className="mt-3">
+          <Tip title="Important">
+            One IPv4 ACL can be applied per interface, per direction. Creating
+            an ACL does not activate it; it must be applied to an interface to
+            filter interface traffic.
+          </Tip>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Verification and useful commands</p>
+        <Code
+          lines={[
+            "# show ip access-lists",
+            "# show ip access-lists 110",
+            "# show running-config | section access-list",
+            "# show running-config interface g0/0",
+            "# show ip interface g0/0",
+          ]}
+        />
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 17 · NAT ───────────────────────── */
+
+function NatSection() {
+  const [mode, setMode] = useState<"static" | "dynamic" | "pat">("pat");
+  const [flow, setFlow] = useState(0);
+  const natSteps = [
+    {
+      title: "Inside host sends a packet",
+      src: "192.168.10.10",
+      dst: "198.51.100.20",
+      note: "The packet leaves the private LAN and reaches the NAT router's inside interface.",
+    },
+    {
+      title: "NAT translates the source",
+      src: "203.0.113.5",
+      dst: "198.51.100.20",
+      note: "The router replaces the inside-local source address with its configured inside-global address. With PAT, it also tracks a transport-layer port.",
+    },
+    {
+      title: "Reply returns to the public address",
+      src: "198.51.100.20",
+      dst: "203.0.113.10",
+      note: "The remote server replies to the translated public address (and translated port, when PAT is used).",
+    },
+    {
+      title: "NAT translates back to the inside host",
+      src: "198.51.100.20",
+      dst: "192.168.10.10",
+      note: "The NAT table identifies the matching translation and forwards the reply to the original inside host.",
+    },
+  ];
+  const step = natSteps[flow];
+
+  const config: Record<typeof mode, string[]> = {
+    static: [
+      "(config)# interface g0/0",
+      "(config-if)# ip nat inside",
+      "(config)# interface g0/1",
+      "(config-if)# ip nat outside",
+      "(config)# ip nat inside source static 192.168.10.10 203.0.113.10",
+    ],
+    dynamic: [
+      "(config)# access-list 1 permit 192.168.10.0 0.0.0.255",
+      "(config)# ip nat pool PUBLIC 203.0.113.10 203.0.113.20 netmask 255.255.255.0",
+      "(config)# interface g0/0",
+      "(config-if)# ip nat inside",
+      "(config)# interface g0/1",
+      "(config-if)# ip nat outside",
+      "(config)# ip nat inside source list 1 pool PUBLIC",
+    ],
+    pat: [
+      "(config)# access-list 1 permit 192.168.10.0 0.0.0.255",
+      "(config)# interface g0/0",
+      "(config-if)# ip nat inside",
+      "(config)# interface g0/1",
+      "(config-if)# ip nat outside",
+      "(config)# ip nat inside source list 1 interface g0/1 overload",
+    ],
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">
+          NAT — Network Address Translation
+        </p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          NAT changes IP address information in packet headers as traffic
+          crosses a router or firewall. It commonly lets private IPv4 hosts
+          communicate with public networks using one or more public addresses.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Mini k="Private IPv4" v="10.0.0.0/8" color={BLUE} />
+          <Mini k="Private IPv4" v="172.16.0.0/12" color={BLUE} />
+          <Mini k="Private IPv4" v="192.168.0.0/16" color={BLUE} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">NAT terminology</p>
+        <div className="mt-3">
+          <SimpleTable
+            head={["Term", "Meaning"]}
+            rows={[
+              [
+                "Inside local",
+                "Address of an inside host as seen on the inside network (often private).",
+              ],
+              [
+                "Inside global",
+                "Address representing the inside host to the outside network (often public).",
+              ],
+              [
+                "Outside global",
+                "Real address assigned to the outside destination.",
+              ],
+              [
+                "Outside local",
+                "Address of the outside destination as it appears to the inside network; often the same as outside global.",
+              ],
+            ]}
+          />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Follow a packet through NAT</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Step through the outgoing packet, translation, reply and reverse
+          translation.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {natSteps.map((x, i) => (
+            <Pick key={x.title} active={flow === i} onClick={() => setFlow(i)}>
+              {i + 1}. {x.title}
+            </Pick>
+          ))}
+        </div>
+        <div key={flow} className="n10-fade mt-3 rounded-lg border p-3">
+          <p className="text-sm font-semibold">{step.title}</p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <Mini k="Source IP" v={step.src} color={BLUE} />
+            <Mini k="Destination IP" v={step.dst} color={PURPLE} />
+          </div>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            {step.note}
+          </p>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={flow === 0}
+            onClick={() => setFlow((v) => v - 1)}
+          >
+            Previous
+          </Button>
+          <Button
+            size="sm"
+            disabled={flow === natSteps.length - 1}
+            onClick={() => setFlow((v) => v + 1)}
+          >
+            Next step
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setFlow(0)}>
+            Reset
+          </Button>
+        </div>
+        <Tip title="Address example">
+          The documentation addresses in this animation are examples only. On a
+          real router, use the public address and interface assigned by your
+          ISP.
+        </Tip>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">Three common NAT methods</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={mode === "static"} onClick={() => setMode("static")}>
+            Static NAT
+          </Pick>
+          <Pick active={mode === "dynamic"} onClick={() => setMode("dynamic")}>
+            Dynamic NAT
+          </Pick>
+          <Pick active={mode === "pat"} onClick={() => setMode("pat")}>
+            PAT / Overload
+          </Pick>
+        </div>
+        {mode === "static" && (
+          <div key="static" className="n10-fade mt-3">
+            <Mini
+              k="Mapping"
+              v="One inside-local address ↔ one inside-global address"
+              color={BLUE}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              A fixed one-to-one mapping. Common when an internal service must
+              be reachable through a consistent public address.
+            </p>
+          </div>
+        )}
+        {mode === "dynamic" && (
+          <div key="dynamic" className="n10-fade mt-3">
+            <Mini
+              k="Mapping"
+              v="An inside-local address temporarily receives an available address from a public pool"
+              color={AMBER}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Mappings are allocated from a configured pool. If the pool has no
+              free addresses, additional inside hosts cannot obtain a
+              translation.
+            </p>
+          </div>
+        )}
+        {mode === "pat" && (
+          <div key="pat" className="n10-fade mt-3">
+            <Mini
+              k="Mapping"
+              v="Many inside hosts share one public IP by using different TCP/UDP port numbers"
+              color={GREEN}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Port Address Translation (PAT), also called NAT overload, is
+              widely used for home and enterprise Internet access.
+            </p>
+          </div>
+        )}
+        <div className="mt-3">
+          <Code lines={config[mode]} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">
+          NAT verification and troubleshooting
+        </p>
+        <Code
+          lines={[
+            "# show ip nat translations",
+            "# show ip nat statistics",
+            "# show running-config | include ip nat",
+            "# show access-lists",
+            "# clear ip nat translation *   ! use carefully in a lab",
+          ]}
+        />
+        <div className="mt-3">
+          <Tip title="Troubleshooting checklist">
+            Check that the inside and outside interfaces are marked correctly,
+            the ACL matches the intended inside source subnet, the NAT pool has
+            free addresses (for dynamic NAT), and routing exists in both
+            directions. For PAT, verify the overload statement and interface
+            address.
+          </Tip>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── 18 · STP & elections ───────────────────────── */
+
+const STP_ELECTIONS = [
+  {
+    id: 0,
+    name: "1 · Root Bridge",
+    c: BLUE,
+    rule: "Lowest Bridge ID (Priority → MAC)",
+    summary:
+      "First step in STP. The Root Bridge acts as the reference point / leader for the topology.",
+    points: [
+      "Switches compare Switch Priority first (default 32768 on every vendor).",
+      "If priorities tie, the lowest 48-bit MAC address wins — often the oldest switch, which is a design vulnerability unless you lower the priority on your chosen root.",
+      "The lowest Bridge ID BPDU is a Superior BPDU; higher ones are Inferior BPDUs.",
+    ],
+  },
+  {
+    id: 1,
+    name: "2 · Root Port (RP)",
+    c: GREEN,
+    rule: "Lowest path cost to the Root Bridge",
+    summary:
+      "One Root Port is elected on every non-root switch to mark the best path to the Root Bridge.",
+    points: [
+      "The Root Bridge itself never has a Root Port.",
+      "Each switch picks the single port with the lowest cumulative path cost to the Root Bridge.",
+      "Tie-breakers: lowest neighbour Bridge ID, then lowest neighbour Port-ID.",
+    ],
+  },
+  {
+    id: 2,
+    name: "3 · Designated Port (DP)",
+    c: PURPLE,
+    rule: "One DP per segment — lowest cost from the Root Bridge",
+    summary:
+      "Each link/segment between switches elects a single Designated Port.",
+    points: [
+      "Every port on the Root Bridge automatically becomes a Designated Port.",
+      "A port cannot be both a Root Port and a Designated Port at the same time.",
+      "If both ends of a segment try to be DP (same cost, e.g., SW4–SW5), a loop exists and one end must block.",
+    ],
+  },
+  {
+    id: 3,
+    name: "4 · Blocking Port (BP)",
+    c: RED,
+    rule: "Losing end of a DP tie: Cost → Bridge ID → Port-ID",
+    summary:
+      "Eliminates the loop by stopping data forwarding on one port of the redundant segment.",
+    points: [
+      "Between two competing DPs, the switch with the lower cost stays DP; if cost ties, the lower Bridge ID stays DP (e.g., SW4 ddd beats SW5 eee, so SW5 blocks).",
+      "If Bridge ID also ties (dual links between two switches), Port-ID breaks the tie: Port-Priority (8-bit, 0–255, default 128) then lowest neighbour port number (e.g., e0/0 beats e0/1).",
+      "A Blocking Port drops real-time data traffic, but still sends and receives BPDUs.",
+    ],
+  },
+];
+
+function StpSection() {
+  const [stpOn, setStpOn] = useState(true);
+  const [elec, setElec] = useState(0);
+  const [prio1, setPrio1] = useState(32768);
+  const [prio2, setPrio2] = useState(32768);
+  const [prio3, setPrio3] = useState(32768);
+
+  const switches = [
+    { name: "SW1", prio: prio1, mac: "aaaa.1111.1111" },
+    { name: "SW2", prio: prio2, mac: "bbbb.2222.2222" },
+    { name: "SW3", prio: prio3, mac: "cccc.3333.3333" },
+  ];
+  const root = [...switches].sort(
+    (a, b) => a.prio - b.prio || a.mac.localeCompare(b.mac),
+  )[0];
+  const cur = STP_ELECTIONS[elec];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">
+          Spanning Tree Protocol (STP — IEEE 802.1D) stops Layer 2 loops
+        </p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          A switch broadcasts frames out every port except the incoming port. In
+          a closed-circuit triangle of switches, broadcasts loop forever,
+          creating a destructive storm that consumes all bandwidth and CPU in
+          seconds or minutes. Enabled by default, STP exchanges{" "}
+          <span className="font-semibold text-foreground">BPDUs</span> every 2
+          seconds to map the topology and block redundant ports.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-4">
+          <Mini k="Standard" v="IEEE 802.1D" color={BLUE} />
+          <Mini k="BPDU multicast MAC" v="0180.c200.0000" color={PURPLE} />
+          <Mini k="BPDU interval" v="2 seconds" color={GREEN} />
+          <Mini k="Default priority" v="32768 (16-bit: 0–65535)" color={AMBER} />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">
+          Closed-circuit triangle: STP ON vs OFF
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Toggle STP to see what happens to a broadcast in a SW1–SW2–SW3
+          triangle.
+        </p>
+        <div className="mt-3 flex gap-2">
+          <Pick active={!stpOn} onClick={() => setStpOn(false)}>
+            STP disabled (loop!)
+          </Pick>
+          <Pick active={stpOn} onClick={() => setStpOn(true)}>
+            STP enabled (blocking port)
+          </Pick>
+        </div>
+        <div
+          key={String(stpOn)}
+          className="n10-fade mt-3 rounded-lg border p-3"
+          style={{
+            borderColor: stpOn ? GREEN : RED,
+            background: `${stpOn ? GREEN : RED}10`,
+          }}
+        >
+          <p
+            className="text-xs font-bold"
+            style={{ color: stpOn ? GREEN : RED }}
+          >
+            {stpOn
+              ? "✓ Loop eliminated: SW3 places one uplink in Blocking state"
+              : "✕ Broadcast storm: frames loop infinitely across SW1 → SW2 → SW3 → SW1"}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {stpOn
+              ? "Real-time data traffic is neither forwarded nor received on SW3's blocking port, breaking the loop. BPDUs still pass so STP can unblock the link if another path fails."
+              : "Every switch floods the broadcast out all other ports repeatedly, choking real-time data traffic and bringing the production network down."}
+          </p>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">
+          Bridge ID & live Root Bridge election
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Bridge ID = Switch Priority (16-bit, 0–65535, default 32768) + Switch
+          MAC (48-bit). Lowest wins. Change a switch&apos;s priority to steer
+          the election.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {[
+            { name: "SW1", mac: "aaaa.1111.1111", val: prio1, set: setPrio1 },
+            { name: "SW2", mac: "bbbb.2222.2222", val: prio2, set: setPrio2 },
+            { name: "SW3", mac: "cccc.3333.3333", val: prio3, set: setPrio3 },
+          ].map((sw) => {
+            const isRoot = root.name === sw.name;
+            return (
+              <div
+                key={sw.name}
+                className="rounded-lg border-2 p-3 transition-all"
+                style={{
+                  borderColor: isRoot ? GREEN : undefined,
+                  background: isRoot ? `${GREEN}12` : undefined,
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold">{sw.name}</span>
+                  {isRoot && (
+                    <Badge variant="secondary" style={{ color: GREEN }}>
+                      Root Bridge
+                    </Badge>
+                  )}
+                </div>
+                <p className="mt-1 font-mono text-[11px] text-muted-foreground">
+                  MAC: {sw.mac}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {[4096, 24576, 32768].map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => sw.set(p)}
+                      className={`rounded border px-2 py-0.5 font-mono text-[10px] font-semibold ${
+                        sw.val === p
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "bg-background text-muted-foreground"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <p key={root.name + root.prio} className="n10-fade mt-3 text-xs font-medium">
+          Winner: <span style={{ color: GREEN }}>{root.name}</span> (Priority{" "}
+          {root.prio}, MAC {root.mac}) sends the{" "}
+          <span className="font-semibold">Superior BPDU</span>.
+        </p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">The 4 STP elections</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {STP_ELECTIONS.map((e) => (
+            <Pick key={e.id} active={elec === e.id} onClick={() => setElec(e.id)}>
+              {e.name}
+            </Pick>
+          ))}
+        </div>
+        <div key={elec} className="n10-fade mt-3 rounded-lg border p-3">
+          <p className="text-sm font-semibold" style={{ color: cur.c }}>
+            {cur.name} — {cur.rule}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {cur.summary}
+          </p>
+          <div className="mt-2">
+            <Bullets items={cur.points} />
+          </div>
+        </div>
+      </Panel>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Panel>
+          <p className="text-sm font-semibold">Default interface costs</p>
+          <div className="mt-3">
+            <SimpleTable
+              head={["Interface speed", "Default STP cost"]}
+              rows={[
+                ["Ethernet (10 Mbps)", "100"],
+                ["Fast Ethernet (100 Mbps)", "19"],
+                ["Gigabit Ethernet (1 Gbps)", "4"],
+                ["10 Gigabit Ethernet (10 Gbps)", "2"],
+              ]}
+            />
+          </div>
+        </Panel>
+        <Panel>
+          <p className="text-sm font-semibold">Port-ID (final tie-breaker)</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            Used when both path cost and Bridge ID tie (for example, dual links
+            between SW1 and SW2).
+          </p>
+          <div className="mt-3 grid gap-2">
+            <Mini
+              k="1 · Port-Priority"
+              v="8-bit value (0–255), default 128 — lowest wins (e.g., 100 beats 128)"
+              color={BLUE}
+            />
+            <Mini
+              k="2 · Port Number"
+              v="If priority ties, lowest port number of the neighbour switch wins (e.g., e0/0 beats e0/1)"
+              color={PURPLE}
+            />
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── 19 · STP types & states ───────────────────────── */
+
+const STP_TYPES = [
+  {
+    name: "CST",
+    full: "Common Spanning Tree",
+    owner: "Open Source (IEEE 802.1D)",
+    inst: "Single STP instance for all VLANs",
+    notes: "Default STP on non-Cisco vendor switches.",
+  },
+  {
+    name: "PVST",
+    full: "Per-VLAN Spanning Tree",
+    owner: "Cisco Proprietary",
+    inst: "One STP instance per VLAN",
+    notes: "ISL only, old VLAN range, not compatible with open-source STPs.",
+  },
+  {
+    name: "PVST+",
+    full: "Per-VLAN Spanning Tree Plus",
+    owner: "Cisco Proprietary",
+    inst: "One STP instance per VLAN",
+    notes:
+      "Default STP in Cisco switches. Supports ISL & dot1q, new VLAN range, compatible with open-source STPs (except MST).",
+  },
+  {
+    name: "RST",
+    full: "Rapid Spanning Tree",
+    owner: "Open Source (IEEE 802.1w)",
+    inst: "Single STP for all VLANs",
+    notes:
+      "Faster convergence by bypassing Listening & Learning states. Supports dot1q and new VLAN range; widely used in real-time.",
+  },
+  {
+    name: "RPVST",
+    full: "Rapid PVST",
+    owner: "Cisco Proprietary",
+    inst: "One STP instance per VLAN",
+    notes: "Same features as PVST with rapid convergence.",
+  },
+  {
+    name: "RPVST+",
+    full: "Rapid PVST+",
+    owner: "Cisco Proprietary",
+    inst: "One STP instance per VLAN",
+    notes: "Same features as PVST+ with rapid convergence capability.",
+  },
+  {
+    name: "MST",
+    full: "Multiple Spanning Tree",
+    owner: "Open Source (IEEE 802.1s)",
+    inst: "Custom instances with manual VLAN mapping",
+    notes: "Map groups of VLANs into custom STP instances as required.",
+  },
+];
+
+const STP_STATES = [
+  {
+    name: "Disabled",
+    time: "—",
+    led: "Off / Red",
+    c: GREY,
+    bpdus: "No",
+    macs: "No",
+    data: "No",
+    desc: "Port is administratively shutdown or err-disabled due to a violation/error. No traffic or BPDUs pass.",
+  },
+  {
+    name: "Blocking",
+    time: "Initial",
+    led: "Orange",
+    c: RED,
+    bpdus: "Yes",
+    macs: "No",
+    data: "No",
+    desc: "Initial state after no shutdown. Drops data frames and does not learn MACs, but sends/receives BPDUs to track topology changes.",
+  },
+  {
+    name: "Listening",
+    time: "15 sec",
+    led: "Orange / Amber",
+    c: AMBER,
+    bpdus: "Yes",
+    macs: "No",
+    data: "No",
+    desc: "Exchanges BPDUs and runs Root Bridge, RP, DP and BP elections. Elected BPs return to Blocking; RPs and DPs move to Learning.",
+  },
+  {
+    name: "Learning",
+    time: "15 sec",
+    led: "Orange / Amber",
+    c: PURPLE,
+    bpdus: "Yes",
+    macs: "Yes",
+    data: "No",
+    desc: "Continues exchanging BPDUs and starts populating the MAC address table, but does not forward data frames yet.",
+  },
+  {
+    name: "Forwarding",
+    time: "Steady",
+    led: "Green",
+    c: GREEN,
+    bpdus: "Yes",
+    macs: "Yes",
+    data: "Yes",
+    desc: "Fully functional state. Forwards both data frames and BPDUs. All Root Ports and Designated Ports reach this state.",
+  },
+];
+
+function StpTypesSection() {
+  const [filter, setFilter] = useState<"all" | "open" | "cisco">("all");
+  const [stateIdx, setStateIdx] = useState(1);
+  const [play, setPlay] = useState(false);
+
+  useEffect(() => {
+    if (!play) return;
+    if (stateIdx >= STP_STATES.length - 1) {
+      setPlay(false);
+      return;
+    }
+    const id = setTimeout(() => setStateIdx((v) => v + 1), 1300);
+    return () => clearTimeout(id);
+  }, [play, stateIdx]);
+
+  const filteredTypes = STP_TYPES.filter((t) =>
+    filter === "all"
+      ? true
+      : filter === "open"
+        ? t.owner.startsWith("Open")
+        : t.owner.startsWith("Cisco"),
+  );
+  const st = STP_STATES[stateIdx];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">
+          7 types of Spanning Tree: Open Source vs Cisco Proprietary
+        </p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          Classic STP (CST) runs one tree for all VLANs and takes 30 seconds to
+          converge. Per-VLAN variants (PVST/PVST+) let you load-balance by
+          electing a different Root Bridge per VLAN, and Rapid variants bypass
+          Listening &amp; Learning for fast convergence.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Pick active={filter === "all"} onClick={() => setFilter("all")}>
+            All (7)
+          </Pick>
+          <Pick active={filter === "open"} onClick={() => setFilter("open")}>
+            Open Source (CST, RST, MST)
+          </Pick>
+          <Pick active={filter === "cisco"} onClick={() => setFilter("cisco")}>
+            Cisco Proprietary (PVST / RPVST)
+          </Pick>
+        </div>
+        <div className="mt-3">
+          <SimpleTable
+            head={["Type", "Standard / Owner", "Instances", "Key details"]}
+            rows={filteredTypes.map((t) => [
+              `${t.name} (${t.full})`,
+              t.owner,
+              t.inst,
+              t.notes,
+            ])}
+          />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">
+          STP switchport states (5 states · 30s classic convergence)
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Tap a state or play the transition timeline from Blocking to
+          Forwarding.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {STP_STATES.map((x, i) => (
+            <Pick
+              key={x.name}
+              active={stateIdx === i}
+              onClick={() => {
+                setPlay(false);
+                setStateIdx(i);
+              }}
+            >
+              {i + 1} · {x.name}
+            </Pick>
+          ))}
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button
+            size="sm"
+            onClick={() => {
+              if (stateIdx >= STP_STATES.length - 1 || stateIdx === 0)
+                setStateIdx(1);
+              setPlay((p) => !p);
+            }}
+          >
+            {play ? "Pause" : "Animate Blocking → Forwarding"}
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setPlay(false);
+              setStateIdx(1);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+        <div className="mt-4 flex items-stretch gap-1">
+          {STP_STATES.map((x, i) => (
+            <div
+              key={x.name}
+              className="flex-1 rounded-md py-2 text-center text-[11px] font-bold transition-all"
+              style={{
+                background: stateIdx === i ? x.c : `${x.c}22`,
+                color: stateIdx === i ? "#fff" : x.c,
+              }}
+            >
+              {x.name}
+              <br />
+              <span className="text-[10px] font-normal">{x.time}</span>
+            </div>
+          ))}
+        </div>
+        <div key={stateIdx} className="n10-fade mt-3 grid gap-2 sm:grid-cols-4">
+          <Mini k="LED / Duration" v={`${st.led} (${st.time})`} color={st.c} />
+          <Mini k="BPDUs" v={st.bpdus} />
+          <Mini k="Learns MACs" v={st.macs} />
+          <Mini k="Forwards Data" v={st.data} />
+        </div>
+        <p
+          key={`desc-${stateIdx}`}
+          className="n10-fade mt-2 text-xs leading-5 text-muted-foreground"
+        >
+          {st.desc}
+        </p>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">The 3 Spanning Tree timers</p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Mini
+            k="Hello Timer"
+            v="2 seconds — how often switches exchange BPDUs"
+            color={BLUE}
+          />
+          <Mini
+            k="Forward Delay Timer"
+            v="15 seconds per state (30s total: Listening 15s + Learning 15s)"
+            color={AMBER}
+          />
+          <Mini
+            k="Max-Age Timer"
+            v="20 seconds — how long BPDU info is kept before assuming a topology change"
+            color={RED}
+          />
+        </div>
+      </Panel>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Panel>
+          <p className="text-sm font-semibold">Spine and Leaf architecture</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            Widely used in modern data centres. Spine switches are clustered and
+            connected to Leaf switches using link bundling for High Availability
+            (HA). Because device clustering and link bundling prevent loops
+            natively,{" "}
+            <span className="font-semibold text-foreground">
+              STP can be disabled
+            </span>{" "}
+            in Spine &amp; Leaf fabrics.
+          </p>
+        </Panel>
+        <Panel>
+          <p className="text-sm font-semibold">Verification commands</p>
+          <div className="mt-3">
+            <Code
+              lines={[
+                "# show spanning-tree",
+                "# show spanning-tree interface",
+                "# show spanning-tree interface f0/0",
+              ]}
+            />
+          </div>
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── 20 · STP BPDUs & config ───────────────────────── */
+
+const TCN_STEPS = [
+  {
+    t: "1 · Topology change occurs on a switch",
+    d: "A link fails or comes up. The switch generates a TCN (Topology Change Notification) BPDU — it carries no details of the change, only that a change happened.",
+    flag: "TCN Flag = 0",
+    dir: "SW (change) → Root Port → Root Bridge",
+    c: AMBER,
+  },
+  {
+    t: "2 · Root Bridge receives and acknowledges the TCN",
+    d: "When the TCN reaches the Root Bridge, the Root Bridge acknowledges it by setting the TCN flag to 1.",
+    flag: "TCN Flag = 1",
+    dir: "Root Bridge flips flag 0 → 1",
+    c: BLUE,
+  },
+  {
+    t: "3 · Root Bridge floods acknowledged TCN out all DPs",
+    d: "The Root Bridge shares the acknowledged TCN (flag = 1) with every other switch through its Designated Ports. Switches receiving it restart the STP process.",
+    flag: "TCN Flag = 1 (flooded)",
+    dir: "Root Bridge → all Designated Ports → all switches",
+    c: GREEN,
+  },
+];
+
+function StpBpduSection() {
+  const [step, setStep] = useState(0);
+  const [scope, setScope] = useState<"global" | "port">("global");
+  const cur = TCN_STEPS[step];
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Panel className="border-primary/30 bg-primary/5">
+        <p className="text-sm font-semibold">
+          Two types of BPDUs: Configuration BPDU &amp; TCN BPDU
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <Mini
+            k="1 · Configuration BPDU"
+            v="Sent every 2 seconds for STP calculations, convergence and maintenance. Splits into Superior BPDU (lowest Bridge ID) and Inferior BPDU (higher Bridge ID)."
+            color={BLUE}
+          />
+          <Mini
+            k="2 · TCN BPDU"
+            v="Topology Change Notification — triggered when a topology change happens, notifying the Root Bridge so the network reconverges."
+            color={AMBER}
+          />
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">TCN BPDU flag flow (0 → 1)</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Step through how a topology change travels to the Root Bridge and back
+          out to the rest of the switches.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {TCN_STEPS.map((x, i) => (
+            <Pick key={x.t} active={step === i} onClick={() => setStep(i)}>
+              Step {i + 1}
+            </Pick>
+          ))}
+        </div>
+        <div key={step} className="n10-fade mt-3 rounded-lg border p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-semibold" style={{ color: cur.c }}>
+              {cur.t}
+            </p>
+            <span
+              className="rounded-full border px-2 py-0.5 font-mono text-[11px] font-bold"
+              style={{ borderColor: cur.c, color: cur.c }}
+            >
+              {cur.flag}
+            </span>
+          </div>
+          <p className="mt-1 font-mono text-[11px] text-foreground">
+            {cur.dir}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            {cur.d}
+          </p>
+        </div>
+        <div className="mt-3 flex gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={step === 0}
+            onClick={() => setStep((v) => v - 1)}
+          >
+            Back
+          </Button>
+          <Button
+            size="sm"
+            disabled={step === TCN_STEPS.length - 1}
+            onClick={() => setStep((v) => v + 1)}
+          >
+            Next step
+          </Button>
+        </div>
+      </Panel>
+
+      <Panel>
+        <p className="text-sm font-semibold">
+          Spanning Tree manipulation: disabling STP
+        </p>
+        <div className="mt-3 flex gap-2">
+          <Pick active={scope === "global"} onClick={() => setScope("global")}>
+            Globally (per VLAN)
+          </Pick>
+          <Pick active={scope === "port"} onClick={() => setScope("port")}>
+            Per switchport
+          </Pick>
+        </div>
+        <div key={scope} className="n10-fade mt-3">
+          {scope === "global" ? (
+            <Code
+              lines={[
+                "(conf)# no spanning-tree vlan 1-4094          ! All VLANs",
+                "(conf)# no spanning-tree vlan 10,20,30-40     ! Range of VLANs",
+                "(conf)# no spanning-tree vlan 10              ! A single VLAN",
+              ]}
+            />
+          ) : (
+            <Code
+              lines={[
+                "(conf)# interface f0/0",
+                "(conf-if)# no spanning-tree vlan 1-4094       ! All VLANs",
+                "(conf-if)# no spanning-tree vlan 10,20,30-40  ! Range of VLANs",
+                "(conf-if)# no spanning-tree vlan 10           ! A specific VLAN",
+                "(conf-if)# no sh",
+                "(conf-if)# exit",
+              ]}
+            />
+          )}
+        </div>
+        <div className="mt-3">
+          <Tip title="Careful">
+            Never disable STP on a live looped Layer 2 topology unless loop
+            prevention is handled by architecture (such as clustered Spine &amp;
+            Leaf with bundled links).
+          </Tip>
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
+/* ───────────────────────── commands cheat sheet ───────────────────────── */
 
 /* ▼▼▼ (4/5) NOTES DATA: add rows as [group, task, command]. Group must be one of GROUPS ▼▼▼ */
 const CMD_ROWS: string[][] = [
@@ -3690,28 +4930,83 @@ const CMD_ROWS: string[][] = [
     "interface vlan 10  +  ip address ...  +  no sh",
   ],
   ["Inter-VLAN", "Verify", "show ip interface brief  |  show ip route"],
-    ["DHCP", "Create a pool", "ip dhcp pool VLAN10"],
+  ["DHCP", "Create a pool", "ip dhcp pool VLAN10"],
   ["DHCP", "Network + mask", "network 192.168.10.0 255.255.255.0"],
   ["DHCP", "Gateway", "default-router 192.168.10.100"],
   ["DHCP", "DNS + domain", "dns-server 8.8.8.8  ·  domain-name www.BSOFT.com"],
   ["DHCP", "Lease", "lease 2 0        ! 2 days 0 hours"],
-  ["DHCP", "Reserve addresses", "ip dhcp excluded-address 192.168.10.1 192.168.10.99"],
+  [
+    "DHCP",
+    "Reserve addresses",
+    "ip dhcp excluded-address 192.168.10.1 192.168.10.99",
+  ],
   ["DHCP", "Verify pools", "show ip dhcp pool"],
-  ["DHCP", "Verify leases", "show ip dhcp binding  |  show ip dhcp binding | include <IP/MAC>"],
+  [
+    "DHCP",
+    "Verify leases",
+    "show ip dhcp binding  |  show ip dhcp binding | include <IP/MAC>",
+  ],
   ["DHCP", "Clear a lease", "clear ip dhcp binding *   (lab only)"],
-  ["ACL", "Create numbered standard ACL", "access-list 10 permit 192.168.10.0 0.0.0.255"],
-  ["ACL", "Create numbered extended ACL", "access-list 110 permit tcp any any eq 443"],
+  [
+    "ACL",
+    "Create numbered standard ACL",
+    "access-list 10 permit 192.168.10.0 0.0.0.255",
+  ],
+  [
+    "ACL",
+    "Create numbered extended ACL",
+    "access-list 110 permit tcp any any eq 443",
+  ],
   ["ACL", "Create named standard ACL", "ip access-list standard USERS"],
   ["ACL", "Create named extended ACL", "ip access-list extended WEB_ONLY"],
-  ["ACL", "Apply ACL inbound/outbound", "ip access-group <name|number> <in|out>"],
+  [
+    "ACL",
+    "Apply ACL inbound/outbound",
+    "ip access-group <name|number> <in|out>",
+  ],
   ["ACL", "Verify ACLs", "show ip access-lists  |  show ip interface g0/0"],
   ["NAT", "Mark inside interface", "ip nat inside"],
   ["NAT", "Mark outside interface", "ip nat outside"],
-  ["NAT", "Static NAT", "ip nat inside source static <inside-local> <inside-global>"],
-  ["NAT", "Create dynamic pool", "ip nat pool <name> <start-ip> <end-ip> netmask <mask>"],
-  ["NAT", "Bind ACL to dynamic pool", "ip nat inside source list <acl> pool <name>"],
-  ["NAT", "PAT using outside interface", "ip nat inside source list <acl> interface g0/1 overload"],
-  ["NAT", "Verify translations", "show ip nat translations  |  show ip nat statistics"],
+  [
+    "NAT",
+    "Static NAT",
+    "ip nat inside source static <inside-local> <inside-global>",
+  ],
+  [
+    "NAT",
+    "Create dynamic pool",
+    "ip nat pool <name> <start-ip> <end-ip> netmask <mask>",
+  ],
+  [
+    "NAT",
+    "Bind ACL to dynamic pool",
+    "ip nat inside source list <acl> pool <name>",
+  ],
+  [
+    "NAT",
+    "PAT using outside interface",
+    "ip nat inside source list <acl> interface g0/1 overload",
+  ],
+  [
+    "NAT",
+    "Verify translations",
+    "show ip nat translations  |  show ip nat statistics",
+  ],
+  [
+    "STP",
+    "Verify STP status",
+    "show spanning-tree  |  show spanning-tree interface f0/0",
+  ],
+  [
+    "STP",
+    "Disable STP globally (all/range/single VLAN)",
+    "no spanning-tree vlan 1-4094  |  10,20,30-40  |  10",
+  ],
+  [
+    "STP",
+    "Disable STP on a switchport",
+    "interface f0/0  +  no spanning-tree vlan <vlan-list>",
+  ],
   // ▲ ADD NEW ROWS ABOVE THIS LINE
 ];
 /* ▼▼▼ (4/5) NOTES DATA: when you add a subtopic, add its name here so the filter pills show it ▼▼▼ */
@@ -3729,7 +5024,8 @@ const GROUPS = [
   "3-Tier",
   "DHCP",
   "ACL",
-  "NAT"
+  "NAT",
+  "STP",
 ];
 
 function CmdsSection() {
@@ -3769,7 +5065,7 @@ function CmdsSection() {
   );
 }
 
-/* ───────────────────────── 11 · common mistakes ───────────────────────── */
+/* ───────────────────────── common mistakes ───────────────────────── */
 
 type Myth = { g: string; wrong: string; right: string };
 /* ▼▼▼ (4/5) NOTES DATA: add new wrong/right cards here. g must be one of GROUPS ▼▼▼ */
@@ -3948,13 +5244,78 @@ const MYTHS: Myth[] = [
     wrong: "Inter-VLAN routing normally happens at the access layer.",
     right: "It typically lives at the distribution layer (SVIs on MLS).",
   },
-  { g: "ACL", wrong: "ACL rules are checked randomly or all rules are evaluated.", right: "Rules are checked in order. The first matching rule decides the result; the rest are skipped." },
-  { g: "ACL", wrong: "An ACL ends with an implicit permit.", right: "IPv4 ACLs have an implicit deny any at the end. Add an explicit permit if other traffic should pass." },
-  { g: "ACL", wrong: "A standard ACL checks source and destination IPs and ports.", right: "A standard IPv4 ACL checks the source IP address only. Extended ACLs can match protocol, source/destination IPs and ports." },
-  { g: "ACL", wrong: "Creating an ACL automatically filters traffic.", right: "For interface filtering, apply it with ip access-group on the interface in the intended direction." },
-  { g: "NAT", wrong: "NAT and ACLs always have the same purpose.", right: "An ACL can filter traffic or identify traffic for NAT. In a NAT match ACL, permit means the source is selected for translation; it does not itself grant network access." },
-  { g: "NAT", wrong: "PAT needs one public IP for every inside host.", right: "PAT lets many inside hosts share one public IPv4 address by tracking transport-layer port numbers." },
-  { g: "NAT", wrong: "ip nat inside and ip nat outside are interchangeable.", right: "Mark the LAN-facing interface ip nat inside and the Internet-facing interface ip nat outside." },
+  {
+    g: "ACL",
+    wrong: "ACL rules are checked randomly or all rules are evaluated.",
+    right:
+      "Rules are checked in order. The first matching rule decides the result; the rest are skipped.",
+  },
+  {
+    g: "ACL",
+    wrong: "An ACL ends with an implicit permit.",
+    right:
+      "IPv4 ACLs have an implicit deny any at the end. Add an explicit permit if other traffic should pass.",
+  },
+  {
+    g: "ACL",
+    wrong: "A standard ACL checks source and destination IPs and ports.",
+    right:
+      "A standard IPv4 ACL checks the source IP address only. Extended ACLs can match protocol, source/destination IPs and ports.",
+  },
+  {
+    g: "ACL",
+    wrong: "Creating an ACL automatically filters traffic.",
+    right:
+      "For interface filtering, apply it with ip access-group on the interface in the intended direction.",
+  },
+  {
+    g: "NAT",
+    wrong: "NAT and ACLs always have the same purpose.",
+    right:
+      "An ACL can filter traffic or identify traffic for NAT. In a NAT match ACL, permit means the source is selected for translation; it does not itself grant network access.",
+  },
+  {
+    g: "NAT",
+    wrong: "PAT needs one public IP for every inside host.",
+    right:
+      "PAT lets many inside hosts share one public IPv4 address by tracking transport-layer port numbers.",
+  },
+  {
+    g: "NAT",
+    wrong: "ip nat inside and ip nat outside are interchangeable.",
+    right:
+      "Mark the LAN-facing interface ip nat inside and the Internet-facing interface ip nat outside.",
+  },
+  {
+    g: "STP",
+    wrong: "A Blocking Port drops BPDUs along with data frames.",
+    right:
+      "A Blocking Port drops real-time data traffic and does not learn MACs, but it still sends and receives BPDUs to monitor topology changes.",
+  },
+  {
+    g: "STP",
+    wrong: "The highest Bridge ID wins the Root Bridge election.",
+    right:
+      "The lowest Bridge ID wins (lowest Priority first, default 32768; then lowest MAC address).",
+  },
+  {
+    g: "STP",
+    wrong: "The Root Bridge also elects a Root Port.",
+    right:
+      "The Root Bridge has no Root Port — all of its ports are Designated Ports.",
+  },
+  {
+    g: "STP",
+    wrong: "A switchport learns MAC addresses during the Listening state.",
+    right:
+      "Listening only exchanges BPDUs and runs elections (15s). MAC learning starts in the Learning state (15s).",
+  },
+  {
+    g: "STP",
+    wrong: "A TCN BPDU carries the full details of what changed in the topology.",
+    right:
+      "A TCN only signals that a change occurred (flag=0 toward Root Bridge); the Root Bridge acknowledges it (flag=1) and floods it out its Designated Ports.",
+  },
   // ▲ ADD NEW CARDS ABOVE THIS LINE
 ];
 
@@ -4040,7 +5401,7 @@ function MythsSection() {
   );
 }
 
-/* ───────────────────────── 12 · interview prep ───────────────────────── */
+/* ───────────────────────── interview prep ───────────────────────── */
 
 type QAi = { g: string; q: string; a: string[] };
 /* ▼▼▼ (4/5) NOTES DATA: add new interview questions here. g must be one of GROUPS ▼▼▼ */
@@ -4246,7 +5607,7 @@ const QA: QAi[] = [
       "Redundant links, often EtherChannel, at each layer.",
     ],
   },
-    {
+  {
     g: "DHCP",
     q: "What is DHCP and what does it provide?",
     a: [
@@ -4298,15 +5659,128 @@ const QA: QAi[] = [
       "The router/MLS converts the local broadcast to a unicast toward the DHCP server, and forwards the reply back.",
     ],
   },
-  { g: "ACL", q: "What is an ACL and what are its two main purposes?", a: ["An ordered set of permit/deny statements.", "It can filter traffic on an interface or identify traffic for features such as NAT and QoS."] },
-  { g: "ACL", q: "How does an ACL process traffic?", a: ["It checks statements from the lowest sequence number to the highest.", "The first match wins. If no statement matches, the implicit deny applies."] },
-  { g: "ACL", q: "Standard ACL vs extended ACL?", a: ["Standard ACLs check the source IP address only.", "Extended ACLs can check protocol, source/destination IP addresses and TCP/UDP ports."] },
-  { g: "ACL", q: "What is the difference between inbound and outbound ACLs?", a: ["Inbound checks packets as they enter the interface.", "Outbound checks packets as they leave the interface."] },
-  { g: "ACL", q: "How do you apply and verify an ACL?", a: ["Apply with ip access-group <ACL> in|out under the interface.", "Verify with show ip access-lists and show ip interface <interface>."] },
-  { g: "NAT", q: "What are inside local and inside global addresses?", a: ["Inside local is the inside host address as used on the inside network.", "Inside global is the address representing that inside host to the outside network."] },
-  { g: "NAT", q: "Compare static NAT, dynamic NAT and PAT.", a: ["Static NAT uses a fixed one-to-one mapping.", "Dynamic NAT allocates an address from a configured public pool.", "PAT lets multiple inside hosts share an address by tracking transport ports."] },
-  { g: "NAT", q: "What must be configured for basic NAT?", a: ["Mark the LAN-facing interface ip nat inside and the WAN-facing interface ip nat outside.", "Configure the translation rule or pool, and ensure routing works in both directions."] },
-  { g: "NAT", q: "How do you verify NAT?", a: ["Use show ip nat translations to inspect mappings.", "Use show ip nat statistics to inspect hits, misses and interface roles."] },
+  {
+    g: "ACL",
+    q: "What is an ACL and what are its two main purposes?",
+    a: [
+      "An ordered set of permit/deny statements.",
+      "It can filter traffic on an interface or identify traffic for features such as NAT and QoS.",
+    ],
+  },
+  {
+    g: "ACL",
+    q: "How does an ACL process traffic?",
+    a: [
+      "It checks statements from the lowest sequence number to the highest.",
+      "The first match wins. If no statement matches, the implicit deny applies.",
+    ],
+  },
+  {
+    g: "ACL",
+    q: "Standard ACL vs extended ACL?",
+    a: [
+      "Standard ACLs check the source IP address only.",
+      "Extended ACLs can check protocol, source/destination IP addresses and TCP/UDP ports.",
+    ],
+  },
+  {
+    g: "ACL",
+    q: "What is the difference between inbound and outbound ACLs?",
+    a: [
+      "Inbound checks packets as they enter the interface.",
+      "Outbound checks packets as they leave the interface.",
+    ],
+  },
+  {
+    g: "ACL",
+    q: "How do you apply and verify an ACL?",
+    a: [
+      "Apply with ip access-group <ACL> in|out under the interface.",
+      "Verify with show ip access-lists and show ip interface <interface>.",
+    ],
+  },
+  {
+    g: "NAT",
+    q: "What are inside local and inside global addresses?",
+    a: [
+      "Inside local is the inside host address as used on the inside network.",
+      "Inside global is the address representing that inside host to the outside network.",
+    ],
+  },
+  {
+    g: "NAT",
+    q: "Compare static NAT, dynamic NAT and PAT.",
+    a: [
+      "Static NAT uses a fixed one-to-one mapping.",
+      "Dynamic NAT allocates an address from a configured public pool.",
+      "PAT lets multiple inside hosts share an address by tracking transport ports.",
+    ],
+  },
+  {
+    g: "NAT",
+    q: "What must be configured for basic NAT?",
+    a: [
+      "Mark the LAN-facing interface ip nat inside and the WAN-facing interface ip nat outside.",
+      "Configure the translation rule or pool, and ensure routing works in both directions.",
+    ],
+  },
+  {
+    g: "NAT",
+    q: "How do you verify NAT?",
+    a: [
+      "Use show ip nat translations to inspect mappings.",
+      "Use show ip nat statistics to inspect hits, misses and interface roles.",
+    ],
+  },
+  {
+    g: "STP",
+    q: "What problem does STP solve and how do BPDUs work?",
+    a: [
+      "STP (IEEE 802.1D) prevents Layer 2 switching loops and broadcast storms by placing redundant ports into a Blocking state.",
+      "Switches exchange BPDUs every 2 seconds using multicast MAC 0180.c200.0000; each BPDU carries the Bridge ID (16-bit priority, default 32768 + 48-bit MAC).",
+    ],
+  },
+  {
+    g: "STP",
+    q: "Walk through the four STP elections and tie-breakers.",
+    a: [
+      "1. Root Bridge: lowest Bridge ID (priority, then MAC).",
+      "2. Root Port: one per non-root switch, lowest path cost to Root Bridge (10M=100, 100M=19, 1G=4, 10G=2).",
+      "3. Designated Port: one per segment, lowest cost from Root Bridge (all Root Bridge ports are DPs).",
+      "4. Blocking Port: on a DP tie, lower cost → lower Bridge ID → lower Port-ID (Port-Priority default 128, then neighbour port number) stays DP; the other blocks.",
+    ],
+  },
+  {
+    g: "STP",
+    q: "Compare the main types of Spanning Tree.",
+    a: [
+      "Open source: CST (802.1D, single instance), RST (802.1w, rapid convergence), MST (802.1s, custom VLAN-to-instance mapping).",
+      "Cisco proprietary: PVST (ISL only), PVST+ (Cisco default, ISL & dot1q), RPVST and RPVST+ (rapid per-VLAN).",
+    ],
+  },
+  {
+    g: "STP",
+    q: "What are the five STP port states and three STP timers?",
+    a: [
+      "States: Disabled, Blocking (BPDUs only), Listening (15s, elections), Learning (15s, MAC learning), Forwarding (data & BPDUs).",
+      "Timers: Hello (2s), Forward Delay (15s per state / 30s total), Max-Age (20s).",
+    ],
+  },
+  {
+    g: "STP",
+    q: "How does a TCN BPDU work?",
+    a: [
+      "When a topology change occurs, the switch sends a TCN BPDU (flag = 0) out its Root Port toward the Root Bridge.",
+      "The Root Bridge acknowledges it by setting flag = 1 and floods it out all Designated Ports so other switches restart STP.",
+    ],
+  },
+  {
+    g: "STP",
+    q: "Why can STP be disabled in a Spine and Leaf architecture?",
+    a: [
+      "Data-centre Spine and Leaf fabrics rely on device clustering and link bundling to deliver High Availability without Layer 2 loops.",
+    ],
+  },
   // ▲ ADD NEW QUESTIONS ABOVE THIS LINE
 ];
 
@@ -4329,7 +5803,9 @@ function InterviewSection() {
           Different VLANs need inter-VLAN routing, for example on a multilayer
           switch with ip routing enabled. For security, move the native VLAN off
           VLAN 1 and tag it to stop double tagging. DTP can negotiate trunks,
-          but best practice is manual trunks with nonegotiate.
+          but best practice is manual trunks with nonegotiate. To stop Layer 2
+          loops on redundant links, STP elects a Root Bridge, Root Ports,
+          Designated Ports and Blocking Ports using BPDUs.
         </p>
         <p className="mt-2 text-[11px] text-muted-foreground">
           Practice it out loud until it flows without notes.
@@ -4386,300 +5862,9 @@ function InterviewSection() {
 
       <Tip title="Rule of thumb">
         Access = one VLAN, untagged. Trunk = many VLANs, tagged (native
-        untagged). Match both ends. Avoid DTP.
+        untagged). Match both ends. Avoid DTP. Lowest Bridge ID wins Root
+        Bridge.
       </Tip>
-    </div>
-  );
-}
-
-/* ───────────────────────── 16 · ACL ───────────────────────── */
-
-function AclSection() {
-  const [kind, setKind] = useState<"standard" | "extended">("standard");
-  const [style, setStyle] = useState<"numbered" | "named">("numbered");
-  const [direction, setDirection] = useState<"in" | "out">("in");
-  const [scenario, setScenario] = useState<"blocked" | "allowed" | "other">("blocked");
-
-  const aclResult = scenario === "blocked"
-    ? { result: "DENY", reason: "The source matches the specific deny rule before the broader permit rule.", color: RED }
-    : scenario === "allowed"
-      ? { result: "PERMIT", reason: "The source matches the subnet permit rule. The ACL stops at the first match.", color: GREEN }
-      : { result: "DENY", reason: "No configured rule matches, so the hidden implicit deny is applied.", color: RED };
-
-  const standardRules = [
-    ["10", "deny", "host 192.168.10.1"],
-    ["20", "deny", "host 192.168.10.10"],
-    ["30", "permit", "192.168.10.0 0.0.0.255"],
-    ["40", "permit", "host 192.168.20.1"],
-    ["50", "permit", "host 192.168.20.2"],
-    ["60", "permit", "host 192.168.20.200"],
-    ["—", "deny", "any (implicit, hidden)"],
-  ];
-
-  return (
-    <div className="flex flex-col gap-4">
-      <Panel className="border-primary/30 bg-primary/5">
-        <p className="text-sm font-semibold">ACL = Access Control List</p>
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          An ACL is an ordered list of permit and deny statements. It can filter traffic on an interface, or identify traffic for features such as NAT, QoS and policy-based routing. The meaning of permit/deny depends on the feature using the ACL.
-        </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <Mini k="Rule order" v="Top to bottom" color={BLUE} />
-          <Mini k="Matching" v="First match wins" color={GREEN} />
-          <Mini k="End of every ACL" v="Implicit deny any" color={RED} />
-        </div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">How ACL processing works</p>
-        <div className="mt-3">
-          <SimpleTable
-            head={["Sequence", "Action", "Match"]}
-            rows={standardRules}
-          />
-        </div>
-        <div className="mt-3">
-          <Tip title="Remember">
-            The router checks the lowest sequence number first. Once a statement matches, later statements are ignored. If nothing matches, the implicit deny blocks the traffic.
-          </Tip>
-        </div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">Try the first-match rule flow</p>
-        <p className="mt-1 text-xs text-muted-foreground">Choose a source and see which rule decides its fate.</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Pick active={scenario === "blocked"} onClick={() => setScenario("blocked")}>192.168.10.1</Pick>
-          <Pick active={scenario === "allowed"} onClick={() => setScenario("allowed")}>192.168.10.50</Pick>
-          <Pick active={scenario === "other"} onClick={() => setScenario("other")}>192.168.30.5</Pick>
-        </div>
-        <div key={scenario} className="n10-fade mt-3 rounded-lg border p-3">
-          <p className="text-sm font-bold" style={{ color: aclResult.color }}>{aclResult.result}</p>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">{aclResult.reason}</p>
-        </div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">ACL types and what they inspect</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Pick active={kind === "standard"} onClick={() => setKind("standard")}>Standard</Pick>
-          <Pick active={kind === "extended"} onClick={() => setKind("extended")}>Extended</Pick>
-        </div>
-        {kind === "standard" ? (
-          <div key="std" className="n10-fade mt-3 flex flex-col gap-2">
-            <Mini k="Checks" v="Source IPv4 address only" color={BLUE} />
-            <Mini k="Number ranges" v="1–99 and 1300–1999" />
-            <Code lines={[
-              "(config)# access-list 10 deny host 192.168.10.1",
-              "(config)# access-list 10 permit 192.168.10.0 0.0.0.255",
-              "(config)# access-list 10 permit any",
-            ]} />
-          </div>
-        ) : (
-          <div key="ext" className="n10-fade mt-3 flex flex-col gap-2">
-            <Mini k="Checks" v="Protocol, source/destination IP, and TCP/UDP ports" color={PURPLE} />
-            <Mini k="Number ranges" v="100–199 and 2000–2699" />
-            <Code lines={[
-              "(config)# access-list 110 permit tcp host 192.168.10.10 host 192.168.20.20 eq 443",
-              "(config)# access-list 110 deny tcp host 192.168.10.10 any eq 22",
-              "(config)# access-list 110 permit ip any any",
-            ]} />
-          </div>
-        )}
-        <div className="mt-3">
-          <Tip title="Placement">
-            Standard ACLs match only the source, so they are commonly placed closer to the destination. Extended ACLs can match source and destination details, so they are commonly placed closer to the source.
-          </Tip>
-        </div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">Numbered vs named ACL</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Pick active={style === "numbered"} onClick={() => setStyle("numbered")}>Numbered</Pick>
-          <Pick active={style === "named"} onClick={() => setStyle("named")}>Named</Pick>
-        </div>
-        {style === "numbered" ? (
-          <div key="numbered" className="n10-fade mt-3">
-            <p className="mb-2 text-xs text-muted-foreground">Identified by a number that indicates the ACL type.</p>
-            <Code lines={[
-              "(config)# access-list 15 permit 192.168.10.0 0.0.0.255",
-              "(config)# access-list 115 permit tcp any any eq 443",
-            ]} />
-          </div>
-        ) : (
-          <div key="named" className="n10-fade mt-3">
-            <p className="mb-2 text-xs text-muted-foreground">Uses a descriptive name and supports sequence-number editing.</p>
-            <Code lines={[
-              "(config)# ip access-list standard USERS",
-              "(config-std-nacl)# 10 deny host 192.168.10.1",
-              "(config-std-nacl)# 20 permit 192.168.10.0 0.0.0.255",
-              "",
-              "(config)# ip access-list extended WEB_ONLY",
-              "(config-ext-nacl)# 10 permit tcp any any eq 443",
-            ]} />
-          </div>
-        )}
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">Apply an ACL to an interface</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Pick active={direction === "in"} onClick={() => setDirection("in")}>Inbound</Pick>
-          <Pick active={direction === "out"} onClick={() => setDirection("out")}>Outbound</Pick>
-        </div>
-        <div key={direction} className="n10-fade mt-3">
-          <Mini k={direction === "in" ? "Inbound" : "Outbound"} v={direction === "in" ? "Packets entering this interface are checked." : "Packets leaving this interface are checked."} color={direction === "in" ? BLUE : AMBER} />
-          <div className="mt-2">
-            <Code lines={[
-              "(config)# interface g0/0",
-              ` (config-if)# ip access-group 110 ${direction}`,
-              "(config-if)# no shutdown",
-              "",
-              "! remove the applied ACL",
-              ` (config-if)# no ip access-group 110 ${direction}`,
-            ]} />
-          </div>
-        </div>
-        <div className="mt-3">
-          <Tip title="Important">
-            One IPv4 ACL can be applied per interface, per direction. Creating an ACL does not activate it; it must be applied to an interface to filter interface traffic.
-          </Tip>
-        </div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">Verification and useful commands</p>
-        <Code lines={[
-          "# show ip access-lists",
-          "# show ip access-lists 110",
-          "# show running-config | section access-list",
-          "# show running-config interface g0/0",
-          "# show ip interface g0/0",
-        ]} />
-      </Panel>
-    </div>
-  );
-}
-
-/* ───────────────────────── 17 · NAT ───────────────────────── */
-
-function NatSection() {
-  const [mode, setMode] = useState<"static" | "dynamic" | "pat">("pat");
-  const [flow, setFlow] = useState(0);
-  const natSteps = [
-    { title: "Inside host sends a packet", src: "192.168.10.10", dst: "198.51.100.20", note: "The packet leaves the private LAN and reaches the NAT router's inside interface." },
-    { title: "NAT translates the source", src: "203.0.113.5", dst: "198.51.100.20", note: "The router replaces the inside-local source address with its configured inside-global address. With PAT, it also tracks a transport-layer port." },
-    { title: "Reply returns to the public address", src: "198.51.100.20", dst: "203.0.113.10", note: "The remote server replies to the translated public address (and translated port, when PAT is used)." },
-    { title: "NAT translates back to the inside host", src: "198.51.100.20", dst: "192.168.10.10", note: "The NAT table identifies the matching translation and forwards the reply to the original inside host." },
-  ];
-  const step = natSteps[flow];
-
-  const config: Record<typeof mode, string[]> = {
-    static: [
-      "(config)# interface g0/0",
-      "(config-if)# ip nat inside",
-      "(config)# interface g0/1",
-      "(config-if)# ip nat outside",
-      "(config)# ip nat inside source static 192.168.10.10 203.0.113.10",
-    ],
-    dynamic: [
-      "(config)# access-list 1 permit 192.168.10.0 0.0.0.255",
-      "(config)# ip nat pool PUBLIC 203.0.113.10 203.0.113.20 netmask 255.255.255.0",
-      "(config)# interface g0/0",
-      "(config-if)# ip nat inside",
-      "(config)# interface g0/1",
-      "(config-if)# ip nat outside",
-      "(config)# ip nat inside source list 1 pool PUBLIC",
-    ],
-    pat: [
-      "(config)# access-list 1 permit 192.168.10.0 0.0.0.255",
-      "(config)# interface g0/0",
-      "(config-if)# ip nat inside",
-      "(config)# interface g0/1",
-      "(config-if)# ip nat outside",
-      "(config)# ip nat inside source list 1 interface g0/1 overload",
-    ],
-  };
-
-  return (
-    <div className="flex flex-col gap-4">
-      <Panel className="border-primary/30 bg-primary/5">
-        <p className="text-sm font-semibold">NAT — Network Address Translation</p>
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          NAT changes IP address information in packet headers as traffic crosses a router or firewall. It commonly lets private IPv4 hosts communicate with public networks using one or more public addresses.
-        </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <Mini k="Private IPv4" v="10.0.0.0/8" color={BLUE} />
-          <Mini k="Private IPv4" v="172.16.0.0/12" color={BLUE} />
-          <Mini k="Private IPv4" v="192.168.0.0/16" color={BLUE} />
-        </div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">NAT terminology</p>
-        <div className="mt-3">
-          <SimpleTable head={["Term", "Meaning"]} rows={[
-            ["Inside local", "Address of an inside host as seen on the inside network (often private)."],
-            ["Inside global", "Address representing the inside host to the outside network (often public)."],
-            ["Outside global", "Real address assigned to the outside destination."],
-            ["Outside local", "Address of the outside destination as it appears to the inside network; often the same as outside global."],
-          ]} />
-        </div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">Follow a packet through NAT</p>
-        <p className="mt-1 text-xs text-muted-foreground">Step through the outgoing packet, translation, reply and reverse translation.</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {natSteps.map((x, i) => <Pick key={x.title} active={flow === i} onClick={() => setFlow(i)}>{i + 1}. {x.title}</Pick>)}
-        </div>
-        <div key={flow} className="n10-fade mt-3 rounded-lg border p-3">
-          <p className="text-sm font-semibold">{step.title}</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <Mini k="Source IP" v={step.src} color={BLUE} />
-            <Mini k="Destination IP" v={step.dst} color={PURPLE} />
-          </div>
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">{step.note}</p>
-        </div>
-        <div className="mt-3 flex gap-2">
-          <Button size="sm" variant="outline" disabled={flow === 0} onClick={() => setFlow(v => v - 1)}>Previous</Button>
-          <Button size="sm" disabled={flow === natSteps.length - 1} onClick={() => setFlow(v => v + 1)}>Next step</Button>
-          <Button size="sm" variant="ghost" onClick={() => setFlow(0)}>Reset</Button>
-        </div>
-        <Tip title="Address example">
-          The documentation addresses in this animation are examples only. On a real router, use the public address and interface assigned by your ISP.
-        </Tip>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">Three common NAT methods</p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Pick active={mode === "static"} onClick={() => setMode("static")}>Static NAT</Pick>
-          <Pick active={mode === "dynamic"} onClick={() => setMode("dynamic")}>Dynamic NAT</Pick>
-          <Pick active={mode === "pat"} onClick={() => setMode("pat")}>PAT / Overload</Pick>
-        </div>
-        {mode === "static" && <div key="static" className="n10-fade mt-3"><Mini k="Mapping" v="One inside-local address ↔ one inside-global address" color={BLUE} /><p className="mt-2 text-xs text-muted-foreground">A fixed one-to-one mapping. Common when an internal service must be reachable through a consistent public address.</p></div>}
-        {mode === "dynamic" && <div key="dynamic" className="n10-fade mt-3"><Mini k="Mapping" v="An inside-local address temporarily receives an available address from a public pool" color={AMBER} /><p className="mt-2 text-xs text-muted-foreground">Mappings are allocated from a configured pool. If the pool has no free addresses, additional inside hosts cannot obtain a translation.</p></div>}
-        {mode === "pat" && <div key="pat" className="n10-fade mt-3"><Mini k="Mapping" v="Many inside hosts share one public IP by using different TCP/UDP port numbers" color={GREEN} /><p className="mt-2 text-xs text-muted-foreground">Port Address Translation (PAT), also called NAT overload, is widely used for home and enterprise Internet access.</p></div>}
-        <div className="mt-3"><Code lines={config[mode]} /></div>
-      </Panel>
-
-      <Panel>
-        <p className="text-sm font-semibold">NAT verification and troubleshooting</p>
-        <Code lines={[
-          "# show ip nat translations",
-          "# show ip nat statistics",
-          "# show running-config | include ip nat",
-          "# show access-lists",
-          "# clear ip nat translation *   ! use carefully in a lab",
-        ]} />
-        <div className="mt-3">
-          <Tip title="Troubleshooting checklist">
-            Check that the inside and outside interfaces are marked correctly, the ACL matches the intended inside source subnet, the NAT pool has free addresses (for dynamic NAT), and routing exists in both directions. For PAT, verify the overload statement and interface address.
-          </Tip>
-        </div>
-      </Panel>
     </div>
   );
 }
@@ -4716,10 +5901,11 @@ export function SwitchingVlanExplainer() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle className="text-base">
-              CCNA: Switching, VLANs, ACL and NAT
+              CCNA: Switching, VLANs, STP, ACL and NAT
             </CardTitle>
             <CardDescription className="mt-1">
-              Switching, VLANs, trunking, DHCP, ACL and NAT. Tap through the sections in any order.
+              Switching, VLANs, trunking, DHCP, ACL, NAT and STP. Tap through
+              the sections in any order.
             </CardDescription>
           </div>
           <Badge variant="secondary">Interactive</Badge>
@@ -4753,6 +5939,9 @@ export function SwitchingVlanExplainer() {
           {tab === "dhcpcfg" && <DhcpCfgSection />}
           {tab === "acl" && <AclSection />}
           {tab === "nat" && <NatSection />}
+          {tab === "stp" && <StpSection />}
+          {tab === "stptypes" && <StpTypesSection />}
+          {tab === "stpbpdu" && <StpBpduSection />}
           {/* ▼▼▼ (3/5) RENDER: add new sections here, for example {tab === "vtp" && <VtpSection />} ▼▼▼ */}
           {tab === "cmds" && <CmdsSection />}
           {tab === "myths" && <MythsSection />}
