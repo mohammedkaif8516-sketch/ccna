@@ -4,12 +4,12 @@
  * Section 5 – Switch loops, Spanning Tree Protocol and LACP
  * Transcript range: 06:14 – 08:44
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section05LoopsStpLacp onComplete={() => goToSection(6)} />
  */
 
 import { Fragment, useCallback, useEffect, useState, type ComponentType, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript (06:14 – 08:44)                                          */

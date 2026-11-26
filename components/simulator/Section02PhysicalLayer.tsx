@@ -4,7 +4,7 @@
  * Section 2 – Layer 1: The physical layer
  * Transcript range: 00:36 – 02:31
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section02PhysicalLayer onComplete={() => goToSection(3)} />
  *
  * Every sentence of the transcript for this range is in BEATS below, in order.
@@ -12,7 +12,7 @@
  */
 
 import { Fragment, useCallback, useEffect, useState, type ComponentType, type ReactNode } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript (00:36 – 02:31)                                          */

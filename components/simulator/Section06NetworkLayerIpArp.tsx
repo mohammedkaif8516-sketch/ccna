@@ -4,12 +4,12 @@
  * Section 6 – Layer 3: IP addresses, subnet masks, ARP and the life of a packet
  * Transcript range: 08:44 – 13:12 (sponsor segment skipped)
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section06NetworkLayerIpArp onComplete={() => goToSection(7)} />
  */
 
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript                                                          */

@@ -4,12 +4,12 @@
  * Section 4 – VLANs and trunks
  * Transcript range: 05:06 – 06:14
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section04VlansTrunks onComplete={() => goToSection(5)} />
  */
 
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript (05:06 – 06:14)                                          */

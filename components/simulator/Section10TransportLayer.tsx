@@ -4,12 +4,12 @@
  * Section 10 – Layer 4: Ports, segments, TCP and UDP
  * Transcript range: 20:01 – 21:26
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section10TransportLayer onComplete={() => goToSection(11)} />
  */
 
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript                                                          */

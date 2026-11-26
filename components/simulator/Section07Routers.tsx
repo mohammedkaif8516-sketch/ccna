@@ -4,12 +4,12 @@
  * Section 7 – Routers: default gateway, routing tables, static/dynamic/default routes
  * Transcript range: 13:12 – 16:10
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section07Routers onComplete={() => goToSection(8)} />
  */
 
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript                                                          */

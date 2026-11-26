@@ -4,12 +4,12 @@
  * Section 3 – Layer 2: The data link layer (switches, frames, MAC table)
  * Transcript range: 02:31 – 05:06
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section03DataLinkLayer onComplete={() => goToSection(4)} />
  */
 
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript (02:31 – 05:06)                                          */

@@ -4,7 +4,7 @@
  * Section 1 – Intro: the MAC address and the four layers
  * Transcript range: 00:00 – 00:36
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section01Intro onComplete={() => goToSection(2)} />
  *
  * Every sentence of the transcript for this range is in BEATS below,
@@ -12,7 +12,7 @@
  */
 
 import { Fragment, useCallback, useEffect, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript (verbatim, 00:00 – 00:36)                                */

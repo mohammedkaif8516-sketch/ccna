@@ -4,12 +4,12 @@
  * Section 9 – Private vs public IPs, IPv4 running out, IPv6, NAT and PAT
  * Transcript range: 17:49 – 20:01
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section09PrivateIpNat onComplete={() => goToSection(10)} />
  */
 
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript                                                          */

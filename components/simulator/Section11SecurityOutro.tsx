@@ -7,12 +7,12 @@
  * Note: the supplied transcript file ends mid-sentence ("...I'll see you guys next"),
  * so the last beat ends the same way.
  *
- * Dependencies: react, framer-motion, tailwindcss
+ * Dependencies: react, motion/react, tailwindcss
  * Usage:  <Section11SecurityOutro onComplete={() => finishCourse()} />
  */
 
 import { Fragment, useCallback, useEffect, useRef, useState, type ComponentType } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 /* ------------------------------------------------------------------ */
 /* Transcript                                                          */
