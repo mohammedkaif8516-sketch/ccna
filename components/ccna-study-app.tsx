@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Copy } from "lucide-react";
+import { Copy, Orbit } from "lucide-react";
 import { useCompletedTopics, progressKey } from "@/lib/use-completed";
 import {
   useMemo,
@@ -139,6 +139,17 @@ import DoraExplorer from "@/components/extras/dhcp-dora";
 import DhcpServerConfig from "@/components/extras/dhcp-conf";
 import DhcpServerLabs from "@/components/labs/dhcp-server-lab";
 import NatOspfDiamondLab from "@/components/labs/nat-ospf-lab";
+import Section01Intro from "@/components/simulator/Section01Intro";
+import Section02PhysicalLayer from "@/components/simulator/Section02PhysicalLayer";
+import Section03DataLinkLayer from "@/components/simulator/Section03DataLinkLayer";
+import Section04VlansTrunks from "@/components/simulator/Section04VlansTrunks";
+import Section05LoopsStpLacp from "@/components/simulator/Section05LoopsStpLacp";
+import Section06NetworkLayerArp from "@/components/simulator/Section06NetworkLayerIpArp";
+import Section07Routers from "@/components/simulator/Section07Routers";
+import Section08DhcpDns from "@/components/simulator/Section08DhcpDns";
+import Section09PrivateIpNat from "@/components/simulator/Section09PrivateIpNat";
+import Section10TransportLayer from "@/components/simulator/Section10TransportLayer";
+import Section11SecurityOutro from "@/components/simulator/Section11SecurityOutro";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -572,6 +583,7 @@ const iconMap = {
   terminal: Terminal,
   route: Route,
   "arrow-right-left": ArrowRightLeft,
+  orbit: Orbit,
 };
 
 function SquareLoader() {
@@ -2487,6 +2499,110 @@ export default function CcnaStudyApp() {
                 {current.slug === "nat-ospf-diamond-lab" && (
                   <NatOspfDiamondLab />
                 )}
+                {/* Section 01 — Intro / MAC address & four layers */}
+                {current.slug ===
+                  "mac-address-the-foundation-of-networking" && (
+                  <Section01Intro />
+                )}
+                {current.slug === "the-four-layers-from-the-ground-up" && (
+                  <Section01Intro />
+                )}
+
+                {/* Section 02 — Physical layer */}
+                {current.slug === "bits-bytes-and-point-to-point-networks" && (
+                  <Section02PhysicalLayer />
+                )}
+                {current.slug === "copper-fiber-and-wi-fi" && (
+                  <Section02PhysicalLayer />
+                )}
+                {current.slug === "why-you-cannot-cable-every-device" && (
+                  <Section02PhysicalLayer />
+                )}
+
+                {/* Section 03 — Data link / switches, frames, MAC table */}
+                {current.slug === "switches-and-frames" && (
+                  <Section03DataLinkLayer />
+                )}
+                {current.slug === "unicast-broadcast-and-multicast" && (
+                  <Section03DataLinkLayer />
+                )}
+                {current.slug ===
+                  "mac-address-table-learning-forwarding-and-flooding" && (
+                  <Section03DataLinkLayer />
+                )}
+
+                {/* Section 04 — VLANs and trunks */}
+                {current.slug === "why-vlans-exist" && <Section04VlansTrunks />}
+                {current.slug === "assigning-ports-to-vlans" && (
+                  <Section04VlansTrunks />
+                )}
+                {current.slug === "trunk-ports-and-vlan-tags" && (
+                  <Section04VlansTrunks />
+                )}
+
+                {/* Section 05 — Loops, STP, LACP */}
+                {current.slug === "switch-loops-and-broadcast-storms" && (
+                  <Section05LoopsStpLacp />
+                )}
+                {current.slug === "spanning-tree-protocol" && (
+                  <Section05LoopsStpLacp />
+                )}
+                {current.slug === "bottlenecks-and-lacp" && (
+                  <Section05LoopsStpLacp />
+                )}
+
+                {/* Section 06 — Network layer, IP, subnets, ARP */}
+                {current.slug === "why-ip-addresses" && (
+                  <Section06NetworkLayerArp />
+                )}
+                {current.slug === "subnet-masks-network-and-host-portions" && (
+                  <Section06NetworkLayerArp />
+                )}
+                {current.slug === "arp-and-the-arp-table" && (
+                  <Section06NetworkLayerArp />
+                )}
+                {current.slug === "life-of-a-packet-on-one-network" && (
+                  <Section06NetworkLayerArp />
+                )}
+
+                {/* Section 07 — Routers and routing */}
+                {current.slug === "routers-and-the-default-gateway" && (
+                  <Section07Routers />
+                )}
+                {current.slug === "routing-tables" && <Section07Routers />}
+                {current.slug === "static-dynamic-and-default-routes" && (
+                  <Section07Routers />
+                )}
+
+                {/* Section 08 — DHCP and DNS */}
+                {current.slug === "dhcp-and-the-dora-process" && (
+                  <Section08DhcpDns />
+                )}
+                {current.slug === "dns-names-to-ip-addresses" && (
+                  <Section08DhcpDns />
+                )}
+
+                {/* Section 09 — Private IPs, IPv6, NAT, PAT */}
+                {current.slug === "private-and-public-ip-addresses" && (
+                  <Section09PrivateIpNat />
+                )}
+                {current.slug === "ipv4-exhaustion-and-ipv6" && (
+                  <Section09PrivateIpNat />
+                )}
+                {current.slug === "nat-and-pat" && <Section09PrivateIpNat />}
+
+                {/* Section 10 — Transport layer: ports, TCP, UDP */}
+                {current.slug === "ports-and-common-services" && (
+                  <Section10TransportLayer />
+                )}
+                {current.slug === "segments" && <Section10TransportLayer />}
+                {current.slug === "tcp-vs-udp" && <Section10TransportLayer />}
+
+                {/* Section 11 — Security: ACLs and firewalls */}
+                {current.slug === "access-control-lists" && (
+                  <Section11SecurityOutro />
+                )}
+                {current.slug === "firewalls" && <Section11SecurityOutro />}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
                     type="button"

@@ -7317,6 +7317,700 @@ TRANSLATION TABLE:
 
     ],
   },
+  // ─────────────────────────────────────────────────────────────
+  // 12 · ANIMATED · THE MAC ADDRESS AND THE FOUR LAYERS
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-mac-address-and-the-four-layers',
+    number: '12',
+    title: 'Animated: The MAC Address and the Four Layers',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'An animated walkthrough that starts with the MAC address and builds the internet from the ground up in four layers.',
+    subtopics: [
+      {
+        slug: 'mac-address-the-foundation-of-networking',
+        title: 'The MAC address: the foundation of networking',
+        description: 'A MAC address is a unique identifier burned into every networked device, and no device can communicate without one.',
+        blocks: [
+          { type: 'heading', text: 'What a MAC address is' },
+          { type: 'paragraph', text: 'A MAC address is a unique identifier burned into every networked device — phones, PCs, even an internet-connected fridge. None of these devices can communicate without one, which makes it the foundation of every networking concept that follows.' },
+          { type: 'heading', text: 'How it is written' },
+          {
+            type: 'bullets', items: [
+              'Six bytes written as hex pairs, for example A4:83:E7:2F:19:C0.',
+              'The first half identifies the manufacturer; the second half identifies the device.',
+              '1 byte = 8 bits.',
+              'Technically it can be changed, but treat it as permanent and unique to the device.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'MAC address', value: 'Unique, burned-in device identifier' },
+          { label: 'Format', value: 'Six hex pairs, e.g. A4:83:E7:2F:19:C0' },
+          { label: 'Halves', value: 'Manufacturer + device' },
+        ],
+      },
+      {
+        slug: 'the-four-layers-from-the-ground-up',
+        title: 'The four layers, from the ground up',
+        description: 'The internet is easier to follow as four layers, from the physical cable up to the transport of data between applications.',
+        blocks: [
+          { type: 'heading', text: 'The journey' },
+          { type: 'paragraph', text: 'Following the data from the physical cables plugged into the wall all the way to a server on the other side of the world is easiest when the internet is split into four layers.' },
+          { type: 'heading', text: 'The layers' },
+          {
+            type: 'bullets', items: [
+              'Layer 1 — Physical: cables, light, and radio waves.',
+              'Layer 2 — Data link: MAC addresses, switches, frames, VLANs.',
+              'Layer 3 — Network: IP addresses, routers, ARP, NAT.',
+              'Layer 4 — Transport: ports, TCP, and UDP.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Layer 1', value: 'Physical' },
+          { label: 'Layer 2', value: 'Data link' },
+          { label: 'Layer 3', value: 'Network' },
+          { label: 'Layer 4', value: 'Transport' },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 13 · ANIMATED · LAYER 1: THE PHYSICAL LAYER
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-layer-1-the-physical-layer',
+    number: '13',
+    title: 'Animated: Layer 1 — The Physical Layer',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'How zeros and ones become physical signals over copper, fiber, and radio waves.',
+    subtopics: [
+      {
+        slug: 'bits-bytes-and-point-to-point-networks',
+        title: 'Bits, bytes, and point-to-point networks',
+        description: 'Computers only understand zeros and ones, and the physical layer turns them into signals that cross a cable.',
+        blocks: [
+          { type: 'heading', text: 'Point-to-point network' },
+          { type: 'paragraph', text: 'Two computers connected by an Ethernet cable form the simplest possible network, called a point-to-point network. The problem is how they actually talk.' },
+          { type: 'heading', text: 'Bits and bytes' },
+          {
+            type: 'bullets', items: [
+              'Computers only know zeros and ones.',
+              'Each zero or one is a bit.',
+              'Eight bits make one byte.',
+              'The physical layer has one job: turn those bits into physical signals that travel from one side to the other.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Bit', value: 'A single 0 or 1' },
+          { label: 'Byte', value: '8 bits' },
+          { label: 'Point-to-point', value: 'Two devices, one link' },
+        ],
+      },
+      {
+        slug: 'copper-fiber-and-wi-fi',
+        title: 'Copper, fiber, and Wi-Fi',
+        description: 'Ethernet uses electricity, fiber uses light, and Wi-Fi uses radio waves; each has different range and speed.',
+        blocks: [
+          { type: 'heading', text: 'Ethernet (copper)' },
+          {
+            type: 'bullets', items: [
+              'Sends pulses of electricity down a copper wire to signify ones and zeros.',
+              'Maximum range is about 100 meters because the signal fades over distance.',
+            ]
+          },
+          { type: 'heading', text: 'Fiber optic' },
+          {
+            type: 'bullets', items: [
+              'Sends pulses of light instead of electricity.',
+              'Much faster and can go much farther than 100 meters.',
+              'Used for the undersea cables that connect the world; an unshielded cable can be damaged, for example by sharks.',
+            ]
+          },
+          { type: 'heading', text: 'Wi-Fi' },
+          { type: 'paragraph', text: 'Phones and laptops have transmitters and receivers built in. They send the zeros and ones as radio waves instead of over a physical cable.' },
+        ],
+        quickReference: [
+          { label: 'Copper Ethernet', value: 'Electricity, about 100 m max' },
+          { label: 'Fiber', value: 'Light, faster and farther' },
+          { label: 'Wi-Fi', value: 'Radio waves, no cable' },
+        ],
+      },
+      {
+        slug: 'why-you-cannot-cable-every-device',
+        title: 'Why you cannot cable every device to every other',
+        description: 'Cabling every pair of devices does not scale, which is the problem layer 2 solves.',
+        blocks: [
+          { type: 'paragraph', text: 'Sending bits between two computers is easy. Adding a third, a fourth, or a thousandth makes running a cable between every pair of devices impractical. That problem leads to layer 2 and back to the MAC address.' },
+          { type: 'bullets', items: ['Cables needed for n devices cabled to each other: n × (n − 1) ÷ 2.', '4 devices need 6 cables; 16 devices need 120.'] },
+        ],
+        quickReference: [{ label: 'Full-mesh cables', value: 'n × (n − 1) ÷ 2' }],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 14 · ANIMATED · LAYER 2: SWITCHES, FRAMES, AND THE MAC TABLE
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-layer-2-switches-frames-and-the-mac-table',
+    number: '14',
+    title: 'Animated: Layer 2 — Switches, Frames, and the MAC Table',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'How a switch connects many devices, wraps data in frames, and learns where every MAC address lives.',
+    subtopics: [
+      {
+        slug: 'switches-and-frames',
+        title: 'Switches and frames',
+        description: 'A switch connects many devices, and layer 2 wraps raw bits into frames carrying source and destination MAC addresses.',
+        blocks: [
+          { type: 'heading', text: 'The switch' },
+          { type: 'paragraph', text: 'A switch connects a bunch of devices together and is what modern networks are built on. Layer 2 uses MAC addresses to deliver data between them.' },
+          { type: 'heading', text: 'The frame' },
+          {
+            type: 'bullets', items: [
+              'Layer 2 wraps the raw zeros and ones into a package called a frame.',
+              'The most important parts of every frame are the source MAC address and the destination MAC address.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Frame', value: 'Layer 2 package with source and destination MAC' },
+          { label: 'Switch', value: 'Connects devices within one network' },
+        ],
+      },
+      {
+        slug: 'unicast-broadcast-and-multicast',
+        title: 'Unicast, broadcast, and multicast',
+        description: 'Three types of destination traffic: one to one, one to everyone, and one to many.',
+        blocks: [
+          {
+            type: 'bullets', items: [
+              'Unicast — one to one, like a private text to a single MAC address.',
+              'Broadcast — one to everyone, like shouting; the destination MAC is all Fs (FF:FF:FF:FF:FF:FF).',
+              'Multicast — one to many, like a group chat; only a select handful of devices receive it.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Unicast', value: 'One to one' },
+          { label: 'Broadcast', value: 'One to everyone (FF:FF:FF:FF:FF:FF)' },
+          { label: 'Multicast', value: 'One to many' },
+        ],
+      },
+      {
+        slug: 'mac-address-table-learning-forwarding-and-flooding',
+        title: 'The MAC address table: learning, forwarding, and flooding',
+        description: 'A switch learns source MACs, forwards to known destinations, and floods unknown ones.',
+        blocks: [
+          { type: 'heading', text: 'The MAC address table' },
+          { type: 'paragraph', text: 'Inside a switch is a table that maps each device MAC address to the port it is connected to. This is how the switch knows where to send traffic.' },
+          { type: 'heading', text: 'What the switch does with each frame' },
+          {
+            type: 'bullets', items: [
+              'Learn: read the source MAC and note which port the frame arrived on.',
+              'Look up the destination MAC in the table.',
+              'Known destination: forward the frame out of that one port only.',
+              'Unknown destination (unknown unicast): flood the frame out of every port except the one it arrived on.',
+              'When the destination replies, the switch learns its port, so next time no flooding is needed.',
+            ]
+          },
+          { type: 'heading', text: 'Wi-Fi devices' },
+          { type: 'paragraph', text: "An access point plugged into the switch acts as a wireless bridge — it is not a router. It translates radio waves onto the Ethernet cable, so to the switch a wireless phone just looks like another MAC address on that port." },
+        ],
+        quickReference: [
+          { label: 'Learn', value: 'Source MAC → incoming port' },
+          { label: 'Known destination', value: 'Forward out one port' },
+          { label: 'Unknown destination', value: 'Flood all ports except the incoming one' },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 15 · ANIMATED · VLANS AND TRUNKS
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-vlans-and-trunks',
+    number: '15',
+    title: 'Animated: VLANs and Trunks',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'How VLANs split one switch into isolated networks, and how trunks carry several VLANs over one cable.',
+    subtopics: [
+      {
+        slug: 'why-vlans-exist',
+        title: 'Why VLANs exist',
+        description: 'Everyone on one switch means flooded noise and a security problem; VLANs fix it without buying a switch per department.',
+        blocks: [
+          { type: 'paragraph', text: 'As more devices join one switch, unknown unicast floods create a lot of background noise, and having everyone on the same network is a security problem. Buying a separate switch for every department would work, but it is very expensive.' },
+          { type: 'bullets', items: ['VLANs logically split one switch into multiple isolated networks.', 'Broadcast messages stay inside the network (VLAN) they were created on.'] },
+        ],
+        quickReference: [{ label: 'VLAN', value: 'Logical, isolated network on a shared switch' }],
+      },
+      {
+        slug: 'assigning-ports-to-vlans',
+        title: 'Assigning ports to VLANs',
+        description: 'You set different ports to different VLANs on the switch.',
+        blocks: [
+          { type: 'heading', text: 'Example' },
+          {
+            type: 'bullets', items: [
+              'Ports 1–10: HR VLAN.',
+              'Ports 11–20: IT VLAN.',
+              'Ports 21–30: Guest VLAN.',
+            ]
+          },
+          { type: 'paragraph', text: 'Splitting the overall network into smaller networks contains broadcasts and improves security.' },
+        ],
+        quickReference: [{ label: 'How', value: 'Set each switch port to a VLAN' }],
+      },
+      {
+        slug: 'trunk-ports-and-vlan-tags',
+        title: 'Trunk ports and VLAN tags',
+        description: 'A trunk is a port that can carry multiple VLANs by adding a small VLAN ID tag to each frame.',
+        blocks: [
+          { type: 'paragraph', text: 'When a network grows and one switch runs out of ports, you add another switch and connect them with a trunk.' },
+          { type: 'bullets', items: ['A trunk is a port able to carry multiple VLANs.', 'It adds a small VLAN ID tag to each frame so the other switch knows which VLAN the frame belongs to.'] },
+        ],
+        quickReference: [{ label: 'Trunk', value: 'Carries many VLANs; frames get a VLAN ID tag' }],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 16 · ANIMATED · LOOPS, STP, AND LACP
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-loops-stp-and-lacp',
+    number: '16',
+    title: 'Animated: Loops, STP, and LACP',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'Why redundant switch links cause broadcast storms, how Spanning Tree stops them, and how LACP bundles cables.',
+    subtopics: [
+      {
+        slug: 'switch-loops-and-broadcast-storms',
+        title: 'Switch loops and broadcast storms',
+        description: 'A redundant link plus unknown unicast flooding creates a loop that never ends.',
+        blocks: [
+          { type: 'heading', text: 'How the loop forms' },
+          {
+            type: 'bullets', items: [
+              'Switches interconnected with a backup cable create a loop.',
+              'Switch 1 floods an unknown unicast; switches 2 and 3 flood it onward, and the frames cycle forever.',
+              'This is a broadcast storm.',
+              'Layer 2 has no limit on how long a frame lives, so the frames cycle until the switch CPU is overloaded and it cannot forward normal traffic.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Cause', value: 'Redundant links + flooding' },
+          { label: 'Result', value: 'Broadcast storm, CPU overload' },
+        ],
+      },
+      {
+        slug: 'spanning-tree-protocol',
+        title: 'Spanning Tree Protocol (STP)',
+        description: 'STP blocks a redundant interface so the loop never happens.',
+        blocks: [
+          { type: 'paragraph', text: 'Spanning Tree Protocol blocks a redundant interface so that the loop never forms in the first place. How it chooses which interface to block is more involved and is covered separately.' },
+          { type: 'bullets', items: ['If the active path fails, the blocked interface can come up as the backup.'] },
+        ],
+        quickReference: [{ label: 'STP', value: 'Blocks a redundant interface to prevent loops' }],
+      },
+      {
+        slug: 'bottlenecks-and-lacp',
+        title: 'Bottlenecks, redundancy, and LACP',
+        description: 'One cable between switches is a bottleneck and a single point of failure; LACP bundles several into one logical link.',
+        blocks: [
+          { type: 'heading', text: 'The problem' },
+          {
+            type: 'bullets', items: [
+              'With 50 PCs on one switch talking to the other, a single Ethernet cable is a huge bottleneck.',
+              'If that one cable breaks, the whole connection is gone.',
+              'A second cable would be blocked by STP, so it only sits idle as a backup.',
+            ]
+          },
+          { type: 'heading', text: 'The solution: LACP' },
+          {
+            type: 'bullets', items: [
+              'LACP bundles multiple physical cables into one logical link.',
+              'The switches see one link, so spanning tree does not block it.',
+              'Bandwidth and redundancy both go up.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'LACP', value: 'Many cables, one logical link' },
+          { label: 'Benefit', value: 'More bandwidth and redundancy; not blocked by STP' },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 17 · ANIMATED · LAYER 3: IP ADDRESSES, SUBNETS, AND ARP
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-layer-3-ip-addresses-subnets-and-arp',
+    number: '17',
+    title: 'Animated: Layer 3 — IP Addresses, Subnets, and ARP',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'Why layer 3 needs IP addresses, how subnet masks split network from host, and how ARP finds a MAC address.',
+    subtopics: [
+      {
+        slug: 'why-ip-addresses',
+        title: 'Why we need IP addresses',
+        description: 'MAC addresses alone would force switches to flood the whole world; IP addresses say where a network is.',
+        blocks: [
+          { type: 'paragraph', text: "If the whole internet ran on MAC addresses, switches would have to flood traffic to billions of devices just to find one computer. Layer 3 adds a second kind of address, the IP address, and a device that can read it: the router." },
+          {
+            type: 'bullets', items: [
+              'A MAC address is unique to the device and does not change.',
+              'An IP address changes whenever the device moves to a different network.',
+              'Switches only read MAC addresses (layer 2); routers read IP addresses (layer 3).',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'MAC', value: 'Permanent, tied to the device' },
+          { label: 'IP', value: 'Changes with the network' },
+        ],
+      },
+      {
+        slug: 'subnet-masks-network-and-host-portions',
+        title: 'Subnet masks: network and host portions',
+        description: 'A subnet mask tells a computer which part of an IP address is the network and which is the host.',
+        blocks: [
+          { type: 'bullets', items: ['Network portion: like the street name.', 'Host portion: like the house number.', '255.255.255.0 is the same as /24: the first three octets are the network.'] },
+          { type: 'paragraph', text: 'With the mask, a computer can tell whether traffic is for its own network or for another one — which decides everything that happens next.' },
+        ],
+        quickReference: [
+          { label: '/24', value: '255.255.255.0' },
+          { label: 'Same network?', value: 'Compare the network portions' },
+        ],
+      },
+      {
+        slug: 'arp-and-the-arp-table',
+        title: 'ARP and the ARP table',
+        description: 'ARP asks the network for the MAC address that belongs to an IP address.',
+        blocks: [
+          { type: 'heading', text: 'The problem' },
+          { type: 'paragraph', text: 'PC1 (192.168.1.100) wants to reach PC2 (192.168.1.101) on the same network, but the switch only reads MAC addresses, so an IP address alone is useless to it.' },
+          { type: 'heading', text: 'The solution' },
+          {
+            type: 'bullets', items: [
+              'PC1 broadcasts an ARP request: "Who is 192.168.1.101? Send me your MAC address."',
+              'PC2 replies with its MAC address.',
+              'PC1 stores the IP-to-MAC mapping in its ARP table, so it does not need to ask every time.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'ARP', value: 'Address Resolution Protocol: IP → MAC' },
+          { label: 'ARP table', value: 'Cached IP-to-MAC mappings' },
+        ],
+      },
+      {
+        slug: 'life-of-a-packet-on-one-network',
+        title: 'Life of a packet on one network',
+        description: 'Packet, ARP lookup, frame, bits, switch — the full path for same-network traffic.',
+        blocks: [
+          {
+            type: 'bullets', items: [
+              'PC1 creates a packet: the data plus a source IP and a destination IP.',
+              'It sees the destination is on the same network and checks its ARP table; if there is no entry it sends an ARP request.',
+              'It wraps the packet in a layer 2 frame with source and destination MAC addresses.',
+              'It turns the frame into zeros and ones and sends them as electrical signals to the switch.',
+              'The switch reads the destination MAC and forwards on a match, or floods an unknown unicast if it has no match.',
+            ]
+          },
+        ],
+        quickReference: [{ label: 'Order', value: 'Packet → ARP → frame → bits → switch' }],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 18 · ANIMATED · ROUTERS AND ROUTING
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-routers-and-routing',
+    number: '18',
+    title: 'Animated: Routers and Routing',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'How routers connect different networks using the default gateway and routing tables, including static, dynamic, and default routes.',
+    subtopics: [
+      {
+        slug: 'routers-and-the-default-gateway',
+        title: 'Routers and the default gateway',
+        description: 'Traffic for another network goes to the default gateway, which is usually the router.',
+        blocks: [
+          {
+            type: 'bullets', items: [
+              'A router is a layer 3 device that reads IP addresses.',
+              'If the destination is on a different network, the PC cannot send it directly; it sends it to the default gateway, often the router.',
+              'Switches connect devices within the same network; routers connect different networks together.',
+              'Different VLANs are different networks, so they need a router to talk to each other (inter-VLAN routing).',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'Switch', value: 'Connects devices in the same network' },
+          { label: 'Router', value: 'Connects different networks' },
+        ],
+      },
+      {
+        slug: 'routing-tables',
+        title: 'Routing tables',
+        description: 'The routing table is the layer 3 version of the MAC address table.',
+        blocks: [
+          { type: 'paragraph', text: 'A routing table tells the router which interface to send traffic out of, depending on the destination of the packet.' },
+          {
+            type: 'bullets', items: [
+              'By default, a router lists the networks its own interfaces are in.',
+              'On receiving a packet, it looks for a match; on a match it sends the packet out of the matching interface.',
+              'Networks not directly connected are not in the table by default, so the router would not know where to send that traffic.',
+            ]
+          },
+        ],
+        quickReference: [{ label: 'Routing table', value: 'Network → outgoing interface' }],
+      },
+      {
+        slug: 'static-dynamic-and-default-routes',
+        title: 'Static, dynamic, and default routes',
+        description: 'Routes teach the router about networks that are not directly connected.',
+        blocks: [
+          { type: 'heading', text: 'Static routes' },
+          { type: 'paragraph', text: 'Configured manually on the router. If the path breaks, traffic stops until someone fixes it.' },
+          { type: 'heading', text: 'Dynamic routes' },
+          { type: 'paragraph', text: 'Routers running OSPF, EIGRP, or BGP communicate with each other, share routing information, and work out the best paths. If one path breaks, they tell each other and switch to the next best path.' },
+          { type: 'heading', text: 'Default route' },
+          { type: 'paragraph', text: 'If a router finds no match in its routing table, instead of dropping the traffic it forwards it to a destination that might know where it goes — often the ISP.' },
+        ],
+        quickReference: [
+          { label: 'Static', value: 'Manual; no automatic failover' },
+          { label: 'Dynamic', value: 'OSPF, EIGRP, BGP; routers share info' },
+          { label: 'Default route', value: 'No match → forward to the ISP' },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 19 · ANIMATED · DHCP AND DNS
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-dhcp-and-dns',
+    number: '19',
+    title: 'Animated: DHCP and DNS',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'How devices get an IP address automatically with DHCP and find websites by name with DNS.',
+    subtopics: [
+      {
+        slug: 'dhcp-and-the-dora-process',
+        title: 'DHCP and the DORA process',
+        description: 'A DHCP server leases IP addresses and other settings so you never configure them by hand.',
+        blocks: [
+          {
+            type: 'bullets', items: [
+              'DHCP leases IP addresses to clients.',
+              'It can also provide the default gateway and the DNS server.',
+              'A device that joins a network first yells out looking for a DHCP server — the first step of the four-step DORA process (Discover, Offer, Request, Acknowledge).',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'DHCP gives', value: 'IP address, default gateway, DNS server' },
+          { label: 'DORA', value: 'Discover, Offer, Request, Acknowledge' },
+        ],
+      },
+      {
+        slug: 'dns-names-to-ip-addresses',
+        title: 'DNS: names to IP addresses',
+        description: 'DNS maps domain names to IP addresses because people remember names better than numbers.',
+        blocks: [
+          { type: 'paragraph', text: 'Typing youtube.com does not tell your PC where to send traffic. DNS maps the name to an IP address.' },
+          {
+            type: 'bullets', items: [
+              'Some DNS records are cached on your computer, but it cannot hold every domain in the world.',
+              'On a miss, the PC asks the DNS server it received from DHCP.',
+              'If that server does not know, it asks other DNS servers until it finds the answer and returns it.',
+              'With the destination IP resolved, the device can wrap the packet with a source IP and destination IP and send it out.',
+            ]
+          },
+        ],
+        quickReference: [
+          { label: 'DNS', value: 'Domain name → IP address' },
+          { label: 'DNS cache', value: 'Locally stored answers' },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 20 · ANIMATED · PRIVATE IPS, IPV6, NAT, AND PAT
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-private-ips-ipv6-nat-and-pat',
+    number: '20',
+    title: 'Animated: Private IPs, IPv6, NAT, and PAT',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'Why private addresses cannot cross the internet, why IPv4 ran out, and how NAT and PAT let many devices share one public IP.',
+    subtopics: [
+      {
+        slug: 'private-and-public-ip-addresses',
+        title: 'Private and public IP addresses',
+        description: 'Private ranges are reused by millions of networks and are not globally routable; public addresses are unique.',
+        blocks: [
+          { type: 'heading', text: 'Private ranges' },
+          { type: 'bullets', items: ['10.0.0.0/8 (10.0.0.0 – 10.255.255.255)', '172.16.0.0/12 (172.16.0.0 – 172.31.255.255)', '192.168.0.0/16 (192.168.0.0 – 192.168.255.255)'] },
+          { type: 'paragraph', text: 'Millions of homes and offices use the exact same private addresses, with 192.168.1.x being the most common. Private addresses are not globally routable. Public addresses are, and they are the unique ones.' },
+        ],
+        quickReference: [
+          { label: 'Private', value: '10/8, 172.16/12, 192.168/16' },
+          { label: 'Public', value: 'Unique, globally routable' },
+        ],
+      },
+      {
+        slug: 'ipv4-exhaustion-and-ipv6',
+        title: 'IPv4 exhaustion and IPv6',
+        description: 'About 4.3 billion IPv4 addresses cannot cover roughly 30 billion devices; IPv6 is the long-term fix.',
+        blocks: [
+          { type: 'bullets', items: ['Roughly 30 billion devices exist, but four-octet IPv4 allows only about 4.3 billion addresses.', 'The designers of IPv4 did not expect the internet to grow this large.', 'IPv6 addresses are very long, and there are more of them than grains of sand on the earth.'] },
+        ],
+        quickReference: [
+          { label: 'IPv4', value: '~4.3 billion addresses' },
+          { label: 'IPv6', value: 'Vastly larger address space' },
+        ],
+      },
+      {
+        slug: 'nat-and-pat',
+        title: 'NAT and PAT',
+        description: 'NAT swaps a private source IP for the router public IP; PAT adds a port number so many PCs can share it.',
+        blocks: [
+          { type: 'heading', text: 'NAT (network address translation)' },
+          { type: 'paragraph', text: 'When PC1 wants to reach the internet, it sends traffic to the router (the default gateway). NAT swaps the private source IP for the router public IP.' },
+          { type: 'heading', text: 'PAT (port address translation)' },
+          { type: 'paragraph', text: 'If five PCs share one public IP, the router needs a way to tell return traffic apart. PAT also assigns a different port number to each connection, so replies can be sent to the right PC.' },
+        ],
+        quickReference: [
+          { label: 'NAT', value: 'Private source IP → router public IP' },
+          { label: 'PAT', value: 'NAT + a unique port per connection' },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 21 · ANIMATED · LAYER 4: PORTS, TCP, AND UDP
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-layer-4-ports-tcp-and-udp',
+    number: '21',
+    title: 'Animated: Layer 4 — Ports, TCP, and UDP',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'How ports pick the right application, how data becomes a segment, and when to choose TCP or UDP.',
+    subtopics: [
+      {
+        slug: 'ports-and-common-services',
+        title: 'Ports and common services',
+        description: 'The IP address is the house number; the port says which application inside the computer the data is for.',
+        blocks: [
+          { type: 'paragraph', text: 'Layer 3 delivers traffic to the front door of a computer, but that computer runs many applications. The port identifies which one the data is meant for.' },
+          { type: 'bullets', items: ['Port 80 — HTTP', 'Port 443 — HTTPS', 'Port 53 — DNS', 'Port 23 — Telnet (used as an example in the ACL section)'] },
+        ],
+        quickReference: [
+          { label: 'IP address', value: 'The house number' },
+          { label: 'Port', value: 'Which application is it for' },
+        ],
+      },
+      {
+        slug: 'segments',
+        title: 'Segments',
+        description: 'Layer 4 wraps a packet into a segment that adds a source port and a destination port.',
+        blocks: [
+          { type: 'paragraph', text: 'Layer 4 wraps the packet into a segment. Among other things, the segment adds a source port and a destination port.' },
+        ],
+        quickReference: [{ label: 'Segment', value: 'Packet + source port + destination port' }],
+      },
+      {
+        slug: 'tcp-vs-udp',
+        title: 'TCP vs UDP',
+        description: 'TCP is reliable and resends lost data; UDP is unreliable but faster.',
+        blocks: [
+          { type: 'heading', text: 'TCP' },
+          { type: 'paragraph', text: 'Reliable: it resends traffic that gets lost. It is what you want for downloading a large game, where missing a single byte would corrupt it.' },
+          { type: 'heading', text: 'UDP' },
+          { type: 'paragraph', text: 'Not reliable, but much faster. It suits real-time traffic such as voice calls, where a brief drop in quality matters less than staying in real time.' },
+        ],
+        quickReference: [
+          { label: 'TCP', value: 'Reliable, resends lost data' },
+          { label: 'UDP', value: 'Unreliable, faster, real time' },
+        ],
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 22 · ANIMATED · SECURITY: ACLS AND FIREWALLS
+  // ─────────────────────────────────────────────────────────────
+  {
+    slug: 'animated-security-acls-and-firewalls',
+    number: '22',
+    title: 'Animated: Security — ACLs and Firewalls',
+    icon: 'orbit',
+    summary: 'animated',
+    description: 'How access control lists filter traffic on a router interface, and what firewalls add at the edge of the network.',
+    subtopics: [
+      {
+        slug: 'access-control-lists',
+        title: 'Access control lists (ACLs)',
+        description: 'An ACL is a list of permit and deny statements checked against each packet from top to bottom.',
+        blocks: [
+          { type: 'paragraph', text: 'An access control list is a list of permit and deny statements that you place on a router interface. The router checks every incoming packet against the rules from top to bottom.' },
+          { type: 'heading', text: 'Example rules' },
+          { type: 'bullets', items: ['Deny guest VLAN traffic from entering the HR VLAN.', 'Block all port 23 traffic.', 'Permit everything else.'] },
+        ],
+        quickReference: [
+          { label: 'ACL', value: 'Ordered permit/deny rules on an interface' },
+          { label: 'Evaluation', value: 'Top to bottom' },
+        ],
+      },
+      {
+        slug: 'firewalls',
+        title: 'Firewalls',
+        description: 'Modern firewalls control and inspect traffic, can prevent intrusions, and can do everything a router can.',
+        blocks: [
+          {
+            type: 'bullets', items: [
+              'Act as a firewall and control traffic.',
+              'Can act as an intrusion prevention system: spot intrusions and prevent them.',
+              'Can also be routers and do NAT, with added security.',
+              'Placed on the exterior of the network; they track sessions and control traffic going into and out of the network.',
+            ]
+          },
+          { type: 'paragraph', text: 'Firewalls are complicated enough to deserve a video of their own; for now, think of one as the device at the network edge that tracks sessions.' },
+        ],
+        quickReference: [
+          { label: 'Placement', value: 'Exterior of the network' },
+          { label: 'Tracks', value: 'Sessions in and out' },
+        ],
+      },
+    ],
+  },
   {
     slug: 'labs',
     number: '11',
