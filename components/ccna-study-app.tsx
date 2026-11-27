@@ -150,6 +150,9 @@ import Section08DhcpDns from "@/components/simulator/Section08DhcpDns";
 import Section09PrivateIpNat from "@/components/simulator/Section09PrivateIpNat";
 import Section10TransportLayer from "@/components/simulator/Section10TransportLayer";
 import Section11SecurityOutro from "@/components/simulator/Section11SecurityOutro";
+import NetworkTypes from "./simulator/network-types";
+import NetworkArchitectures from "./simulator/network-architecture";
+import NetworkCabling from "./simulator/network-cabling";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -2458,7 +2461,15 @@ export default function CcnaStudyApp() {
                 {current.slug === "vlan-concepts-ranges-and-advantages" && (
                   <VlanConcepts />
                 )}
-
+                {current.slug === "types-of-networks-lan-wan-man-san-can-pan-vpn" && (
+                  <NetworkTypes />
+                )}
+                {current.slug === "network-architectures-client-server-mainframe-terminal-peer-to-peer" && (
+                  <NetworkArchitectures />
+                )}
+                {current.slug === "power-over-ethernet-poe" && (
+                  <NetworkCabling />
+                )}
                 {current.slug === "vlan-ports-access-port-configuration" && (
                   <AccessPortLab />
                 )}
