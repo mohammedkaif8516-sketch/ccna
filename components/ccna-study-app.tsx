@@ -3,6 +3,8 @@
 import { Suspense, lazy, createContext, useContext, useCallback, useEffect, useId, useMemo, useRef, useState, useTransition, type ComponentType, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createPortal } from "react-dom";
+import { NcStyles } from "./simulator/_shared";
+
 
 // UI Components
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -54,6 +56,16 @@ import { ThreeTierArchitecture } from "@/components/summaries/3-tier-summary";
 // (Heavy labs, simulators, and interactive tools)
 // ═══════════════════════════════════════════════════════════════
 
+const withStyles = (Component: any) => {
+  return function StyledLab() {
+    return (
+      <>
+        <NcStyles />
+        <Component />
+      </>
+    );
+  };
+};
 // Extras & Simulators
 const NumberSystemConverter = lazy(() => import("@/components/extras/number-system-converter").then(m => ({ default: m.NumberSystemConverter })));
 const IpClassesExplorer = lazy(() => import("@/components/extras/ip-classes-explorer").then(m => ({ default: m.IpClassesExplorer })));
@@ -114,8 +126,13 @@ const Section11SecurityOutro = lazy(() => import("@/components/simulator/Section
 
 const NetworkTypes = lazy(() => import("./simulator/network-types"));
 const NetworkArchitectures = lazy(() => import("./simulator/network-architecture"));
-const NetworkCabling = lazy(() => import("./simulator/network-cabling"));
-const ApplicationPresentationLayers = lazy(() => import("./simulator/application-presentation"));
+const EthernetStandards = lazy(() => import("./simulator/component").then(m => ({ default: withStyles(m.EthernetStandards) })));
+const TwistedPairLab = lazy(() => import("./simulator/component(1)").then(m => ({ default: withStyles(m.TwistedPairLab) })));
+const CoaxLab = lazy(() => import("./simulator/component(2)").then(m => ({ default: withStyles(m.CoaxLab) })));
+const FiberLab = lazy(() => import("./simulator/component(3)").then(m => ({ default: withStyles(m.FiberLab) })));
+const ColorCodeLab = lazy(() => import("./simulator/component(4)").then(m => ({ default: withStyles(m.ColorCodeLab) })));
+const CablingLab = lazy(() => import("./simulator/component(5)").then(m => ({ default: withStyles(m.CablingLab) })));
+const PoELab = lazy(() => import("./simulator/component(6)").then(m => ({ default: withStyles(m.PoELab) })));const ApplicationPresentationLayers = lazy(() => import("./simulator/application-presentation"));
 const SessionLayer = lazy(() => import("./simulator/session-layer"));
 const TransportLayer = lazy(() => import("./simulator/transport-layer"));
 const NetworkLayer = lazy(() => import("./simulator/network-layer").then(m => ({ default: m.default })));
@@ -378,7 +395,13 @@ const LAB_VIEWS: Record<string, ComponentType<any>> = {
   "types-of-networks-lan-wan-man-san-can-pan-vpn": NetworkTypes,
   "network-architectures-client-server-mainframe-terminal-peer-to-peer":
     NetworkArchitectures,
-  "power-over-ethernet-poe": NetworkCabling,
+    "ethernet-standards-and-speeds-10mbps-to-400gbps": EthernetStandards,
+  "twisted-pair-cables-categories-3-5-5e-6-shielding": TwistedPairLab,
+  "coaxial-cables": CoaxLab,
+  "fiber-optic-cables-single-mode-multi-mode-transceivers-like-sfp-qsfp": FiberLab,
+  "color-codes-and-standards-eia-tia-568b": ColorCodeLab,
+  "cabling-types-straight-through-crossover-auto-mdi-x": CablingLab,
+  "power-over-ethernet-poe": PoELab,
   "vlan-ports-access-port-configuration": AccessPortLab,
   "trunk-ports-and-frame-tagging-isl-vs-dot1q": TrunkPortLab,
   "trunk-configuration-verification-and-troubleshooting": TrunkConfigLab,
