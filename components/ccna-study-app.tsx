@@ -513,22 +513,7 @@ function LabStage({ slug }: { slug: string }) {
   if (!LabView) return null;
 
   if (!enabled && !ALWAYS_RENDER.has(slug)) {
-    return (
-      <div className="mt-8 flex items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
-        <span className="size-4 shrink-0 rounded-full border-2 border-muted-foreground" />
-        <span className="text-muted-foreground">
-          Animations are off, so this lab is not rendered.
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-auto h-7"
-          onClick={() => setEnabled(true)}
-        >
-          Turn on
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   return (
