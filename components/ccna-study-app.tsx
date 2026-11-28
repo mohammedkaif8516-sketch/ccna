@@ -153,6 +153,15 @@ import Section11SecurityOutro from "@/components/simulator/Section11SecurityOutr
 import NetworkTypes from "./simulator/network-types";
 import NetworkArchitectures from "./simulator/network-architecture";
 import NetworkCabling from "./simulator/network-cabling";
+import ApplicationPresentationLayers from "./simulator/application-presentation";
+import SessionLayer from "./simulator/session-layer";
+import TransportLayer from "./simulator/transport-layer";
+import NetworkLayer, { NetworkLayerLab } from "./simulator/network-layer";
+import DataLinkLayer from "./simulator/data-link-layer";
+import PhysicalLayer from "./simulator/physical-layer";
+import Hubs from "./simulator/hubs";
+import Switches from "./simulator/switches";
+import Routers from "./simulator/Routers";
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -1415,7 +1424,11 @@ function Sidebar({
   }, [topicWithActive]);
 
   const activeKey =
-    selectedExtra ?? selected ?? selectedQuizId ?? selectedSummary ?? selectedTopic;
+    selectedExtra ??
+    selected ??
+    selectedQuizId ??
+    selectedSummary ??
+    selectedTopic;
 
   // Sort topics so the LABS topic is always last
   const sortedTopics = useMemo(() => {
@@ -2434,6 +2447,49 @@ export default function CcnaStudyApp() {
                 {current.slug === "packet-flow-within-the-same-network" && (
                   <PacketFlowSimulator />
                 )}
+                {current.slug === "upper-layers-application-presentation" && (
+                  <ApplicationPresentationLayers />
+                )}
+                {current.slug ===
+                  "session-layer-simplex-half-duplex-full-duplex" && (
+                  <SessionLayer />
+                )}
+                {current.slug ===
+                  "transport-layer-segmentation-sequencing-mtu-pdu-tcp-vs-udp-error-control-flow-control-sliding-windowing" && (
+                  <TransportLayer />
+                )}
+                {current.slug ===
+                  "network-layer-packets-ip-headers-routing-basics" && (
+                  <NetworkLayer />
+                )}
+                {current.slug ===
+                  "data-link-layer-frames-mac-addressing-oui-cam-tables" && (
+                  <DataLinkLayer />
+                )}
+                {current.slug ===
+                  "physical-layer-binary-format-physical-transmission" && (
+                  <PhysicalLayer />
+                )}
+                {current.slug ===
+                  "hubs-csma-cd-half-duplex-broadcast-collision-domains" && (
+                  <Hubs />
+                )}
+
+                {current.slug ===
+                  "switches-mac-cam-tables-intelligent-forwarding-manageable-vs-non-manageable-layer-2-vs-layer-3-mls-asic" && (
+                  <Switches />
+                )}
+
+                {current.slug ===
+                  "routers-routing-tables-l3-forwarding-decisions" && (
+                  <Routers />
+                )}
+
+                {current.slug ===
+                  "types-of-communication-unicast-multicast-broadcast-anycast" && (
+                  <Switches />
+                )}
+
                 {current.slug ===
                   "packet-flow-between-networks-forward-path" && (
                   <RoutedPacketFlow />
@@ -2461,10 +2517,12 @@ export default function CcnaStudyApp() {
                 {current.slug === "vlan-concepts-ranges-and-advantages" && (
                   <VlanConcepts />
                 )}
-                {current.slug === "types-of-networks-lan-wan-man-san-can-pan-vpn" && (
+                {current.slug ===
+                  "types-of-networks-lan-wan-man-san-can-pan-vpn" && (
                   <NetworkTypes />
                 )}
-                {current.slug === "network-architectures-client-server-mainframe-terminal-peer-to-peer" && (
+                {current.slug ===
+                  "network-architectures-client-server-mainframe-terminal-peer-to-peer" && (
                   <NetworkArchitectures />
                 )}
                 {current.slug === "power-over-ethernet-poe" && (
