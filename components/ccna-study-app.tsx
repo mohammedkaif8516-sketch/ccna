@@ -1,97 +1,42 @@
 "use client";
 
+import { Suspense, lazy, createContext, useContext, useCallback, useEffect, useId, useMemo, useRef, useState, useTransition, type ComponentType, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Copy, Orbit } from "lucide-react";
-import { useCompletedTopics, progressKey } from "@/lib/use-completed";
-import {
-  useMemo,
-  useState,
-  useTransition,
-  type ComponentType,
-  useRef,
-  useEffect,
-  useCallback,
-  useId,
-} from "react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { createPortal } from "react-dom";
+
+// UI Components
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
-import { Palette } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+// Icons
 import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  topics,
-  type Diagram,
-  type NoteBlock,
-  type Subtopic,
-  type Topic,
-} from "@/lib/topics";
-import {
-  Brackets,
-  X,
-  CornerDownLeft,
-  ArrowUp,
-  ArrowDown,
-  Terminal,
-  Route,
-  Cable,
-  Check,
-  ChevronRight,
-  ChevronLeft,
-  Layers3,
-  Menu,
-  Moon,
-  Network,
-  PanelLeft,
-  Router,
-  ListChecks,
-  Sun,
-  ArrowLeft,
-  ArrowRightLeft,
-  BookOpen,
-  Search,
+  ArrowDown, ArrowLeft, ArrowRightLeft, ArrowUp, BookOpen, Brackets,
+  Cable, Check, ChevronLeft, ChevronRight, Copy, CornerDownLeft,
+  Layers3, ListChecks, Menu, Moon, Network, Orbit, Palette, PanelLeft,
+  Route, Router, Search, Sparkles, Sun, Terminal, X
 } from "lucide-react";
-import { quizById } from "@/lib/quizzes";
-import { QuizView } from "@/components/simulator/quiz-view";
-import { useQuizScores } from "@/lib/use-quiz-score";
-import type { QuizScore } from "@/lib/use-quiz-score";
-import { quizFor, quizzes, type Quiz } from "@/lib/quizzes";
+
+// Lib & Hooks
+import { topics, type Diagram, type NoteBlock, type Subtopic, type Topic } from "@/lib/topics";
+import { quizById, quizFor, quizzes, type Quiz } from "@/lib/quizzes";
+import { useCompletedTopics, progressKey } from "@/lib/use-completed";
+import { useQuizScores, type QuizScore } from "@/lib/use-quiz-score";
 import { useVisitHistory, type VisitEntry } from "@/lib/use-visit-history";
-import { NumberSystemConverter } from "@/components/extras/number-system-converter";
-import { IpClassesExplorer } from "@/components/extras/ip-classes-explorer";
-import { TcpSimulator } from "@/components/extras/tcp-simulator";
+import { useTheme } from "@/lib/use-theme";
+import { cn } from "@/lib/utils";
+
+// Non-lazy components (small, used frequently)
+import { QuizView } from "@/components/simulator/quiz-view";
 import { VisitTree } from "@/components/simulator/visit-tree";
-import { VerticalSubnetLine } from "@/components/simulator/vertical-subnet-line";
-import { PacketFlowSimulator } from "@/components/misc/packet-flow-intra";
-import { ReplyPacketFlow } from "@/components/misc/packet-flow-inter-2";
-import { RoutedPacketFlow } from "@/components/misc/packet-flow-inter-1";
+import { TopicLanding } from "@/components/simulator/topic-landing";
+
+// Summaries (kept static because they are mostly text/light)
 import { IntroNetworkingSummary } from "@/components/summaries/intro-networking-summary";
 import { OsiModelExplainer } from "@/components/summaries/osi-model-explainer-summary";
 import { EthernetCablingSummary } from "@/components/summaries/ethernet-cabling-summary";
@@ -102,66 +47,142 @@ import { TransportLayerSummary } from "@/components/summaries/transport-layer-su
 import { RouterFundamentalsSummary } from "@/components/summaries/router-fundamentals-summary";
 import { RoutingSummary } from "@/components/summaries/routing-summary";
 import { PacketFlowSummary } from "@/components/summaries/packet-flow-summary";
-import { OsiModel } from "@/components/extras/extra-example";
-import { DnsResolution } from "@/components/extras/extra-example-2";
-import { TcpHttp } from "@/components/extras/extra-example-3";
-import { SwitchForwardingMethods } from "@/components/labcp/sw-fw";
-import { useTheme } from "@/lib/use-theme";
-import { createPortal } from "react-dom";
-import { TopicLanding } from "@/components/simulator/topic-landing";
 import { ThreeTierArchitecture } from "@/components/summaries/3-tier-summary";
-import { VlanConcepts } from "@/components/misc/vlan-basics";
-import { AccessPortLab } from "@/components/misc/access-port";
-import { TrunkPortLab } from "@/components/misc/trunk-port";
-import { TrunkConfigLab } from "@/components/misc/trunk-lab";
-import InterVlanRoutingLab from "@/components/misc/inter-vlan-lab";
-import MlsEigrpOspfLab from "@/components/misc/MlsEigrpOspfLab";
-import { StaticRoutingLab } from "@/components/labs/static-routing-lab";
-import { AsymmetricRoutingLab } from "@/components/labs/assymetric-lab2";
-import { AsymmetricRoutingLab3 } from "@/components/labs/assymetric-lab-3";
-import { RipV1Lab } from "@/components/labs/rip-v1";
-import { RipV2Lab } from "@/components/labs/rip-v2";
-import { EigrpLab } from "@/components/labs/eigrp-lab";
-import { OspfLab } from "@/components/labs/ospf-lab";
-import { AccessPortLabS } from "@/components/labs/access-port-lab";
-import TrunkLab from "@/components/labs/manual-trunk-lab";
-import DtpTrunkLab from "@/components/labs/dtp-trunk-lab";
-import InterVlanLab from "@/components/labs/intervlan-lab";
-import EtherChannelLab from "@/components/labs/etherch-lab";
-import PhysicalLogicalLab from "@/components/labs/phy-log";
-import MlsRingLab from "@/components/labs/mls-ring-lab";
-import RouterOnAStickLab from "@/components/labs/inter-vlan-sticl-subinterface";
-import DhcpInterVlanLabs from "@/components/labs/dhcpintervlanlab";
-import DhcpRelayOspfLab from "@/components/labs/dhcpospflab";
-import DhcpRelayOspfLabAcl from "@/components/labs/dhcpospflabacl";
-import VtpLabs from "@/components/labs/vtp-labs";
-import DoraExplorer from "@/components/extras/dhcp-dora";
-import DhcpServerConfig from "@/components/extras/dhcp-conf";
-import DhcpServerLabs from "@/components/labs/dhcp-server-lab";
-import NatOspfDiamondLab from "@/components/labs/nat-ospf-lab";
-import Section01Intro from "@/components/simulator/Section01Intro";
-import Section02PhysicalLayer from "@/components/simulator/Section02PhysicalLayer";
-import Section03DataLinkLayer from "@/components/simulator/Section03DataLinkLayer";
-import Section04VlansTrunks from "@/components/simulator/Section04VlansTrunks";
-import Section05LoopsStpLacp from "@/components/simulator/Section05LoopsStpLacp";
-import Section06NetworkLayerArp from "@/components/simulator/Section06NetworkLayerIpArp";
-import Section07Routers from "@/components/simulator/Section07Routers";
-import Section08DhcpDns from "@/components/simulator/Section08DhcpDns";
-import Section09PrivateIpNat from "@/components/simulator/Section09PrivateIpNat";
-import Section10TransportLayer from "@/components/simulator/Section10TransportLayer";
-import Section11SecurityOutro from "@/components/simulator/Section11SecurityOutro";
-import NetworkTypes from "./simulator/network-types";
-import NetworkArchitectures from "./simulator/network-architecture";
-import NetworkCabling from "./simulator/network-cabling";
-import ApplicationPresentationLayers from "./simulator/application-presentation";
-import SessionLayer from "./simulator/session-layer";
-import TransportLayer from "./simulator/transport-layer";
-import NetworkLayer, { NetworkLayerLab } from "./simulator/network-layer";
-import DataLinkLayer from "./simulator/data-link-layer";
-import PhysicalLayer from "./simulator/physical-layer";
-import Hubs from "./simulator/hubs";
-import Switches from "./simulator/switches";
-import Routers from "./simulator/Routers";
+
+// ═══════════════════════════════════════════════════════════════
+// LAZY LOADED COMPONENTS
+// (Heavy labs, simulators, and interactive tools)
+// ═══════════════════════════════════════════════════════════════
+
+// Extras & Simulators
+const NumberSystemConverter = lazy(() => import("@/components/extras/number-system-converter").then(m => ({ default: m.NumberSystemConverter })));
+const IpClassesExplorer = lazy(() => import("@/components/extras/ip-classes-explorer").then(m => ({ default: m.IpClassesExplorer })));
+const TcpSimulator = lazy(() => import("@/components/extras/tcp-simulator").then(m => ({ default: m.TcpSimulator })));
+const DoraExplorer = lazy(() => import("@/components/extras/dhcp-dora").then(m => ({ default: m.default })));
+const DhcpServerConfig = lazy(() => import("@/components/extras/dhcp-conf").then(m => ({ default: m.default })));
+const OsiModel = lazy(() => import("@/components/extras/extra-example").then(m => ({ default: m.OsiModel })));
+const DnsResolution = lazy(() => import("@/components/extras/extra-example-2").then(m => ({ default: m.DnsResolution })));
+const TcpHttp = lazy(() => import("@/components/extras/extra-example-3").then(m => ({ default: m.TcpHttp })));
+
+// Misc / Packet Flows
+const PacketFlowSimulator = lazy(() => import("@/components/misc/packet-flow-intra").then(m => ({ default: m.PacketFlowSimulator })));
+const ReplyPacketFlow = lazy(() => import("@/components/misc/packet-flow-inter-2").then(m => ({ default: m.ReplyPacketFlow })));
+const RoutedPacketFlow = lazy(() => import("@/components/misc/packet-flow-inter-1").then(m => ({ default: m.RoutedPacketFlow })));
+const VlanConcepts = lazy(() => import("@/components/misc/vlan-basics").then(m => ({ default: m.VlanConcepts })));
+const AccessPortLab = lazy(() => import("@/components/misc/access-port").then(m => ({ default: m.AccessPortLab })));
+const TrunkPortLab = lazy(() => import("@/components/misc/trunk-port").then(m => ({ default: m.TrunkPortLab })));
+const TrunkConfigLab = lazy(() => import("@/components/misc/trunk-lab").then(m => ({ default: m.TrunkConfigLab })));
+const InterVlanRoutingLab = lazy(() => import("@/components/misc/inter-vlan-lab"));
+const MlsEigrpOspfLab = lazy(() => import("@/components/misc/MlsEigrpOspfLab"));
+
+// Labs
+const StaticRoutingLab = lazy(() => import("@/components/labs/static-routing-lab").then(m => ({ default: m.StaticRoutingLab })));
+const AsymmetricRoutingLab = lazy(() => import("@/components/labs/assymetric-lab2").then(m => ({ default: m.AsymmetricRoutingLab })));
+const AsymmetricRoutingLab3 = lazy(() => import("@/components/labs/assymetric-lab-3").then(m => ({ default: m.AsymmetricRoutingLab3 })));
+const RipV1Lab = lazy(() => import("@/components/labs/rip-v1").then(m => ({ default: m.RipV1Lab })));
+const RipV2Lab = lazy(() => import("@/components/labs/rip-v2").then(m => ({ default: m.RipV2Lab })));
+const EigrpLab = lazy(() => import("@/components/labs/eigrp-lab").then(m => ({ default: m.EigrpLab })));
+const OspfLab = lazy(() => import("@/components/labs/ospf-lab").then(m => ({ default: m.OspfLab })));
+const AccessPortLabS = lazy(() => import("@/components/labs/access-port-lab").then(m => ({ default: m.AccessPortLabS })));
+const TrunkLab = lazy(() => import("@/components/labs/manual-trunk-lab"));
+const DtpTrunkLab = lazy(() => import("@/components/labs/dtp-trunk-lab"));
+const InterVlanLab = lazy(() => import("@/components/labs/intervlan-lab"));
+const EtherChannelLab = lazy(() => import("@/components/labs/etherch-lab"));
+const PhysicalLogicalLab = lazy(() => import("@/components/labs/phy-log"));
+const MlsRingLab = lazy(() => import("@/components/labs/mls-ring-lab"));
+const RouterOnAStickLab = lazy(() => import("@/components/labs/inter-vlan-sticl-subinterface"));
+const DhcpInterVlanLabs = lazy(() => import("@/components/labs/dhcpintervlanlab"));
+const DhcpRelayOspfLab = lazy(() => import("@/components/labs/dhcpospflab"));
+const DhcpRelayOspfLabAcl = lazy(() => import("@/components/labs/dhcpospflabacl"));
+const VtpLabs = lazy(() => import("@/components/labs/vtp-labs"));
+const DhcpServerLabs = lazy(() => import("@/components/labs/dhcp-server-lab"));
+const NatOspfDiamondLab = lazy(() => import("@/components/labs/nat-ospf-lab"));
+const SwitchForwardingMethods = lazy(() => import("@/components/labcp/sw-fw").then(m => ({ default: m.SwitchForwardingMethods })));
+
+// Sections (Simulator)
+const Section01Intro = lazy(() => import("@/components/simulator/Section01Intro"));
+const Section02PhysicalLayer = lazy(() => import("@/components/simulator/Section02PhysicalLayer"));
+const Section03DataLinkLayer = lazy(() => import("@/components/simulator/Section03DataLinkLayer"));
+const Section04VlansTrunks = lazy(() => import("@/components/simulator/Section04VlansTrunks"));
+const Section05LoopsStpLacp = lazy(() => import("@/components/simulator/Section05LoopsStpLacp"));
+const Section06NetworkLayerArp = lazy(() => import("@/components/simulator/Section06NetworkLayerIpArp"));
+const Section07Routers = lazy(() => import("@/components/simulator/Section07Routers"));
+const Section08DhcpDns = lazy(() => import("@/components/simulator/Section08DhcpDns"));
+const Section09PrivateIpNat = lazy(() => import("@/components/simulator/Section09PrivateIpNat"));
+const Section10TransportLayer = lazy(() => import("@/components/simulator/Section10TransportLayer"));
+const Section11SecurityOutro = lazy(() => import("@/components/simulator/Section11SecurityOutro"));
+
+const NetworkTypes = lazy(() => import("./simulator/network-types"));
+const NetworkArchitectures = lazy(() => import("./simulator/network-architecture"));
+const NetworkCabling = lazy(() => import("./simulator/network-cabling"));
+const ApplicationPresentationLayers = lazy(() => import("./simulator/application-presentation"));
+const SessionLayer = lazy(() => import("./simulator/session-layer"));
+const TransportLayer = lazy(() => import("./simulator/transport-layer"));
+const NetworkLayer = lazy(() => import("./simulator/network-layer").then(m => ({ default: m.default })));
+const DataLinkLayer = lazy(() => import("./simulator/data-link-layer"));
+const PhysicalLayer = lazy(() => import("./simulator/physical-layer"));
+const Hubs = lazy(() => import("./simulator/hubs"));
+const Switches = lazy(() => import("./simulator/switches"));
+const Routers = lazy(() => import("./simulator/Routers"));
+// ─────────────────────────────────────────────────────────────
+// Animations preference (hydration-safe)
+// ─────────────────────────────────────────────────────────────
+const ANIM_STORAGE_KEY = "app-animations";
+
+type AnimationsCtx = {
+  enabled: boolean;
+  setEnabled: (v: boolean) => void;
+  toggle: () => void;
+};
+
+const AnimationsContext = createContext<AnimationsCtx>({
+  enabled: true,
+  setEnabled: () => {},
+  toggle: () => {},
+});
+
+function AnimationsProvider({ children }: { children: ReactNode }) {
+  const [enabled, setEnabledState] = useState(true);
+  const [ready, setReady] = useState(false);
+
+  // First visit: respect OS "reduce motion". Otherwise use saved value.
+  useEffect(() => {
+    let initial = true;
+    try {
+      const stored = localStorage.getItem(ANIM_STORAGE_KEY);
+      initial =
+        stored !== null
+          ? stored === "true"
+          : !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch {}
+    setEnabledState(initial);
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    document.documentElement.dataset.animations = enabled ? "on" : "off";
+    try {
+      localStorage.setItem(ANIM_STORAGE_KEY, String(enabled));
+    } catch {}
+  }, [enabled, ready]);
+
+  const setEnabled = useCallback((v: boolean) => setEnabledState(v), []);
+  const toggle = useCallback(() => setEnabledState((v) => !v), []);
+
+  const value = useMemo(
+    () => ({ enabled, setEnabled, toggle }),
+    [enabled, setEnabled, toggle],
+  );
+
+  return (
+    <AnimationsContext.Provider value={value}>
+      {children}
+    </AnimationsContext.Provider>
+  );
+}
+
+const useAnimations = () => useContext(AnimationsContext);
 // ─────────────────────────────────────────────────────────────
 // Summary pages
 // ─────────────────────────────────────────────────────────────
@@ -210,6 +231,33 @@ function useColorTheme() {
   return [theme, setTheme] as const;
 }
 
+function AnimationToggle() {
+  const { enabled, toggle } = useAnimations();
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="relative"
+      aria-label={enabled ? "Turn animations off" : "Turn animations on"}
+      aria-pressed={enabled}
+      title={enabled ? "Animations: on" : "Animations: off"}
+      onClick={toggle}
+    >
+      <Sparkles
+        className={`size-4 transition-colors ${
+          enabled ? "text-primary" : "text-muted-foreground"
+        }`}
+      />
+      {!enabled && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 h-[1.5px] w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded bg-muted-foreground"
+        />
+      )}
+    </Button>
+  );
+}
 function ThemeSwitcher() {
   const [theme, setTheme] = useColorTheme();
   const [open, setOpen] = useState(false);
@@ -270,7 +318,206 @@ const EXTRA_VIEWS: Record<string, ComponentType> = {
     DnsResolution,
   "protocol-numbers-and-port-ranges-well-known-registered-ephemeral": TcpHttp,
 };
+// ─────────────────────────────────────────────────────────────
+// Lab registry — slug → component. Replaces the slug === chain.
+// ─────────────────────────────────────────────────────────────
+const group = (C: ComponentType<any>, slugs: string[]) =>
+  Object.fromEntries(slugs.map((s) => [s, C])) as Record<
+    string,
+    ComponentType<any>
+  >;
 
+const LAB_VIEWS: Record<string, ComponentType<any>> = {
+  // ── Interactive calculators / single-subtopic labs ──
+  "subnetting-calculations": SubnetCalculator,
+  "number-system-conversions-hex-to-binary": NumberSystemConverter,
+  "ip-address-classes-a-b-c-d-e-and-default-subnet-masks": IpClassesExplorer,
+  "tcp-handshakes-3-way-4-way": TcpSimulator,
+  "packet-flow-within-the-same-network": PacketFlowSimulator,
+  "upper-layers-application-presentation": ApplicationPresentationLayers,
+  "session-layer-simplex-half-duplex-full-duplex": SessionLayer,
+  "transport-layer-segmentation-sequencing-mtu-pdu-tcp-vs-udp-error-control-flow-control-sliding-windowing":
+    TransportLayer,
+  "network-layer-packets-ip-headers-routing-basics": NetworkLayer,
+  "data-link-layer-frames-mac-addressing-oui-cam-tables": DataLinkLayer,
+  "physical-layer-binary-format-physical-transmission": PhysicalLayer,
+  "hubs-csma-cd-half-duplex-broadcast-collision-domains": Hubs,
+  "switches-mac-cam-tables-intelligent-forwarding-manageable-vs-non-manageable-layer-2-vs-layer-3-mls-asic":
+    Switches,
+  "routers-routing-tables-l3-forwarding-decisions": Routers,
+  "types-of-communication-unicast-multicast-broadcast-anycast": Switches,
+  "packet-flow-between-networks-forward-path": RoutedPacketFlow,
+  "packet-flow-between-networks-reply-path": ReplyPacketFlow,
+  "dhcp-dora-process-frame-structure": DoraExplorer,
+  "dhcp-configuration-on-cisco-router-mls": DhcpServerConfig,
+  "static-routing-lab-1": StaticRoutingLab,
+  "traffic-forwarding-methods-in-switches": SwitchForwardingMethods,
+  "cisco-3-tier-network-architecture": ThreeTierArchitecture,
+  "vlan-concepts-ranges-and-advantages": VlanConcepts,
+  "types-of-networks-lan-wan-man-san-can-pan-vpn": NetworkTypes,
+  "network-architectures-client-server-mainframe-terminal-peer-to-peer":
+    NetworkArchitectures,
+  "power-over-ethernet-poe": NetworkCabling,
+  "vlan-ports-access-port-configuration": AccessPortLab,
+  "trunk-ports-and-frame-tagging-isl-vs-dot1q": TrunkPortLab,
+  "trunk-configuration-verification-and-troubleshooting": TrunkConfigLab,
+  "dhcp-intervlan-labs": DhcpInterVlanLabs,
+  "dhcp-server-labs": DhcpServerLabs,
+  "inter-vlan-routing-mls-and-svi": InterVlanRoutingLab,
+  "mls-eigrp-ospf-lab": MlsEigrpOspfLab,
+  "asymmetric-routing-lab-2": AsymmetricRoutingLab,
+  "asymmetric-routing-lab-3": AsymmetricRoutingLab3,
+  "rip-v1-lab": RipV1Lab,
+  "rip-v2-lab": RipV2Lab,
+  "eigrp-lab": EigrpLab,
+  "ospf-lab": OspfLab,
+  "access-port-lab": AccessPortLabS,
+  "trunk-lab": TrunkLab,
+  "dtp-trunk-lab": DtpTrunkLab,
+  "etherchannel-lab": EtherChannelLab,
+  "intervlan-lab": InterVlanLab,
+  "dhcp-relay-ospf-lab-acl": DhcpRelayOspfLabAcl,
+  "physical-logical-lab": PhysicalLogicalLab,
+  "mls-ring-all-vlans": MlsRingLab,
+  "router-on-a-stick-lab": RouterOnAStickLab,
+  "dhcp-relay-ospf-lab": DhcpRelayOspfLab,
+  "vtp-labs": VtpLabs,
+  "nat-ospf-diamond-lab": NatOspfDiamondLab,
+  "subnet-masks-network-and-host-portions": Section06NetworkLayerArp,
+  "arp-and-the-arp-table": Section06NetworkLayerArp,
+  "life-of-a-packet-on-one-network": Section06NetworkLayerArp,
+  "routers-and-the-default-gateway": Section07Routers,
+  "routing-tables": Section07Routers,
+  "static-dynamic-and-default-routes": Section07Routers,
+  "dhcp-and-the-dora-process": Section08DhcpDns,
+  "dns-names-to-ip-addresses": Section08DhcpDns,
+  "private-and-public-ip-addresses": Section09PrivateIpNat,
+  "ipv4-exhaustion-and-ipv6": Section09PrivateIpNat,
+  "nat-and-pat": Section09PrivateIpNat,
+  "ports-and-common-services": Section10TransportLayer,
+  segments: Section10TransportLayer,
+  "tcp-vs-udp": Section10TransportLayer,
+  "access-control-lists": Section11SecurityOutro,
+  firewalls: Section11SecurityOutro,
+
+  // ── Section groups (one component, several slugs) ──
+  ...group(Section01Intro, [
+    "mac-address-the-foundation-of-networking",
+    "the-four-layers-from-the-ground-up",
+  ]),
+  ...group(Section02PhysicalLayer, [
+    "bits-bytes-and-point-to-point-networks",
+    "copper-fiber-and-wi-fi",
+    "why-you-cannot-cable-every-device",
+  ]),
+  ...group(Section03DataLinkLayer, [
+    "switches-and-frames",
+    "unicast-broadcast-and-multicast",
+    "mac-address-table-learning-forwarding-and-flooding",
+  ]),
+  ...group(Section04VlansTrunks, [
+    "why-vlans-exist",
+    "assigning-ports-to-vlans",
+    "trunk-ports-and-vlan-tags",
+  ]),
+  ...group(Section05LoopsStpLacp, [
+    "switch-loops-and-broadcast-storms",
+    "spanning-tree-protocol",
+    "bottlenecks-and-lacp",
+  ]),
+  ...group(Section06NetworkLayerArp, [
+    "why-ip-addresses",
+    "subnet-masks-network-and-host-portions",
+    "arp-and-the-arp-table",
+    "life-of-a-packet-on-one-network",
+  ]),
+  ...group(Section07Routers, [
+    "routers-and-the-default-gateway",
+    "routing-tables",
+    "static-dynamic-and-default-routes",
+  ]),
+  ...group(Section08DhcpDns, [
+    "dhcp-and-the-dora-process",
+    "dns-names-to-ip-addresses",
+  ]),
+  ...group(Section09PrivateIpNat, [
+    "private-and-public-ip-addresses",
+    "ipv4-exhaustion-and-ipv6",
+    "nat-and-pat",
+  ]),
+  ...group(Section10TransportLayer, [
+    "ports-and-common-services",
+    "segments",
+    "tcp-vs-udp",
+  ]),
+  ...group(Section11SecurityOutro, ["access-control-lists", "firewalls"]),
+};
+
+// Tools and labs that should always render, even with animations off.
+const ALWAYS_RENDER = new Set([
+  // Interactive tools / calculators
+  "subnetting-calculations",
+  "number-system-conversions-hex-to-binary",
+  "ip-address-classes-a-b-c-d-e-and-default-subnet-masks",
+  
+  // Routing Labs
+  "static-routing-lab-1",
+  "asymmetric-routing-lab-2",
+  "asymmetric-routing-lab-3",
+  "rip-v1-lab",
+  "rip-v2-lab",
+  "eigrp-lab",
+  "ospf-lab",
+
+  // Switching Labs
+  "access-port-lab",
+  "trunk-lab",
+  "dtp-trunk-lab",
+  "etherchannel-lab",
+  "intervlan-lab",
+  "router-on-a-stick-lab",
+  "physical-logical-lab",
+  "mls-ring-all-vlans",
+  "dhcp-intervlan-labs",
+  "dhcp-server-labs",
+  "dhcp-relay-ospf-lab",
+  "vtp-labs",
+  "dhcp-relay-ospf-lab-acl",
+  "nat-ospf-diamond-lab",
+]);
+
+function LabStage({ slug }: { slug: string }) {
+  const { enabled, setEnabled } = useAnimations();
+  const LabView = LAB_VIEWS[slug];
+  if (!LabView) return null;
+
+  if (!enabled && !ALWAYS_RENDER.has(slug)) {
+    return (
+      <div className="mt-8 flex items-center gap-3 rounded-lg border bg-muted/40 px-3 py-2 text-sm">
+        <span className="size-4 shrink-0 rounded-full border-2 border-muted-foreground" />
+        <span className="text-muted-foreground">
+          Animations are off, so this lab is not rendered.
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          className="ml-auto h-7"
+          onClick={() => setEnabled(true)}
+        >
+          Turn on
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-8">
+      <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-muted/40" />}>
+        <LabView key={slug} />
+      </Suspense>
+    </div>
+  );
+}
 // ─────────────────────────────────────────────────────────────
 // Helper: convert dotted IP to 32-bit uint and back
 // ─────────────────────────────────────────────────────────────
@@ -1993,7 +2240,7 @@ function SubnetCalculator() {
   );
 }
 
-export default function CcnaStudyApp() {
+function CcnaStudyAppInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { dark, toggleTheme } = useTheme();
@@ -2248,9 +2495,10 @@ export default function CcnaStudyApp() {
               )}
             </div>
 
-            {/* Right side: Search + Theme toggle */}
+            {/* Right side: Search + Animations + Theme toggle */}
             <div className="ml-auto flex items-center gap-2">
               <GlobalSearch onSelect={select} />
+              <AnimationToggle />
               <Button
                 variant="ghost"
                 size="icon"
@@ -2263,7 +2511,7 @@ export default function CcnaStudyApp() {
               </Button>
             </div>
           </header>
-          <main
+                    <main
             ref={mainRef}
             className="relative flex-1 overflow-y-auto overflow-x-hidden overscroll-x-contain"
           >
@@ -2272,6 +2520,7 @@ export default function CcnaStudyApp() {
                 <SquareLoader />
               </div>
             )}
+
             {selectedExtra && ExtraView ? (
               <>
                 <div className="w-full px-4 pt-6 sm:px-6">
@@ -2288,7 +2537,15 @@ export default function CcnaStudyApp() {
                   </Button>
                 </div>
                 <div className="mx-auto max-w-4xl px-6 py-10 lg:px-10">
-                  <ExtraView />
+                  <Suspense
+                    fallback={
+                      <div className="flex h-64 items-center justify-center">
+                        <SquareLoader />
+                      </div>
+                    }
+                  >
+                    <ExtraView />
+                  </Suspense>
                 </div>
               </>
             ) : selectedSummary && SummaryView ? (
@@ -2304,7 +2561,15 @@ export default function CcnaStudyApp() {
                     Back to Dashboard
                   </Button>
                 </div>
-                <SummaryView />
+                <Suspense
+                  fallback={
+                    <div className="flex h-64 items-center justify-center">
+                      <SquareLoader />
+                    </div>
+                  }
+                >
+                  <SummaryView />
+                </Suspense>
               </>
             ) : selectedQuiz ? (
               <QuizView
@@ -2428,265 +2693,12 @@ export default function CcnaStudyApp() {
                     })()}
                   </div>
                 )}
-                {current.slug === "subnetting-calculations" && (
-                  <>
-                    <SubnetCalculator />
-                    <SubnetPlanner />
-                  </>
-                )}
-                {current.slug === "number-system-conversions-hex-to-binary" && (
-                  <NumberSystemConverter />
-                )}
-                {current.slug ===
-                  "ip-address-classes-a-b-c-d-e-and-default-subnet-masks" && (
-                  <IpClassesExplorer />
-                )}
-                {current.slug === "tcp-handshakes-3-way-4-way" && (
-                  <TcpSimulator />
-                )}
-                {current.slug === "packet-flow-within-the-same-network" && (
-                  <PacketFlowSimulator />
-                )}
-                {current.slug === "upper-layers-application-presentation" && (
-                  <ApplicationPresentationLayers />
-                )}
-                {current.slug ===
-                  "session-layer-simplex-half-duplex-full-duplex" && (
-                  <SessionLayer />
-                )}
-                {current.slug ===
-                  "transport-layer-segmentation-sequencing-mtu-pdu-tcp-vs-udp-error-control-flow-control-sliding-windowing" && (
-                  <TransportLayer />
-                )}
-                {current.slug ===
-                  "network-layer-packets-ip-headers-routing-basics" && (
-                  <NetworkLayer />
-                )}
-                {current.slug ===
-                  "data-link-layer-frames-mac-addressing-oui-cam-tables" && (
-                  <DataLinkLayer />
-                )}
-                {current.slug ===
-                  "physical-layer-binary-format-physical-transmission" && (
-                  <PhysicalLayer />
-                )}
-                {current.slug ===
-                  "hubs-csma-cd-half-duplex-broadcast-collision-domains" && (
-                  <Hubs />
-                )}
+                
+                {/* ═══════════════════════════════════════════════════════════
+                    REPLACED 150+ LINES OF SLUG CHECKS WITH THIS SINGLE LINE 
+                    ═══════════════════════════════════════════════════════════ */}
+                <LabStage slug={current.slug} />
 
-                {current.slug ===
-                  "switches-mac-cam-tables-intelligent-forwarding-manageable-vs-non-manageable-layer-2-vs-layer-3-mls-asic" && (
-                  <Switches />
-                )}
-
-                {current.slug ===
-                  "routers-routing-tables-l3-forwarding-decisions" && (
-                  <Routers />
-                )}
-
-                {current.slug ===
-                  "types-of-communication-unicast-multicast-broadcast-anycast" && (
-                  <Switches />
-                )}
-
-                {current.slug ===
-                  "packet-flow-between-networks-forward-path" && (
-                  <RoutedPacketFlow />
-                )}
-                {current.slug === "packet-flow-between-networks-reply-path" && (
-                  <ReplyPacketFlow />
-                )}
-                {current.slug === "dhcp-dora-process-frame-structure" && (
-                  <DoraExplorer />
-                )}
-                {current.slug === "dhcp-configuration-on-cisco-router-mls" && (
-                  <DhcpServerConfig />
-                )}
-                {current.slug === "static-routing-lab-1" && (
-                  <StaticRoutingLab />
-                )}
-                {current.slug === "traffic-forwarding-methods-in-switches" && (
-                  <SwitchForwardingMethods />
-                )}
-
-                {current.slug === "cisco-3-tier-network-architecture" && (
-                  <ThreeTierArchitecture />
-                )}
-
-                {current.slug === "vlan-concepts-ranges-and-advantages" && (
-                  <VlanConcepts />
-                )}
-                {current.slug ===
-                  "types-of-networks-lan-wan-man-san-can-pan-vpn" && (
-                  <NetworkTypes />
-                )}
-                {current.slug ===
-                  "network-architectures-client-server-mainframe-terminal-peer-to-peer" && (
-                  <NetworkArchitectures />
-                )}
-                {current.slug === "power-over-ethernet-poe" && (
-                  <NetworkCabling />
-                )}
-                {current.slug === "vlan-ports-access-port-configuration" && (
-                  <AccessPortLab />
-                )}
-
-                {current.slug ===
-                  "trunk-ports-and-frame-tagging-isl-vs-dot1q" && (
-                  <TrunkPortLab />
-                )}
-
-                {current.slug ===
-                  "trunk-configuration-verification-and-troubleshooting" && (
-                  <TrunkConfigLab />
-                )}
-
-                {current.slug === "dhcp-intervlan-labs" && (
-                  <DhcpInterVlanLabs />
-                )}
-                {current.slug === "dhcp-server-labs" && <DhcpServerLabs />}
-
-                {current.slug === "inter-vlan-routing-mls-and-svi" && (
-                  <InterVlanRoutingLab />
-                )}
-                {current.slug === "mls-eigrp-ospf-lab" && <MlsEigrpOspfLab />}
-                {current.slug === "asymmetric-routing-lab-2" && (
-                  <AsymmetricRoutingLab />
-                )}
-                {current.slug === "asymmetric-routing-lab-3" && (
-                  <AsymmetricRoutingLab3 />
-                )}
-                {current.slug === "rip-v1-lab" && <RipV1Lab />}
-                {current.slug === "rip-v2-lab" && <RipV2Lab />}
-                {current.slug === "eigrp-lab" && <EigrpLab />}
-                {current.slug === "ospf-lab" && <OspfLab />}
-                {current.slug === "access-port-lab" && <AccessPortLabS />}
-                {current.slug === "trunk-lab" && <TrunkLab />}
-                {current.slug === "dtp-trunk-lab" && <DtpTrunkLab />}
-                {current.slug === "etherchannel-lab" && <EtherChannelLab />}
-                {current.slug === "intervlan-lab" && <InterVlanLab />}
-
-                {current.slug === "dhcp-relay-ospf-lab-acl" && (
-                  <DhcpRelayOspfLabAcl />
-                )}
-
-                {current.slug === "physical-logical-lab" && (
-                  <PhysicalLogicalLab />
-                )}
-                {current.slug === "mls-ring-all-vlans" && <MlsRingLab />}
-                {current.slug === "router-on-a-stick-lab" && (
-                  <RouterOnAStickLab />
-                )}
-                {current.slug === "dhcp-relay-ospf-lab" && <DhcpRelayOspfLab />}
-                {current.slug === "vtp-labs" && <VtpLabs />}
-                {current.slug === "nat-ospf-diamond-lab" && (
-                  <NatOspfDiamondLab />
-                )}
-                {/* Section 01 — Intro / MAC address & four layers */}
-                {current.slug ===
-                  "mac-address-the-foundation-of-networking" && (
-                  <Section01Intro />
-                )}
-                {current.slug === "the-four-layers-from-the-ground-up" && (
-                  <Section01Intro />
-                )}
-
-                {/* Section 02 — Physical layer */}
-                {current.slug === "bits-bytes-and-point-to-point-networks" && (
-                  <Section02PhysicalLayer />
-                )}
-                {current.slug === "copper-fiber-and-wi-fi" && (
-                  <Section02PhysicalLayer />
-                )}
-                {current.slug === "why-you-cannot-cable-every-device" && (
-                  <Section02PhysicalLayer />
-                )}
-
-                {/* Section 03 — Data link / switches, frames, MAC table */}
-                {current.slug === "switches-and-frames" && (
-                  <Section03DataLinkLayer />
-                )}
-                {current.slug === "unicast-broadcast-and-multicast" && (
-                  <Section03DataLinkLayer />
-                )}
-                {current.slug ===
-                  "mac-address-table-learning-forwarding-and-flooding" && (
-                  <Section03DataLinkLayer />
-                )}
-
-                {/* Section 04 — VLANs and trunks */}
-                {current.slug === "why-vlans-exist" && <Section04VlansTrunks />}
-                {current.slug === "assigning-ports-to-vlans" && (
-                  <Section04VlansTrunks />
-                )}
-                {current.slug === "trunk-ports-and-vlan-tags" && (
-                  <Section04VlansTrunks />
-                )}
-
-                {/* Section 05 — Loops, STP, LACP */}
-                {current.slug === "switch-loops-and-broadcast-storms" && (
-                  <Section05LoopsStpLacp />
-                )}
-                {current.slug === "spanning-tree-protocol" && (
-                  <Section05LoopsStpLacp />
-                )}
-                {current.slug === "bottlenecks-and-lacp" && (
-                  <Section05LoopsStpLacp />
-                )}
-
-                {/* Section 06 — Network layer, IP, subnets, ARP */}
-                {current.slug === "why-ip-addresses" && (
-                  <Section06NetworkLayerArp />
-                )}
-                {current.slug === "subnet-masks-network-and-host-portions" && (
-                  <Section06NetworkLayerArp />
-                )}
-                {current.slug === "arp-and-the-arp-table" && (
-                  <Section06NetworkLayerArp />
-                )}
-                {current.slug === "life-of-a-packet-on-one-network" && (
-                  <Section06NetworkLayerArp />
-                )}
-
-                {/* Section 07 — Routers and routing */}
-                {current.slug === "routers-and-the-default-gateway" && (
-                  <Section07Routers />
-                )}
-                {current.slug === "routing-tables" && <Section07Routers />}
-                {current.slug === "static-dynamic-and-default-routes" && (
-                  <Section07Routers />
-                )}
-
-                {/* Section 08 — DHCP and DNS */}
-                {current.slug === "dhcp-and-the-dora-process" && (
-                  <Section08DhcpDns />
-                )}
-                {current.slug === "dns-names-to-ip-addresses" && (
-                  <Section08DhcpDns />
-                )}
-
-                {/* Section 09 — Private IPs, IPv6, NAT, PAT */}
-                {current.slug === "private-and-public-ip-addresses" && (
-                  <Section09PrivateIpNat />
-                )}
-                {current.slug === "ipv4-exhaustion-and-ipv6" && (
-                  <Section09PrivateIpNat />
-                )}
-                {current.slug === "nat-and-pat" && <Section09PrivateIpNat />}
-
-                {/* Section 10 — Transport layer: ports, TCP, UDP */}
-                {current.slug === "ports-and-common-services" && (
-                  <Section10TransportLayer />
-                )}
-                {current.slug === "segments" && <Section10TransportLayer />}
-                {current.slug === "tcp-vs-udp" && <Section10TransportLayer />}
-
-                {/* Section 11 — Security: ACLs and firewalls */}
-                {current.slug === "access-control-lists" && (
-                  <Section11SecurityOutro />
-                )}
-                {current.slug === "firewalls" && <Section11SecurityOutro />}
                 <div className="mt-10 flex items-stretch gap-2">
                   <button
                     type="button"
@@ -2789,5 +2801,12 @@ export default function CcnaStudyApp() {
       </div>
       <DiagramLightbox diagram={lightbox} onClose={() => setLightbox(null)} />
     </div>
+  );
+}
+export default function CcnaStudyApp() {
+  return (
+    <AnimationsProvider>
+      <CcnaStudyAppInner />
+    </AnimationsProvider>
   );
 }
