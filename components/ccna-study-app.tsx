@@ -243,7 +243,7 @@ function AnimationToggle() {
 
   useEffect(() => {
     if (!showTooltip) return;
-    const timer = setTimeout(() => setShowTooltip(false), 2000); // 2 seconds
+    const timer = setTimeout(() => setShowTooltip(false), 2000);
     return () => clearTimeout(timer);
   }, [showTooltip]);
 
@@ -268,9 +268,9 @@ function AnimationToggle() {
         />
       )}
 
-      {/* Tooltip: Shows on hover (desktop) OR when clicked (mobile) */}
-      <span 
-        className={`pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[11px] text-background shadow transition-opacity duration-200 ${
+      <span
+        role="status"
+        className={`pointer-events-none absolute top-full mt-2 right-0 z-50 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[11px] text-background shadow transition-opacity duration-200 ${
           showTooltip ? "opacity-100" : "opacity-0 group-hover:opacity-100"
         }`}
       >
