@@ -1,5 +1,6 @@
+// hubs.tsx
 "use client";
-import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
+import { useState,useEffect, type CSSProperties, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,8 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
  * 3. CsmaLab: CSMA/CD and CSMA/CA, with a medium free or busy check and a collision demo.
  * 4. DomainLab: one broadcast domain and one collision domain on a hub, including corrupted frames.
  * 5. LoopLab: a closed connection with no Spanning Tree makes an infinite loop.
- * 6. QuickReference: one table with every fact.
- * 7. HubQuiz: practice quiz.
  * Rule to remember: a hub has no table, so it always broadcasts to every other port, and all its ports share one broadcast domain and one collision domain.
  */
 
@@ -337,8 +336,6 @@ export function CsmaLab() {
 /* ---------- Section 4: Domain lab ---------- */
 type Dom = "broadcast" | "collision" | "corrupt";
 type DomInfo = { label: string; color: string; msg: string; flows: Flow[]; stroke: (n: Id) => string };
-const bad = (n: Id): string => (n === "a" ? C.GREY_PLACEHOLDER : GREY);
-void bad;
 const DOMS: Record<Dom, DomInfo> = {
   broadcast: {
     label: "Broadcast domain", color: C.AMBER,
@@ -402,6 +399,7 @@ const LOOP_LINKS: [Id, Id][] = [["h1", "h2"], ["h2", "h3"], ["h3", "h1"]];
 export function LoopLab() {
   const [closed, setClosed] = useState(false);
   const [round, setRound] = useState(0);
+
   useEffect(() => {
     if (!closed) { return; }
     const t = setInterval(() => setRound((r) => Math.min(r + 1, 10)), 800 * SLOW);
@@ -441,94 +439,6 @@ export function LoopLab() {
   );
 }
 
-/* ---------- Section 6: Quick reference ---------- */
-const REF: { topic: string; detail: string }[] = [
-  { topic: "Layer", detail: "Layer 1 (Physical layer)" },
-  { topic: "Use", detail: "Connects host devices inside a network, but not used anymore" },
-  { topic: "Decisions", detail: "None, because it has no database or table for connected devices" },
-  { topic: "Forwarding", detail: "Not intelligent. It always broadcasts incoming traffic." },
-  { topic: "Who accepts", detail: "The destination device, after checking the L2 and L3 header. Others discard." },
-  { topic: "Duplex", detail: "Half-duplex" },
-  { topic: "CSMA/CD", detail: "Carrier Sense Multiple Access / Collision Detection: checks if the medium is free before sending" },
-  { topic: "CSMA/CA", detail: "Carrier Sense Multiple Access / Collision Avoidance: the wireless equivalent" },
-  { topic: "Broadcast domain", detail: "Where a broadcast can spread. Hub: all ports in one, sent to everyone except the incoming port." },
-  { topic: "Collision domain", detail: "Where collisions can occur. Hub: all ports in one." },
-  { topic: "Error checking", detail: "None on hub ports, so corrupted frames are forwarded too" },
-  { topic: "Spanning Tree", detail: "None, so a closed connection makes an infinite loop that uses all bandwidth" },
-];
-
-export function QuickReference() {
-  return (
-    <Shell title="Quick reference" desc="Every fact about hubs in one table." badge="Reference">
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[480px] text-left text-xs">
-          <thead className="bg-muted/50"><tr><th className="px-3 py-2">Topic</th><th className="px-3 py-2">Detail</th></tr></thead>
-          <tbody>{REF.map((r) => <tr key={r.topic} className="border-t"><td className="px-3 py-2 font-semibold">{r.topic}</td><td className="px-3 py-2">{r.detail}</td></tr>)}</tbody>
-        </table>
-      </div>
-      <Tip color={C.BLUE}>Hub = Layer 1 + no table + always broadcasts + half-duplex + one domain of each kind.</Tip>
-    </Shell>
-  );
-}
-
-/* ---------- Section 7: Quiz ---------- */
-type Q = { q: string; opts: string[]; ans: number; why: string };
-const QUIZ: Q[] = [
-  { q: "Which layer does a hub belong to?", opts: ["Layer 1", "Layer 2", "Layer 3", "Layer 4"], ans: 0, why: "A hub is a Layer 1 device in the Physical layer." },
-  { q: "Why can a hub not take decisions?", opts: ["It has no table or database of connected devices", "It is too fast", "It has too many ports", "It uses wireless"], ans: 0, why: "A hub keeps no table, so it has nothing to decide with." },
-  { q: "What does a hub do with incoming traffic?", opts: ["Sends it to one port", "Always broadcasts it", "Deletes it", "Stores it"], ans: 1, why: "A hub always broadcasts incoming traffic." },
-  { q: "Who accepts the traffic from a hub?", opts: ["Every device", "Only the destination device", "Only the first device", "No device"], ans: 1, why: "The destination device accepts after checking the L2 and L3 header. Others discard it." },
-  { q: "Which duplex mode does a hub use?", opts: ["Full-duplex", "Half-duplex", "No duplex", "Triple-duplex"], ans: 1, why: "A hub operates in half-duplex." },
-  { q: "What does CSMA/CD check?", opts: ["If the medium is free before sending", "The cable colour", "The MAC table size", "The IP address"], ans: 0, why: "CSMA/CD identifies whether the medium is free or not before sending signals." },
-  { q: "What is the wireless equivalent of CSMA/CD?", opts: ["CSMA/CA", "STP", "ARP", "DNS"], ans: 0, why: "CSMA/CA (Collision Avoidance) is the wireless equivalent." },
-  { q: "How many broadcast domains does a hub have?", opts: ["One for each port", "Two", "A single one for all ports", "None"], ans: 2, why: "On a hub, all ports belong to a single broadcast domain." },
-  { q: "How many collision domains does a hub have?", opts: ["One for each port", "A single one for all ports", "Two", "None"], ans: 1, why: "On a hub, all ports belong to a single collision domain." },
-  { q: "What happens to a corrupted frame on a hub?", opts: ["It is fixed", "It is forwarded as well", "It is blocked", "It is returned"], ans: 1, why: "There is no error checking on hub ports, so corrupted frames are forwarded too." },
-  { q: "What happens with a closed connection between hubs?", opts: ["An infinite loop that uses all bandwidth", "Nothing", "Faster speed", "A new MAC table"], ans: 0, why: "There is no STP, so the loop never stops and uses all available bandwidth." },
-];
-
-export function HubQuiz() {
-  const [i, setI] = useState(0);
-  const [pick, setPick] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const q = QUIZ[i];
-  const answer = (n: number) => { if (pick !== null) return; setPick(n); if (n === q.ans) setScore((s) => s + 1); };
-  const next = () => { if (i === QUIZ.length - 1) setDone(true); else { setI(i + 1); setPick(null); } };
-  const restart = () => { setI(0); setPick(null); setScore(0); setDone(false); };
-  return (
-    <Shell title="Practice quiz" desc="Test what you learned about hubs." badge="Quiz">
-      {done ? (
-        <div className="hb-fade rounded-xl border bg-background p-4 text-center">
-          <p className="text-sm font-semibold" style={{ color: C.GREEN }}>You scored {score} out of {QUIZ.length}.</p>
-          <div className="mt-3"><Button size="sm" onClick={restart}>Restart</Button></div>
-        </div>
-      ) : (
-        <div key={i} className="hb-fade flex flex-col gap-3">
-          <p className="text-xs text-muted-foreground">Question {i + 1} of {QUIZ.length}</p>
-          <p className="text-sm font-semibold">{q.q}</p>
-          <div className="flex flex-col gap-2">
-            {q.opts.map((o, n) => {
-              const style: CSSProperties | undefined = pick === null ? undefined
-                : n === q.ans ? { background: `${C.GREEN}18`, borderColor: C.GREEN, color: C.GREEN }
-                : n === pick ? { background: `${C.RED}18`, borderColor: C.RED, color: C.RED } : undefined;
-              return (
-                <button key={o} disabled={pick !== null} onClick={() => answer(n)} className="w-full rounded-lg border px-3 py-2 text-left text-xs transition-colors" style={style}>{o}</button>
-              );
-            })}
-          </div>
-          {pick !== null && <p className="hb-fade text-xs leading-5 text-muted-foreground">💬 {q.why}</p>}
-          <div className="flex gap-2">
-            <Button size="sm" disabled={pick === null} onClick={next}>{i === QUIZ.length - 1 ? "See score" : "Next question"}</Button>
-            <Button size="sm" variant="outline" onClick={restart}>Restart</Button>
-          </div>
-        </div>
-      )}
-      <Tip color={C.PURPLE}>Remember: no table, always broadcasts, half-duplex, one domain of each kind, no STP.</Tip>
-    </Shell>
-  );
-}
-
 /* ---------- Main ---------- */
 export function Hubs() {
   return (
@@ -556,8 +466,6 @@ export function Hubs() {
       <CsmaLab />
       <DomainLab />
       <LoopLab />
-      <QuickReference />
-      <HubQuiz />
     </div>
   );
 }

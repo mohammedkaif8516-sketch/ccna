@@ -1,3 +1,4 @@
+// data-link-layer.tsx
 "use client";
 import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -10,8 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
  * 2. MacAddressLab: the 48-bit MAC address, OUI and Host ID, with a bit counter.
  * 3. FrameJourney: step-by-step trip of one frame with a live CAM table.
  * 4. AgingLab: MAC address aging time of 300 seconds with a countdown.
- * 5. QuickReference: one table with every fact.
- * 6. DataLinkQuiz: practice quiz.
  * Rule to remember: Layer 2 reads the destination MAC address, and the switch uses its CAM table to send the frame out of the right switchport.
  */
 
@@ -465,94 +464,6 @@ export function AgingLab() {
   );
 }
 
-/* ---------- Section 5: Quick reference ---------- */
-const REF: { topic: string; detail: string }[] = [
-  { topic: "Layer", detail: "Data-Link layer (2nd layer)" },
-  { topic: "PDU name", detail: "Frame" },
-  { topic: "Works inside", detail: "The network (L2 communication), based on MAC address" },
-  { topic: "Device", detail: "Switch (a Layer 2 device that forwards frames inside the network)" },
-  { topic: "Switch table", detail: "MAC address table, also called CAM table (Content Addressable Memory)" },
-  { topic: "CAM table stores", detail: "MAC address of connected devices and their switchport information" },
-  { topic: "MAC address size", detail: "48-bit, written in hexadecimal" },
-  { topic: "MAC address origin", detail: "Assigned by the manufacturer on every device, globally unique" },
-  { topic: "First 24 bits", detail: "OUI (Organisationally Unique Identifier), the manufacturer" },
-  { topic: "Remaining bits", detail: "Host ID, the device" },
-  { topic: "Header job", detail: "Encapsulating and decapsulating the Layer 2 header (source and destination MAC)" },
-  { topic: "Error check", detail: "Checksum (hash value) in the Layer 2 header" },
-  { topic: "Aging time", detail: "300 seconds (5 minutes)" },
-];
-
-export function QuickReference() {
-  return (
-    <Shell title="Quick reference" desc="Every fact about Layer 2 in one table." badge="Reference">
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[480px] text-left text-xs">
-          <thead className="bg-muted/50"><tr><th className="px-3 py-2">Topic</th><th className="px-3 py-2">Detail</th></tr></thead>
-          <tbody>{REF.map((r) => <tr key={r.topic} className="border-t"><td className="px-3 py-2 font-semibold">{r.topic}</td><td className="px-3 py-2">{r.detail}</td></tr>)}</tbody>
-        </table>
-      </div>
-      <Tip color={C.BLUE}>Layer 2 = frames + MAC addresses + switches + CAM table.</Tip>
-    </Shell>
-  );
-}
-
-/* ---------- Section 6: Quiz ---------- */
-type Q = { q: string; opts: string[]; ans: number; why: string };
-const QUIZ: Q[] = [
-  { q: "What is the PDU name at the Data-Link layer?", opts: ["Packet", "Frame", "Segment", "Bit"], ans: 1, why: "At Layer 2 the PDU is called a frame." },
-  { q: "Which layer is the Data-Link layer?", opts: ["1st", "2nd", "3rd", "4th"], ans: 1, why: "The Data-Link layer is the 2nd layer." },
-  { q: "What does Layer 2 use to communicate inside the network?", opts: ["MAC address", "Cable colour", "Screen size", "Port speed"], ans: 0, why: "L2 communication is based on the MAC address of devices." },
-  { q: "Why is a switch a Layer 2 device?", opts: ["It stores files", "It forwards frames between devices inside the network", "It makes power", "It has two ports"], ans: 1, why: "A switch forwards frames between devices inside the network." },
-  { q: "What is another name for the MAC address table?", opts: ["Routing table", "CAM table", "DNS table", "Cable table"], ans: 1, why: "It is also called the CAM table (Content Addressable Memory)." },
-  { q: "What does the CAM table store?", opts: ["Passwords", "MAC addresses and switchport information", "Web pages", "IP headers only"], ans: 1, why: "It stores the MAC address of connected devices and their switchport information." },
-  { q: "How long is a MAC address?", opts: ["24 bits", "32 bits", "48 bits", "128 bits"], ans: 2, why: "A MAC address is 48 bits, written in hexadecimal." },
-  { q: "What do the first 24 bits of a MAC address show?", opts: ["The OUI (manufacturer)", "The Host ID", "The checksum", "The switchport"], ans: 0, why: "The first 24 bits are the OUI. The remaining bits are the Host ID." },
-  { q: "What is the MAC address aging time in switches?", opts: ["30 seconds", "60 seconds", "300 seconds", "3000 seconds"], ans: 2, why: "The aging time is 300 seconds, which is 5 minutes." },
-  { q: "What does the checksum in the Layer 2 header do?", opts: ["Checks for errors", "Chooses the colour", "Names the switch", "Speeds up the cable"], ans: 0, why: "The checksum (hash value) is used for error checking." },
-];
-
-export function DataLinkQuiz() {
-  const [i, setI] = useState(0);
-  const [pick, setPick] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const q = QUIZ[i];
-  const answer = (n: number) => { if (pick !== null) return; setPick(n); if (n === q.ans) setScore((s) => s + 1); };
-  const next = () => { if (i === QUIZ.length - 1) setDone(true); else { setI(i + 1); setPick(null); } };
-  const restart = () => { setI(0); setPick(null); setScore(0); setDone(false); };
-  return (
-    <Shell title="Practice quiz" desc="Test what you learned about the Data-Link layer." badge="Quiz">
-      {done ? (
-        <div className="dl-fade rounded-xl border bg-background p-4 text-center">
-          <p className="text-sm font-semibold" style={{ color: C.GREEN }}>You scored {score} out of {QUIZ.length}.</p>
-          <div className="mt-3"><Button size="sm" onClick={restart}>Restart</Button></div>
-        </div>
-      ) : (
-        <div key={i} className="dl-fade flex flex-col gap-3">
-          <p className="text-xs text-muted-foreground">Question {i + 1} of {QUIZ.length}</p>
-          <p className="text-sm font-semibold">{q.q}</p>
-          <div className="flex flex-col gap-2">
-            {q.opts.map((o, n) => {
-              const style: CSSProperties | undefined = pick === null ? undefined
-                : n === q.ans ? { background: `${C.GREEN}18`, borderColor: C.GREEN, color: C.GREEN }
-                : n === pick ? { background: `${C.RED}18`, borderColor: C.RED, color: C.RED } : undefined;
-              return (
-                <button key={o} disabled={pick !== null} onClick={() => answer(n)} className="w-full rounded-lg border px-3 py-2 text-left text-xs transition-colors" style={style}>{o}</button>
-              );
-            })}
-          </div>
-          {pick !== null && <p className="dl-fade text-xs leading-5 text-muted-foreground">💬 {q.why}</p>}
-          <div className="flex gap-2">
-            <Button size="sm" disabled={pick === null} onClick={next}>{i === QUIZ.length - 1 ? "See score" : "Next question"}</Button>
-            <Button size="sm" variant="outline" onClick={restart}>Restart</Button>
-          </div>
-        </div>
-      )}
-      <Tip color={C.PURPLE}>Remember: frame, MAC address, switch, CAM table, 300 seconds.</Tip>
-    </Shell>
-  );
-}
-
 /* ---------- Main ---------- */
 export function DataLinkLayer() {
   return (
@@ -579,8 +490,6 @@ export function DataLinkLayer() {
       <MacAddressLab />
       <FrameJourney />
       <AgingLab />
-      <QuickReference />
-      <DataLinkQuiz />
     </div>
   );
 }

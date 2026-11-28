@@ -1,3 +1,4 @@
+// network-layer.tsx
 "use client";
 import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -10,8 +11,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
  * 2. PacketJourney: step-by-step trip of one packet with a live routing table.
  * 3. IpHeaderLab: the IP header fields and the checksum test (intact or damaged).
  * 4. SwitchLab: switch and MAC address table compared with the router.
- * 5. QuickReference: one table with every fact.
- * 6. NetworkLayerQuiz: practice quiz.
  * Rule to remember: Layer 3 reads the IP header and sends the packet along the best path between networks.
  */
 
@@ -490,88 +489,6 @@ export function SwitchLab() {
   );
 }
 
-/* ---------- Section 5: Quick reference ---------- */
-const REF: { topic: string; detail: string }[] = [
-  { topic: "Layer", detail: "Network layer (3rd layer)" },
-  { topic: "PDU name", detail: "Packet" },
-  { topic: "Forwards based on", detail: "IP header (source IP, destination IP)" },
-  { topic: "Works between", detail: "Networks (IP belongs to this layer)" },
-  { topic: "Device", detail: "Router (a Layer 3 device)" },
-  { topic: "Header job", detail: "Encapsulation and decapsulation of the IP header" },
-  { topic: "Best path", detail: "Calculated, then stored in the routing table. The router forwards using these routes." },
-  { topic: "Older protocols", detail: "IPX (Internetwork Packet Exchange), AppleTalk" },
-  { topic: "Error control", detail: "Hash (checksum) value in the IP header checks packet integrity" },
-];
-
-export function QuickReference() {
-  return (
-    <Shell title="Quick reference" desc="Every fact about Layer 3 in one table." badge="Reference">
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[480px] text-left text-xs">
-          <thead className="bg-muted/50"><tr><th className="px-3 py-2">Topic</th><th className="px-3 py-2">Detail</th></tr></thead>
-          <tbody>{REF.map((r) => <tr key={r.topic} className="border-t"><td className="px-3 py-2 font-semibold">{r.topic}</td><td className="px-3 py-2">{r.detail}</td></tr>)}</tbody>
-        </table>
-      </div>
-      <Tip color={C.BLUE}>Layer 3 = packets + IP + routers + best path.</Tip>
-    </Shell>
-  );
-}
-
-/* ---------- Section 6: Quiz ---------- */
-type Q = { q: string; opts: string[]; ans: number; why: string };
-const QUIZ: Q[] = [
-  { q: "What is the PDU name at the Network layer?", opts: ["Frame", "Packet", "Segment", "Bit"], ans: 1, why: "At Layer 3 the PDU is called a packet." },
-  { q: "Which layer is the Network layer?", opts: ["1st", "2nd", "3rd", "4th"], ans: 2, why: "The Network layer is the 3rd layer." },
-  { q: "What does Layer 3 use to forward packets?", opts: ["The IP header", "The cable colour", "The port speed", "The screen size"], ans: 0, why: "It forwards using the IP header: source IP and destination IP." },
-  { q: "Why is a router called a Layer 3 device?", opts: ["It stores files", "It belongs to the Network layer", "It makes power", "It has three ports"], ans: 1, why: "A router belongs to the Network layer." },
-  { q: "What does encapsulation of the IP header mean?", opts: ["Deleting the data", "Adding the IP header to the data", "Cooling the router", "Changing the cable"], ans: 1, why: "The sender adds the IP header. The receiver removes it (decapsulation)." },
-  { q: "Where is the best path stored after it is calculated?", opts: ["In the routing table", "In the cable", "In the monitor", "In the MAC address"], ans: 0, why: "The best path is stored in the routing table, and the router forwards using it." },
-  { q: "Which of these were used before IP?", opts: ["HTTP and DNS", "IPX and AppleTalk", "USB and HDMI", "Wi-Fi and Bluetooth"], ans: 1, why: "IPX and AppleTalk existed before IP." },
-  { q: "What does the checksum in the IP header do?", opts: ["Speeds up the packet", "Checks packet integrity", "Chooses the colour", "Names the device"], ans: 1, why: "The hash (checksum) value is used for error control and checks integrity." },
-];
-
-export function NetworkLayerQuiz() {
-  const [i, setI] = useState(0);
-  const [pick, setPick] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const q = QUIZ[i];
-  const answer = (n: number) => { if (pick !== null) return; setPick(n); if (n === q.ans) setScore((s) => s + 1); };
-  const next = () => { if (i === QUIZ.length - 1) setDone(true); else { setI(i + 1); setPick(null); } };
-  const restart = () => { setI(0); setPick(null); setScore(0); setDone(false); };
-  return (
-    <Shell title="Practice quiz" desc="Test what you learned about the Network layer." badge="Quiz">
-      {done ? (
-        <div className="nl-fade rounded-xl border bg-background p-4 text-center">
-          <p className="text-sm font-semibold" style={{ color: C.GREEN }}>You scored {score} out of {QUIZ.length}.</p>
-          <div className="mt-3"><Button size="sm" onClick={restart}>Restart</Button></div>
-        </div>
-      ) : (
-        <div key={i} className="nl-fade flex flex-col gap-3">
-          <p className="text-xs text-muted-foreground">Question {i + 1} of {QUIZ.length}</p>
-          <p className="text-sm font-semibold">{q.q}</p>
-          <div className="flex flex-col gap-2">
-            {q.opts.map((o, n) => {
-              const style: CSSProperties | undefined = pick === null ? undefined
-                : n === q.ans ? { background: `${C.GREEN}18`, borderColor: C.GREEN, color: C.GREEN }
-                : n === pick ? { background: `${C.RED}18`, borderColor: C.RED, color: C.RED } : undefined;
-              return (
-                <button key={o} disabled={pick !== null} onClick={() => answer(n)} className="w-full rounded-lg border px-3 py-2 text-left text-xs transition-colors" style={style}>{o}</button>
-              );
-            })}
-          </div>
-          {pick !== null && <p className="nl-fade text-xs leading-5 text-muted-foreground">💬 {q.why}</p>}
-          <div className="flex gap-2">
-            <Button size="sm" disabled={pick === null} onClick={next}>{i === QUIZ.length - 1 ? "See score" : "Next question"}</Button>
-            <Button size="sm" variant="outline" onClick={restart}>Restart</Button>
-          </div>
-        </div>
-      )}
-      <Tip color={C.PURPLE}>Remember: packet, IP header, router, best path, checksum.</Tip>
-    </Shell>
-  );
-}
-
 /* ---------- Main ---------- */
 export function NetworkLayer() {
   return (
@@ -598,8 +515,6 @@ export function NetworkLayer() {
       <PacketJourney />
       <IpHeaderLab />
       <SwitchLab />
-      <QuickReference />
-      <NetworkLayerQuiz />
     </div>
   );
 }

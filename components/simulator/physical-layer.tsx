@@ -1,3 +1,4 @@
+// physical-layer.tsx
 "use client";
 import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -9,8 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
  * 1. PhysicalExplorer: tap each fact about Layer 1 and watch bits and signals travel along a cable.
  * 2. BinaryLab: type a letter or pick a bit pattern and see it sent as 1s and 0s with signals.
  * 3. DumbHardwareLab: sort devices into "Layer 1 dumb hardware" or "not Layer 1" with a hub demo.
- * 4. QuickReference: one table with every fact.
- * 5. PhysicalQuiz: practice quiz.
  * Rule to remember: Layer 1 moves bits as signals over the physical medium, and "dumb" hardware with no intelligence lives here.
  */
 
@@ -354,85 +353,6 @@ export function DumbHardwareLab() {
   );
 }
 
-/* ---------- Section 4: Quick reference ---------- */
-const REF: { topic: string; detail: string }[] = [
-  { topic: "Layer", detail: "Physical layer (1st layer)" },
-  { topic: "Data format", detail: "Binary" },
-  { topic: "Transfers data through", detail: "The physical medium (cables)" },
-  { topic: "Job 1", detail: "Sending and receiving the data" },
-  { topic: "Job 2", detail: "Sending the signals along with the data" },
-  { topic: "Devices", detail: "All dumb hardware with no intelligence: cables, consoles, transceivers, CCTV cameras, authentication terminals, hubs" },
-];
-
-export function QuickReference() {
-  return (
-    <Shell title="Quick reference" desc="Every fact about Layer 1 in one table." badge="Reference">
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[480px] text-left text-xs">
-          <thead className="bg-muted/50"><tr><th className="px-3 py-2">Topic</th><th className="px-3 py-2">Detail</th></tr></thead>
-          <tbody>{REF.map((r) => <tr key={r.topic} className="border-t"><td className="px-3 py-2 font-semibold">{r.topic}</td><td className="px-3 py-2">{r.detail}</td></tr>)}</tbody>
-        </table>
-      </div>
-      <Tip color={C.BLUE}>Layer 1 = bits + signals + cables + dumb hardware.</Tip>
-    </Shell>
-  );
-}
-
-/* ---------- Section 5: Quiz ---------- */
-type Q = { q: string; opts: string[]; ans: number; why: string };
-const QUIZ: Q[] = [
-  { q: "Which layer is the Physical layer?", opts: ["1st", "2nd", "3rd", "7th"], ans: 0, why: "The Physical layer is the 1st layer." },
-  { q: "In what format does Layer 1 transfer data?", opts: ["Binary", "Words", "Pictures", "Sound only"], ans: 0, why: "Layer 1 transfers data in binary format." },
-  { q: "Through what does Layer 1 transfer data?", opts: ["The physical medium (cables)", "The routing table", "The MAC address", "The IP header"], ans: 0, why: "Data goes through the physical medium, such as cables." },
-  { q: "What else does Layer 1 send along with the data?", opts: ["Signals", "Passwords", "Web pages", "Colours"], ans: 0, why: "It also sends the signals along with the data." },
-  { q: "What two jobs are in your notes for sending data?", opts: ["Sending and receiving", "Sorting and deleting", "Routing and naming", "Storing and printing"], ans: 0, why: "Layer 1 is responsible for sending and receiving the data." },
-  { q: "Which of these belongs to the Physical layer?", opts: ["Hub", "Router", "Switch", "DNS server"], ans: 0, why: "A hub is dumb hardware, so it belongs to Layer 1." },
-  { q: "Which of these is NOT in the Layer 1 list?", opts: ["CCTV camera", "Transceiver", "Cable", "Router"], ans: 3, why: "A router is a Layer 3 device. The others are Layer 1 dumb hardware." },
-  { q: "What does \"dumb\" hardware mean here?", opts: ["No intelligence capability", "Very slow", "Very expensive", "Very old"], ans: 0, why: "Dumb hardware has no intelligence capability." },
-];
-
-export function PhysicalQuiz() {
-  const [i, setI] = useState(0);
-  const [pick, setPick] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const q = QUIZ[i];
-  const answer = (n: number) => { if (pick !== null) return; setPick(n); if (n === q.ans) setScore((s) => s + 1); };
-  const next = () => { if (i === QUIZ.length - 1) setDone(true); else { setI(i + 1); setPick(null); } };
-  const restart = () => { setI(0); setPick(null); setScore(0); setDone(false); };
-  return (
-    <Shell title="Practice quiz" desc="Test what you learned about the Physical layer." badge="Quiz">
-      {done ? (
-        <div className="pl-fade rounded-xl border bg-background p-4 text-center">
-          <p className="text-sm font-semibold" style={{ color: C.GREEN }}>You scored {score} out of {QUIZ.length}.</p>
-          <div className="mt-3"><Button size="sm" onClick={restart}>Restart</Button></div>
-        </div>
-      ) : (
-        <div key={i} className="pl-fade flex flex-col gap-3">
-          <p className="text-xs text-muted-foreground">Question {i + 1} of {QUIZ.length}</p>
-          <p className="text-sm font-semibold">{q.q}</p>
-          <div className="flex flex-col gap-2">
-            {q.opts.map((o, n) => {
-              const style: CSSProperties | undefined = pick === null ? undefined
-                : n === q.ans ? { background: `${C.GREEN}18`, borderColor: C.GREEN, color: C.GREEN }
-                : n === pick ? { background: `${C.RED}18`, borderColor: C.RED, color: C.RED } : undefined;
-              return (
-                <button key={o} disabled={pick !== null} onClick={() => answer(n)} className="w-full rounded-lg border px-3 py-2 text-left text-xs transition-colors" style={style}>{o}</button>
-              );
-            })}
-          </div>
-          {pick !== null && <p className="pl-fade text-xs leading-5 text-muted-foreground">💬 {q.why}</p>}
-          <div className="flex gap-2">
-            <Button size="sm" disabled={pick === null} onClick={next}>{i === QUIZ.length - 1 ? "See score" : "Next question"}</Button>
-            <Button size="sm" variant="outline" onClick={restart}>Restart</Button>
-          </div>
-        </div>
-      )}
-      <Tip color={C.PURPLE}>Remember: binary, signals, cables, dumb hardware, hubs.</Tip>
-    </Shell>
-  );
-}
-
 /* ---------- Main ---------- */
 export function PhysicalLayer() {
   return (
@@ -458,8 +378,6 @@ export function PhysicalLayer() {
       <PhysicalExplorer />
       <BinaryLab />
       <DumbHardwareLab />
-      <QuickReference />
-      <PhysicalQuiz />
     </div>
   );
 }

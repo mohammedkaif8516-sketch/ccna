@@ -1,3 +1,4 @@
+// switches.tsx
 "use client";
 import { useState, useEffect, type CSSProperties, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +14,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
  * 5. L3Lab: L2 switch vs L3 switch (MLS), with routing disabled by default.
  * 6. AsicLab: the ASIC and high-speed forwarding.
  * 7. DomainLab: one shared broadcast domain, one collision domain per port.
- * 8. QuickReference: one table with every fact.
  * Rule to remember: a switch learns source MACs, unicasts when it knows the destination, broadcasts when it does not, and gives every port its own collision domain.
  */
 
@@ -680,105 +680,6 @@ export function DomainLab() {
   );
 }
 
-/* ---------- Section 8: Quick reference ---------- */
-const REF: { topic: string; detail: string }[] = [
-  { topic: "Layer", detail: "Layer 2 device, operates in the Data-Link layer" },
-  { topic: "Job", detail: "Enables L2 connectivity (connectivity inside the network)" },
-  { topic: "Table", detail: "MAC address table, also called the CAM (Content Addressable Memory) table" },
-  { topic: "CAM table stores", detail: "MAC address, switch port, static or dynamic learning, VLAN" },
-  { topic: "Checks on every frame", detail: "Source and destination MAC address" },
-  { topic: "New source MAC", detail: "Stored in the MAC address table" },
-  { topic: "Destination not in table", detail: "The switch broadcasts the traffic" },
-  { topic: "Destination in table", detail: "The switch unicasts the traffic" },
-  { topic: "Observing device", detail: "Observes every incoming frame and learns from it" },
-  { topic: "Error checking", detail: "Every port has buffer memory to check headers (errors) before forwarding" },
-  { topic: "Non-manageable switch", detail: "Non-configurable, no console port, basic switching, lower price, small office or home" },
-  { topic: "Manageable switch", detail: "Configurable and manageable, console port present, switching and more, large enterprise, higher price" },
-  { topic: "L2 switch", detail: "Data-Link layer, forwards frames using only the MAC table, checks only Layer 2 headers" },
-  { topic: "L3 switch (MLS)", detail: "Multi-Layer Switch: L2 and L3 functionality, switching and routing" },
-  { topic: "L3 forwarding", detail: "Frames by MAC table after the L2 header check. Packets by routing table after the L3 header check." },
-  { topic: "L3 routing default", detail: "Routing is disabled by default" },
-  { topic: "ASIC", detail: "Application Specific Integrated Circuit: special hardware for high-speed forwarding of high traffic volumes" },
-  { topic: "Broadcast domain", detail: "Every switch port belongs to a single (shared) broadcast domain" },
-  { topic: "Collision domain", detail: "Every switch port has its own collision domain" },
-];
-
-export function QuickReference() {
-  return (
-    <Shell title="Quick reference" desc="Every fact about switches in one table." badge="Reference">
-      <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-[480px] text-left text-xs">
-          <thead className="bg-muted/50"><tr><th className="px-3 py-2">Topic</th><th className="px-3 py-2">Detail</th></tr></thead>
-          <tbody>{REF.map((r) => <tr key={r.topic} className="border-t"><td className="px-3 py-2 font-semibold">{r.topic}</td><td className="px-3 py-2">{r.detail}</td></tr>)}</tbody>
-        </table>
-      </div>
-      <Tip color={C.BLUE}>Switch = Layer 2 + CAM table + learn, unicast or broadcast + one collision domain per port.</Tip>
-    </Shell>
-  );
-}
-
-/* ---------- Section 9: Quiz ---------- */
-type Q = { q: string; opts: string[]; ans: number; why: string };
-const QUIZ: Q[] = [
-  { q: "Which layer does a switch operate in?", opts: ["Physical layer", "Data-Link layer", "Network layer", "Transport layer"], ans: 1, why: "A switch is a Layer 2 device in the Data-Link layer." },
-  { q: "What is another name for the MAC address table?", opts: ["Routing table", "CAM table", "DNS table", "ARP cable"], ans: 1, why: "It is also called the CAM (Content Addressable Memory) table." },
-  { q: "Which of these does the CAM table NOT store?", opts: ["MAC address", "Switch port", "VLAN", "Screen size"], ans: 3, why: "It stores the MAC address, switch port, static or dynamic learning, and VLAN." },
-  { q: "What does a switch do when the source MAC address is new?", opts: ["Deletes the frame", "Stores it in the MAC address table", "Sends it to the router", "Ignores it"], ans: 1, why: "A new source MAC address is stored in the MAC address table." },
-  { q: "What happens when the destination MAC address is not in the table?", opts: ["The switch unicasts", "The switch broadcasts", "The switch shuts down", "The switch routes it"], ans: 1, why: "If the destination is not in the table, the switch broadcasts the traffic." },
-  { q: "What happens when the destination MAC address is in the table?", opts: ["Unicast", "Broadcast", "Discard all", "Loop forever"], ans: 0, why: "If it is in the table, the switch unicasts the traffic." },
-  { q: "Why can a switch check frames for errors?", opts: ["Every port has buffer memory for checking headers", "It has a screen", "It has a console", "It uses wireless"], ans: 0, why: "Every switch port has buffer memory for checking headers (errors) before forwarding." },
-  { q: "Which switch has no console port?", opts: ["Manageable", "Non-manageable", "L3 switch", "Enterprise switch"], ans: 1, why: "Non-manageable switches have no console port and cannot be configured." },
-  { q: "Which switch is ideal for large enterprise environments?", opts: ["Non-manageable", "Manageable", "A hub", "A cable"], ans: 1, why: "Manageable switches suit large enterprises and have a higher price." },
-  { q: "What does MLS stand for?", opts: ["Multi-Layer Switch", "Main Local Server", "Media Link Signal", "Multiple Line Socket"], ans: 0, why: "An L3 switch is also called an MLS, a Multi-Layer Switch." },
-  { q: "What can an L3 switch do that an L2 switch cannot?", opts: ["Routing as well as switching", "Make coffee", "Remove the MAC table", "Use only hubs"], ans: 0, why: "An L3 switch provides both L2 and L3 functionality: switching and routing." },
-  { q: "What is the default routing state on an L3 switch?", opts: ["Enabled", "Disabled", "Random", "Only on weekends"], ans: 1, why: "Routing is disabled by default on an L3 switch." },
-  { q: "What is the ASIC used for?", opts: ["Storing passwords", "High-speed data traffic forwarding", "Printing frames", "Naming ports"], ans: 1, why: "The ASIC is a special hardware circuit for high-speed forwarding of high traffic volumes." },
-  { q: "How many collision domains does a switch have?", opts: ["One for the whole switch", "One per port", "None", "Two"], ans: 1, why: "Every switch port has its own collision domain." },
-  { q: "How is the broadcast domain set up on a switch?", opts: ["One per port", "Every port is in a single shared one", "There is none", "Only two ports share one"], ans: 1, why: "Every switch port belongs to a single (shared) broadcast domain." },
-];
-
-export function SwitchQuiz() {
-  const [i, setI] = useState(0);
-  const [pick, setPick] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [done, setDone] = useState(false);
-  const q = QUIZ[i];
-  const answer = (n: number) => { if (pick !== null) return; setPick(n); if (n === q.ans) setScore((s) => s + 1); };
-  const next = () => { if (i === QUIZ.length - 1) setDone(true); else { setI(i + 1); setPick(null); } };
-  const restart = () => { setI(0); setPick(null); setScore(0); setDone(false); };
-  return (
-    <Shell title="Practice quiz" desc="Test what you learned about switches." badge="Quiz">
-      {done ? (
-        <div className="sw-fade rounded-xl border bg-background p-4 text-center">
-          <p className="text-sm font-semibold" style={{ color: C.GREEN }}>You scored {score} out of {QUIZ.length}.</p>
-          <div className="mt-3"><Button size="sm" onClick={restart}>Restart</Button></div>
-        </div>
-      ) : (
-        <div key={i} className="sw-fade flex flex-col gap-3">
-          <p className="text-xs text-muted-foreground">Question {i + 1} of {QUIZ.length}</p>
-          <p className="text-sm font-semibold">{q.q}</p>
-          <div className="flex flex-col gap-2">
-            {q.opts.map((o, n) => {
-              const style: CSSProperties | undefined = pick === null ? undefined
-                : n === q.ans ? { background: `${C.GREEN}18`, borderColor: C.GREEN, color: C.GREEN }
-                : n === pick ? { background: `${C.RED}18`, borderColor: C.RED, color: C.RED } : undefined;
-              return (
-                <button key={o} disabled={pick !== null} onClick={() => answer(n)} className="w-full rounded-lg border px-3 py-2 text-left text-xs transition-colors" style={style}>{o}</button>
-              );
-            })}
-          </div>
-          {pick !== null && <p className="sw-fade text-xs leading-5 text-muted-foreground">💬 {q.why}</p>}
-          <div className="flex gap-2">
-            <Button size="sm" disabled={pick === null} onClick={next}>{i === QUIZ.length - 1 ? "See score" : "Next question"}</Button>
-            <Button size="sm" variant="outline" onClick={restart}>Restart</Button>
-          </div>
-        </div>
-      )}
-      <Tip color={C.PURPLE}>Remember: learn, unicast, broadcast, buffer check, console port, MLS, ASIC, one collision domain per port.</Tip>
-    </Shell>
-  );
-}
-
 /* ---------- Main ---------- */
 export function Switches() {
   return (
@@ -808,8 +709,6 @@ export function Switches() {
       <L3Lab />
       <AsicLab />
       <DomainLab />
-      <QuickReference />
-      <SwitchQuiz />
     </div>
   );
 }
