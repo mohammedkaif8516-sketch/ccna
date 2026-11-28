@@ -50,6 +50,7 @@ import { RouterFundamentalsSummary } from "@/components/summaries/router-fundame
 import { RoutingSummary } from "@/components/summaries/routing-summary";
 import { PacketFlowSummary } from "@/components/summaries/packet-flow-summary";
 import { ThreeTierArchitecture } from "@/components/summaries/3-tier-summary";
+import { VerticalSubnetLine } from "@/components/simulator/vertical-subnet-line";
 
 // ═══════════════════════════════════════════════════════════════
 // LAZY LOADED COMPONENTS
@@ -364,10 +365,18 @@ const group = (C: ComponentType<any>, slugs: string[]) =>
     string,
     ComponentType<any>
   >;
+  function SubnettingLabsCombined() {
+  return (
+    <div className="flex flex-col gap-8">
+      <SubnetCalculator />
+      <SubnetPlanner />
+    </div>
+  );
+}
 
 const LAB_VIEWS: Record<string, ComponentType<any>> = {
   // ── Interactive calculators / single-subtopic labs ──
-  "subnetting-calculations": SubnetCalculator,
+  "subnetting-calculations": SubnettingLabsCombined,
   "number-system-conversions-hex-to-binary": NumberSystemConverter,
   "ip-address-classes-a-b-c-d-e-and-default-subnet-masks": IpClassesExplorer,
   "tcp-handshakes-3-way-4-way": TcpSimulator,
