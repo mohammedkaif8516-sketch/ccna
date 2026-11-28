@@ -231,18 +231,30 @@ function useColorTheme() {
   return [theme, setTheme] as const;
 }
 
+
 function AnimationToggle() {
   const { enabled, toggle } = useAnimations();
+  const [showTooltip, setShowTooltip] = useState(false);
+
+  const handleToggle = () => {
+    toggle();
+    setShowTooltip(true);
+  };
+
+  useEffect(() => {
+    if (!showTooltip) return;
+    const timer = setTimeout(() => setShowTooltip(false), 2000); // 2 seconds
+    return () => clearTimeout(timer);
+  }, [showTooltip]);
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="relative"
+      className="relative group"
       aria-label={enabled ? "Turn animations off" : "Turn animations on"}
       aria-pressed={enabled}
-      title={enabled ? "Animations: on" : "Animations: off"}
-      onClick={toggle}
+      onClick={handleToggle}
     >
       <Sparkles
         className={`size-4 transition-colors ${
@@ -255,6 +267,15 @@ function AnimationToggle() {
           className="pointer-events-none absolute left-1/2 top-1/2 h-[1.5px] w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 rounded bg-muted-foreground"
         />
       )}
+
+      {/* Tooltip: Shows on hover (desktop) OR when clicked (mobile) */}
+      <span 
+        className={`pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-[11px] text-background shadow transition-opacity duration-200 ${
+          showTooltip ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}
+      >
+        {enabled ? "Animations: on" : "Animations: off"}
+      </span>
     </Button>
   );
 }
